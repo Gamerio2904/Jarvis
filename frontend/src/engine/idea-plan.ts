@@ -84,15 +84,14 @@ export function parsePlan(raw: unknown, ideaId = ''): IdeaPlan | null {
   for (const row of rows) {
     if (!row || typeof row !== 'object') continue
     const s = row as Record<string, unknown>
-    const kind = asText(s.kind) === 'custom' ? 'custom' : asText(s.kind) === 'core' ? 'core' : ''
-    if (!kind) return null
     const n = asText(s.n) || asText(s.id)
     const title = asText(s.title)
     const ziel = asText(s.ziel)
+    const kind = asText(s.kind) === 'custom' ? 'custom' : asText(s.kind) === 'core' || /^[123]$/.test(n) ? 'core' : ''
+    if (!kind) return null
     if (kind === 'core') {
       if (!/^[123]$/.test(n)) return null
       const want = CORE_TITLES[Number(n) - 1]
-      if (title && title !== want) return null
       sprints.push({
         n,
         kind: 'core',
@@ -124,6 +123,29 @@ export function parsePlan(raw: unknown, ideaId = ''): IdeaPlan | null {
   if (cores[0].title !== 'Kern' || cores[1].title !== 'Härten' || cores[2].title !== 'Probe') return null
   const custom = sprints.filter((s) => s.kind === 'custom')
   return { ideaId: asText(o.ideaId) || ideaId, sprints: [...cores, ...custom] }
+}
+
+/** Sprint 2 oder 3 hat ein Ziel. Leere Vorlage zählt nicht als Plan. */
+export function planHasBody(plan: IdeaPlan): boolean {
+  return plan.sprints.some(
+    (s) => s.kind === 'core' && s.n !== '1' && s.ziel.replace(/[—–-]/g, '').trim().length >= 3,
+  )
+}
+
+/** Sichtbare Ziele aus echten Treffertiteln. Keine erfundenen Repos. */
+export function planFromSources(ideaId: string, title: string, lines: string[]): IdeaPlan | null {
+  const tasks = [...new Set(lines.map((s) => s.replace(/\s+/g, ' ').trim()).filter((s) => s.length >= 3))].slice(0, 3)
+  if (!tasks.length) return null
+  const plan = emptyPlan(ideaId)
+  plan.sprints[0].ziel = title.slice(0, 120)
+  plan.sprints[0].lieferumfang = tasks.map((task, i) => ({
+    id: `S1-${i + 1}`,
+    task: task.slice(0, 80),
+    anleitung: task.slice(0, 120),
+  }))
+  plan.sprints[1].ziel = `Prüfen: ${tasks[0].slice(0, 72)}`
+  plan.sprints[2].ziel = tasks[1] ? `Ansehen: ${tasks[1].slice(0, 72)}` : 'Einen Treffer lokal ansehen'
+  return plan
 }
 
 export function formatPlan(plan: IdeaPlan, ideaTitle = ''): string {

@@ -5,12 +5,64 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.20.0` — YouTube-Highlights — *CODE*
+### `18.23.1` — Ablauf lesbar — *CODE*
+
+Das Fenster deckt die Tafel ab. Eine nackte Uhrzeit bleibt ein Wecker-Satz
+(`Wecker um 7:30`). Nach einer Änderung bleibt der Knopf `So` da. Eine graue
+Zeile nennt die unbekannte Id.
+
+App-Code und Sideload **`18.23.1`** (versionCode `182301`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
+
+### `18.23.0` — Ablauf auf der Tafel — *CODE*
+
+`Plane das` öffnet ein Fenster mitten auf der Tafel. Das Modell schreibt,
+welcher vorhandene Agent was tut. `So` führt eine Welle gleichzeitig aus,
+die nächste erst danach. Kein neuer Agent. Jede Sprintvorlage und jeder
+Ablauf gehen in denselben Hausstand. Sprints 410–416.
+[`95-next.md`](./95-next.md). Test: [`TEST-18.23.md`](./TEST-18.23.md).
+
+App-Code und Sideload **`18.23.0`** (versionCode `182300`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
+
+### `18.20.1` — Tafel sagt, was gilt — *CODE + APK*
+
+„Hintergrund blau schwarz“ stellt Pulse, blau auf schwarz. Der Mini-Chat
+lässt Karten und Ja/Nein frei. Der Sprintplan übernimmt Repo- oder
+LibHunt-Treffer. Zeitungsseiten werden nicht zum Merken angeboten.
+
+Sideload **`18.20.1`** (versionCode `182001`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+### `18.22.0` — Tafel und Datei-QR — *CODE*
+
+Die Tischplatte ist eine Tafel. Sprintliste, PSP, Auftrag, Uhr, Quellen,
+Termin und Jobleiste liegen zusammen. Finger und Jarvis schieben jedes
+Stück, auch aus dem Bild in die Ablage. Sprints 404–409.
+[`94-next.md`](./94-next.md). Test: [`TEST-18.22.md`](./TEST-18.22.md).
+
+Datei-Knopf bleibt. `Übertrage das fürs Tablet` oder `Mach den QR-Code`
+zeichnet den Code in den Chat. Ein Foto davon ergibt den Knopf
+`Dateien laden` und Kopierfelder. Kein Server. Sprints 398–403.
+[`93-next.md`](./93-next.md). Test: [`TEST-18.21.md`](./TEST-18.21.md).
+
+App-Code und Sideload **`18.22.0`** (versionCode `182200`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
+
+### `18.21.0` — Datei-QR — *CODE in `18.22.0`*
+
+Mit der Tafel ausgeliefert, nicht als eigene Sideload. Sprints 398–403.
+
+### `18.20.0` — YouTube-Highlights, Tablet-Lage — *CODE + APK*
 
 Top-Liste aus 1–3 YouTube-Links. Das Handy wählt die Stellen, der PC
 schneidet, die Datei bleibt unter `Videos\Jarvis`, kein Upload. Sprints
-392–397. Sideload bleibt `18.19.0`, bis ein Windows-PC eine Datei
-geschrieben hat. [`92-next.md`](./92-next.md).
+392–397. [`92-next.md`](./92-next.md).
+
+Tablet-Layout: Lage ohne rechten Chat, Schalter **Chat**, Leiste links
+unten, Werte-Leiste **Tischplatte an** öffnet die Werkbank. Testprompts
+in Spur Heute und [`TEST-18.20.md`](./TEST-18.20.md).
+Die Sideload-Datei ist `18.20.1`.
 
 ### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE + APK*
 

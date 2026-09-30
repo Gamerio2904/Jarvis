@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.20.0'
+export const APP_VERSION = '18.23.1'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -371,7 +371,15 @@ export type Settings = {
   tischplatte_focus: string
   tischplatte_seed: number
   tischplatte_hint: string
+  tischplatte_pieces_json: string
+  tischplatte_motion_json: string
   board_jobs_json: string
+  /** Id der Ablauf-Zeile im Fenster. Kein zweites Vollstück. */
+  ablauf_id: string
+  /** Spiegel des offenen Status, damit der Parser ohne IndexedDB sieht, ob gewartet wird. */
+  ablauf_status: string
+  /** Nach dem Lauf zeigt die Sprintliste diese Zeile, bis „Zeig Sprints“. */
+  ablauf_list_id: string
   proposal_pending: boolean
   github_token: string
   agent_network_v2: boolean
@@ -555,7 +563,12 @@ export const DEFAULT_SETTINGS: Settings = {
   tischplatte_focus: '',
   tischplatte_seed: 0,
   tischplatte_hint: '',
+  tischplatte_pieces_json: '',
+  tischplatte_motion_json: '',
   board_jobs_json: '',
+  ablauf_id: '',
+  ablauf_status: '',
+  ablauf_list_id: '',
   proposal_pending: false,
   github_token: '',
   agent_network_v2: true,
@@ -739,7 +752,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 11)
+    const req = indexedDB.open('jarvis-ondevice', 13)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -758,6 +771,8 @@ function openDb(): Promise<IDBDatabase> {
         'shopping',
         'price_watches',
         'docs',
+        'xfer',
+        'plans',
         'knowledge_packs',
         'rm_scene_skills',
         'memory_proposals',

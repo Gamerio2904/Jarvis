@@ -66,6 +66,8 @@ export function Lage({
   compact = false,
   hideChatTile = false,
   onOpenChess,
+  sideChatOpen = false,
+  onToggleSideChat,
 }: {
   onSend: (text: string) => void
   draft: string
@@ -78,6 +80,8 @@ export function Lage({
   compact?: boolean
   hideChatTile?: boolean
   onOpenChess?: () => void
+  sideChatOpen?: boolean
+  onToggleSideChat?: () => void
 }) {
   const [snap, setSnap] = useState<HudSnap>({})
   const [body, setBody] = useState<BodySnap | null>(null)
@@ -352,6 +356,17 @@ export function Lage({
           >
             Lage aus
           </button>
+          {onToggleSideChat ? (
+            <button
+              type="button"
+              className={`ghost-btn lage-chip${sideChatOpen ? ' is-on' : ''}`}
+              data-lage-chat={sideChatOpen ? 'open' : 'closed'}
+              aria-pressed={sideChatOpen}
+              onClick={onToggleSideChat}
+            >
+              {sideChatOpen ? 'Chat zu' : 'Chat'}
+            </button>
+          ) : null}
           {view === 'body' && compact ? (
             <button
               type="button"
@@ -465,7 +480,7 @@ export function Lage({
         </div>
         )
       ) : view === 'globe' ? (
-        <div className="lage-split">
+        <div className="lage-split lage-stage">
           <GlobeGuard>
           <GlobeView
             pins={pins}
@@ -577,7 +592,7 @@ export function Lage({
           ) : null}
         </div>
       ) : view === 'serie' ? (
-        <div className="lage-split">
+        <div className="lage-split lage-stage">
           <div className="serie-shell">
             <div className="serie-toolbar">
               <input

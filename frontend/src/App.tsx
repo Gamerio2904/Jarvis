@@ -268,6 +268,7 @@ function App() {
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const busyRef = useRef(false)
+  const sendRef = useRef<(text: string) => Promise<unknown>>(async () => undefined)
   const driveCloseGenRef = useRef(0)
   const [debugRunning, setDebugRunning] = useState(() => debugSnapshot().running)
   const debugRunningRef = useRef(false)
@@ -296,11 +297,13 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [homeOpen, setHomeOpen] = useState(true)
   const [railOpen, setRailOpen] = useState(false)
+  const [lageSideChat, setLageSideChat] = useState(false)
   const [miniChatOpen, setMiniChatOpen] = useState(false)
   const [voiceCompact, setVoiceCompact] = useState(false)
   const [watchlistOpen, setWatchlistOpen] = useState(false)
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
   const overlayHistRef = useRef(false)
+  const tischWasRef = useRef<boolean | null>(null)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
   const [chessOpen, setChessOpen] = useState(false)
@@ -811,6 +814,16 @@ function App() {
     const on = () => void refreshSettings()
     window.addEventListener('jarvis-settings', on)
     return () => window.removeEventListener('jarvis-settings', on)
+  }, [])
+
+  useEffect(() => {
+    const onSay = (e: Event) => {
+      const text = String((e as CustomEvent<{ text?: string }>).detail?.text || '')
+      if (!text.trim()) return
+      void sendRef.current(text)
+    }
+    window.addEventListener('jarvis-say', onSay)
+    return () => window.removeEventListener('jarvis-say', onSay)
   }, [])
 
   async function refreshReminders() {
@@ -1410,6 +1423,8 @@ function App() {
     return { reply: lastReply, tool: lastTool, error: lastError }
   }
 
+  sendRef.current = sendMessage
+
   async function startDebugChat(title: string) {
     const created = await createConversation(title)
     activeIdRef.current = created.id
@@ -1634,6 +1649,7 @@ function App() {
   const lageOn = !homeOpen && (lageWide
     ? !liveHud.hud_hidden
     : Boolean(liveHud.hud_force) && lageSessionActive())
+  const lageSideChatOn = lageOn && lageWide && lageSideChat
   const lageChat = lageOn && liveHud.hud_view === 'body' && liveHud.body_with_chat !== false
   const lageAmber = liveHud.hud_accent === 'amber'
   const dockId = settingsPanelOpen
@@ -1667,6 +1683,23 @@ function App() {
     closeVoice()
     openSheet('watchlist')
   }
+  function showTischplatte() {
+    setHomeOpen(true)
+    setMiniChatOpen(false)
+    setSettingsPanelOpen(false)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    closeSheet('settings')
+    closeSheet('calendar')
+    closeSheet('watchlist')
+    closeVoice()
+    dropOverlayHistory()
+    setLageSession(false)
+    setDriveOpen(false)
+    setChessOpen(false)
+    closeSheet('drive')
+  }
+
   function goDock(id: string) {
     setSidebarOpen(false)
     if (id === 'home') {
@@ -1786,6 +1819,14 @@ function App() {
     }
     openSettings('keys')
   }
+
+  useEffect(() => {
+    const on = Boolean(liveHud.tischplatte_on)
+    const prev = tischWasRef.current
+    tischWasRef.current = on
+    if (prev === null || prev === on || !on) return
+    showTischplatte()
+  }, [liveHud.tischplatte_on])
 
   return (
     <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
@@ -1945,7 +1986,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${homeOpen ? ' is-home' : ''}${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
+      <main className={`main${homeOpen ? ' is-home' : ''}${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageSideChatOn ? ' is-lage-sidechat' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
@@ -2092,6 +2133,8 @@ function App() {
             compact={!lageWide}
             hideChatTile
             onOpenChess={() => setChessOpen(true)}
+            sideChatOpen={lageSideChatOn}
+            onToggleSideChat={lageWide ? () => setLageSideChat((v) => !v) : undefined}
           />
         ) : null}
         <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
@@ -2387,7 +2430,11 @@ function App() {
             onToggle={() => setRailOpen((v) => !v)}
             tischplatteOn={Boolean(liveHud.tischplatte_on)}
             onTischplatte={(on) => {
-              void patchSettings({ tischplatte_on: on }).then((s) => setSettings(s))
+              if (on) showTischplatte()
+              void patchSettings({
+                tischplatte_on: on,
+                ...(on ? { hud_force: false, hud_hidden: true } : {}),
+              }).then((s) => setSettings(s))
             }}
           />
           {homeOpen ? (

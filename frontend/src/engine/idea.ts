@@ -10,9 +10,11 @@ import {
   setPending,
   type Idea,
 } from './store.ts'
+import { handleAblauf } from './ablauf.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
-import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, type IdeaPlan } from './idea-plan.ts'
+import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
 import { completeGroq, groqReady } from './groq.ts'
+import { completeGemini, geminiReady } from './gemini.ts'
 import type { ToolMeta } from './tools.ts'
 
 const FILL_SYSTEM = `Du füllst eine feste Sprint-Vorlage auf Deutsch.
@@ -71,31 +73,47 @@ function extractJson(text: string): unknown {
 }
 
 export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
-  if (!groqReady()) return null
+  if (!groqReady() && !geminiReady()) return null
   const skeleton = emptyPlan(idea.id)
-  try {
-    const text = await completeGroq([
-      { role: 'system', content: FILL_SYSTEM },
-      {
-        role: 'user',
-        content: `Idee: ${idea.title}\n${idea.body || ''}\nVorlage: ${JSON.stringify(skeleton)}`,
-      },
-    ])
-    return parsePlan(extractJson(text), idea.id)
-  } catch {
-    return null
+  const messages = [
+    { role: 'system', content: FILL_SYSTEM },
+    {
+      role: 'user',
+      content: `Idee: ${idea.title}\n${idea.body || ''}\nVorlage: ${JSON.stringify(skeleton)}`,
+    },
+  ]
+  const runs: Array<() => Promise<string>> = []
+  if (groqReady()) runs.push(() => completeGroq(messages))
+  if (geminiReady()) {
+    runs.push(async () => (await completeGemini(messages, undefined, { thinking: false, maxOutputTokens: 700, timeoutMs: 20_000 })).text)
   }
+  for (const run of runs) {
+    try {
+      const text = await run()
+      const plan = parsePlan(extractJson(text), idea.id)
+      if (plan && planHasBody(plan)) return plan
+    } catch {
+      /* nächster Slot */
+    }
+  }
+  return null
 }
 
 export async function handleIdea(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const ablauf = await handleAblauf(conversationId, text)
+  if (ablauf.handled) return { handled: true, reply: ablauf.reply, tool: ablauf.tool }
   const intent = parseIdeaIntent(text)
   if (!intent) return { handled: false }
 
   if (intent.kind === 'create') {
     const row = await addIdea(intent.title, intent.body, conversationId)
+    const plan = emptyPlan(row.id)
+    const kern = plan.sprints.find((s) => s.n === '1')
+    if (kern) kern.ziel = row.title
+    await putIdea({ ...row, plan })
     persistLastList('idea', titlesOf(await listIdeas('open')))
     return pack(`Idee liegt: ${row.title}.`, 'create', row.title)
   }

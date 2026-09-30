@@ -5,8 +5,9 @@ PO: Reel [DYuOlndDUYF](https://www.instagram.com/reel/DYuOlndDUYF/) von
 Frage: Kann der TikTok-Agent (und die anderen) das bauen, wenn man ihm
 YouTube-Links gibt und er die Highlights schneidet?
 
-**Dieses Dokument ist CODE.** App-Code **`18.20.0`**. Sideload bleibt
-**`18.19.0`**, bis ein Windows-PC mit ffmpeg eine Datei geschrieben hat.
+**Dieses Dokument ist CODE + APK.** App-Code **`18.20.1`**, Sideload
+**`18.20.1`** (versionCode `182001`). Eine Highlight-Datei entsteht erst,
+wenn ein Windows-PC mit ffmpeg sie geschrieben hat.
 Sprints **392–397** sind im Quellcode. Kein Merge mit Draft Clips `#152` / `18.13`.
 
 Hirn-Slots bleiben: **Groq primär → Gemini Spezialist (Vision) → 0,5B
@@ -287,7 +288,7 @@ dem Job-Stand, er erfindet keine Zeiten.
 
 ---
 
-## 11. Sprints (`18.20.0` CODE, Sideload noch `18.19.0`)
+## 11. Sprints (`18.20.0` CODE + APK)
 
 | Sprint | Thema | Rolle |
 |--------|--------|--------|
@@ -301,9 +302,9 @@ dem Job-Stand, er erfindet keine Zeiten.
 Kette: 392 vor allem. 393 vor 394. 394 und 395 vor 396. 397 zuletzt.
 396 kann mit Fixture-Zeiten gegen ein lokales Testvideo laufen, ohne YouTube.
 
-Liegt in App-Code **`18.20.0`**. Sideload erst, wenn der
-PC-Pfad auf einem Windows-Rechner mit ffmpeg eine Datei geschrieben hat.
-Bis dahin bleibt die APK `18.19.0`.
+Liegt in App-Code **`18.20.1`** und in der Sideload-APK (versionCode `182001`).
+Eine Highlight-Datei entsteht erst, wenn der PC-Pfad auf einem Windows-Rechner
+mit ffmpeg geschrieben hat.
 
 ---
 

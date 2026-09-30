@@ -1,6 +1,7 @@
 import { parseTvIntent, parseTvWatch, isTvDiscover } from '../tv-parse.ts'
 import { parseFilmIntent } from '../film-parse.ts'
 import { parseClipIntent } from '../clip-parse.ts'
+import { parseXferIntent } from '../xfer-parse.ts'
 import { parseFanIntent } from '../fan-parse.ts'
 import { parsePlugIntent } from '../plug-parse.ts'
 import { parseHereIntent } from '../here-parse.ts'
@@ -34,6 +35,7 @@ import { parseAlarmIntent } from '../alarm-parse.ts'
 import { parseTimerIntent } from '../timer-parse.ts'
 import { parseReminderIntent } from '../remind-parse.ts'
 import { parseToolIntent } from '../tools-parse.ts'
+import { parseAblaufIntent } from '../ablauf-parse.ts'
 import { parseIdeaIntent } from '../idea-parse.ts'
 import { parseWatchlistIntent } from '../watchlist-parse.ts'
 import { parseOsintIntent } from '../osint-parse.ts'
@@ -135,6 +137,12 @@ function buildParseCatalog(): AgentSpec[] {
       parse: (ctx) => (parseClipIntent(ctx.text) ? score(ctx.text, 0.2) : null),
     },
     {
+      id: 'xfer',
+      label: 'Datei-QR',
+      sideEffect: 'read',
+      parse: (ctx) => (parseXferIntent(ctx.text) ? score(ctx.text, 0.24) : null),
+    },
+    {
       id: 'watchlist',
       label: 'Watchliste / Lieblinge',
       sideEffect: 'write',
@@ -218,7 +226,12 @@ function buildParseCatalog(): AgentSpec[] {
     { id: 'timer', sideEffect: 'write', parse: (ctx) => (parseTimerIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
     { id: 'reminder', sideEffect: 'write', parse: (ctx) => (parseReminderIntent(ctx.text) ? score(ctx.text) : null) },
     { id: 'todo', sideEffect: 'write', parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null) },
-    { id: 'idea', label: 'Idee', sideEffect: 'write', parse: (ctx) => (parseIdeaIntent(ctx.text) ? score(ctx.text, 0.16) : null) },
+    {
+      id: 'idea',
+      label: 'Idee',
+      sideEffect: 'write',
+      parse: (ctx) => (parseIdeaIntent(ctx.text) || parseAblaufIntent(ctx.text) ? score(ctx.text, 0.16) : null),
+    },
     { id: 'desk', sideEffect: 'read', parse: (ctx) => (parseDeskIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
     { id: 'board', label: 'Tischplatte', sideEffect: 'write', parse: (ctx) => (parseBoardIntent(ctx.text) ? score(ctx.text, 0.2) : null) },
     {

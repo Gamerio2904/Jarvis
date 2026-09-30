@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.20.0`**. Sideload-APK **`18.19.0`**, versionCode `181900`. Schiene **YouTube-Highlights `18.20` CODE** [`92-next.md`](./92-next.md) (392–397), nicht in der APK. Schiene **Tischplatte `18.19` CODE + APK** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE + APK** [`90-next.md`](./90-next.md) (382–384) in derselben Sideload. Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
+**Jetzt:** Code **`18.23.1`**. Sideload-APK **`18.23.1`**, versionCode `182301`. Schiene **YouTube-Highlights `18.20`** [`92-next.md`](./92-next.md) (392–397) liegt im Code; die Datei schreibt der PC. Tablet-Layout und Testprompts: [`TEST-18.20.md`](./TEST-18.20.md). Schiene **Tischplatte `18.19` CODE + APK** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE + APK** [`90-next.md`](./90-next.md) (382–384) in derselben Sideload. Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -95,8 +95,14 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 89 | [Kalender Alltag 18.17](./89-next.md) | **CODE + APK** `18.17.0` — Hausstand-Termine, ICS, Serie, Konflikt; Sprints 377–381 |
 | 90 | [Homescreen 18.18](./90-next.md) | **CODE + APK** `18.18.0` — App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel; Sprints 382–384; in Sideload `18.19.0` |
 | 91 | [Tischplatte 18.19](./91-next.md) | **CODE + APK** `18.19.0` — Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge; Sprints 385–391 |
-| 92 | [YouTube-Highlights 18.20](./92-next.md) | **CODE** — Top-Liste aus 1–3 YouTube-Links, Schnitt auf dem PC; Sprints 392–397. Nicht in der APK |
-| — | [APK](./apk.md) | Sideload `18.19.0`; Test: [`TEST-18.19.md`](./TEST-18.19.md) |
+| 92 | [YouTube-Highlights 18.20](./92-next.md) | **CODE + APK** `18.20.0` — Top-Liste aus 1–3 YouTube-Links, Schnitt auf dem PC; Sprints 392–397 |
+| 93 | [Datei-QR 18.21](./93-next.md) | **CODE** in `18.22.0` — Dateien und Kopierzeilen als QR im Chat, Foto auf dem anderen Gerät, Lade-Knopf; Sprints 398–403 |
+| 94 | [Tafel 18.22](./94-next.md) | **CODE** `18.22.0` — Tischplatte als Tafel: Sprintliste, PSP, Uhr, Quellen, Termin, Jobs. Finger und Jarvis schieben jedes Stück, auch aus dem Bild; Sprints 404–409 |
+| 95 | [Ablauf 18.23](./95-next.md) | **CODE** `18.23.0` — Fenster über der Tafel, Ablauf welcher Agent was tut, nach `So` gleichzeitig, jede Planungsdatei im Hausstand; Sprints 410–416 |
+| — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
+| — | [Test 18.22](./TEST-18.22.md) | Tafel-Sätze, in der App ab `18.22.0` |
+| — | [Test 18.23](./TEST-18.23.md) | Ablauf-Sätze, noch nicht in der App |
+| — | [APK](./apk.md) | Sideload `18.20.0`; Test: [`TEST-18.20.md`](./TEST-18.20.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -329,5 +335,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 377–381 | `18.17.0` | **CODE + APK** (Kalender Alltag, [`89-next.md`](./89-next.md)) |
 | 382–384 | `18.18.0` | **CODE + APK** (Homescreen, [`90-next.md`](./90-next.md)) |
 | 385–391 | `18.19.0` | **CODE + APK** (Tischplatte, [`91-next.md`](./91-next.md)) |
+| 398–403 | `18.21.0` | **CODE** in `18.22.0` (Datei-QR, [`93-next.md`](./93-next.md)) |
+| 404–409 | `18.22.0` | **CODE** (Tafel, [`94-next.md`](./94-next.md)) |
+| 410–416 | `18.23.0` | **CODE** (Ablauf, [`95-next.md`](./95-next.md)) |
 
-**Aktuell:** App-Code **`18.20.0`**. Sideload-APK **`18.19.0`**, versionCode `181900`. 392–397 **CODE**, nicht in der APK. 385–391 **CODE + APK**. Test: [`TEST-18.19.md`](./TEST-18.19.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.23.1`**. Sideload-APK **`18.23.1`**, versionCode `182301`. 392–397 **CODE + APK**. 398–403 **CODE** ([`93-next.md`](./93-next.md)), 404–409 **CODE** ([`94-next.md`](./94-next.md)). 410–416 **CODE** ([`95-next.md`](./95-next.md)). Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md), [`TEST-18.22.md`](./TEST-18.22.md). Index: [`42-planned.md`](./42-planned.md).

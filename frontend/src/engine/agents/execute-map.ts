@@ -11,6 +11,7 @@ import { handleDrive } from '../drive.ts'
 import { handleDevice } from '../device.ts'
 import { handlePc } from '../pc.ts'
 import { handleClip } from '../clip.ts'
+import { handleXfer } from '../xfer.ts'
 import { handlePlaces } from '../places.ts'
 import { handleMemory } from '../memory.ts'
 import { handleShopping } from '../shopping.ts'
@@ -153,6 +154,7 @@ export const AGENT_EXECUTORS: Record<string, AgentExecutor> = {
   device: async (ctx) => fromHandler('device', await handleDevice(ctx.conversationId, ctx.text)),
   pc: async (ctx) => fromHandler('pc', await handlePc(ctx.conversationId, ctx.text)),
   clip: async (ctx) => fromHandler('clip', await handleClip(ctx.conversationId, ctx.text)),
+  xfer: async (ctx) => fromHandler('xfer', await handleXfer(ctx.conversationId, ctx.text)),
   maps: async (ctx) => fromHandler('maps', await handlePlaces(ctx.conversationId, ctx.text)),
   teach: async (ctx) => fromHandler('teach', await handleTeach(ctx.conversationId, ctx.text)),
   pack: async (ctx) => fromHandler('pack', await handlePack(ctx.conversationId, ctx.text)),

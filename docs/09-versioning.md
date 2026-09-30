@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.20.0`**. Sideload **`18.19.0`**, versionCode `181900`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE** (YouTube-Highlights, Schnitt nur auf dem PC). [`91-next.md`](./91-next.md) 385–391 **CODE + APK** `18.19.0`. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.23.1`**. Sideload **`18.23.1`**, versionCode `182301`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -755,7 +755,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.17.0` | Kalender Alltag: Hausstand-Termine, ICS, Serie, Konflikt | 377–381 **CODE + APK** |
 | `18.18.0` | Homescreen: App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel | 382–384 **CODE** |
 | `18.19.0` | Tischplatte, Deep Research, Hirn-Vorschläge | 385–391 **CODE** |
-| `18.20.0` | YouTube-Highlights, PC-Schnitt, kein Upload | 392–397 **CODE** |
+| `18.20.0` | YouTube-Highlights, PC-Schnitt, Tablet-Lage, Kopierboxen | 392–397 **CODE + APK** |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -869,9 +869,9 @@ Memory-Vorschläge. Sprints 385–391 **CODE + APK**. Test: [`TEST-18.19.md`](./
 | `18.19.0` | MemoryProposal → writeMemory | 390 CODE + APK |
 | `18.19.0` | Gold, Konflikte, Tests | 391 CODE + APK |
 
-### `18.20` — YouTube-Highlights [`92-next.md`](./92-next.md) **CODE**
+### `18.20` — YouTube-Highlights [`92-next.md`](./92-next.md) **CODE + APK**
 
-**`18.20.0`** (App-Code, Sideload noch `18.19.0`): Top-Liste aus 1–3
+**`18.20.1`** (App-Code und Sideload, versionCode `182001`): Top-Liste aus 1–3
 YouTube-Links, Schnitt auf dem PC, Datei lokal, kein Upload. Sprints 392–397.
 
 | Version | Bedeutung | Sprint |
@@ -882,6 +882,58 @@ YouTube-Links, Schnitt auf dem PC, Datei lokal, kein Upload. Sprints 392–397.
 | `18.20.0` | Bildtitel, Gemini ein JPEG | 395 CODE |
 | `18.20.0` | Render 1080×1920, ASS, ein Wort | 396 CODE |
 | `18.20.0` | Gold, Fixture, Job-TTL | 397 CODE |
+
+### `18.21` — Datei-QR [`93-next.md`](./93-next.md) **PLAN**
+
+CODE in **`18.22.0`**. Dateien über den bisherigen Knopf, Satz baut einen QR,
+Foto auf dem anderen Gerät, Knopf `Dateien laden` und Kopierfelder.
+Sprints 398–403. Test: [`TEST-18.21.md`](./TEST-18.21.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.21.0` | Parser `xfer` | 398 CODE |
+| `18.21.0` | Codec, höchstens sechs Codes | 399 CODE |
+| `18.21.0` | Originalbytes 30 min, Lesen unverändert | 400 CODE |
+| `18.21.0` | QR in der Antwort | 401 CODE |
+| `18.21.0` | Foto, Knopf, Kopierfelder | 402 CODE |
+| `18.21.0` | Gold, Testkarten, mit `18.22.0` ausgeliefert | 403 CODE |
+
+### `18.22` — Tafel [`94-next.md`](./94-next.md) **PLAN**
+
+**`18.22.0`** (App-Code, versionCode `182200`). Die Tischplatte zeigt
+Sprintliste, PSP, Auftrag, Uhr, Quellen, Termin und Jobleiste gleichzeitig.
+Finger und Satz benutzen denselben Weg, auch aus dem Bild in eine Ablage.
+Sprints 404–409. Test: [`TEST-18.22.md`](./TEST-18.22.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.22.0` | Neun Stücke, echte Daten | 404 CODE |
+| `18.22.0` | Finger, Lage in den Einstellungen | 405 CODE |
+| `18.22.0` | Schiebe-Sätze, alte Sätze holen nach vorn | 406 CODE |
+| `18.22.0` | Ablage, wenig Bewegung, Tick | 407 CODE |
+| `18.22.0` | Ring, nacheinander, Antwort nach der Fahrt | 408 CODE |
+| `18.22.0` | Gold, Testkarten, versionCode `182200` | 409 CODE |
+
+### `18.23` — Ablauf [`95-next.md`](./95-next.md) **CODE**
+
+**`18.23.1`** (App-Code, versionCode `182301`). `Plane das` öffnet ein Fenster
+über der Tafel, das Modell schreibt den Ablauf, `So` führt die Wellen
+gleichzeitig aus. Jede Sprintvorlage und jeder Ablauf liegen im Hausstand.
+`18.23.1` deckt die Tafel ab, lässt `So` nach einer Änderung stehen und macht
+aus einer nackten Uhrzeit den Satz `Wecker um 7:30`.
+Sprints 410–416. Test: [`TEST-18.23.md`](./TEST-18.23.md).
+Katalog-Stand bleibt `18.20.0`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.23.0` | Sätze, Speicher | 410 CODE |
+| `18.23.0` | Modell füllt Wellen | 411 CODE |
+| `18.23.0` | Fenster, live, Knopf So | 412 CODE |
+| `18.23.0` | Eine Zeile ändern | 413 CODE |
+| `18.23.0` | Wellen gleichzeitig | 414 CODE |
+| `18.23.0` | Gold, Testkarten, versionCode `182300` | 415 CODE |
+| `18.23.0` | Jede Planungsdatei im Hausstand | 416 CODE |
+| `18.23.1` | Fenster deckend, Uhrzeit bleibt ein Satz, `So` bleibt | Nachtest |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

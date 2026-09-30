@@ -1,5 +1,6 @@
 /** Tischplatte / Werkbank. Nicht Schreibtisch-Foto, nicht nacktes „Tisch an“. */
 
+import { pieceFromName, type PieceId, type PlaceDir } from './board-pieces.ts'
 import { HOME_APP_IDS, isHomeAppId, type HomeAppId } from './home-apps.ts'
 import { loadSettings } from './store.ts'
 import type { TischplatteView } from './board-types.ts'
@@ -11,8 +12,12 @@ export type BoardIntent =
   | { kind: 'catalog'; mode: 'planned' | 'can' | 'area' | 'docs'; area?: string }
   | { kind: 'jobs'; research?: string; planIndex?: number; planQuery?: string }
   | { kind: 'proposal'; accept: boolean }
-  | { kind: 'theme' }
+  | { kind: 'theme'; words?: string }
   | { kind: 'stop' }
+  | { kind: 'place'; op: 'move'; piece: PieceId | null; dir: PlaceDir }
+  | { kind: 'place'; op: 'throw'; piece: PieceId | null }
+  | { kind: 'place'; op: 'recall'; piece: PieceId | null }
+  | { kind: 'place'; op: 'clear' }
 
 const END = String.raw`[.!?]?\s*$`
 
@@ -34,7 +39,20 @@ const VIEW_RES = new RegExp(
 )
 const SIM = new RegExp(String.raw`^\s*simulier(?:e|en)?(?:\s+die)?\s+(?:die\s+)?(.+?)(?:-?gui)?\s*` + END, 'i')
 const THEME = new RegExp(String.raw`^\s*(?:neuer\s+hintergrund|hintergrund\s+neu)\s*` + END, 'i')
+const THEME_NAMED = new RegExp(String.raw`^\s*hintergrund\s+(?!neu\b)(\S(?:.{0,42}\S)?)\s*` + END, 'i')
 const STOP = new RegExp(String.raw`^\s*(?:stopp(?:e)?\s+(?:die\s+)?jobs?|jobs?\s+stopp)\s*` + END, 'i')
+const PIECE = String.raw`(?:die\s+|den\s+|der\s+|das\s+)?(.+?)`
+const PLACE_MOVE = new RegExp(String.raw`^\s*schieb(?:e)?\s+${PIECE}\s+nach\s+(links|rechts|oben|unten)\s*` + END, 'i')
+const PLACE_MID = new RegExp(
+  String.raw`^\s*(?:schieb(?:e)?|leg(?:e)?)\s+${PIECE}\s+in\s+die\s+mitte\s*` + END,
+  'i',
+)
+const PLACE_THROW = new RegExp(
+  String.raw`^\s*(?:wirf\s+${PIECE}\s+vom\s+tisch|schieb(?:e)?\s+${PIECE}\s+aus\s+dem\s+bildschirm)\s*` + END,
+  'i',
+)
+const PLACE_BACK = new RegExp(String.raw`^\s*hol(?:e)?\s+${PIECE}\s+zur[uü]ck\s*` + END, 'i')
+const PLACE_CLEAR = new RegExp(String.raw`^\s*r[aä]um(?:e)?\s+den\s+tisch\s*` + END, 'i')
 const PLANNED = new RegExp(
   String.raw`^\s*(?:was\s+ist\s+geplant|was\s+steht\s+in\s+den\s+docs|zeig(?:e)?(?:\s+mir)?(?:\s+den)?\s+jarvis-?plan)\s*` +
     END,
@@ -103,7 +121,21 @@ export function parseBoardIntent(text: string): BoardIntent | null {
   if (ON.test(t)) return { kind: 'on' }
   if (OFF.test(t)) return { kind: 'off' }
   if (THEME.test(t)) return { kind: 'theme' }
+  const named = THEME_NAMED.exec(t)
+  if (named) return { kind: 'theme', words: (named[1] || '').trim() }
   if (STOP.test(t)) return { kind: 'stop' }
+  if (PLACE_CLEAR.test(t)) return { kind: 'place', op: 'clear' }
+  const moved = PLACE_MOVE.exec(t)
+  if (moved) {
+    const dir = (moved[2] || '').toLowerCase() as PlaceDir
+    return { kind: 'place', op: 'move', piece: pieceFromName(moved[1] || ''), dir }
+  }
+  const mid = PLACE_MID.exec(t)
+  if (mid) return { kind: 'place', op: 'move', piece: pieceFromName(mid[1] || ''), dir: 'mitte' }
+  const thrown = PLACE_THROW.exec(t)
+  if (thrown) return { kind: 'place', op: 'throw', piece: pieceFromName(thrown[1] || thrown[2] || '') }
+  const back = PLACE_BACK.exec(t)
+  if (back) return { kind: 'place', op: 'recall', piece: pieceFromName(back[1] || '') }
   if (VIEW_SPRINTS.test(t)) return { kind: 'view', view: 'sprints' }
   if (VIEW_PSP.test(t)) return { kind: 'view', view: 'psp' }
   if (VIEW_MOD.test(t)) return { kind: 'view', view: 'modules' }

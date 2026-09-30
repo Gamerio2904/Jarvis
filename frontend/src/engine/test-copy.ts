@@ -13,6 +13,27 @@ export type TestCopyGroup = { title: string; items: TestCopyItem[] }
 
 export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
+    title: '18.23 Ablauf',
+    items: [
+      { label: 'Ablauf', text: 'Plane das: Trag morgen 9 Uhr Zahnarzt ein, stell einen Wecker auf 8 und such Open Source zu Tic-Tac-Toe', expect: { tool: 'idea' } },
+      { label: 'Plane das', text: 'Plane das', expect: { tool: 'idea' } },
+      { label: 'Wecker ändern', text: 'Ändere den Wecker: 7:30', expect: { tool: 'idea' } },
+      { label: 'Rest so', text: 'Wecker auf 7:30, Rest so', expect: { tool: 'idea' } },
+      { label: 'Plan überarbeiten', text: 'Überarbeite den Plan: Wecker auf 7:30', expect: { tool: 'idea' } },
+      { label: 'Zeile fehlt', text: 'Ändere das Poster: links', expect: { tool: 'idea' } },
+      { label: 'So', text: 'So' },
+      { label: 'Übernehmen', text: 'Übernehmen', expect: { tool: 'idea' } },
+      { label: 'Plan zu', text: 'Plan zu', expect: { tool: 'idea' } },
+      { label: 'Fenster zu', text: 'Fenster zu', expect: { tool: 'idea' } },
+      { label: 'Sprintplan bleibt', text: 'Mach einen Sprintplan für Idee 1', expect: { tool: 'idea' } },
+      { label: 'OSS bleibt', text: 'Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1', expect: { tool: 'board' } },
+      { label: 'Lidl bleibt', text: 'nächster Lidl', expect: { tool: 'poi' } },
+      { label: 'Wand bleibt', text: 'Hintergrund blau schwarz', expect: { tool: 'board' } },
+      { label: 'Schieben bleibt', text: 'Schieb die Sprintliste nach links', expect: { tool: 'board' } },
+      { label: 'Hausstand', text: 'Hausstand exportieren', expect: { tool: 'backup' } },
+    ],
+  },
+  {
     title: "Smalltalk",
     items: [
       { label: "Hallo", text: "Hallo Jarvis.", expect: {"tool":"smalltalk"} },
@@ -749,6 +770,58 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: '18.22 Tafel',
+    items: [
+      { label: 'Tafel an', text: 'Tischplatte an', expect: { tool: 'board' } },
+      { label: 'Testprojekt', text: 'Idee: Tik-Tak-To auf der Tischplatte', expect: { tool: 'idea' } },
+      { label: 'Sprints', text: 'Zeig Sprints', expect: { tool: 'board' } },
+      { label: 'PSP', text: 'Zeig PSP', expect: { tool: 'board' } },
+      { label: 'Quellen', text: 'Zeig Quellen', expect: { tool: 'board' } },
+      { label: 'Module', text: 'Zeig Module', expect: { tool: 'board' } },
+      { label: 'Draht', text: 'Simuliere Kalender', expect: { tool: 'board' } },
+      { label: 'Sprintliste links', text: 'Schieb die Sprintliste nach links', expect: { tool: 'board' } },
+      { label: 'PSP rechts', text: 'Schieb den PSP nach rechts', expect: { tool: 'board' } },
+      { label: 'Uhr oben', text: 'Schieb die Uhr nach oben', expect: { tool: 'board' } },
+      { label: 'Quellen unten', text: 'Schieb die Quellen nach unten', expect: { tool: 'board' } },
+      { label: 'Uhr Mitte', text: 'Leg die Uhr in die Mitte', expect: { tool: 'board' } },
+      { label: 'Auftrag Mitte', text: 'Schieb den Auftrag in die Mitte', expect: { tool: 'board' } },
+      { label: 'Termin Mitte', text: 'Schieb den Termin in die Mitte', expect: { tool: 'board' } },
+      { label: 'Jobleiste unten', text: 'Schieb die Jobleiste nach unten', expect: { tool: 'board' } },
+      { label: 'Aus dem Bild', text: 'Schieb die Sprintliste aus dem Bildschirm', expect: { tool: 'board' } },
+      { label: 'Quellen vom Tisch', text: 'Wirf die Quellen vom Tisch', expect: { tool: 'board' } },
+      { label: 'Sprintliste zurück', text: 'Hol die Sprintliste zurück', expect: { tool: 'board' } },
+      { label: 'Quellen zurück', text: 'Hol die Quellen zurück', expect: { tool: 'board' } },
+      { label: 'Räumen', text: 'Räum den Tisch', expect: { tool: 'board' } },
+      { label: 'Auftrag zurück', text: 'Hol den Auftrag zurück', expect: { tool: 'board' } },
+      { label: 'Unbekannt', text: 'Schieb das Poster nach links', expect: { tool: 'board' } },
+      { label: 'Wand', text: 'Hintergrund blau schwarz', expect: { tool: 'board' } },
+      { label: 'Lidl bleibt', text: 'nächster Lidl', expect: { tool: 'poi' } },
+      { label: 'Tafel aus', text: 'Tischplatte aus', expect: { tool: 'board' } },
+    ],
+  },
+  {
+    title: '18.21 Datei-QR',
+    items: [
+      { label: 'Fürs Tablet', text: 'Übertrage das fürs Tablet', expect: { tool: 'xfer' } },
+      { label: 'Fürs Handy', text: 'Übertrage das fürs Handy', expect: { tool: 'xfer' } },
+      { label: 'QR-Code', text: 'Mach den QR-Code', expect: { tool: 'xfer' } },
+      { label: 'QR Code', text: 'Mach den QR Code', expect: { tool: 'xfer' } },
+      {
+        label: 'Kopierzeile',
+        text: 'Das hier zum Kopieren als Anhang in der Nachricht: WLAN Blau12',
+        expect: { tool: 'xfer' },
+      },
+      { label: 'Zum Kopieren', text: 'Zum Kopieren: Türcode 4711', expect: { tool: 'xfer' } },
+      {
+        label: 'Beides',
+        text: 'Übertrage das fürs Tablet. Zum Kopieren:\nWLAN Blau12\nTürcode 4711',
+        expect: { tool: 'xfer' },
+      },
+      { label: 'PC-QR bleibt', text: 'PC QR scannen', expect: { tool: 'pc' } },
+      { label: 'PDF bleibt', text: 'Lies das PDF', expect: { tool: 'doc' } },
+    ],
+  },
+  {
     title: '18.20 YouTube-Highlights',
     items: [
       {
@@ -756,6 +829,24 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
         text: 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ',
         expect: { tool: 'clip' },
       },
+    ],
+  },
+  {
+    title: '18.20 Tafel & Lage',
+    items: [
+      { label: 'Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: 'Tafel an', text: 'Tischplatte an', expect: { tool: 'board' } },
+      { label: 'Testprojekt', text: 'Idee: Tik-Tak-To auf der Tischplatte', expect: { tool: 'idea' } },
+      { label: 'Sprints', text: 'Zeig Sprints', expect: { tool: 'board' } },
+      { label: 'Neuer Hintergrund', text: 'Neuer Hintergrund', expect: { tool: 'board' } },
+      { label: 'Quellen', text: 'Zeig Quellen', expect: { tool: 'board' } },
+      {
+        label: 'OSS + Plan',
+        text: 'Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1',
+        expect: { tool: 'board' },
+      },
+      { label: 'Tafel aus', text: 'Tischplatte aus', expect: { tool: 'board' } },
+      { label: 'Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
     ],
   },
 ]
@@ -976,6 +1067,29 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: 'Nachrichten holen', text: 'Hol die Nachrichten', expect: { tool: 'news' } },
       { label: 'Fernseher bleibt Gerät', text: 'Fernseher an', expect: { tool: 'tv' } },
       { label: 'Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
+    ],
+  },
+  {
+    title: '🟢 18.20 Tafel der Reihe nach',
+    items: [
+      { label: '1 – Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: '2 – Tafel an', text: 'Tischplatte an', expect: { tool: 'board' } },
+      { label: '3 – Testprojekt', text: 'Idee: Tik-Tak-To auf der Tischplatte', expect: { tool: 'idea' } },
+      { label: '4 – Sprints', text: 'Zeig Sprints', expect: { tool: 'board' } },
+      { label: '5 – Hintergrund', text: 'Neuer Hintergrund', expect: { tool: 'board' } },
+      { label: '6 – Quellen', text: 'Zeig Quellen', expect: { tool: 'board' } },
+      {
+        label: '7 – OSS + Plan',
+        text: 'Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1',
+        expect: { tool: 'board' },
+      },
+      { label: '8 – Tafel aus', text: 'Tischplatte aus', expect: { tool: 'board' } },
+      { label: '9 – Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
+      {
+        label: '10 – Highlights',
+        text: 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ',
+        expect: { tool: 'clip' },
+      },
     ],
   },
   {

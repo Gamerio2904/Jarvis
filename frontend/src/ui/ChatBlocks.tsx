@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { ChatBlock } from '../engine/chat-blocks.ts'
+import { filesForDownload } from '../engine/xfer.ts'
 import { ChessBoard } from './lage/ChessBoard.tsx'
 
 export function ChatBlocks({
@@ -13,6 +15,7 @@ export function ChatBlocks({
     <div className="chat-blocks">
       {blocks.map((b, i) => {
         if (b.kind === 'table') return <SportTableBlock key={i} block={b} />
+        if (b.kind === 'xfer') return <XferBlock key={i} block={b} />
         if (b.kind === 'chess') {
           if (onChessClick) {
             return (
@@ -34,6 +37,57 @@ export function ChatBlocks({
           </figure>
         )
       })}
+    </div>
+  )
+}
+
+function XferBlock({
+  block,
+}: {
+  block: Extract<ChatBlock, { kind: 'xfer' }>
+}) {
+  const [note, setNote] = useState('')
+  const [copied, setCopied] = useState('')
+  async function load() {
+    const files = await filesForDownload(block.id)
+    if (!files.length) {
+      setNote('Die Dateien sind weg. Der Satz hält 30 Minuten.')
+      return
+    }
+    for (const f of files) {
+      const bin = atob(f.b64)
+      const bytes = new Uint8Array(bin.length)
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
+      const url = URL.createObjectURL(new Blob([bytes], { type: f.mime || 'application/octet-stream' }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = f.name || 'datei'
+      a.click()
+      setTimeout(() => URL.revokeObjectURL(url), 1500)
+    }
+  }
+  async function copy(line: string) {
+    try {
+      await navigator.clipboard.writeText(line)
+      setCopied(line)
+    } catch {
+      setCopied('')
+    }
+  }
+  return (
+    <div className="xfer-card">
+      {block.files.length ? (
+        <button type="button" className="xfer-load" onClick={() => void load()}>
+          Dateien laden
+        </button>
+      ) : null}
+      {note ? <p className="xfer-note">{note}</p> : null}
+      {block.copies.map((line) => (
+        <button key={line} type="button" className="xfer-copy" onClick={() => void copy(line)}>
+          <span>{line}</span>
+          <span>{copied === line ? 'Kopiert' : 'Kopieren'}</span>
+        </button>
+      ))}
     </div>
   )
 }

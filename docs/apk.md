@@ -1,7 +1,11 @@
-# Android-APK — Sideload `18.19.0`
+# Android-APK — Sideload `18.23.1`
 
-App-Code **`18.19.0`**. Sideload **`18.19.0`** (versionCode `181900`):
-https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+App-Code **`18.23.1`**. Sideload **`18.23.1`** (versionCode `182301`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
+
+Ablauf: [`TEST-18.23.md`](./TEST-18.23.md). Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.
+
+Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). YouTube-Schnitt schreibt die Datei erst auf einem Windows-PC mit JarvisPC.
 
 **18.18.0:** Homescreen. In Sideload **`18.19.0`**.
 
@@ -95,10 +99,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.19.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+**Fertige APK `18.22.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
 
-- versionName `18.19.0` · versionCode `181900`
+- versionName `18.22.0` · versionCode `182200`
 
 ## Build lokal
 
