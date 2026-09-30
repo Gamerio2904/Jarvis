@@ -8851,6 +8851,50 @@ html.theme-wipe-dark::before {
   padding: 8px 14px 10px;
 }
 
+.script-body.is-sprints-right {
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.35fr);
+}
+
+.script-body.is-sprints-right .script-lines {
+  order: 2;
+}
+
+.script-body.is-sprints-right .script-side {
+  order: 1;
+}
+
+.hold-menu {
+  position: fixed;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  min-width: 148px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #12181f;
+  border: 1px solid rgba(126, 224, 255, 0.28);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.hold-menu button {
+  text-align: left;
+  background: transparent;
+  color: #e8eef4;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.hold-menu button:hover,
+.hold-menu button:focus-visible {
+  background: rgba(126, 224, 255, 0.12);
+}
+
+.hold-menu button.is-danger {
+  color: #ffb4b4;
+}
+
 .script-lines {
   list-style: none;
   margin: 0;

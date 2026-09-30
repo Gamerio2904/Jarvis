@@ -41,6 +41,7 @@ export function ScriptStage({
   proposals,
   phase,
   scriptAt,
+  sprintSide,
   onStop,
   onYes,
   onNo,
@@ -55,6 +56,7 @@ export function ScriptStage({
   proposals: MemoryProposal[]
   phase: string
   scriptAt: number
+  sprintSide?: 'left' | 'right'
   onStop: () => void
   onYes: (id: string) => void
   onNo: (id: string) => void
@@ -113,7 +115,7 @@ export function ScriptStage({
         </div>
         <p className={`script-phase${locked ? ' is-go' : ''}`}>{locked ? 'Fest' : live ? 'Live' : 'Bereit'}</p>
       </header>
-      <div className="script-body">
+      <div className={`script-body${sprintSide === 'right' ? ' is-sprints-right' : ''}`}>
         <ol className="script-lines" aria-live="polite">
           {visible.map((line, i) => (
             <li key={`${line.key}-${i}`} className={i === visible.length - 1 && typing ? 'is-typing' : ''}>

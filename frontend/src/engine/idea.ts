@@ -16,6 +16,7 @@ import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
+import { parseBoardJobs, serializeBoardJobs, stopJobs } from './board-jobs.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
 import type { ToolMeta } from './tools.ts'
@@ -110,7 +111,20 @@ function clausesOf(work: string): string[] {
     .slice(0, 6)
 }
 
+function clearShownPlan(): string {
+  const phase = loadSettings().plan_phase
+  const jobs = stopJobs(parseBoardJobs(loadSettings().board_jobs_json))
+  saveSettings({
+    plan_phase: '',
+    plan_script_at: 0,
+    board_jobs_json: serializeBoardJobs(jobs),
+  })
+  if (phase === 'live' || phase === 'go') return 'Der Plan ist von der Tischplatte weg.'
+  return 'Es liegt kein Plan auf der Tischplatte.'
+}
+
 async function planOntoTable(intent: AblaufIntent): Promise<string> {
+  if (intent.kind === 'clear') return clearShownPlan()
   if (intent.kind === 'accept') {
     const phase = loadSettings().plan_phase
     const waiting = ablaufWaiting()
@@ -154,8 +168,8 @@ async function writeProject(work: string): Promise<string> {
     task: task.slice(0, 120),
     anleitung: task.slice(0, 160),
   }))
-  plan.sprints[1].ziel = (parts[1] || 'Grenzen und Tests festhalten').slice(0, 160)
-  plan.sprints[2].ziel = (parts[2] || 'Einen Durchlauf prüfen').slice(0, 160)
+  if (parts[1]) plan.sprints[1].ziel = parts[1].slice(0, 160)
+  if (parts[2]) plan.sprints[2].ziel = parts[2].slice(0, 160)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
   saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), tischplatte_on: true, tischplatte_view: 'psp' })

@@ -5,6 +5,7 @@ import { ablaufWaiting } from './ablauf-state.ts'
 export type AblaufIntent =
   | { kind: 'open'; work?: string }
   | { kind: 'close' }
+  | { kind: 'clear' }
   | { kind: 'accept' }
   | { kind: 'revise'; via: 'name' | 'rest' | 'plan'; name: string; text: string }
 
@@ -27,6 +28,13 @@ function otherWish(): boolean {
 export function parseAblaufIntent(text: string): AblaufIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t) return null
+  if (
+    /^\s*(?:lösch(?:e)?|entfern(?:e)?|streich(?:e)?|nimm\s+weg)\s+(?:bitte\s+)?(?:mir\s+)?(?:den\s+)?(?:aktuellen\s+|angezeigten\s+)?plan\b/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'clear' }
+  }
 
   const named = new RegExp(String.raw`^\s*plan(?:e)?\s+das\s*:\s*([\s\S]+)$`, 'i').exec(t)
   if (named) {

@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.23.12'
+export const APP_VERSION = '18.23.13'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -379,6 +379,8 @@ export type Settings = {
   leiste_zu: boolean
   /** `live` = Skript läuft. `go` = fest, Export bereit. */
   plan_phase: '' | 'live' | 'go'
+  /** Sprintliste im Skriptfenster. */
+  script_sprint_side: 'left' | 'right'
   /** Start der Laufschrift auf der Tafel. */
   plan_script_at: number
   board_jobs_json: string
@@ -578,6 +580,7 @@ export const DEFAULT_SETTINGS: Settings = {
   leiste_on: true,
   leiste_zu: false,
   plan_phase: '',
+  script_sprint_side: 'left',
   plan_script_at: 0,
   board_jobs_json: '',
   ablauf_id: '',

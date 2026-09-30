@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.13` — Kalender wirklich weg, Plan weg, Halten — *CODE*
+
+`Zahnarzttermin und die wöchentlichen Trainings entfernen` löscht nur, was im Kalender liegt. Fehlt ein Eintrag, sagt Jarvis das. `Lösche den aktuellen Plan` nimmt das Skript von der Tischplatte. `Plane das: Einkauf, Liste schreiben und Route prüfen` bleibt ein Satz, die Schritte stehen in den Sprints. `Schieb die Sprintliste nach links` rückt die Liste nach links.
+
+Gedrückt halten in der linken Leiste: Löschen und Download. Gedrückt halten auf einem Kalendereintrag: Löschen.
+
+App-Code **`18.23.13`** (versionCode `182313`). Sideload-Datei folgt mit dem nächsten APK-Build.
+
 ### `18.23.12` — Bild nur auf Verlangen — *CODE*
 
 `Zeig mir ein Bild der Elbe` zeigt ein Wikipedia-Bild mit Quelle. `wie sieht das wappen von bayern münchen aus` nimmt das Wappen von OpenLigaDB. `Zeig mir London` bleibt die Kugel. Ohne Treffer: `Kein Bild geladen.`

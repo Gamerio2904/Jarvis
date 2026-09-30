@@ -86,6 +86,10 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\binglorious\b/gi, 'Inglourious'],
   [/\bbastard+s\b/gi, 'Basterds'],
   [/basterdszu/gi, 'Basterds zu '],
+  [/wöchentlichen(?=[a-zäöü])/gi, 'wöchentlichen '],
+  [/woechentlichen(?=[a-zäöü])/gi, 'woechentlichen '],
+  [/trainings(?=erinner)/gi, 'trainings '],
+  [/training(?=erinner)/gi, 'training '],
 ]
 
 /** STT klebt Watchliste-Sätze: Jaentfernenes, zuLieblingsfilmen, istdoppelt. */

@@ -31,6 +31,8 @@ import {
   type Message,
   type Settings as EngineSettings,
 } from './engine/store.ts'
+
+export { listMessages }
 import { discoverTvs, pairTv, testFireTv, testTv, tvStatusFromSettings } from './engine/tv.ts'
 import {
   discoverFan,
