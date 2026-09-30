@@ -1553,6 +1553,10 @@ textarea {
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   animation: fadeIn 0.42s var(--ease-out) both;
   animation-delay: calc(var(--i, 0) * 35ms);
   transform: translate(var(--mx, 0px), var(--my, 0px));
@@ -7582,8 +7586,15 @@ html.theme-wipe-dark::before {
   font-size: 0.8rem;
 }
 
+.workbench-propose li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
 .workbench-propose button {
-  margin-left: 8px;
+  margin-left: 0;
 }
 
 .workbench-catalog-head,
@@ -7875,6 +7886,10 @@ html.theme-wipe-dark::before {
   .voice-shortcut,
   .voice-compact {
     bottom: 24px;
+  }
+
+  .app:has(.mini-chat.is-open) .home-screen.is-tischplatte {
+    padding-right: min(348px, 34vw);
   }
 }
 

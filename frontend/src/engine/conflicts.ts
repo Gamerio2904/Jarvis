@@ -426,7 +426,16 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   }
 
   const board = parseBoardIntent(text)
-  if (board && (board.kind === 'view' || board.kind === 'on' || board.kind === 'off' || board.kind === 'catalog' || board.kind === 'jobs')) {
+  if (
+    board &&
+    (board.kind === 'view' ||
+      board.kind === 'on' ||
+      board.kind === 'off' ||
+      board.kind === 'catalog' ||
+      board.kind === 'jobs' ||
+      board.kind === 'theme' ||
+      board.kind === 'stop')
+  ) {
     out = drop(out, 'hud')
     out = drop(out, 'desk')
     out = boost(out, 'board', 0.22)

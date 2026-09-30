@@ -191,7 +191,7 @@ export function Workbench({
         </div>
       ) : null}
 
-      {vis === 'sprints' ? (
+      {vis === 'sprints' && !active ? (
         <p className="workbench-catalog-head">
           Jarvis-Plan: {FEATURE_CATALOG.filter((r) => versionAtLeast(r.version, '18.18.0')).map((r) => r.title).slice(0, 4).join(', ')}
         </p>

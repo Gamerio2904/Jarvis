@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.20.0`**. Sideload **`18.20.0`**, versionCode `182000`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.20.1`**. Sideload **`18.20.1`**, versionCode `182001`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -871,7 +871,7 @@ Memory-Vorschläge. Sprints 385–391 **CODE + APK**. Test: [`TEST-18.19.md`](./
 
 ### `18.20` — YouTube-Highlights [`92-next.md`](./92-next.md) **CODE + APK**
 
-**`18.20.0`** (App-Code und Sideload, versionCode `182000`): Top-Liste aus 1–3
+**`18.20.1`** (App-Code und Sideload, versionCode `182001`): Top-Liste aus 1–3
 YouTube-Links, Schnitt auf dem PC, Datei lokal, kein Upload. Sprints 392–397.
 
 | Version | Bedeutung | Sprint |

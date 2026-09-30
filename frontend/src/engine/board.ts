@@ -1,6 +1,6 @@
 import type { ToolMeta } from './tools.ts'
 import { parseBoardIntent } from './board-parse.ts'
-import { parseThemeHint, serializeTheme, nextTheme, motifLabel, DEFAULT_THEME } from './board-theme.ts'
+import { parseThemeHint, serializeTheme, nextTheme, motifLabel, themeFromWords, DEFAULT_THEME } from './board-theme.ts'
 import { parseBoardJobs, serializeBoardJobs, upsertJob, stopJobs, type BoardJob } from './board-jobs.ts'
 import { catalogByArea, catalogPlanned, FEATURE_CATALOG, formatCatalog } from './feature-catalog.ts'
 import { fillDeepResearchLinks } from './web-search.ts'
@@ -8,11 +8,31 @@ import { geminiReady } from './gemini.ts'
 import { groqReady } from './groq.ts'
 import { githubToken } from './github-search.ts'
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
-import { emptyPlan, formatPlan } from './idea-plan.ts'
+import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan.ts'
 import { fillPlanWithModel, pickIdea } from './idea.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
+
+function isCodeHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '')
+    return /(?:^|\.)(?:github|gitlab|codeberg|bitbucket|sourceforge)\./i.test(host)
+  } catch {
+    return /github\.com|gitlab\.com|codeberg\.org/i.test(url)
+  }
+}
+
+function isProjectDir(url: string): boolean {
+  return /libhunt\.com|github\.io|awesome-/i.test(url)
+}
+
+function preferCode(sources: Array<{ url: string; title?: string; snippet?: string }>) {
+  const rows = sources.filter((s) => s.url)
+  const code = rows.filter((s) => isCodeHost(s.url))
+  const rest = rows.filter((s) => !isCodeHost(s.url))
+  return { code, ordered: [...code, ...rest] }
+}
 
 function pack(reply: string, action: string, extra?: Record<string, unknown>): {
   handled: true
@@ -79,14 +99,22 @@ export async function handleBoard(_conversationId: string, text: string): Promis
   }
   if (intent.kind === 'theme') {
     const cur = parseThemeHint(loadSettings().tischplatte_hint)
-    const next = nextTheme(cur)
+    const named = intent.words ? themeFromWords(intent.words) : null
+    if (intent.words && !named) {
+      return pack(
+        `Hintergrund bleibt ${motifLabel(cur.motif)}, Akzent ${cur.accent}. Ich stelle Orbit, Gitter oder Pulse — zum Beispiel „Hintergrund blau“.`,
+        'theme',
+      )
+    }
+    const next = named ? named.theme : nextTheme(cur)
     try {
       saveSettings({ tischplatte_hint: serializeTheme(next), tischplatte_seed: Date.now() % 1_000_000 })
     } catch {
       /* */
     }
+    const note = named ? ` ${named.note}` : ''
     return pack(
-      `Hintergrund: ${motifLabel(next.motif)}, Akzent ${next.accent}. Gilt für Launcher und Werkbank.`,
+      `Hintergrund: ${motifLabel(next.motif)}, Akzent ${next.accent}.${note} Gilt für Launcher und Werkbank.`,
       'theme',
     )
   }
@@ -151,22 +179,24 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     const topic = (intent.research || '').trim()
     const q = `Recherchiere tief: Open-Source ${topic}`
     const web = await fillDeepResearchLinks(q, '', undefined)
-    const merged = web
+    const bucket = preferCode(web.sources || [])
+    const merged = { ...web, sources: bucket.ordered }
     try {
       saveSettings({ last_research_json: JSON.stringify(merged) })
     } catch {
       /* */
     }
-    const withUrl = (merged.sources || []).filter((s) => s.url).slice(0, 3)
-    for (const s of withUrl) {
+    const propose = bucket.code.slice(0, 2)
+    for (const s of propose) {
       await proposeMemory({
         key: 'research',
-        value: (s.snippet || s.title).slice(0, 180),
+        value: (s.snippet || s.title || s.url).slice(0, 180),
         category: 'research',
         url: s.url,
         origin: 'research',
       })
     }
+    const withUrl = bucket.ordered
     researchJob.status = withUrl.length ? 'done' : 'failed'
     researchJob.label = withUrl.length ? 'Recherche liegt' : 'Recherche leer'
     jobs = upsertJob(jobs, researchJob)
@@ -189,7 +219,18 @@ export async function handleBoard(_conversationId: string, text: string): Promis
         planJob.label = 'Idee fehlt'
         planLine = 'Die Idee finde ich nicht.'
       } else {
-        const filled = await fillPlanWithModel(hit)
+        let filled = await fillPlanWithModel(hit)
+        let fromHits = false
+        if (!filled || !planHasBody(filled)) {
+          const planTitles = (bucket.code.length ? bucket.code : bucket.ordered.filter((s) => isProjectDir(s.url))).map(
+            (s) => s.title || '',
+          )
+          const fromSources = planFromSources(hit.id, hit.title, planTitles)
+          if (fromSources) {
+            filled = fromSources
+            fromHits = true
+          }
+        }
         if (!filled) {
           const empty = hit.plan || emptyPlan(hit.id)
           await putIdea({ ...hit, plan: empty })
@@ -202,19 +243,20 @@ export async function handleBoard(_conversationId: string, text: string): Promis
         } else {
           await putIdea({ ...hit, plan: filled })
           planJob.status = 'done'
-          planJob.label = 'Plan liegt'
-          planLine = formatPlan(filled, hit.title)
+          planJob.label = fromHits ? 'Plan aus Treffern' : 'Plan liegt'
+          planLine = fromHits ? 'Plan aus den Treffern, ohne Modell.' : formatPlan(filled, hit.title)
         }
       }
       jobs = upsertJob(jobs, planJob)
     }
     saveJobs(jobs)
-    const n = (merged.sources || []).filter((s) => s.url).length
+    const n = withUrl.length
     const ghNote = githubToken() ? '' : ' Ohne GitHub-Key nur öffentliche HTML-Suche, unvollständig.'
+    const articleNote = bucket.code.length ? '' : withUrl.length ? ' Keine Repo-Links.' : ''
     const pending = await pendingProposals()
     const offer = pending[0] ? ` ${proposalLine(pending[0])}` : ''
     const seeking = intent.planIndex || intent.planQuery ? 'Ich suche und fülle den Plan.' : 'Ich suche.'
-    const reply = `${seeking} ${n} Quellen.${ghNote}${planLine ? `\n${planLine}` : ''}${offer}`
+    const reply = `${seeking} ${n} Quellen.${ghNote}${articleNote}${planLine ? `\n${planLine}` : ''}${offer}`
     return pack(reply, 'jobs', { sources: n })
   }
   return { handled: false }

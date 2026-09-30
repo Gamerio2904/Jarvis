@@ -11,7 +11,7 @@ export type BoardIntent =
   | { kind: 'catalog'; mode: 'planned' | 'can' | 'area' | 'docs'; area?: string }
   | { kind: 'jobs'; research?: string; planIndex?: number; planQuery?: string }
   | { kind: 'proposal'; accept: boolean }
-  | { kind: 'theme' }
+  | { kind: 'theme'; words?: string }
   | { kind: 'stop' }
 
 const END = String.raw`[.!?]?\s*$`
@@ -34,6 +34,7 @@ const VIEW_RES = new RegExp(
 )
 const SIM = new RegExp(String.raw`^\s*simulier(?:e|en)?(?:\s+die)?\s+(?:die\s+)?(.+?)(?:-?gui)?\s*` + END, 'i')
 const THEME = new RegExp(String.raw`^\s*(?:neuer\s+hintergrund|hintergrund\s+neu)\s*` + END, 'i')
+const THEME_NAMED = new RegExp(String.raw`^\s*hintergrund\s+(?!neu\b)(\S(?:.{0,42}\S)?)\s*` + END, 'i')
 const STOP = new RegExp(String.raw`^\s*(?:stopp(?:e)?\s+(?:die\s+)?jobs?|jobs?\s+stopp)\s*` + END, 'i')
 const PLANNED = new RegExp(
   String.raw`^\s*(?:was\s+ist\s+geplant|was\s+steht\s+in\s+den\s+docs|zeig(?:e)?(?:\s+mir)?(?:\s+den)?\s+jarvis-?plan)\s*` +
@@ -103,6 +104,8 @@ export function parseBoardIntent(text: string): BoardIntent | null {
   if (ON.test(t)) return { kind: 'on' }
   if (OFF.test(t)) return { kind: 'off' }
   if (THEME.test(t)) return { kind: 'theme' }
+  const named = THEME_NAMED.exec(t)
+  if (named) return { kind: 'theme', words: (named[1] || '').trim() }
   if (STOP.test(t)) return { kind: 'stop' }
   if (VIEW_SPRINTS.test(t)) return { kind: 'view', view: 'sprints' }
   if (VIEW_PSP.test(t)) return { kind: 'view', view: 'psp' }

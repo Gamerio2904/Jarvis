@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.20.1` — Tafel sagt, was gilt — *CODE + APK*
+
+„Hintergrund blau schwarz“ stellt Pulse, blau auf schwarz. Der Mini-Chat
+lässt Karten und Ja/Nein frei. Der Sprintplan übernimmt Repo- oder
+LibHunt-Treffer. Zeitungsseiten werden nicht zum Merken angeboten.
+
+Sideload **`18.20.1`** (versionCode `182001`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.20.0` — YouTube-Highlights, Tablet-Lage — *CODE + APK*
 
 Top-Liste aus 1–3 YouTube-Links. Das Handy wählt die Stellen, der PC
@@ -14,9 +23,7 @@ schneidet, die Datei bleibt unter `Videos\Jarvis`, kein Upload. Sprints
 Tablet-Layout: Lage ohne rechten Chat, Schalter **Chat**, Leiste links
 unten, Werte-Leiste **Tischplatte an** öffnet die Werkbank. Testprompts
 in Spur Heute und [`TEST-18.20.md`](./TEST-18.20.md).
-
-Sideload **`18.20.0`** (versionCode `182000`):
-https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Die Sideload-Datei ist `18.20.1`.
 
 ### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE + APK*
 

@@ -1,6 +1,6 @@
 # TEST 18.20 — Tafel, Lage-Layout, Highlights
 
-App-Code **`18.20.0`**. Sideload **`18.20.0`**, versionCode `182000`.
+App-Code **`18.20.1`**. Sideload **`18.20.1`**, versionCode `182001`.
 Über die bisherige `18.19.0` installieren. Vorher Hausstand exportieren.
 
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
@@ -26,7 +26,21 @@ schieben. Die Leiste links sitzt unten in der Seitenleiste.
 Auf dem Handy gibt es diesen Knopf nicht; dort bleibt die gewohnte
 Lage-Ansicht.
 
-## 2. Tischplatte über die Werte-Leiste
+## 2. Hintergrund
+
+```
+Neuer Hintergrund
+```
+
+```
+Hintergrund blau schwarz
+```
+
+Die Wand wechselt wirklich. „Blau auf Schwarz“ ist Pulse, Akzent `#8eb6ff`,
+kein Goldgitter. Ein unbekanntes Farbwort lässt die Fläche stehen und sagt
+das.
+
+## 3. Tischplatte
 
 Rechts **Tischplatte → an**. Der Schirm wechselt auf die Werkbank, die
 Lage geht zu. Derselbe Satz:
@@ -35,7 +49,7 @@ Lage geht zu. Derselbe Satz:
 Tischplatte an
 ```
 
-## 3. Testprojekt, Sprints, Hintergrund, Quellen
+## 4. Testprojekt, Sprints, Quellen
 
 ```
 Idee: Tik-Tak-To auf der Tischplatte
@@ -68,9 +82,11 @@ während Quellen auf der Tafel stehen.
 Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1
 ```
 
-Ein Satz, zwei Jobs. Ohne Treffer bleibt die Suche ehrlich leer.
+Ein Satz, zwei Jobs. Repo-Links oder LibHunt füllen Härten und Probe.
+Zeitungsseiten bleiben auf der Tafel, werden aber nicht zum Merken angeboten.
+Ohne Treffer bleibt die Suche ehrlich leer. Der kleine Chat deckt die Karten nicht zu.
 
-## 4. Zurück
+## 5. Zurück
 
 ```
 Tischplatte aus
@@ -80,7 +96,7 @@ Tischplatte aus
 Lage aus
 ```
 
-## 5. YouTube-Highlights
+## 6. YouTube-Highlights
 
 Schnitt bleibt auf dem PC. Ohne JarvisPC keine Datei, die Ansage sagt das.
 

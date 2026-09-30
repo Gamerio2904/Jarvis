@@ -11,7 +11,7 @@ import {
   type Idea,
 } from './store.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
-import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, type IdeaPlan } from './idea-plan.ts'
+import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
 import type { ToolMeta } from './tools.ts'
@@ -81,14 +81,21 @@ export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
       content: `Idee: ${idea.title}\n${idea.body || ''}\nVorlage: ${JSON.stringify(skeleton)}`,
     },
   ]
-  try {
-    const text = groqReady()
-      ? await completeGroq(messages)
-      : (await completeGemini(messages, undefined, { thinking: false, maxOutputTokens: 700, timeoutMs: 20_000 })).text
-    return parsePlan(extractJson(text), idea.id)
-  } catch {
-    return null
+  const runs: Array<() => Promise<string>> = []
+  if (groqReady()) runs.push(() => completeGroq(messages))
+  if (geminiReady()) {
+    runs.push(async () => (await completeGemini(messages, undefined, { thinking: false, maxOutputTokens: 700, timeoutMs: 20_000 })).text)
   }
+  for (const run of runs) {
+    try {
+      const text = await run()
+      const plan = parsePlan(extractJson(text), idea.id)
+      if (plan && planHasBody(plan)) return plan
+    } catch {
+      /* nächster Slot */
+    }
+  }
+  return null
 }
 
 export async function handleIdea(

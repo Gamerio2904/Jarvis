@@ -1,4 +1,4 @@
-Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.20.0`**. Sideload-APK **`18.20.0`** (versionCode `182000`). PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.20.1`**. Sideload-APK **`18.20.1`** (versionCode `182001`). PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
 
 **Hirn:** **Groq primär** (API-Key). **Gemini Spezialist** (Vision, Deep Research). Lokales 0,5B **Fallback**. Agenten-Netzwerk: Director + 60 Domänen-Agenten, Agenten-Karte in Lage. Parser wählen Geräte; Groq/Gemini formuliert Smalltalk.
 
@@ -14,7 +14,7 @@ Browser: http://localhost:5173 — Groq-Key für Smalltalk. Gemini für Vision/D
 
 ## Android-APK
 
-Sideload **`Jarvis.apk` `18.20.0`** (versionCode `182000`):  
+Sideload **`Jarvis.apk` `18.20.1`** (versionCode `182001`):  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat

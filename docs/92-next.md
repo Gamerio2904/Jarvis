@@ -5,8 +5,8 @@ PO: Reel [DYuOlndDUYF](https://www.instagram.com/reel/DYuOlndDUYF/) von
 Frage: Kann der TikTok-Agent (und die anderen) das bauen, wenn man ihm
 YouTube-Links gibt und er die Highlights schneidet?
 
-**Dieses Dokument ist CODE + APK.** App-Code **`18.20.0`**, Sideload
-**`18.20.0`** (versionCode `182000`). Eine Highlight-Datei entsteht erst,
+**Dieses Dokument ist CODE + APK.** App-Code **`18.20.1`**, Sideload
+**`18.20.1`** (versionCode `182001`). Eine Highlight-Datei entsteht erst,
 wenn ein Windows-PC mit ffmpeg sie geschrieben hat.
 Sprints **392–397** sind im Quellcode. Kein Merge mit Draft Clips `#152` / `18.13`.
 
@@ -302,7 +302,7 @@ dem Job-Stand, er erfindet keine Zeiten.
 Kette: 392 vor allem. 393 vor 394. 394 und 395 vor 396. 397 zuletzt.
 396 kann mit Fixture-Zeiten gegen ein lokales Testvideo laufen, ohne YouTube.
 
-Liegt in App-Code **`18.20.0`** und in der Sideload-APK (versionCode `182000`).
+Liegt in App-Code **`18.20.1`** und in der Sideload-APK (versionCode `182001`).
 Eine Highlight-Datei entsteht erst, wenn der PC-Pfad auf einem Windows-Rechner
 mit ffmpeg geschrieben hat.
 

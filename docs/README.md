@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.20.0`**. Sideload-APK **`18.20.0`**, versionCode `182000`. Schiene **YouTube-Highlights `18.20`** [`92-next.md`](./92-next.md) (392–397) liegt im Code; die Datei schreibt der PC. Tablet-Layout und Testprompts: [`TEST-18.20.md`](./TEST-18.20.md). Schiene **Tischplatte `18.19` CODE + APK** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE + APK** [`90-next.md`](./90-next.md) (382–384) in derselben Sideload. Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
+**Jetzt:** Code **`18.20.1`**. Sideload-APK **`18.20.1`**, versionCode `182001`. Schiene **YouTube-Highlights `18.20`** [`92-next.md`](./92-next.md) (392–397) liegt im Code; die Datei schreibt der PC. Tablet-Layout und Testprompts: [`TEST-18.20.md`](./TEST-18.20.md). Schiene **Tischplatte `18.19` CODE + APK** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE + APK** [`90-next.md`](./90-next.md) (382–384) in derselben Sideload. Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -331,4 +331,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 382–384 | `18.18.0` | **CODE + APK** (Homescreen, [`90-next.md`](./90-next.md)) |
 | 385–391 | `18.19.0` | **CODE + APK** (Tischplatte, [`91-next.md`](./91-next.md)) |
 
-**Aktuell:** App-Code **`18.20.0`**. Sideload-APK **`18.20.0`**, versionCode `182000`. 392–397 **CODE + APK**. Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.20.1`**. Sideload-APK **`18.20.1`**, versionCode `182001`. 392–397 **CODE + APK**. Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md). Index: [`42-planned.md`](./42-planned.md).

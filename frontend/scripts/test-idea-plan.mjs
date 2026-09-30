@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
 import { parseIdeaIntent, dueFromRel } from '../src/engine/idea-parse.ts'
-import { emptyPlan, parsePlan, formatPlan, CORE_TITLES, nextCustomN } from '../src/engine/idea-plan.ts'
+import { emptyPlan, parsePlan, formatPlan, CORE_TITLES, nextCustomN, planFromSources, planHasBody } from '../src/engine/idea-plan.ts'
 import { addIdea, listIdeas } from '../src/engine/store.ts'
 import { handleIdea } from '../src/engine/idea.ts'
 import { parseReminderIntent } from '../src/engine/remind-parse.ts'
@@ -110,6 +110,22 @@ assert.ok(parseReminderIntent('in 2 Wochen Milch') || parseReminderIntent('Erinn
 {
   const ask = await handleIdea('c', 'Erinner mich an Idee 1')
   assert.equal(ask.reply, 'Wann?')
+}
+
+{
+  const titled = parsePlan({
+    sprints: [
+      { n: '1', kind: 'core', title: 'Kernsprint', ziel: 'Brett', lieferumfang: [] },
+      { n: '2', kind: 'core', title: 'Härten', ziel: 'Züge prüfen', lieferumfang: [] },
+      { n: '3', kind: 'core', title: 'Probe', ziel: 'Eine Runde', lieferumfang: [] },
+    ],
+  })
+  assert.equal(titled?.sprints[0].title, 'Kern')
+  assert.equal(planHasBody(titled), true)
+  const fromHits = planFromSources('idea-x', 'Tik-Tak-To', ['Top 23 tic-tac-toe Open-Source Projects'])
+  assert.ok(fromHits)
+  assert.match(fromHits.sprints[1].ziel, /Top 23/)
+  assert.equal(planHasBody(emptyPlan('idea-x')), false)
 }
 
 console.log('test-idea-plan ok')

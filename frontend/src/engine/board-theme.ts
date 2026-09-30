@@ -88,3 +88,29 @@ export function motifLabel(motif: BoardMotif): string {
   if (motif === 'pulse') return 'Pulse'
   return 'Orbit'
 }
+
+const PULSE = THEME_LOOKS[2]
+const GRID = THEME_LOOKS[1]
+const ORBIT = THEME_LOOKS[0]
+
+/** Farbwort aus dem Satz. Unbekannt → null, damit niemand einen Wechsel behauptet. */
+export function themeFromWords(raw: string): { theme: BoardTheme; note: string } | null {
+  const t = raw
+    .toLowerCase()
+    .replace(/[^a-zäöüß\s-]/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (!t || t.length > 48) return null
+  const has = (re: RegExp) => re.test(t)
+  if (has(/blau/) && has(/schwarz/)) {
+    return { theme: { motif: 'pulse', accent: '#8eb6ff', glow: 0.55, density: 0.14 }, note: 'Blau auf Schwarz.' }
+  }
+  if (has(/gitter|gold|gelb/)) return { theme: { ...GRID }, note: 'Gitter.' }
+  if (has(/blau|navy/)) return { theme: { ...PULSE }, note: 'Blau.' }
+  if (has(/schwarz|dunkel/)) {
+    return { theme: { motif: 'pulse', accent: '#8eb6ff', glow: 0.28, density: 0.08 }, note: 'Dunkel, ohne Goldgitter.' }
+  }
+  if (has(/\bpulse\b/)) return { theme: { ...PULSE }, note: 'Pulse.' }
+  if (has(/orbit|türkis|tuerkis|mint/)) return { theme: { ...ORBIT }, note: 'Orbit.' }
+  return null
+}
