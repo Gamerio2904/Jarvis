@@ -113,7 +113,17 @@ export function isLiveLookup(text: string, discount = false): boolean {
   }
   if (isProductLookup(t, discount)) return true
   if (isFactLookup(t)) return true
+  if (isWhoIsAsk(t)) return true
   return false
+}
+
+/** „Wer ist Mortys Sohn“ sucht. „Wer ist meine Mutter“ bleibt im Haus. */
+export function isWhoIsAsk(text: string): boolean {
+  const t = text.trim()
+  if (!t || t.length > 160) return false
+  if (!/^\s*wer\s+ist\s+\S/i.test(t)) return false
+  if (/\b(?:ich|wir|mich|uns|meine?|meiner|meinen|mein|unser|jarvis|friday)\b/i.test(t)) return false
+  return true
 }
 
 /** Firmen-/Stückzahlen, nicht Einkaufsliste und nicht „wie viele Timer habe ich“. */

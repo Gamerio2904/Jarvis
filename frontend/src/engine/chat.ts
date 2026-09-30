@@ -10,6 +10,7 @@ import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeAllowedForRoute, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { contradictionSearchAsk, rewriteFollowUp } from './last-step.ts'
+import { applyDurationCorrection } from './duration-correct.ts'
 import { parseBotAskIntent } from './bot-ask.ts'
 import { skipMicroMerge, SKIP_MICRO_MERGE_TOOLS, type ChatBlock } from './chat-blocks.ts'
 import {
@@ -590,6 +591,19 @@ export async function streamChat(
   })
 
   try {
+    const corrected = await applyDurationCorrection(conversationId, content)
+    if (corrected) {
+      await rememberToolFromStore(corrected.tool)
+      setLatencyPath('parser')
+      emitToken(handlers, corrected.reply)
+      const assistant = await sayAssistant(conversationId, corrected.reply, {
+        tool: { tool_status: 'executed', tool: corrected.tool, action: 'correct', label: 'Zeit korrigiert' },
+      })
+      const updated = (await touchConversation(conversationId)) || convAfterUser
+      finishLatency()
+      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+      return
+    }
     const rawParts = splitIntents(normalizeUtterance(content))
     const parts = rawParts.length > 1 ? rawParts.map(promoteSplitPart) : rawParts
     let queue = parts

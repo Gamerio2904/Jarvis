@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.9` — Zeitkorrektur und Wer-ist — *CODE*
+
+`Nein 90 Minuten` setzt die Zeit. Ein laufender Timer wird ersetzt, eine Erinnerung verschoben, der letzte Termin bekommt die Frist. `Wer ist …` sucht, statt einen Namen zu erfinden. `Wer ist meine Mutter` bleibt im Haus.
+
+App-Code und Sideload **`18.23.9`** (versionCode `182309`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tisch-skript-ccff/releases/Jarvis.apk
+
 ### `18.23.8` — Festes Skript, Leiste klappt — *CODE*
 
 Die Tischplatte ist ein festes Skript. `Plane das` schreibt es live auf die Tafel.

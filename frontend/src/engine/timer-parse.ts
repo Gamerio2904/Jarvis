@@ -18,7 +18,7 @@ function relMs(n: number, unit: string): number {
 
 function label(ms: number): string {
   if (ms < 90_000) return `in ${Math.max(1, Math.round(ms / 1000))} Sekunden`
-  if (ms < 90 * 60_000) return `in ${Math.max(1, Math.round(ms / 60_000))} Minuten`
+  if (ms <= 90 * 60_000) return `in ${Math.max(1, Math.round(ms / 60_000))} Minuten`
   return `in ${Math.round(ms / 3_600_000)} Stunden`
 }
 

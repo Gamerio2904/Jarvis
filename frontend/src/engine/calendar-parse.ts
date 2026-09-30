@@ -547,7 +547,18 @@ export function parseRemindOffsets(text: string): RemindOffsetHit | null {
     if (!Number.isFinite(n) || n <= 0) continue
     minutes.push(tokenToMinutes(n, m[3] || 'minuten'))
   }
-  if (!minutes.length) return null
+  if (!minutes.length) {
+    const bare =
+      /^\s*(?:nein|nee+|doch)?[,.]?\s*(\d+)\s*(minuten?|stunden?|sekunden?)\s*(?:davor|vorher)?\s*[.!]?\s*$/i.exec(
+        raw,
+      )
+    if (!bare) return null
+    const n = Number(bare[1])
+    if (!Number.isFinite(n) || n <= 0) return null
+    const unit = bare[2].toLowerCase()
+    const mins = unit.startsWith('sek') ? Math.max(1, Math.round(n / 60)) : tokenToMinutes(n, unit)
+    return { kind: 'offsets', minutes: [mins] }
+  }
   const uniq = [...new Set(minutes)].sort((a, b) => b - a).slice(0, 5)
   return { kind: 'offsets', minutes: uniq }
 }
