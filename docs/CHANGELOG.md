@@ -11,7 +11,7 @@ Ein Tipp auf den Tag zeigt alle Termine dieses Tags oben in der Ansicht.
 Die Woche hat links die Uhrzeit, ab 7 Uhr, und oben die Tage.
 
 App-Code und Sideload **`18.23.6`** (versionCode `182306`):
-https://github.com/Gamerio2904/Jarvis/raw/cursor/kalender-jahr-ccff/releases/Jarvis.apk
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.23.5` — Kalender: Fenster unten, jedes Jahr — *CODE*
 
