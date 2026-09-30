@@ -336,4 +336,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 398–403 | `18.21.0` | **CODE** in `18.22.0` (Datei-QR, [`93-next.md`](./93-next.md)) |
 | 404–409 | `18.22.0` | **CODE** (Tafel, [`94-next.md`](./94-next.md)) |
 
-**Aktuell:** App-Code **`18.22.0`**, versionCode `182200`. 392–397 **CODE + APK**. 398–403 **CODE** ([`93-next.md`](./93-next.md)), 404–409 **CODE** ([`94-next.md`](./94-next.md)). Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md), [`TEST-18.22.md`](./TEST-18.22.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.22.0`**. Sideload-APK **`18.22.0`**, versionCode `182200`. 392–397 **CODE + APK**. 398–403 **CODE** ([`93-next.md`](./93-next.md)), 404–409 **CODE** ([`94-next.md`](./94-next.md)). Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md), [`TEST-18.22.md`](./TEST-18.22.md). Index: [`42-planned.md`](./42-planned.md).
