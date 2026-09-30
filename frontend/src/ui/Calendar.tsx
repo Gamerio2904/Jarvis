@@ -527,11 +527,15 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   }, [sheetOpen, editingId])
 
   useEffect(() => {
-    if (!dayTick || (mode !== 'month' && mode !== 'week')) return
-    const section = dayRef.current
-    const scroller = section?.closest('.cal-view')
-    if (!section || !(scroller instanceof HTMLElement)) return
+    if (!dayTick || mode !== 'month') return
+    return pinOverview(dayRef)
+  }, [dayTick])
+
+  function pinOverview(ref: { current: HTMLElement | null }) {
     const pin = () => {
+      const section = ref.current
+      const scroller = section?.closest('.cal-view')
+      if (!section || !(scroller instanceof HTMLElement)) return
       const delta = section.getBoundingClientRect().top - scroller.getBoundingClientRect().top
       if (Math.abs(delta) < 2) return
       scroller.scrollTop += delta
@@ -543,7 +547,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       window.cancelAnimationFrame(frame)
       window.clearTimeout(soon)
     }
-  }, [dayTick])
+  }
 
   function showDay(d: Date) {
     const day = startOfDay(d)
@@ -1009,44 +1013,6 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 </ul>
               </div>
             ))
-          )}
-        </section>
-      ) : null}
-
-      {mode === 'week' ? (
-        <section ref={dayRef} className="cal-day cal-day-compact" aria-label="Termine an diesem Tag">
-          <div className="cal-day-head">
-            <div>
-              <p className="cal-day-kicker">Termine</p>
-              <h3 className="cal-day-title">{dayHeading(selected, today)}</h3>
-            </div>
-            {dayEvents.length + dayRems.length ? (
-              <span className="cal-day-meta">
-                {`${dayEvents.length + dayRems.length} ${dayEvents.length + dayRems.length === 1 ? 'Eintrag' : 'Einträge'}`}
-              </span>
-            ) : null}
-          </div>
-          {dayEvents.length === 0 && dayRems.length === 0 ? (
-            <p className="memory-empty">Nichts an diesem Tag.</p>
-          ) : (
-            <ul className="cal-day-lines">
-              {dayEvents.map((e) => (
-                <li key={`${e.id}-${e.start_at}`}>
-                  <button type="button" className="cal-day-line" onClick={() => openEdit(e)}>
-                    <span>{timeLabel(e.start_at, e.all_day)}</span>
-                    <strong>{e.title}</strong>
-                  </button>
-                </li>
-              ))}
-              {dayRems.map((r) => (
-                <li key={r.id}>
-                  <span className="cal-day-line is-rem">
-                    <span>{formatDue(new Date(r.due_at))}</span>
-                    <strong>{r.title}</strong>
-                  </span>
-                </li>
-              ))}
-            </ul>
           )}
         </section>
       ) : null}

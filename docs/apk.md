@@ -1,6 +1,6 @@
-# Android-APK — Sideload `18.23.5`
+# Android-APK — Sideload `18.23.6`
 
-App-Code **`18.23.5`**. Sideload **`18.23.5`** (versionCode `182305`):
+App-Code **`18.23.6`**. Sideload **`18.23.6`** (versionCode `182306`):
 https://github.com/Gamerio2904/Jarvis/raw/cursor/kalender-jahr-ccff/releases/Jarvis.apk
 
 Ablauf: [`TEST-18.23.md`](./TEST-18.23.md). Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.

@@ -1,12 +1,14 @@
 # 95 — Ablauf auf der Tafel **CODE** (`18.23`)
 
-**Dieses Dokument ist CODE.** App-Code **`18.23.5`** (versionCode `182305`).
+**Dieses Dokument ist CODE.** App-Code **`18.23.6`** (versionCode `182306`).
 Sprints **410–416**. Katalog-Stand bleibt `18.20.0`. `18.23.1` macht das Fenster
 deckend, hält `So` nach einer Änderung und lässt aus `7:30` den Satz `Wecker um 7:30`.
 `18.23.2`: ein Bot fragt, bevor ein anderer dazukommt. `Ja` holt ihn, `Nein` nicht.
 `18.23.4`: die Tischplatte ist die Planung. Sprints und PSP sind JSON.
 `Lade den PSP runter` und `Lade alles zu Projekt …` speichern die Datei.
 Das Agentenfenster ist weg. Tisch sitzt in der Leiste unten links.
+`18.23.6`: ein Tipp auf den Tag zeigt alle Termine. Die Woche hat links die
+Uhrzeit ab 7 Uhr und oben die Tage.
 
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md). Kein zweites
 Brett, kein neues Hirn, kein neuer Agent.
