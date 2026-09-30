@@ -1,30 +1,56 @@
 import { useEffect, useState } from 'react'
-import { agentLabel, type Ablauf, type AblaufCard } from '../engine/ablauf.ts'
+import type { Ablauf, AblaufCard } from '../engine/ablauf.ts'
+import { guestLabel } from '../engine/bot-ask.ts'
+import { AgentGlyph } from './AgentGlyph.tsx'
 
 function reducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
+function activity(card: AblaufCard, stillWriting: boolean): { mood: 'think' | 'run' | 'wait' | 'edit' | 'bye'; text: string } {
+  if (card.state === 'läuft') return { mood: 'run', text: `führt aus: ${card.task}` }
+  if (card.state === 'geändert') return { mood: 'edit', text: `schreibt um: ${card.task}` }
+  if (card.state === 'fertig') return { mood: 'bye', text: 'fertig' }
+  if (card.state === 'leer') return { mood: 'bye', text: 'Noch leer.' }
+  if (stillWriting) return { mood: 'think', text: 'denkt nach' }
+  return { mood: 'wait', text: card.task }
+}
+
 export function AblaufWindow({
   plan,
   empty,
+  ask,
   onSo,
+  onYes,
+  onNo,
 }: {
   plan: Ablauf | null
   empty: boolean
+  ask: { from: string; agent: string; task: string } | null
   onSo: () => void
+  onYes: () => void
+  onNo: () => void
 }) {
   const [shownWork, setShownWork] = useState(0)
   const [shownCards, setShownCards] = useState(0)
   const [strike, setStrike] = useState(true)
+  const [left, setLeft] = useState<number[]>([])
   const cards: AblaufCard[] = plan ? plan.waves.flatMap((w) => w.cards) : []
   const writing = plan ? shownWork < plan.work.length || shownCards < cards.length : false
   const status = empty ? 'warten' : writing ? 'schreibt' : plan?.status || 'warten'
+  const doneKey = cards
+    .filter((c) => c.state === 'fertig' || c.state === 'leer')
+    .map((c) => c.n)
+    .join(',')
+
+  useEffect(() => {
+    setLeft([])
+  }, [plan?.id])
 
   useEffect(() => {
     if (!plan) return
     const touched = plan.waves.some((w) => w.cards.some((c) => c.state !== 'vorgeschlagen'))
-    if (touched || reducedMotion() || plan.status === 'läuft' || plan.status === 'fertig') {
+    if (touched || reducedMotion() || plan.status === 'läuft' || plan.status === 'fertig' || plan.status === 'fragt') {
       setShownWork(plan.work.length)
       setShownCards(cards.length)
       return
@@ -59,7 +85,18 @@ export function AblaufWindow({
     return () => window.clearTimeout(id)
   }, [plan?.updated_at])
 
-  const head = status === 'schreibt' ? 'schreibt' : status === 'läuft' ? 'läuft' : status === 'überarbeitet' ? 'überarbeitet' : 'warten'
+  useEffect(() => {
+    if (!doneKey) return
+    const ids = doneKey.split(',').map((n) => Number(n))
+    const wait = reducedMotion() ? 0 : 720
+    const id = window.setTimeout(() => {
+      setLeft((prev) => [...new Set([...prev, ...ids])])
+    }, wait)
+    return () => window.clearTimeout(id)
+  }, [doneKey])
+
+  const head = status === 'schreibt' ? 'schreibt' : status === 'läuft' ? 'läuft' : status === 'fragt' ? 'fragt' : status === 'überarbeitet' ? 'überarbeitet' : 'warten'
+  const cast = cards.filter((card, i) => i < shownCards && !left.includes(card.n))
 
   return (
     <section className={`ablauf-window${reducedMotion() ? ' is-still' : ''}`} aria-label="Ablauf">
@@ -68,55 +105,83 @@ export function AblaufWindow({
         <h2>{plan?.title || 'Ablauf'}</h2>
         <span>{head}</span>
       </header>
-      <div className="ablauf-cols">
-        <div>
-          <h3>Arbeit</h3>
-          <ul>
-            {plan?.work.slice(0, shownWork).map((line, i) => (
-              <li key={`${line}-${i}`} className={i === shownWork - 1 && shownWork < (plan?.work.length || 0) ? 'is-caret' : ''}>
-                {line}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h3>Wer</h3>
+      <div className="ablauf-body">
+        <article className="ablauf-sheet">
+          <h3>Plan</h3>
           {empty ? (
-            <p>Kein Ablauf. Der Text nennt keine konkrete Arbeit.</p>
-          ) : !plan ? null : (
-            plan.waves.map((wave) => {
-              const before = plan.waves.slice(0, plan.waves.indexOf(wave)).reduce((n, w) => n + w.cards.length, 0)
-              const visible = wave.cards.filter((_, i) => before + i < shownCards)
-              if (!visible.length && shownCards <= before) return null
-              return (
-                <div key={wave.n} className="ablauf-wave">
-                  <p>{wave.n === 1 ? 'Gleichzeitig' : 'Danach'}</p>
-                  <ul>
-                    {visible.map((card) => (
-                      <li key={card.n} className={card.state === 'läuft' ? 'is-run' : card.state === 'geändert' ? 'is-changed' : ''}>
-                        <strong>{agentLabel(card.agent)}</strong>
-                        {card.state === 'geändert' && card.was && strike ? <s>{card.was}</s> : null}
-                        <span>{card.task}</span>
-                        {card.state === 'geändert' ? <small>geändert</small> : null}
-                        {card.state === 'läuft' ? <i /> : null}
-                        {card.result ? <em>{card.result}</em> : null}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })
+            <p className="ablauf-empty">Kein Ablauf. Der Text nennt keine konkrete Arbeit.</p>
+          ) : (
+            <>
+              <ol className="ablauf-work">
+                {plan?.work.slice(0, shownWork).map((line, i) => (
+                  <li key={`${line}-${i}`} className={i === shownWork - 1 && writing ? 'is-caret' : ''}>
+                    {line}
+                  </li>
+                ))}
+              </ol>
+              {plan
+                ? plan.waves.map((wave) => {
+                    const before = plan.waves.slice(0, plan.waves.indexOf(wave)).reduce((n, w) => n + w.cards.length, 0)
+                    const visible = wave.cards.filter((_, i) => before + i < shownCards)
+                    if (!visible.length && shownCards <= before) return null
+                    return (
+                      <section key={wave.n} className="ablauf-wave">
+                        <p>{wave.n === 1 ? 'Gleichzeitig' : 'Danach'}</p>
+                        <ul>
+                          {visible.map((card) => (
+                            <li key={card.n} className={card.state === 'läuft' ? 'is-run' : card.state === 'geändert' ? 'is-changed' : ''}>
+                              <strong>{guestLabel(card.agent)}</strong>
+                              {card.state === 'geändert' && card.was && strike ? <s>{card.was}</s> : null}
+                              <span>{card.task}</span>
+                              {card.result ? <em>{card.result}</em> : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )
+                  })
+                : null}
+              {plan?.gray.length ? (
+                <ul className="ablauf-gray">
+                  {plan.gray.map((card) => (
+                    <li key={`${card.agent}-${card.task}`}>{card.agent}: {card.task}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </>
           )}
-          {plan?.gray.length ? (
-            <ul className="ablauf-gray">
-              {plan.gray.map((card) => (
-                <li key={`${card.agent}-${card.task}`}>{card.agent}: {card.task}</li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
+        </article>
+        <aside className="ablauf-cast" aria-label="Agenten">
+          <h3>Dabei</h3>
+          <ul>
+            {cast.map((card) => {
+              const now = activity(card, writing)
+              return (
+                <li key={card.n} className={now.mood === 'bye' ? 'is-bye' : 'is-in'}>
+                  <AgentGlyph agent={card.agent} mood={now.mood} />
+                  <div>
+                    <strong>{guestLabel(card.agent)}</strong>
+                    <p>{now.text}</p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </aside>
       </div>
-      {empty || !plan || writing || plan.status === 'läuft' || plan.status === 'leer' ? null : (
+      {ask ? (
+        <footer className="ablauf-ask">
+          <p>
+            {guestLabel(ask.from)} fragt: Darf {guestLabel(ask.agent)} dazukommen? {ask.task}
+          </p>
+          <button type="button" className="ablauf-so" onClick={onYes}>
+            Ja
+          </button>
+          <button type="button" className="ablauf-so" onClick={onNo}>
+            Nein
+          </button>
+        </footer>
+      ) : empty || !plan || writing || plan.status === 'läuft' || plan.status === 'leer' || plan.status === 'fragt' ? null : (
         <footer>
           <button type="button" className="ablauf-so" onClick={onSo}>
             So

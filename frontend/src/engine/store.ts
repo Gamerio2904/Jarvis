@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.23.1'
+export const APP_VERSION = '18.23.3'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -380,6 +380,8 @@ export type Settings = {
   ablauf_status: string
   /** Nach dem Lauf zeigt die Sprintliste diese Zeile, bis „Zeig Sprints“. */
   ablauf_list_id: string
+  /** Eine offene Bitte, einen anderen Bot dazuzuholen. Kein Lauf ohne Ja. */
+  bot_ask_json: string
   proposal_pending: boolean
   github_token: string
   agent_network_v2: boolean
@@ -569,6 +571,7 @@ export const DEFAULT_SETTINGS: Settings = {
   ablauf_id: '',
   ablauf_status: '',
   ablauf_list_id: '',
+  bot_ask_json: '',
   proposal_pending: false,
   github_token: '',
   agent_network_v2: true,

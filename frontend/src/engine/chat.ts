@@ -10,6 +10,7 @@ import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeAllowedForRoute, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { contradictionSearchAsk, rewriteFollowUp } from './last-step.ts'
+import { parseBotAskIntent } from './bot-ask.ts'
 import { skipMicroMerge, SKIP_MICRO_MERGE_TOOLS, type ChatBlock } from './chat-blocks.ts'
 import {
   acceptResearchPending,
@@ -608,12 +609,13 @@ export async function streamChat(
     )
     const texts = queue.map((p) => rewriteFollowUp(p, settingsNow) ?? p)
     const rewritten = texts[0] || content
-    const accepted = !deviceBusy ? acceptResearchPending(content, researchPending) : null
+    const botAsk = Boolean(parseBotAskIntent(content))
+    const accepted = !deviceBusy && !botAsk ? acceptResearchPending(content, researchPending) : null
     let ask = accepted?.utterance || rewritten
     const contradictionAsk = contradictionSearchAsk(content, settingsNow)
     if (contradictionAsk) ask = contradictionAsk
     const routeTexts = accepted ? [ask] : texts
-    if (!deviceBusy && declineResearchPending(content, researchPending) && settingsNow.last_step_tool === 'research_offer') {
+    if (!deviceBusy && !botAsk && declineResearchPending(content, researchPending) && settingsNow.last_step_tool === 'research_offer') {
       persistResearchDone('cancelled')
       const reply = 'Suche nicht.'
       setLatencyPath('parser')

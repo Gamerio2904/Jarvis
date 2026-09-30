@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.23.1`**. Sideload **`18.23.1`**, versionCode `182301`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.23.3`**. Sideload **`18.23.3`**, versionCode `182303`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -916,11 +916,11 @@ Sprints 404–409. Test: [`TEST-18.22.md`](./TEST-18.22.md).
 
 ### `18.23` — Ablauf [`95-next.md`](./95-next.md) **CODE**
 
-**`18.23.1`** (App-Code, versionCode `182301`). `Plane das` öffnet ein Fenster
+**`18.23.3`** (App-Code, versionCode `182303`). `Plane das` öffnet ein Fenster
 über der Tafel, das Modell schreibt den Ablauf, `So` führt die Wellen
 gleichzeitig aus. Jede Sprintvorlage und jeder Ablauf liegen im Hausstand.
-`18.23.1` deckt die Tafel ab, lässt `So` nach einer Änderung stehen und macht
-aus einer nackten Uhrzeit den Satz `Wecker um 7:30`.
+`18.23.1` deckt die Tafel ab. `18.23.2`: ein Bot fragt, bevor Recherche oder
+ein anderer Bot dazukommt. `Ja` holt ihn, `Nein` lässt ihn draußen.
 Sprints 410–416. Test: [`TEST-18.23.md`](./TEST-18.23.md).
 Katalog-Stand bleibt `18.20.0`.
 
@@ -934,6 +934,8 @@ Katalog-Stand bleibt `18.20.0`.
 | `18.23.0` | Gold, Testkarten, versionCode `182300` | 415 CODE |
 | `18.23.0` | Jede Planungsdatei im Hausstand | 416 CODE |
 | `18.23.1` | Fenster deckend, Uhrzeit bleibt ein Satz, `So` bleibt | Nachtest |
+| `18.23.2` | Bot fragt, bevor ein anderer dazukommt | Nachtest |
+| `18.23.3` | Großes Fenster, Agenten als Figuren, Plan live | Nachtest |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

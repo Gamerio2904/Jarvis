@@ -26,8 +26,9 @@ import {
   type MemoryProposal,
 } from '../engine/store.ts'
 import type { ResearchSource } from '../engine/research-parse.ts'
-import { agentLabel, readPlan, type Ablauf } from '../engine/ablauf.ts'
+import { readPlan, type Ablauf } from '../engine/ablauf.ts'
 import { ablaufWindowOpen } from '../engine/ablauf-state.ts'
+import { guestLabel, readBotAsk, type BotAsk } from '../engine/bot-ask.ts'
 import { AblaufWindow } from './AblaufWindow.tsx'
 import { BoardStage } from './BoardStage.tsx'
 
@@ -81,6 +82,7 @@ export function Workbench({
   const [listPlan, setListPlan] = useState<Ablauf | null>(null)
   const [windowOn, setWindowOn] = useState(() => ablaufWindowOpen())
   const [emptyPlanView, setEmptyPlanView] = useState(false)
+  const [botAsk, setBotAsk] = useState<BotAsk | null>(null)
 
   useEffect(() => {
     let dead = false
@@ -127,6 +129,7 @@ export function Workbench({
         setMotion(readMotion())
         setWindowOn(ablaufWindowOpen(settings.ablauf_status))
         setEmptyPlanView(settings.ablauf_status === 'leer')
+        setBotAsk(readBotAsk())
         void readPlan(settings.ablauf_id).then((row) => {
           if (!dead) setOpenPlan(row || null)
         })
@@ -167,7 +170,7 @@ export function Workbench({
     ? listPlan.waves.flatMap((wave) =>
         wave.cards.map((card) => ({
           n: String(card.n),
-          line: `${agentLabel(card.agent)}: ${card.task}${card.state === 'leer' ? ' · Noch leer.' : ' · fertig'}`,
+          line: `${guestLabel(card.agent)}: ${card.task}${card.state === 'leer' ? ' · Noch leer.' : ' · fertig'}`,
         })),
       )
     : active
@@ -223,7 +226,10 @@ export function Workbench({
         <AblaufWindow
           plan={openPlan}
           empty={emptyPlanView}
+          ask={botAsk}
           onSo={() => window.dispatchEvent(new CustomEvent('jarvis-say', { detail: { text: 'So' } }))}
+          onYes={() => window.dispatchEvent(new CustomEvent('jarvis-say', { detail: { text: 'Ja' } }))}
+          onNo={() => window.dispatchEvent(new CustomEvent('jarvis-say', { detail: { text: 'Nein' } }))}
         />
       ) : null}
     </div>
