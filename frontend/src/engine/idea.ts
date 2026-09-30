@@ -7,10 +7,12 @@ import {
   persistLastList,
   putIdea,
   readLastList,
+  saveSettings,
   setPending,
   type Idea,
 } from './store.ts'
 import { handleAblauf } from './ablauf.ts'
+import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
 import { completeGroq, groqReady } from './groq.ts'
@@ -99,10 +101,74 @@ export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
   return null
 }
 
+function clausesOf(work: string): string[] {
+  return work
+    .split(/,|\s+und\s+/i)
+    .map((s) => s.replace(/\s+/g, ' ').trim())
+    .filter((s) => s.length >= 3)
+    .slice(0, 6)
+}
+
+async function planOntoTable(intent: AblaufIntent): Promise<string> {
+  saveSettings({
+    tischplatte_on: true,
+    tischplatte_view: 'psp',
+    ablauf_status: '',
+    ablauf_id: '',
+    bot_ask_json: '',
+  })
+  if (intent.kind === 'open' && !intent.work) return 'Was soll geplant werden?'
+  if (intent.kind === 'close') return 'Das Planfenster ist zu. Die Sprints bleiben auf der Tischplatte.'
+  if (intent.kind === 'accept') return 'Die Sprints liegen auf der Tischplatte. Sag: Lade den PSP runter.'
+  if (intent.kind === 'revise') return reviseProject(intent.text)
+  if (intent.kind === 'open' && intent.work) return writeProject(intent.work)
+  return 'Planen schreibt Sprints und PSP auf der Tischplatte.'
+}
+
+async function writeProject(work: string): Promise<string> {
+  const parts = clausesOf(work)
+  const title = (parts[0] || work).slice(0, 72)
+  const rows = await listIdeas()
+  let hit = rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
+  if (!hit) hit = await addIdea(title, work)
+  const plan = emptyPlan(hit.id)
+  plan.sprints[0].ziel = (parts[0] || title).slice(0, 160)
+  plan.sprints[0].lieferumfang = parts.map((task, i) => ({
+    id: `S1-${i + 1}`,
+    task: task.slice(0, 120),
+    anleitung: task.slice(0, 160),
+  }))
+  plan.sprints[1].ziel = (parts[1] || 'Grenzen und Tests festhalten').slice(0, 160)
+  plan.sprints[2].ziel = (parts[2] || 'Einen Durchlauf prüfen').slice(0, 160)
+  await putIdea({ ...hit, body: work, plan })
+  persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
+  return `${formatPlan(plan, hit.title)}\n\nSag: Lade den PSP runter. Oder: Lade alles zu Projekt ${hit.title}.`
+}
+
+async function reviseProject(text: string): Promise<string> {
+  const line = text.replace(/\s+/g, ' ').trim()
+  if (line.length < 2) return 'Die Zeile ist leer.'
+  const rows = await listIdeas()
+  const hit = rows.find((r) => r.status === 'open') || rows[0]
+  if (!hit) return 'Noch kein Projekt auf der Tischplatte.'
+  const plan = hit.plan || emptyPlan(hit.id)
+  const sprint = findSprint(plan, '1')
+  if (!sprint) return 'Diesen Kern-Sprint gibt es nicht.'
+  const k = sprint.lieferumfang.length + 1
+  sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: line.slice(0, 160) })
+  await putIdea({ ...hit, plan })
+  return formatPlan(plan, hit.title)
+}
+
 export async function handleIdea(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const table = parseAblaufIntent(text)
+  if (table) {
+    const reply = await planOntoTable(table)
+    return pack(reply, 'plan_table')
+  }
   const ablauf = await handleAblauf(conversationId, text)
   if (ablauf.handled) return { handled: true, reply: ablauf.reply, tool: ablauf.tool }
   const intent = parseIdeaIntent(text)

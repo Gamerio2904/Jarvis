@@ -99,6 +99,7 @@ import {
   IconGlobe,
   IconHome,
   IconMic,
+  IconTisch,
   NavIsland,
 } from './ui/NavIsland.tsx'
 import { ReplyOrb } from './ui/ReplyOrb.tsx'
@@ -1660,12 +1661,15 @@ function App() {
         ? 'calendar'
         : voiceOpen && !voiceCompact
           ? 'voice'
-          : homeOpen
-            ? 'home'
-            : lageOn
+            : homeOpen
+              ? liveHud.tischplatte_on
+                ? 'tisch'
+                : 'home'
+              : lageOn
               ? 'lage'
               : 'chat'
   const dockItems = [
+    { id: 'tisch', label: 'Tisch', icon: <IconTisch /> },
     { id: 'home', label: 'Start', icon: <IconHome /> },
     { id: 'chat', label: 'Chat', icon: <IconChat /> },
     { id: 'lage', label: 'Lage', icon: <IconGlobe /> },
@@ -1717,7 +1721,12 @@ function App() {
       setDriveOpen(false)
       setChessOpen(false)
       closeSheet('drive')
-      void patchSettings({ hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
+      void patchSettings({ hud_force: false, hud_hidden: true, tischplatte_on: false }).then((s) => setSettings(s))
+      return
+    }
+    if (id === 'tisch') {
+      showTischplatte()
+      void patchSettings({ tischplatte_on: true, hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
       return
     }
     if (id === 'chat') {

@@ -452,7 +452,8 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
       board.kind === 'jobs' ||
       board.kind === 'theme' ||
       board.kind === 'place' ||
-      board.kind === 'stop')
+      board.kind === 'stop' ||
+      board.kind === 'download')
   ) {
     out = drop(out, 'hud')
     out = drop(out, 'desk')

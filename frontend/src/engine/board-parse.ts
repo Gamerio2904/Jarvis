@@ -18,6 +18,7 @@ export type BoardIntent =
   | { kind: 'place'; op: 'throw'; piece: PieceId | null }
   | { kind: 'place'; op: 'recall'; piece: PieceId | null }
   | { kind: 'place'; op: 'clear' }
+  | { kind: 'download'; which: 'psp' | 'sprints' | 'all'; query?: string }
 
 const END = String.raw`[.!?]?\s*$`
 
@@ -61,6 +62,12 @@ const PLANNED = new RegExp(
 const CAN = new RegExp(String.raw`^\s*was\s+kann\s+jarvis\s*` + END, 'i')
 const FEATURES = new RegExp(String.raw`^\s*welche\s+features?\s+hat\s+(?:der|die|das)?\s*(.+?)\s*` + END, 'i')
 const DOCS = new RegExp(String.raw`^\s*lies(?:e)?(?:\s+die)?\s+docs\s+zu\s+(.+?)\s*` + END, 'i')
+
+const DOWNLOAD = new RegExp(
+  String.raw`^\s*lade(?:\s+mir)?\s+(?:den\s+|die\s+|das\s+)?(psp|sprints?|projektdateien|alles)(?:\s+runter|\s+herunter)?(?:\s+(?:zu|für|fuer|von)\s+projekt\s+(.+?))?(?:\s+runter|\s+herunter)?\s*` +
+    END,
+  'i',
+)
 
 const JOBS = new RegExp(
   String.raw`^\s*(?:such(?:e)?|recherchier(?:e)?)\s+(?:open[\s-]?source|opensource|github)\s+(?:zu|nach|für)\s+(.+?)(?:\s+und\s+plan(?:e)?\s+sprints?(?:\s+für)?(?:\s+idee)?\s+(.+))?\s*` +
@@ -136,6 +143,13 @@ export function parseBoardIntent(text: string): BoardIntent | null {
   if (thrown) return { kind: 'place', op: 'throw', piece: pieceFromName(thrown[1] || thrown[2] || '') }
   const back = PLACE_BACK.exec(t)
   if (back) return { kind: 'place', op: 'recall', piece: pieceFromName(back[1] || '') }
+  const download = DOWNLOAD.exec(t)
+  if (download) {
+    const raw = (download[1] || '').toLowerCase()
+    const which = raw === 'psp' ? 'psp' : raw.startsWith('sprint') ? 'sprints' : 'all'
+    const query = (download[2] || '').trim().replace(/[.!?]+$/g, '')
+    return query ? { kind: 'download', which, query } : { kind: 'download', which }
+  }
   if (VIEW_SPRINTS.test(t)) return { kind: 'view', view: 'sprints' }
   if (VIEW_PSP.test(t)) return { kind: 'view', view: 'psp' }
   if (VIEW_MOD.test(t)) return { kind: 'view', view: 'modules' }

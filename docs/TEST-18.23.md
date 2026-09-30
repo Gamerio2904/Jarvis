@@ -97,8 +97,7 @@ Hintergrund blau schwarz
 Schieb die Sprintliste nach links
 ```
 
-Bei offenem Fenster: `Der Ablauf liegt auf dem Tisch.` Die Sprintliste
-bleibt liegen.
+Die Sprintliste rückt nach links. Die Tafel bleibt die Planung.
 
 ## 5. Hausstand
 
