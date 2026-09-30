@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.20.0` — YouTube-Highlights — *PLAN*
+
+Top-Liste aus 1–3 YouTube-Links, Schnitt auf dem PC, Datei lokal, kein
+Upload. Sprints 392–397. Noch kein Code, APK bleibt `18.19.0`.
+[`92-next.md`](./92-next.md).
+
 ### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE + APK*
 
 Glas-Werkbank: **ein** Jarvis-Theme. Tischplatte an blendet App-Icons aus

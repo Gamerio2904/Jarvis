@@ -755,6 +755,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.17.0` | Kalender Alltag: Hausstand-Termine, ICS, Serie, Konflikt | 377–381 **CODE + APK** |
 | `18.18.0` | Homescreen: App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel | 382–384 **CODE** |
 | `18.19.0` | Tischplatte, Deep Research, Hirn-Vorschläge | 385–391 **CODE** |
+| `18.20.0` | YouTube-Highlights, PC-Schnitt, kein Upload | 392–397 **PLAN** |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -867,6 +868,20 @@ Memory-Vorschläge. Sprints 385–391 **CODE + APK**. Test: [`TEST-18.19.md`](./
 | `18.19.0` | Jobs Recherche + Plan | 389 CODE + APK |
 | `18.19.0` | MemoryProposal → writeMemory | 390 CODE + APK |
 | `18.19.0` | Gold, Konflikte, Tests | 391 CODE + APK |
+
+### `18.20` — YouTube-Highlights [`92-next.md`](./92-next.md) **PLAN**
+
+**`18.20.0`** ist nicht gebaut. Top-Liste aus 1–3 YouTube-Links, Schnitt auf
+dem PC, Datei lokal, kein Upload. Sprints 392–397. APK bleibt `18.19.0`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.20.0` | Parser `clip`, Ja-Satz | 392 PLAN |
+| `18.20.0` | PC-Probe, json3, Werkzeug ehrlich | 393 PLAN |
+| `18.20.0` | Groq-Rang, Grenzen | 394 PLAN |
+| `18.20.0` | Bildtitel, Gemini ein JPEG | 395 PLAN |
+| `18.20.0` | Render 1080×1920, ASS, ein Wort | 396 PLAN |
+| `18.20.0` | Gold, Fixture, Job-TTL | 397 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
