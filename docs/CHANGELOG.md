@@ -10,7 +10,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 `Zeig mir ein Bild der Elbe` zeigt ein Wikipedia-Bild mit Quelle. `wie sieht das wappen von bayern münchen aus` nimmt das Wappen von OpenLigaDB. `Zeig mir London` bleibt die Kugel. Ohne Treffer: `Kein Bild geladen.`
 
 App-Code und Sideload **`18.23.12`** (versionCode `182312`):
-https://github.com/Gamerio2904/Jarvis/raw/cursor/bild-auf-verlangen-ccff/releases/Jarvis.apk
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.23.11` — Hausstand per QR — *CODE*
 
