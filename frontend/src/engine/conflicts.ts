@@ -6,6 +6,7 @@ import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
 import { parseBoardIntent } from './board-parse.ts'
 import { parseAblaufIntent } from './ablauf-parse.ts'
+import { parseBotAskIntent } from './bot-ask.ts'
 import { parseXferIntent } from './xfer-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
@@ -112,6 +113,11 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'film')
     out = drop(out, 'drive')
     out = boost(out, 'watchlist', 0.18)
+  }
+
+  if (parseBotAskIntent(text)) {
+    out = drop(out, 'board')
+    out = boost(out, 'idea', 0.4)
   }
 
   if (parseAblaufIntent(text)) {

@@ -8230,6 +8230,16 @@ html.theme-wipe-dark::before {
   color: var(--text-muted);
 }
 
+.ablauf-ask {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.ablauf-ask p {
+  flex: 1 1 100%;
+  overflow-wrap: anywhere;
+}
+
 .ablauf-so {
   border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 55%, #0c2430);
   background: color-mix(in srgb, var(--board-accent, var(--accent)) 18%, #0c2430);
@@ -8240,7 +8250,7 @@ html.theme-wipe-dark::before {
 
 @media (min-width: 900px) {
   .ablauf-window {
-    width: min(720px, 78vw);
+    width: min(720px, calc(100% - 24px));
   }
 
   .ablauf-cols {

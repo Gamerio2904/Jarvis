@@ -18,7 +18,8 @@ function otherWish(): boolean {
       s.last_comm_json ||
       s.last_pc_json ||
       s.last_taxi_json ||
-      s.last_interrupt_json,
+      s.last_interrupt_json ||
+      s.bot_ask_json,
   )
 }
 

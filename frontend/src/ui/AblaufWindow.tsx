@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { agentLabel, type Ablauf, type AblaufCard } from '../engine/ablauf.ts'
+import type { Ablauf, AblaufCard } from '../engine/ablauf.ts'
+import { guestLabel } from '../engine/bot-ask.ts'
 
 function reducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -8,11 +9,17 @@ function reducedMotion(): boolean {
 export function AblaufWindow({
   plan,
   empty,
+  ask,
   onSo,
+  onYes,
+  onNo,
 }: {
   plan: Ablauf | null
   empty: boolean
+  ask: { from: string; agent: string; task: string } | null
   onSo: () => void
+  onYes: () => void
+  onNo: () => void
 }) {
   const [shownWork, setShownWork] = useState(0)
   const [shownCards, setShownCards] = useState(0)
@@ -59,7 +66,7 @@ export function AblaufWindow({
     return () => window.clearTimeout(id)
   }, [plan?.updated_at])
 
-  const head = status === 'schreibt' ? 'schreibt' : status === 'läuft' ? 'läuft' : status === 'überarbeitet' ? 'überarbeitet' : 'warten'
+  const head = status === 'schreibt' ? 'schreibt' : status === 'läuft' ? 'läuft' : status === 'fragt' ? 'fragt' : status === 'überarbeitet' ? 'überarbeitet' : 'warten'
 
   return (
     <section className={`ablauf-window${reducedMotion() ? ' is-still' : ''}`} aria-label="Ablauf">
@@ -94,7 +101,7 @@ export function AblaufWindow({
                   <ul>
                     {visible.map((card) => (
                       <li key={card.n} className={card.state === 'läuft' ? 'is-run' : card.state === 'geändert' ? 'is-changed' : ''}>
-                        <strong>{agentLabel(card.agent)}</strong>
+                        <strong>{guestLabel(card.agent)}</strong>
                         {card.state === 'geändert' && card.was && strike ? <s>{card.was}</s> : null}
                         <span>{card.task}</span>
                         {card.state === 'geändert' ? <small>geändert</small> : null}
@@ -116,7 +123,19 @@ export function AblaufWindow({
           ) : null}
         </div>
       </div>
-      {empty || !plan || writing || plan.status === 'läuft' || plan.status === 'leer' ? null : (
+      {ask ? (
+        <footer className="ablauf-ask">
+          <p>
+            {guestLabel(ask.from)} fragt: Darf {guestLabel(ask.agent)} dazukommen? {ask.task}
+          </p>
+          <button type="button" className="ablauf-so" onClick={onYes}>
+            Ja
+          </button>
+          <button type="button" className="ablauf-so" onClick={onNo}>
+            Nein
+          </button>
+        </footer>
+      ) : empty || !plan || writing || plan.status === 'läuft' || plan.status === 'leer' || plan.status === 'fragt' ? null : (
         <footer>
           <button type="button" className="ablauf-so" onClick={onSo}>
             So

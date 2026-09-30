@@ -2,6 +2,9 @@ import { AGENT_META } from './agents/meta.ts'
 import { EXECUTOR_IDS } from './agents/executor-ids.ts'
 import { parseAblaufIntent } from './ablauf-parse.ts'
 import { ablaufWaiting } from './ablauf-state.ts'
+import { clearBotAsk, fileBotAsk, formatAsk, guestLabel, offerForResult, parseBotAskIntent, readBotAsk } from './bot-ask.ts'
+import { pickRoute } from './route-pick.ts'
+import { formatResearchReply, researchHasSources } from './research-parse.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { get, getAll, listIdeas, listMessages, loadSettings, newId, put, saveSettings } from './store.ts'
@@ -20,7 +23,7 @@ export type AblaufCard = {
 
 export type AblaufWave = { n: number; cards: AblaufCard[] }
 
-export type AblaufStatus = 'schreibt' | 'warten' | 'überarbeitet' | 'läuft' | 'zu' | 'fertig' | 'leer'
+export type AblaufStatus = 'schreibt' | 'warten' | 'überarbeitet' | 'läuft' | 'fragt' | 'zu' | 'fertig' | 'leer'
 
 export type Ablauf = {
   id: string
@@ -95,7 +98,7 @@ export function formatAblauf(plan: Ablauf, tail?: string): string {
   const lines = ['Ablauf.']
   for (const wave of plan.waves) {
     lines.push(wave.n === 1 ? 'Gleichzeitig' : 'Danach')
-    for (const card of wave.cards) lines.push(`${card.n}. ${agentLabel(card.agent)}: ${card.task}`)
+    for (const card of wave.cards) lines.push(`${card.n}. ${guestLabel(card.agent)}: ${card.task}`)
   }
   for (const card of plan.gray) lines.push(`${card.agent}: ${card.task}`)
   if (tail) lines.push(tail)
@@ -107,7 +110,7 @@ export function formatRun(plan: Ablauf): string {
   const lines: string[] = []
   for (const wave of plan.waves) {
     for (const card of wave.cards) {
-      lines.push(`${agentLabel(card.agent)}: ${card.result || 'Noch leer.'}`)
+      lines.push(`${guestLabel(card.agent)}: ${card.result || 'Noch leer.'}`)
     }
   }
   return lines.join('\n')
@@ -345,42 +348,104 @@ async function openWork(conversationId: string, work: string | undefined): Promi
   return pack(formatAblauf(draft), 'ablauf')
 }
 
-async function runWaves(plan: Ablauf, conversationId: string): Promise<void> {
+function takenAgents(plan: Ablauf): string[] {
+  return allCards(plan).map((c) => c.agent)
+}
+
+async function settleCard(card: AblaufCard, conversationId: string): Promise<void> {
+  const { runAgent } = await import('./agents/runner.ts')
+  try {
+    const result = await runAgent(card.agent, {
+      conversationId,
+      text: card.task,
+      lastTool: '',
+      lastMedium: '',
+      inDrive: false,
+    })
+    const reply = (result.reply || '').replace(/\s+/g, ' ').trim()
+    if (!result.handled || result.failed || result.aborted || !reply) {
+      card.state = 'leer'
+      card.result = 'Noch leer.'
+    } else {
+      card.state = 'fertig'
+      card.result = reply.slice(0, 240)
+    }
+  } catch {
+    card.state = 'leer'
+    card.result = 'Noch leer.'
+  }
+}
+
+async function runResearchGuest(task: string): Promise<{ ok: boolean; reply: string }> {
+  try {
+    const { fillResearchLinks } = await import('./web-search.ts')
+    const filled = await fillResearchLinks(task, '')
+    if (!researchHasSources(filled)) return { ok: false, reply: 'Netz hat nicht geantwortet.' }
+    const reply = formatResearchReply(task, filled.sources || [], false, false).replace(/\s+/g, ' ').trim()
+    return { ok: true, reply: reply.slice(0, 240) }
+  } catch {
+    return { ok: false, reply: 'Netz hat nicht geantwortet.' }
+  }
+}
+
+async function runGuest(agent: string, task: string, conversationId: string): Promise<{ ok: boolean; reply: string }> {
+  if (agent === 'research') return runResearchGuest(task)
+  const card: AblaufCard = { n: 0, agent, task, state: 'vorgeschlagen' }
+  await settleCard(card, conversationId)
+  return { ok: card.state === 'fertig', reply: card.result || 'Noch leer.' }
+}
+
+function rememberGuest(plan: Ablauf, agent: string, task: string, ok: boolean, reply: string): void {
+  const count = allCards(plan).length
+  if (count >= 8) return
+  const wave = plan.waves[plan.waves.length - 1]
+  if (!wave || wave.cards.length >= 6) return
+  const n = count + 1
+  wave.cards.push({ n, agent, task, state: ok ? 'fertig' : 'leer', result: reply })
+}
+
+/** Spätere Wellen warten, sobald ein Bot einen anderen dazuholen will. */
+async function runFrom(plan: Ablauf, conversationId: string, startAfter: number): Promise<void> {
   skipLaterWaves = false
   plan.status = 'läuft'
   await savePlan(plan)
   pointAt(plan)
-  const { runAgent } = await import('./agents/runner.ts')
   for (const wave of plan.waves) {
-    for (const card of wave.cards) card.state = 'läuft'
+    if (wave.n <= startAfter) continue
+    const pending = wave.cards.filter((c) => c.state === 'vorgeschlagen')
+    if (!pending.length) continue
+    for (const card of pending) card.state = 'läuft'
     await savePlan(plan)
-    await Promise.all(
-      wave.cards.map(async (card) => {
-        try {
-          const result = await runAgent(card.agent, {
-            conversationId,
-            text: card.task,
-            lastTool: '',
-            lastMedium: '',
-            inDrive: false,
-          })
-          const reply = (result.reply || '').replace(/\s+/g, ' ').trim()
-          if (!result.handled || result.failed || result.aborted || !reply) {
-            card.state = 'leer'
-            card.result = 'Noch leer.'
-          } else {
-            card.state = 'fertig'
-            card.result = reply.slice(0, 240)
-          }
-        } catch {
-          card.state = 'leer'
-          card.result = 'Noch leer.'
-        }
-      }),
-    )
+    await Promise.all(pending.map((card) => settleCard(card, conversationId)))
     await savePlan(plan)
     if (skipLaterWaves) break
+    const taken = takenAgents(plan)
+    for (const card of pending) {
+      const offer = offerForResult({
+        from: card.agent,
+        task: card.task,
+        reply: card.result || '',
+        empty: card.state === 'leer',
+        taken,
+        routed: pickRoute(card.task),
+      })
+      if (!offer) continue
+      const ask = fileBotAsk({
+        from: card.agent,
+        agent: offer.agent,
+        task: offer.task,
+        why: offer.why,
+        ablaufId: plan.id,
+        afterWave: wave.n,
+      })
+      if (!ask) continue
+      plan.status = 'fragt'
+      await savePlan(plan)
+      pointAt(plan)
+      return
+    }
   }
+  if (readBotAsk()?.ablauf_id === plan.id) return
   plan.status = skipLaterWaves ? 'zu' : 'fertig'
   await savePlan(plan)
   saveSettings({
@@ -388,6 +453,28 @@ async function runWaves(plan: Ablauf, conversationId: string): Promise<void> {
     ablauf_status: plan.status,
     ablauf_list_id: plan.status === 'fertig' ? plan.id : '',
   })
+}
+
+async function finishAsk(conversationId: string, accepted: boolean): Promise<{ handled: true; reply: string; tool: ToolMeta }> {
+  const ask = readBotAsk()
+  if (!ask) return pack('Es ist keine Bitte offen.', 'bot_ask_none')
+  clearBotAsk()
+  const plan = ask.ablauf_id ? await readPlan(ask.ablauf_id) : undefined
+  let line = `${guestLabel(ask.agent)} bleibt draußen.`
+  if (accepted) {
+    const guest = await runGuest(ask.agent, ask.task, conversationId)
+    line = `${guestLabel(ask.agent)}: ${guest.reply}`
+    if (plan) rememberGuest(plan, ask.agent, ask.task, guest.ok, guest.reply)
+  }
+  if (plan && plan.status === 'fragt') {
+    await runFrom(plan, conversationId, ask.after_wave)
+  } else if (plan) {
+    await savePlan(plan)
+  }
+  const done = plan ? (await readPlan(plan.id)) || plan : null
+  const again = readBotAsk()
+  const reply = done ? `${formatRun(done)}\n${again ? formatAsk(again) : line}` : line
+  return pack(reply, accepted ? 'bot_ask_yes' : 'bot_ask_no')
 }
 
 export function requestAblaufStop(): void {
@@ -398,6 +485,9 @@ export async function handleAblauf(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const asked = parseBotAskIntent(text)
+  if (asked) return finishAsk(conversationId, asked.kind === 'accept')
+
   const intent = parseAblaufIntent(text)
   if (!intent) return { handled: false }
 
@@ -416,6 +506,7 @@ export async function handleAblauf(
       requestAblaufStop()
       return pack('Ablauf zu.', 'ablauf_close')
     }
+    clearBotAsk()
     current.status = 'zu'
     await savePlan(current)
     pointAt(current)
@@ -425,9 +516,11 @@ export async function handleAblauf(
   if (!current || !ablaufWaiting(current.status)) return pack('Es ist kein Ablauf offen.', 'ablauf_none')
 
   if (intent.kind === 'accept') {
-    await runWaves(current, conversationId)
+    await runFrom(current, conversationId, 0)
     const done = (await readPlan(current.id)) || current
-    return pack(formatRun(done), 'ablauf_run')
+    const ask = readBotAsk()
+    const reply = ask && ask.ablauf_id === done.id ? `${formatRun(done)}\n${formatAsk(ask)}` : formatRun(done)
+    return pack(reply, ask ? 'bot_ask' : 'ablauf_run')
   }
 
   const card = findCard(current, intent.name, intent.text)

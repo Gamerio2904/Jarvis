@@ -65,6 +65,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_doc_json',
   'last_taxi_json',
   'last_interrupt_json',
+  'bot_ask_json',
   'last_outlook_json',
   'last_outlook_notified',
   'last_outlook_line',

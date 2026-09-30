@@ -5,6 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.2` — Bot fragt Bot — *CODE*
+
+Ein Bot holt keinen anderen still dazu. Bleibt eine Zeile leer und die Frage
+gehört ins Netz, fragt er, ob Recherche dazukommen darf. Passt der Satz schon
+zu einem anderen Bot, fragt er den. `Ja` holt ihn, `Nein` lässt ihn draußen.
+Ein Merk-Vorschlag behält `Ja` und `Nein`.
+
+App-Code und Sideload **`18.23.2`** (versionCode `182302`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/bot-anfrage-0052/releases/Jarvis.apk
+
 ### `18.23.1` — Ablauf lesbar — *CODE*
 
 Das Fenster deckt die Tafel ab. Eine nackte Uhrzeit bleibt ein Wecker-Satz
