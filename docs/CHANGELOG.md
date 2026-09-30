@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.0` — Ablauf auf der Tafel — *PLAN*
+
+`Plane das` öffnet ein Fenster mitten auf der Tafel. Das Modell schreibt,
+welcher vorhandene Agent was tut. `So` führt eine Welle gleichzeitig aus,
+die nächste erst danach. Kein neuer Agent, kein Code aus dem Gerät.
+Sprints 410–415. [`95-next.md`](./95-next.md). Test: [`TEST-18.23.md`](./TEST-18.23.md).
+
+Noch kein App-Code. Sideload bleibt **`18.22.0`**.
+
 ### `18.20.1` — Tafel sagt, was gilt — *CODE + APK*
 
 „Hintergrund blau schwarz“ stellt Pulse, blau auf schwarz. Der Mini-Chat

@@ -5,6 +5,8 @@ https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/release
 
 Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.
 
+Geplant, nicht in dieser Datei: Ablauf `18.23` [`95-next.md`](./95-next.md).
+
 Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). YouTube-Schnitt schreibt die Datei erst auf einem Windows-PC mit JarvisPC.
 
 **18.18.0:** Homescreen. In Sideload **`18.19.0`**.

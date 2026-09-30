@@ -914,6 +914,23 @@ Sprints 404–409. Test: [`TEST-18.22.md`](./TEST-18.22.md).
 | `18.22.0` | Ring, nacheinander, Antwort nach der Fahrt | 408 CODE |
 | `18.22.0` | Gold, Testkarten, versionCode `182200` | 409 CODE |
 
+### `18.23` — Ablauf [`95-next.md`](./95-next.md) **PLAN**
+
+Noch kein App-Code. Sideload bleibt **`18.22.0`** (versionCode `182200`).
+Ziel beim Ausführen: **`18.23.0`**, versionCode `182300`. `Plane das` öffnet
+ein Fenster über der Tafel, das Modell schreibt den Ablauf, `So` führt die
+Wellen gleichzeitig aus. Sprints 410–415. Test: [`TEST-18.23.md`](./TEST-18.23.md).
+Katalog-Stand bleibt `18.20.0`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.23.0` | Sätze, Speicher | 410 PLAN |
+| `18.23.0` | Modell füllt Wellen | 411 PLAN |
+| `18.23.0` | Fenster, live, Knopf So | 412 PLAN |
+| `18.23.0` | Eine Zeile ändern | 413 PLAN |
+| `18.23.0` | Wellen gleichzeitig | 414 PLAN |
+| `18.23.0` | Gold, Testkarten, versionCode `182300` | 415 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
