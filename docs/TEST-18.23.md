@@ -1,6 +1,6 @@
 # TEST 18.23 — Ablauf
 
-Noch nicht in der App. Plan [`95-next.md`](./95-next.md), Sprints 410–415.
+Noch nicht in der App. Plan [`95-next.md`](./95-next.md), Sprints 410–416.
 Sideload bleibt **`18.22.0`**. Die Kästen kommen in Spur Heute erst mit
 Sprint 415. Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat.
 
@@ -99,3 +99,14 @@ Schieb die Sprintliste nach links
 
 Bei offenem Fenster: `Der Ablauf liegt auf dem Tisch.` Die Sprintliste
 bleibt liegen.
+
+## 5. Hausstand
+
+```
+Hausstand exportieren
+```
+
+Bleibt `backup`. Die Datei `jarvis-haus-….json` enthält jede Idee mit Feld
+`plan` und jede Ablauf-Zeile unter `plans`, auch die mit Status `zu`.
+Die Vorschau nennt die Zahl, zum Beispiel `2 Abläufe`. Ein zweites
+`Plane das` löscht die vorige Zeile nicht.

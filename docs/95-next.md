@@ -2,7 +2,7 @@
 
 **Dieses Dokument ist PLAN.** Noch kein App-Code. Sideload bleibt **`18.22.0`**
 (versionCode `182200`). Ziel beim Ausführen: `18.23.0`, versionCode `182300`.
-Sprints **410–415**. Katalog-Stand bleibt `18.20.0`.
+Sprints **410–416**. Katalog-Stand bleibt `18.20.0`.
 
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md). Kein zweites
 Brett, kein neues Hirn, kein neuer Agent.
@@ -67,14 +67,22 @@ einer Aufgabe von mindestens drei Zeichen, bleibt der Ablauf leer. Antwort:
 
 ## 2. Speicher
 
-Ein Ablauf zur Zeit. Er liegt in den Einstellungen unter `ablauf_json`
-und, wenn eine Idee offen ist, zusätzlich an dieser Idee. Er geht in den
-Hausstand mit, weil es der Plan des Nutzers ist. Er ist nicht flüchtig wie
-die Bewegung der Tafel.
+Sichtbar ist ein Ablauf. Gespeichert wird jeder, der einmal auf `warten`
+kam. Der nächste `Plane das` setzt den vorigen auf `zu` und lässt die Zeile
+liegen. Der alte läuft nicht. Ohne offene Idee legt `Plane das` keine Idee an.
 
-Ohne offene Idee legt `Plane das` keine Idee an.
+Zwei Planungsdateien, beide lokal:
 
-Form, kurz:
+| Datei | Wo | Was |
+|-------|----|-----|
+| Sprintvorlage | an jeder Idee, Feld `plan` | Kern, Härten, Probe, Custom. Offen, geparkt, erledigt |
+| Ablauf | Store `plans`, eine Zeile pro Ablauf | Titel, Arbeitszeilen, Wellen, Karten, Status, Ergebnis |
+
+Die Einstellungen halten nur `ablauf_id`, die Id der Zeile im Fenster.
+Kein zweites Vollstück in `ablauf_json`. `ablauf_id` ist nicht flüchtig.
+IndexedDB geht dafür von Version 12 auf 13, Store-Name `plans`.
+
+Form einer Ablauf-Zeile:
 
 - `title`: eine Zeile aus dem Satz, höchstens 80 Zeichen
 - `work`: bis zu sechs kurze Zeilen
@@ -83,11 +91,31 @@ Form, kurz:
 
 Zustände einer Karte: `vorgeschlagen`, `geändert`, `läuft`, `fertig`, `leer`.
 Die graue Zeile ohne Executor bleibt `vorgeschlagen` und wird nie `läuft`.
+Ein Ablauf ohne gültige Karte wird keine Zeile.
 
 `Mach einen Sprintplan`, `Füll den Plan` und `Plane Idee …` bleiben die
 Vorlage Kern, Härten, Probe. Sie öffnen dieses Fenster nicht.
 `Such Open Source … und plane Sprints` bleibt `board`, ein Auftrag, nur
 Repo- und LibHunt-Treffer.
+
+### Hausstand
+
+`Hausstand exportieren` bleibt `backup`. Dieselbe Datei
+`jarvis-haus-….json` enthält jede Planungsdatei:
+
+- `ideas`: jede Idee, das Feld `plan` vollständig, nicht abgeschnitten
+- `plans`: jede Ablauf-Zeile, auch `zu` und `fertig`
+
+Die Vorschau nennt die Zahl, auch null: `2 Abläufe`. Eine alte Datei ohne
+Schlüssel `plans` lässt die Abläufe auf dem Gerät. Ist der Schlüssel da,
+auch als leeres Array, ersetzt der Import den Store. `ablauf_id` kommt mit
+den Einstellungen zurück. Fehlt die Zeile dazu, bleibt das Fenster zu.
+
+Debug-Rollback führt `plans` in derselben Store-Liste wie `ideas`, damit
+ein Rollback die Abläufe nicht löscht.
+
+Nicht in der Datei: Bewegung der Tafel, Recherche-Cache, Datei-QR-Bytes,
+Markdown aus dem Repo. Keine zweite Datei neben dem Hausstand.
 
 ---
 
@@ -144,8 +172,8 @@ Danach zeigt die Sprintliste diese Zeilen: Nummer, Label, Aufgabe, und
 Ein neues `Plane das` ersetzt die Liste wieder durch das Fenster.
 
 `Plan zu` und `Fenster zu` vor dem Lauf schließen ohne Agenten. Antwort
-`Ablauf zu.` Während `läuft` beendet der Satz die aktuelle Welle, lässt
-spätere Wellen aus und schließt dann.
+`Ablauf zu.` Die Zeile bleibt, Status `zu`. Während `läuft` beendet der
+Satz die aktuelle Welle, lässt spätere Wellen aus und schließt dann.
 
 ---
 
@@ -166,7 +194,8 @@ Plane das: Trag morgen 9 Uhr Zahnarzt ein, stell einen Wecker auf 8 und such Ope
 ```
 
 Der Text nach dem Doppelpunkt ist der Arbeitstext. Ein zweites `Plane das`,
-solange ein Ablauf `warten` ist, ersetzt ihn. Der alte läuft nicht.
+solange ein Ablauf `warten` ist, öffnet eine neue Zeile. Die vorige bleibt,
+Status `zu`. Der alte läuft nicht.
 
 Annehmen, nur bei Status `warten`:
 
@@ -271,6 +300,9 @@ Die Sammelantwort geht nicht durch den Micro-Merge.
 - Das Fenster ziehen, werfen oder als zehntes Tafelstück speichern
 - Standbilder, Fremdlogos, WebGL, Three.js, Lottie, tldraw
 - App-Datei, Sprint-Datei, Version oder APK aus dem Gerät
+- Eine zweite Datei neben dem Hausstand
+- Den Ablauf nur in den Einstellungen, oder ältere Abläufe beim nächsten
+  `Plane das` löschen
 - Testkarten in der App, bevor Sprint 415 ausgeführt ist
 - Die Sideload `18.22.0` in diesem Plan anheben
 
@@ -286,7 +318,9 @@ Die Sammelantwort geht nicht durch den Micro-Merge.
 | [413](./sprints/sprint-413.md) | Eine Zeile ändern, Ablauf ersetzen | Must PLAN |
 | [414](./sprints/sprint-414.md) | Wellen gleichzeitig, danach die Sprintliste | Must PLAN |
 | [415](./sprints/sprint-415.md) | Gold, Testkarten, Version erst dann | Must PLAN |
+| [416](./sprints/sprint-416.md) | Jede Planungsdatei im Hausstand | Must PLAN |
 
-Kette: 410 vor 411. 411 vor 412. 412 vor 413. 413 vor 414. 415 zuletzt.
+Kette: 410 vor 411 und vor 416. 411 vor 412. 412 vor 413. 413 vor 414.
+416 hängt nicht am Fenster. 415 zuletzt, erst wenn 416 grün ist.
 Test-Sätze: [`TEST-18.23.md`](./TEST-18.23.md). Die Karten kommen in Spur
 Heute erst, wenn 415 ausgeführt ist.

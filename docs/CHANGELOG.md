@@ -10,7 +10,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 `Plane das` öffnet ein Fenster mitten auf der Tafel. Das Modell schreibt,
 welcher vorhandene Agent was tut. `So` führt eine Welle gleichzeitig aus,
 die nächste erst danach. Kein neuer Agent, kein Code aus dem Gerät.
-Sprints 410–415. [`95-next.md`](./95-next.md). Test: [`TEST-18.23.md`](./TEST-18.23.md).
+Jede Sprintvorlage und jeder Ablauf gehen in denselben Hausstand.
+Sprints 410–416. [`95-next.md`](./95-next.md). Test: [`TEST-18.23.md`](./TEST-18.23.md).
 
 Noch kein App-Code. Sideload bleibt **`18.22.0`**.
 
