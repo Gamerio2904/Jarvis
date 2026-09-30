@@ -20,7 +20,7 @@ import {
 import { formatDue, startOfDay } from '../engine/remind-parse.ts'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store.ts'
 import { useSlidingThumb } from './SlidingThumb.tsx'
-import { expandEvents, recurLabel } from '../engine/calendar-occur.ts'
+import { eventEndAt, expandEvents, recurLabel } from '../engine/calendar-occur.ts'
 import { shareOrDownloadIcs } from '../engine/calendar-ics.ts'
 
 const WEEK = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
@@ -98,6 +98,66 @@ function countOnDay(events: CalendarEvent[], reminders: Reminder[], day: Date): 
     events.filter((e) => sameDay(new Date(e.start_at), day)).length +
     reminders.filter((r) => sameDay(new Date(r.due_at), day)).length
   )
+}
+
+const HOUR_PX = 52
+
+function clockMin(iso: string): number {
+  const d = new Date(iso)
+  return d.getHours() * 60 + d.getMinutes()
+}
+
+/** Sichtbare Stunden: ab 7 Uhr, bis einschließlich 22 Uhr. Frühere und spätere Termine weiten das Raster. */
+function weekHourSpan(days: Date[], events: CalendarEvent[], reminders: Reminder[]): { startH: number; endH: number } {
+  let startH = 7
+  let endH = 23
+  const touch = (startMin: number, endMin: number) => {
+    startH = Math.min(startH, Math.floor(startMin / 60))
+    endH = Math.max(endH, Math.ceil(endMin / 60))
+  }
+  for (const day of days) {
+    for (const e of events) {
+      if (e.all_day || !sameDay(new Date(e.start_at), day)) continue
+      const startMin = clockMin(e.start_at)
+      const end = eventEndAt(e)
+      const endMin = sameDay(end, day) ? clockMin(end.toISOString()) : 24 * 60
+      touch(startMin, Math.max(endMin, startMin + 30))
+    }
+    for (const r of reminders) {
+      if (!sameDay(new Date(r.due_at), day)) continue
+      const startMin = clockMin(r.due_at)
+      touch(startMin, Math.min(24 * 60, startMin + 30))
+    }
+  }
+  startH = Math.max(0, Math.min(startH, 7))
+  endH = Math.min(24, Math.max(endH, startH + 1))
+  return { startH, endH }
+}
+
+function placeColumns<T extends { startMin: number; endMin: number }>(rows: T[]): Array<T & { col: number; cols: number }> {
+  const items = rows
+    .map((row) => ({ ...row, col: 0, cols: 1 }))
+    .sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin)
+  const colEnds: number[] = []
+  for (const item of items) {
+    let col = colEnds.findIndex((end) => end <= item.startMin + 0.01)
+    if (col < 0) {
+      col = colEnds.length
+      colEnds.push(item.endMin)
+    } else colEnds[col] = item.endMin
+    item.col = col
+  }
+  for (const item of items) {
+    let max = item.col
+    for (const other of items) {
+      if (other.startMin < item.endMin && item.startMin < other.endMin) max = Math.max(max, other.col)
+    }
+    const cols = max + 1
+    for (const other of items) {
+      if (other.startMin < item.endMin && item.startMin < other.endMin) other.cols = Math.max(other.cols, cols)
+    }
+  }
+  return items
 }
 
 function upcomingGroups(
@@ -203,6 +263,171 @@ function EventCard({
   )
 }
 
+function WeekBoard({
+  week,
+  shown,
+  reminders,
+  selected,
+  today,
+  onSelect,
+  onEdit,
+}: {
+  week: Date[]
+  shown: CalendarEvent[]
+  reminders: Reminder[]
+  selected: Date
+  today: Date
+  onSelect: (day: Date) => void
+  onEdit: (event: CalendarEvent) => void
+}) {
+  const { startH, endH } = weekHourSpan(week, shown, reminders)
+  const hours = Array.from({ length: endH - startH }, (_, i) => startH + i)
+  const now = new Date()
+  const nowMin = now.getHours() * 60 + now.getMinutes()
+  const anyAll = week.some((d) => shown.some((e) => e.all_day && sameDay(new Date(e.start_at), d)))
+  return (
+    <div className="cal-week-scroll">
+      <div
+        className="cal-week cal-pane-in"
+        role="grid"
+        aria-label="Wochenübersicht"
+        style={{ ['--cal-hour']: `${HOUR_PX}px` } as CSSProperties}
+      >
+        <div className="cal-week-corner" aria-hidden />
+        {week.map((d) => (
+          <button
+            key={isoDay(d)}
+            type="button"
+            className={`cal-week-head${sameDay(d, selected) ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}
+            onClick={() => onSelect(d)}
+          >
+            <span>{WEEK[(d.getDay() + 6) % 7]}</span>
+            <strong>{d.getDate()}</strong>
+          </button>
+        ))}
+        {anyAll ? (
+          <>
+            <div className="cal-week-gutter">ganztägig</div>
+            {week.map((d) => {
+              const all = shown.filter((e) => e.all_day && sameDay(new Date(e.start_at), d))
+              return (
+                <div key={`all-${isoDay(d)}`} className={`cal-week-all${sameDay(d, selected) ? ' is-on' : ''}`}>
+                  {all.map((e) => {
+                    const face = calThemeOf(eventTheme(e))
+                    return (
+                      <button
+                        key={`${e.id}-${e.start_at}`}
+                        type="button"
+                        className="cal-week-all-item"
+                        style={{ ['--cal-theme']: face.color, borderLeftColor: face.color } as CSSProperties}
+                        onClick={() => onEdit(e)}
+                      >
+                        {e.title}
+                      </button>
+                    )
+                  })}
+                </div>
+              )
+            })}
+          </>
+        ) : null}
+        <div className="cal-week-times" aria-hidden>
+          {hours.map((h) => (
+            <div key={h} className="cal-week-hour" data-hour={h}>
+              {h} Uhr
+            </div>
+          ))}
+        </div>
+        {week.map((d) => {
+          const timed = shown
+            .filter((e) => !e.all_day && sameDay(new Date(e.start_at), d))
+            .map((e) => {
+              const startMin = clockMin(e.start_at)
+              const end = eventEndAt(e)
+              const endMin = sameDay(end, d) ? Math.max(clockMin(end.toISOString()), startMin + 15) : 24 * 60
+              const face = calThemeOf(eventTheme(e))
+              return {
+                key: `${e.id}-${e.start_at}`,
+                title: e.title,
+                startMin,
+                endMin: Math.max(endMin, startMin + 15),
+                color: face.color,
+                rem: false,
+                onOpen: () => onEdit(e),
+              }
+            })
+          const rems = reminders
+            .filter((r) => sameDay(new Date(r.due_at), d))
+            .map((r) => {
+              const startMin = clockMin(r.due_at)
+              return {
+                key: r.id,
+                title: r.title,
+                startMin,
+                endMin: Math.min(24 * 60, startMin + 30),
+                color: '#94a3b8',
+                rem: true,
+                onOpen: undefined as (() => void) | undefined,
+              }
+            })
+          const placed = placeColumns([...timed, ...rems])
+          const showNow = sameDay(d, today) && nowMin >= startH * 60 && nowMin <= endH * 60
+          return (
+            <div
+              key={isoDay(d)}
+              className={`cal-week-col${sameDay(d, selected) ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}
+              style={{ height: hours.length * HOUR_PX }}
+              onClick={() => onSelect(d)}
+            >
+              {showNow ? (
+                <div className="cal-week-now" style={{ top: ((nowMin - startH * 60) / 60) * HOUR_PX }} />
+              ) : null}
+              {placed.map((block) => {
+                const top = ((block.startMin - startH * 60) / 60) * HOUR_PX
+                const height = Math.max(22, ((block.endMin - block.startMin) / 60) * HOUR_PX - 3)
+                const body = (
+                  <>
+                    <strong>{block.title}</strong>
+                  </>
+                )
+                const style = {
+                  top,
+                  height,
+                  left: `calc(${(block.col / block.cols) * 100}% + 2px)`,
+                  width: `calc(${100 / block.cols}% - 4px)`,
+                  ['--cal-theme']: block.color,
+                  borderLeftColor: block.color,
+                } as CSSProperties
+                if (!block.onOpen) {
+                  return (
+                    <span key={block.key} className="cal-week-block is-rem" style={style}>
+                      {body}
+                    </span>
+                  )
+                }
+                return (
+                  <button
+                    key={block.key}
+                    type="button"
+                    className="cal-week-block"
+                    style={style}
+                    onClick={(ev) => {
+                      ev.stopPropagation()
+                      block.onOpen?.()
+                    }}
+                  >
+                    {body}
+                  </button>
+                )
+              })}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export function CalendarView({ onClose, leaving }: { onClose: () => void; leaving?: boolean }) {
   const today = startOfDay(new Date())
   const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
@@ -231,6 +456,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const titleRef = useRef<HTMLInputElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
   const headRef = useRef<HTMLHeadingElement>(null)
+  const dayRef = useRef<HTMLElement>(null)
+  const [dayTick, setDayTick] = useState(0)
   const modeThumb = useSlidingThumb(mode)
 
   const year = cursor.getFullYear()
@@ -256,6 +483,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setSelected(d)
     setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
     setMode((cur) => (cur === 'year' ? 'month' : cur))
+    setDayTick((n) => n + 1)
   }, [])
 
   useEffect(() => {
@@ -297,6 +525,32 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       window.clearTimeout(later)
     }
   }, [sheetOpen, editingId])
+
+  useEffect(() => {
+    if (!dayTick || (mode !== 'month' && mode !== 'week')) return
+    const section = dayRef.current
+    const scroller = section?.closest('.cal-view')
+    if (!section || !(scroller instanceof HTMLElement)) return
+    const pin = () => {
+      const delta = section.getBoundingClientRect().top - scroller.getBoundingClientRect().top
+      if (Math.abs(delta) < 2) return
+      scroller.scrollTop += delta
+    }
+    pin()
+    const frame = window.requestAnimationFrame(pin)
+    const soon = window.setTimeout(pin, 80)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(soon)
+    }
+  }, [dayTick])
+
+  function showDay(d: Date) {
+    const day = startOfDay(d)
+    setSelected(day)
+    setCursor(new Date(day.getFullYear(), day.getMonth(), 1))
+    setDayTick((n) => n + 1)
+  }
 
   useEffect(() => {
     if (!sheetOpen || themePick || themeGuess !== 'geburtstag') return
@@ -612,10 +866,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 role="tab"
                 aria-selected={on}
                 className={`cal-strip-day${on ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}
-                onClick={() => {
-                  setSelected(d)
-                  setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
-                }}
+                onClick={() => showDay(d)}
               >
                 <span>{WEEK[(d.getDay() + 6) % 7]}</span>
                 <strong>{d.getDate()}</strong>
@@ -637,11 +888,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
               ['--cal-theme']: calThemeOf(eventTheme(nextUp)).color,
             } as CSSProperties
           }
-          onClick={() => {
-            const d = new Date(nextUp.start_at)
-            setSelected(startOfDay(d))
-            setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
-          }}
+          onClick={() => showDay(new Date(nextUp.start_at))}
         >
           <span className="cal-next-kicker">Als Nächstes · {calThemeOf(eventTheme(nextUp)).label}</span>
           <strong>{nextUp.title}</strong>
@@ -713,7 +960,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 key={key}
                 type="button"
                 className={`cal-cell${isSel ? ' sel' : ''}${isToday ? ' today' : ''}${marks.has(key) ? ' has-mark' : ''}`}
-                onClick={() => setSelected(d)}
+                onClick={() => showDay(d)}
+                aria-label={`Termine am ${d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })}`}
               >
                 <span className="cal-day-num">{d.getDate()}</span>
                 {countOnDay(shown, reminders, d) > 1 ? (
@@ -766,52 +1014,64 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       ) : null}
 
       {mode === 'week' ? (
-        <section className="cal-week cal-pane-in" aria-label="Wochenübersicht">
-          {week.map((d) => {
-            const evs = shown.filter((e) => sameDay(new Date(e.start_at), d)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
-            const rems = reminders.filter((r) => sameDay(new Date(r.due_at), d))
-            return (
-              <div key={isoDay(d)} className={`cal-week-col${sameDay(d, selected) ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}>
-                <button type="button" className="cal-week-head" onClick={() => setSelected(d)}>
-                  <span>{WEEK[(d.getDay() + 6) % 7]}</span>
-                  <strong>{d.getDate()}</strong>
-                </button>
-                {evs.length || rems.length ? (
-                  <ul className="cal-week-list">
-                    {evs.map((e) => (
-                      <li key={`${e.id}-${e.start_at}`}>
-                        <button type="button" className="cal-week-item" data-theme={eventTheme(e)} onClick={() => openEdit(e)}>
-                          <span>{timeLabel(e.start_at, e.all_day)}</span>
-                          <strong>{e.title}</strong>
-                        </button>
-                      </li>
-                    ))}
-                    {rems.map((r) => (
-                      <li key={r.id}>
-                        <span className="cal-week-item is-rem">
-                          <span>{timeLabel(r.due_at)}</span>
-                          <strong>{r.title}</strong>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <button type="button" className="cal-week-empty" onClick={() => { setSelected(d); openCreate() }}>
-                    frei
+        <section ref={dayRef} className="cal-day cal-day-compact" aria-label="Termine an diesem Tag">
+          <div className="cal-day-head">
+            <div>
+              <p className="cal-day-kicker">Termine</p>
+              <h3 className="cal-day-title">{dayHeading(selected, today)}</h3>
+            </div>
+            {dayEvents.length + dayRems.length ? (
+              <span className="cal-day-meta">
+                {`${dayEvents.length + dayRems.length} ${dayEvents.length + dayRems.length === 1 ? 'Eintrag' : 'Einträge'}`}
+              </span>
+            ) : null}
+          </div>
+          {dayEvents.length === 0 && dayRems.length === 0 ? (
+            <p className="memory-empty">Nichts an diesem Tag.</p>
+          ) : (
+            <ul className="cal-day-lines">
+              {dayEvents.map((e) => (
+                <li key={`${e.id}-${e.start_at}`}>
+                  <button type="button" className="cal-day-line" onClick={() => openEdit(e)}>
+                    <span>{timeLabel(e.start_at, e.all_day)}</span>
+                    <strong>{e.title}</strong>
                   </button>
-                )}
-              </div>
-            )
-          })}
+                </li>
+              ))}
+              {dayRems.map((r) => (
+                <li key={r.id}>
+                  <span className="cal-day-line is-rem">
+                    <span>{formatDue(new Date(r.due_at))}</span>
+                    <strong>{r.title}</strong>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ) : null}
 
+      {mode === 'week' ? (
+        <WeekBoard
+          week={week}
+          shown={shown}
+          reminders={reminders}
+          selected={selected}
+          today={today}
+          onSelect={(d) => showDay(d)}
+          onEdit={openEdit}
+        />
+      ) : null}
+
       {mode === 'month' ? (
-        <section className="cal-day">
+        <section ref={dayRef} className="cal-day" aria-label="Termine an diesem Tag">
           <div className="cal-day-head">
-            <h3 key={isoDay(selected)} className="cal-day-title">
-              {dayHeading(selected, today)}
-            </h3>
+            <div>
+              <p className="cal-day-kicker">Termine</p>
+              <h3 key={isoDay(selected)} className="cal-day-title">
+                {dayHeading(selected, today)}
+              </h3>
+            </div>
             {dayEvents.length + dayRems.length ? (
               <span className="cal-day-meta">
                 {`${dayEvents.length + dayRems.length} ${dayEvents.length + dayRems.length === 1 ? 'Eintrag' : 'Einträge'}`}
