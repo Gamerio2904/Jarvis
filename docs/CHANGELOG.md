@@ -7,7 +7,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ### `18.24.0` — Portfolio auf dem Hauptbildschirm — *CODE*
 
-`Go` legt das live Skript ins Portfolio. Der Hauptbildschirm zeigt die Karten mit Shredder. Ein Tipp oder `Zeig Projekt …` öffnet die Dateien. `Beispiel zu …` legt ein Bild unter `portfolio/<slug>/beispiele/`. Der Hausstand enthält die Zeilen. Kein neues Bildmodell.
+`Go` legt das live Skript ins Portfolio, und zwar die Idee auf der Tafel, nicht die neueste. Der Hauptbildschirm zeigt die Karten mit Shredder. Ein Tipp oder `Zeig Projekt …` öffnet die Dateien. Ziehen in den Schlitz sagt, dass die Karte im Archiv liegt. `Beispiel zu …` legt ein Bild unter `portfolio/<slug>/beispiele/`. Ein https-Bild bleibt, wenn es nicht verkleinert werden kann. Leere Sprintziele bleiben leer. Der Hausstand enthält die Zeilen. Kein neues Bildmodell.
 
 App-Code **`18.24.0`** (versionCode `182400`). Die Sideload-Datei ist noch **`18.23.12`**.
 

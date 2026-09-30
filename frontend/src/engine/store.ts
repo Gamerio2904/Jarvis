@@ -381,6 +381,8 @@ export type Settings = {
   plan_phase: '' | 'live' | 'go'
   /** Start der Laufschrift auf der Tafel. */
   plan_script_at: number
+  /** Idee, die gerade auf der Tischplatte liegt. `Go` nimmt diese, nicht die neueste. */
+  plan_idea_id: string
   /** Offenes Projekt auf dem Portfolio. Leer heißt die Kartenliste. */
   portfolio_focus: string
   /** Geöffnete Datei in der Liste. */
@@ -583,6 +585,7 @@ export const DEFAULT_SETTINGS: Settings = {
   leiste_zu: false,
   plan_phase: '',
   plan_script_at: 0,
+  plan_idea_id: '',
   portfolio_focus: '',
   portfolio_file: '',
   board_jobs_json: '',

@@ -9175,6 +9175,18 @@ html.theme-wipe-dark::before {
   color: #d5e7ea;
 }
 
+.portfolio-note {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  margin: 0;
+  color: #d5e7ea;
+  text-align: center;
+  pointer-events: none;
+}
+
 .portfolio-card {
   display: flex;
   align-items: center;
@@ -9234,6 +9246,12 @@ html.theme-wipe-dark::before {
   text-align: left;
 }
 
+.portfolio-files li button {
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+}
+
 .portfolio-back {
   margin-bottom: 8px;
 }
@@ -9256,13 +9274,8 @@ html.theme-wipe-dark::before {
 
 @media (prefers-reduced-motion: reduce) {
   .portfolio-files li {
-    animation: portfolioFade 120ms linear forwards;
-    transform: none;
-  }
-}
-
-@keyframes portfolioFade {
-  to {
+    animation: none;
     opacity: 1;
+    transform: none;
   }
 }

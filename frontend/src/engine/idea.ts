@@ -118,7 +118,7 @@ async function planOntoTable(intent: AblaufIntent): Promise<string> {
     const waiting = ablaufWaiting()
     const live = phase === 'live' && !waiting
     const already = phase === 'go' && !waiting
-    const hit = live || already ? await currentIdeaForTable() : undefined
+    const hit = live || already ? await ideaOnTable() : undefined
     if ((live || already) && hit) {
       const saved = await commitPortfolio(hit)
       saveSettings({
@@ -132,6 +132,7 @@ async function planOntoTable(intent: AblaufIntent): Promise<string> {
       })
       if (saved.full) return 'Das Portfolio ist voll.'
       if (saved.folder === 'fail') return 'Im Haus gespeichert. Der Ordner fehlt.'
+      if (saved.revived && saved.row) return `${saved.row.name} liegt wieder im Portfolio.`
       if (saved.created && saved.row) return `Fest. ${saved.row.name} liegt im Portfolio.`
       if (saved.row) return `${saved.row.name} liegt schon im Portfolio.`
     }
@@ -173,11 +174,17 @@ async function writeProject(work: string): Promise<string> {
     task: task.slice(0, 120),
     anleitung: task.slice(0, 160),
   }))
-  plan.sprints[1].ziel = (parts[1] || 'Grenzen und Tests festhalten').slice(0, 160)
-  plan.sprints[2].ziel = (parts[2] || 'Einen Durchlauf prüfen').slice(0, 160)
+  if (parts[1]) plan.sprints[1].ziel = parts[1].slice(0, 160)
+  if (parts[2]) plan.sprints[2].ziel = parts[2].slice(0, 160)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
-  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), tischplatte_on: true, tischplatte_view: 'psp' })
+  saveSettings({
+    plan_phase: 'live',
+    plan_script_at: Date.now(),
+    plan_idea_id: hit.id,
+    tischplatte_on: true,
+    tischplatte_view: 'psp',
+  })
   return `${formatPlan(plan, hit.title)}\n\nDas Skript läuft live auf der Tischplatte. Sag Go, dann ist der Export bereit. Sag: Lade den PSP runter. Oder: Lade alles zu Projekt ${hit.title}.`
 }
 
@@ -193,8 +200,18 @@ async function reviseProject(text: string): Promise<string> {
   const k = sprint.lieferumfang.length + 1
   sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: line.slice(0, 160) })
   await putIdea({ ...hit, plan })
-  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), tischplatte_on: true })
+  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), plan_idea_id: hit.id, tischplatte_on: true })
   return formatPlan(plan, hit.title)
+}
+
+async function ideaOnTable(): Promise<Idea | undefined> {
+  const pinned = loadSettings().plan_idea_id
+  if (pinned) {
+    const ideas = await listIdeas()
+    const hit = ideas.find((r) => r.id === pinned && r.status !== 'done')
+    if (hit) return hit
+  }
+  return currentIdeaForTable()
 }
 
 export async function handleIdea(

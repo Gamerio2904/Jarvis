@@ -31,6 +31,10 @@ Go
 ```
 
 Antwort `Tik Tak To liegt schon im Portfolio.` Es gibt weiter eine Zeile.
+Eine neuere Idee dazwischen ändert das nicht: `Go` nimmt die Tafel.
+Ein Satz ohne zweite Klausel lässt Härten und Probe leer. Kein
+erfundenes Ziel. Nach dem Archiv sagt dasselbe `Go`:
+`Tik Tak To liegt wieder im Portfolio.`
 
 ## 3. Öffnen
 

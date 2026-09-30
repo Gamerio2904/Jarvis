@@ -71,9 +71,24 @@ export function shortName(title: string): string {
   return name || 'Projekt'
 }
 
+function normalizeRow(row: PortfolioRow): PortfolioRow {
+  const files = Array.isArray(row.files) ? row.files.filter((f) => f && typeof f === 'object') : []
+  const cover =
+    row.cover && typeof row.cover.src === 'string'
+      ? row.cover
+      : { kind: 'drawn' as const, src: '', source: '' }
+  return {
+    ...row,
+    name: row.name || shortName(row.title || ''),
+    files,
+    cover,
+    archived: Boolean(row.archived),
+  }
+}
+
 export async function listPortfolio(): Promise<PortfolioRow[]> {
   const rows = await getAll<PortfolioRow>('portfolio')
-  return rows.sort((a, b) => (a.fixed_at < b.fixed_at ? 1 : -1))
+  return rows.map(normalizeRow).sort((a, b) => (a.fixed_at < b.fixed_at ? 1 : -1))
 }
 
 function hueOf(title: string): number {
@@ -174,8 +189,28 @@ async function mirrorRow(row: PortfolioRow): Promise<'ok' | 'missing' | 'fail'> 
   return state
 }
 
+function uniqueSlug(title: string, ideaId: string, rows: PortfolioRow[]): string {
+  const prev = rows.find((r) => r.id === ideaId || r.idea_id === ideaId)
+  if (prev && portfolioPathOk(`portfolio/${prev.slug}/cover.jpg`)) return prev.slug
+  const base = projectSlug(title).slice(0, 40) || 'projekt'
+  const taken = (slug: string) => rows.some((r) => r.slug === slug && r.id !== ideaId && r.idea_id !== ideaId)
+  const free = (slug: string) => !taken(slug) && portfolioPathOk(`portfolio/${slug}/cover.jpg`)
+  if (free(base)) return base
+  const tail = ideaId.replace(/[^a-z0-9]/gi, '').toLowerCase().slice(-6) || '2'
+  const room = Math.max(1, 39 - tail.length)
+  const stamped = `${base.slice(0, room)}-${tail}`.replace(/^-|-$/g, '').slice(0, 40)
+  if (stamped && free(stamped)) return stamped
+  for (let n = 2; n < 40; n += 1) {
+    const suffix = `-${n}`
+    const next = `${base.slice(0, 40 - suffix.length)}${suffix}`.replace(/^-/, '')
+    if (free(next)) return next
+  }
+  return tail.slice(0, 40)
+}
+
 export async function commitPortfolio(idea: Idea): Promise<{
   created: boolean
+  revived: boolean
   full: boolean
   row: PortfolioRow | null
   folder: 'ok' | 'missing' | 'fail'
@@ -183,10 +218,10 @@ export async function commitPortfolio(idea: Idea): Promise<{
   const rows = await listPortfolio()
   const prev = rows.find((r) => r.idea_id === idea.id || r.id === idea.id)
   if (!prev && rows.length >= MAX_PROJECTS) {
-    return { created: false, full: true, row: null, folder: 'ok' }
+    return { created: false, revived: false, full: true, row: null, folder: 'ok' }
   }
   const name = shortName(idea.title)
-  const slug = projectSlug(idea.title)
+  const slug = uniqueSlug(idea.title, idea.id, rows)
   const examples = (prev?.files || []).filter((f) => f.kind === 'beispiel')
   const files: PortfolioFile[] = [
     jsonFile('projekt', 'projekt.json', 'projekt', projectDocument(idea)),
@@ -207,7 +242,7 @@ export async function commitPortfolio(idea: Idea): Promise<{
   }
   await put('portfolio', row)
   const folder = await mirrorRow(row)
-  return { created: !prev, full: false, row, folder }
+  return { created: !prev, revived: Boolean(prev?.archived), full: false, row, folder }
 }
 
 export async function mirrorPortfolio(rows: PortfolioRow[]): Promise<void> {
@@ -236,6 +271,7 @@ function which(rows: PortfolioRow[]): string {
 
 function fileList(row: PortfolioRow): string {
   const names = row.files.filter((f) => !f.archived).map((f) => f.name)
+  if (!names.length) return `${row.name}.`
   return `${row.name}. ${names.join(', ')}.`
 }
 
@@ -292,11 +328,17 @@ async function lastChatImage(conversationId: string): Promise<{ src: string; sou
   return null
 }
 
+function keepRemote(src: string): { src: string } | null {
+  return src.startsWith('https://') ? { src } : null
+}
+
 async function shrinkImage(src: string): Promise<{ src: string } | { error: string }> {
   const safe = safeImageSrc(src)
   if (!safe) return { error: 'Kein Bild zum Speichern.' }
   if (typeof document === 'undefined' || typeof createImageBitmap !== 'function') {
     if (safe.startsWith('data:image/') && safe.length < MAX_EXAMPLE * 1.4) return { src: safe }
+    const remote = keepRemote(safe)
+    if (remote) return remote
     return { error: 'Das Bild ist zu groß.' }
   }
   try {
@@ -311,6 +353,8 @@ async function shrinkImage(src: string): Promise<{ src: string } | { error: stri
     const ctx = canvas.getContext('2d')
     if (!ctx) {
       bmp.close()
+      const remote = keepRemote(safe)
+      if (remote) return remote
       return { error: 'Das Bild ist zu groß.' }
     }
     ctx.drawImage(bmp, 0, 0, w, h)
@@ -320,6 +364,8 @@ async function shrinkImage(src: string): Promise<{ src: string } | { error: stri
     if (url.length > MAX_EXAMPLE * 1.4) return { error: 'Das Bild ist zu groß.' }
     return { src: url }
   } catch {
+    const remote = keepRemote(safe)
+    if (remote) return remote
     return { error: 'Kein Bild geladen.' }
   }
 }

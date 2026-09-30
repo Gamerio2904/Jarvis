@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { safeImageSrc } from '../engine/image-parse.ts'
 import {
   archiveWall,
@@ -48,15 +48,26 @@ function wallItems(rows: PortfolioRow[]): WallItem[] {
 
 function orderedFiles(row: PortfolioRow): PortfolioFile[] {
   const rank = { projekt: 0, sprints: 1, psp: 2, beispiel: 3 }
-  return row.files
-    .filter((f) => !f.archived)
-    .sort((a, b) => rank[a.kind] - rank[b.kind])
+  const files = Array.isArray(row.files) ? row.files : []
+  return files.filter((f) => !f.archived).sort((a, b) => rank[a.kind] - rank[b.kind])
+}
+
+function rowSignature(list: PortfolioRow[]): string {
+  return list
+    .map((row) => {
+      const files = Array.isArray(row.files) ? row.files : []
+      const bits = files.map((f) => `${f.id}:${f.name}:${f.archived ? 1 : 0}:${f.kind}`).join(',')
+      return `${row.id}:${row.archived ? 1 : 0}:${row.cover?.kind || ''}:${row.cover?.src?.length || 0}:${bits}`
+    })
+    .join('\n')
 }
 
 export function PortfolioStage() {
   const [rows, setRows] = useState<PortfolioRow[]>([])
   const [focus, setFocus] = useState('')
   const [fileId, setFileId] = useState('')
+  const [note, setNote] = useState('')
+  const sig = useRef('')
 
   useEffect(() => {
     let dead = false
@@ -66,10 +77,16 @@ export function PortfolioStage() {
       setFileId(settings.portfolio_file || '')
       void listPortfolio()
         .then((list) => {
-          if (!dead) setRows(list)
+          if (dead) return
+          const next = rowSignature(list)
+          if (next === sig.current) return
+          sig.current = next
+          setRows(list)
         })
         .catch(() => {
-          if (!dead) setRows([])
+          if (dead) return
+          sig.current = ''
+          setRows([])
         })
     }
     load()
@@ -111,7 +128,7 @@ export function PortfolioStage() {
           disabled={Boolean(open)}
           onOpen={(item) => showProject(item.projectId, item.fileId)}
           onShred={(item) => {
-            void archiveWall(item.projectId, item.fileId)
+            void archiveWall(item.projectId, item.fileId).then((reply) => setNote(reply))
           }}
           renderItem={(item) => {
             const src = safeImageSrc(item.src)
@@ -126,6 +143,7 @@ export function PortfolioStage() {
       ) : (
         <p className="portfolio-empty">Das Portfolio ist leer.</p>
       )}
+      {note ? <p className="portfolio-note">{note}</p> : null}
       {open ? (
         <div className="portfolio-files" role="dialog" aria-label={open.name}>
           <button type="button" className="portfolio-back" onClick={() => showProject('', '')}>
@@ -146,7 +164,7 @@ export function PortfolioStage() {
               {preview.kind === 'beispiel' && safeImageSrc(preview.src) ? (
                 <img src={safeImageSrc(preview.src) || ''} alt={preview.source || preview.name} />
               ) : (
-                previewFile(preview).map((line) => <p key={line}>{line}</p>)
+                previewFile(preview).map((line, i) => <p key={`${preview.id}-${i}`}>{line}</p>)
               )}
               {preview.source ? <p className="portfolio-source">{preview.source}</p> : null}
             </div>
