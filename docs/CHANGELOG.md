@@ -5,16 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.20.0` — YouTube-Highlights — *CODE*
+### `18.20.0` — YouTube-Highlights, Tablet-Lage — *CODE + APK*
 
 Top-Liste aus 1–3 YouTube-Links. Das Handy wählt die Stellen, der PC
 schneidet, die Datei bleibt unter `Videos\Jarvis`, kein Upload. Sprints
-392–397. Sideload bleibt `18.19.0`, bis ein Windows-PC eine Datei
-geschrieben hat. [`92-next.md`](./92-next.md).
+392–397. [`92-next.md`](./92-next.md).
 
-Tablet-Layout auf demselben Code: Lage ohne rechten Chat, Schalter
-**Chat**, Leiste links unten, Werte-Leiste **Tischplatte an** öffnet die
-Werkbank. Testprompts in Spur Heute und [`TEST-18.20.md`](./TEST-18.20.md).
+Tablet-Layout: Lage ohne rechten Chat, Schalter **Chat**, Leiste links
+unten, Werte-Leiste **Tischplatte an** öffnet die Werkbank. Testprompts
+in Spur Heute und [`TEST-18.20.md`](./TEST-18.20.md).
+
+Sideload **`18.20.0`** (versionCode `182000`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE + APK*
 

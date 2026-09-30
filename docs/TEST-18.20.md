@@ -1,6 +1,11 @@
 # TEST 18.20 — Tafel, Lage-Layout, Highlights
 
-App-Code **`18.20.0`**. In der App: **Einstellungen → Tests → Spur Heute**.
+App-Code **`18.20.0`**. Sideload **`18.20.0`**, versionCode `182000`.
+Über die bisherige `18.19.0` installieren. Vorher Hausstand exportieren.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+In der App: **Einstellungen → Tests → Spur Heute**.
 Jede Box ist ein Satz — einmal tippen, kopieren, in den Chat. Dieselben
 Sätze stehen dort als Kopierfeld (Feld antippen oder **Kopieren**).
 

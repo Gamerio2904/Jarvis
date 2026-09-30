@@ -1,7 +1,9 @@
-# Android-APK — Sideload `18.19.0`
+# Android-APK — Sideload `18.20.0`
 
-App-Code **`18.19.0`**. Sideload **`18.19.0`** (versionCode `181900`):
+App-Code **`18.20.0`**. Sideload **`18.20.0`** (versionCode `182000`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). YouTube-Schnitt schreibt die Datei erst auf einem Windows-PC mit JarvisPC.
 
 **18.18.0:** Homescreen. In Sideload **`18.19.0`**.
 
@@ -95,10 +97,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.19.0`:**  
+**Fertige APK `18.20.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.19.0` · versionCode `181900`
+- versionName `18.20.0` · versionCode `182000`
 
 ## Build lokal
 
