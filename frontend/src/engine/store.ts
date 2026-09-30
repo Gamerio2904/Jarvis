@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.23.4'
+export const APP_VERSION = '18.23.6'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -154,7 +154,7 @@ export type CalendarEvent = {
   end_at?: string
   all_day?: boolean
   /** Serie. Eine Zeile im Store, Vorkommen beim Lesen. */
-  recur?: 'weekly' | 'monthly' | null
+  recur?: 'weekly' | 'monthly' | 'yearly' | null
   place?: string
   /**
    * Minuten vor `start_at`. `undefined` = eine Notify zum Start (18.7).
