@@ -5,6 +5,34 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.6` — Kalender: Tag und Woche — *CODE*
+
+Ein Tipp auf den Tag zeigt alle Termine dieses Tags oben in der Ansicht.
+Die Woche hat links die Uhrzeit, ab 7 Uhr, und oben die Tage.
+
+App-Code und Sideload **`18.23.6`** (versionCode `182306`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+### `18.23.5` — Kalender: Fenster unten, jedes Jahr — *CODE*
+
+Neu lässt das Fenster unten. Die Ansicht scrollt, bis „Termin anlegen“
+oben steht, das Eingabefeld springt nicht nach oben. Wiederholung kennt
+„Jedes Jahr“, gleicher Tag. Geburtstag setzt diese Wiederholung.
+
+App-Code und Sideload **`18.23.5`** (versionCode `182305`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/kalender-jahr-ccff/releases/Jarvis.apk
+
+### `18.23.4` — Tischplatte plant, JSON zum Laden — *CODE*
+
+Die Tischplatte ist die Planungsfläche: Sprints und PSP als JSON. Das
+Agentenfenster ist weg. `Plane das` schreibt das Projekt auf die Tafel.
+`Lade den PSP runter` und `Lade alles zu Projekt …` speichern die Datei.
+Tisch sitzt in der Leiste unten links. Karten bleiben im Bild, Quellen
+laufen nicht mehr über den Rand.
+
+App-Code und Sideload **`18.23.4`** (versionCode `182304`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tisch-planung-ccff/releases/Jarvis.apk
+
 ### `18.23.3` — Großes Planfenster — *CODE*
 
 Das Fenster ist größer. Zwei Drittel schreiben den Plan live. Ein Drittel

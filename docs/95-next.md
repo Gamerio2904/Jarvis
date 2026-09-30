@@ -1,12 +1,14 @@
 # 95 — Ablauf auf der Tafel **CODE** (`18.23`)
 
-**Dieses Dokument ist CODE.** App-Code **`18.23.3`** (versionCode `182303`).
+**Dieses Dokument ist CODE.** App-Code **`18.23.6`** (versionCode `182306`).
 Sprints **410–416**. Katalog-Stand bleibt `18.20.0`. `18.23.1` macht das Fenster
 deckend, hält `So` nach einer Änderung und lässt aus `7:30` den Satz `Wecker um 7:30`.
 `18.23.2`: ein Bot fragt, bevor ein anderer dazukommt. `Ja` holt ihn, `Nein` nicht.
-`18.23.3`: das Fenster ist größer. Zwei Drittel schreiben den Plan live, ein Drittel
-zeigt die Agenten als Figuren. Neue erscheinen, fertige gehen. Neben der Figur
-steht, was sie gerade tut.
+`18.23.4`: die Tischplatte ist die Planung. Sprints und PSP sind JSON.
+`Lade den PSP runter` und `Lade alles zu Projekt …` speichern die Datei.
+Das Agentenfenster ist weg. Tisch sitzt in der Leiste unten links.
+`18.23.6`: ein Tipp auf den Tag zeigt alle Termine. Die Woche hat links die
+Uhrzeit ab 7 Uhr und oben die Tage.
 
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md). Kein zweites
 Brett, kein neues Hirn, kein neuer Agent.
@@ -246,9 +248,7 @@ Der Name in `Ändere den …` und vor `, Rest so` ist das Label oder die Id
 einer Karte. Trifft er keine Karte: `Die Zeile gibt es nicht.` und die
 vorhandenen Namen. Der übrige Ablauf bleibt.
 
-Während das Fenster offen ist, läuft ein Satz, der schon einem anderen
-Agenten gehört, wie bisher, und das Fenster bleibt. Ausnahme: Schieben,
-Werfen, Zurückholen und `Räum den Tisch` antworten `Der Ablauf liegt auf dem Tisch.` und lassen die Stücke liegen.
+`Plane das` schreibt Sprints und PSP auf die Tischplatte. Schieben, Werfen und `Räum den Tisch` bewegen die Stücke.
 `nächster Lidl` bleibt `poi`. `Hintergrund blau schwarz` bleibt das Thema.
 
 Chat, sobald der Ablauf auf `warten` steht:

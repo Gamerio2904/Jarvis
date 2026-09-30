@@ -20,7 +20,7 @@ import {
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
 import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan.ts'
 import { fillPlanWithModel, pickIdea } from './idea.ts'
-import { ablaufWindowOpen } from './ablauf-state.ts'
+import { fileFor, saveProjectJson } from './project-docs.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
@@ -92,6 +92,24 @@ export async function handleBoard(_conversationId: string, text: string): Promis
   const intent = parseBoardIntent(text)
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'download') {
+    const rows = await listIdeas()
+    const hit = pickIdea(
+      rows.filter((r) => r.status !== 'done'),
+      intent.query,
+    )
+    if (!hit) return pack('Das Projekt finde ich nicht.', 'download')
+    const file = fileFor(hit, intent.which)
+    const saved = await saveProjectJson(file.name, file.data)
+    try {
+      saveSettings({ tischplatte_on: true, tischplatte_view: intent.which === 'sprints' ? 'sprints' : 'psp' })
+    } catch {
+      /* */
+    }
+    const kind = intent.which === 'psp' ? 'PSP' : intent.which === 'sprints' ? 'Sprints' : 'Projektdateien'
+    return pack(`${kind} zu ${hit.title}. ${saved}`, 'download', { title: hit.title })
+  }
+
   if (intent.kind === 'on') {
     try {
       saveSettings({ tischplatte_on: true, tischplatte_view: loadSettings().tischplatte_view || 'sprints' })
@@ -134,7 +152,6 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     return pack('Jobs gestoppt.', 'stop')
   }
   if (intent.kind === 'place') {
-    if (ablaufWindowOpen()) return pack('Der Ablauf liegt auf dem Tisch.', 'place')
     const applied = applyPlace(loadPieces(loadSettings().tischplatte_pieces_json), intent, boardIsWide())
     try {
       saveSettings({

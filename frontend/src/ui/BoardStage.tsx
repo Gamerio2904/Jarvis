@@ -244,6 +244,29 @@ export function BoardStage({
 
   return (
     <div className="board-stage" ref={stageRef}>
+      <div className="board-hud" aria-hidden>
+        <svg viewBox="0 0 400 400">
+          <g className="ring-spin">
+            <circle cx="200" cy="200" r="168" />
+            {Array.from({ length: 36 }, (_, i) => {
+              const a = (i / 36) * Math.PI * 2
+              const inner = i % 3 === 0 ? 156 : 162
+              return (
+                <line
+                  key={i}
+                  x1={200 + Math.cos(a) * inner}
+                  y1={200 + Math.sin(a) * inner}
+                  x2={200 + Math.cos(a) * 174}
+                  y2={200 + Math.sin(a) * 174}
+                />
+              )
+            })}
+          </g>
+          <circle cx="200" cy="200" r="128" />
+          <circle cx="200" cy="200" r="86" />
+          <circle className="board-hud-core" cx="200" cy="200" r="34" />
+        </svg>
+      </div>
       {tray.length ? (
         <ul className="board-tray" aria-label="Ablage">
           {tray.map((p) => (
@@ -260,7 +283,14 @@ export function BoardStage({
           key={p.id}
           className={`board-piece${focus === p.id ? ' is-focus' : ''}${grab === p.id ? ' is-grab is-drag' : ''}${touch === p.id ? ' is-touch' : ''}`}
           data-piece={p.id}
-          style={wide ? { left: `${p.x * 100}%`, top: `${p.y * 100}%` } : undefined}
+          style={
+            wide
+              ? {
+                  left: `min(${p.x * 100}%, calc(100% - 268px))`,
+                  top: `min(${p.y * 100}%, calc(100% - 88px))`,
+                }
+              : undefined
+          }
           onPointerDown={(e) => onDown(e, p.id)}
           onPointerMove={onMove}
           onPointerUp={onUp}
