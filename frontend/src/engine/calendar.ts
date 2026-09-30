@@ -57,7 +57,9 @@ export async function cancelEventNotifies(row: Pick<CalendarEvent, 'id' | 'remin
 }
 
 export async function scheduleEventNotifies(row: CalendarEvent, now = Date.now()): Promise<string[]> {
-  const start = new Date(row.start_at)
+  const upcoming = expandEvents([row], new Date(now - 60_000), new Date(now + 400 * 24 * 60 * 60_000))
+  const next = upcoming.find((e) => new Date(e.start_at).getTime() > now)
+  const start = next ? new Date(next.start_at) : new Date(row.start_at)
   const skipped: string[] = []
   const list = eventNotifyMinutes(row)
   if (!list.length) return skipped

@@ -7071,8 +7071,11 @@ html.theme-wipe-dark::before {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: var(--kb);
+  bottom: 0;
   z-index: 25;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   transform: translateY(110%);
   transition: transform 480ms var(--ease-out);
   background: linear-gradient(180deg, rgba(22, 26, 24, 0.98), rgba(10, 12, 11, 0.99));
@@ -7107,13 +7110,20 @@ html.theme-wipe-dark::before {
   cursor: grabbing;
 }
 
-.app.is-kb .cal-sheet {
-  padding-bottom: 18px;
+.app.is-kb .cal-sheet.is-open {
+  bottom: auto;
 }
 
 .cal-sheet.is-open {
-  transform: translateY(0);
+  position: relative;
+  inset: auto;
+  z-index: 2;
+  max-height: none;
+  overflow: visible;
+  transform: none;
   pointer-events: auto;
+  margin-top: 8px;
+  margin-bottom: 75vh;
 }
 
 .cal-sheet-actions {

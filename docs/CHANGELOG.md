@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.5` — Kalender: Fenster unten, jedes Jahr — *CODE*
+
+Neu lässt das Fenster unten. Die Ansicht scrollt, bis „Termin anlegen“
+oben steht, das Eingabefeld springt nicht nach oben. Wiederholung kennt
+„Jedes Jahr“, gleicher Tag. Geburtstag setzt diese Wiederholung.
+
+App-Code und Sideload **`18.23.5`** (versionCode `182305`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/kalender-jahr-ccff/releases/Jarvis.apk
+
 ### `18.23.4` — Tischplatte plant, JSON zum Laden — *CODE*
 
 Die Tischplatte ist die Planungsfläche: Sprints und PSP als JSON. Das

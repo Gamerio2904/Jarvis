@@ -1,6 +1,6 @@
 import type { CalendarEvent } from './store.ts'
 
-export type CalendarRecur = 'weekly' | 'monthly'
+export type CalendarRecur = 'weekly' | 'monthly' | 'yearly'
 
 const HOUR = 60 * 60_000
 const DAY = 24 * HOUR
@@ -23,7 +23,18 @@ export function defaultEndIso(start: Date, allDay = false): string {
 }
 
 export function isCalendarRecur(v: unknown): v is CalendarRecur {
-  return v === 'weekly' || v === 'monthly'
+  return v === 'weekly' || v === 'monthly' || v === 'yearly'
+}
+
+/** Gleicher Tag im nächsten Jahr. 29. Februar fällt auf den 28. */
+export function addYearsKeepDay(cursor: Date): Date {
+  const month = cursor.getMonth()
+  const day = cursor.getDate()
+  const next = new Date(cursor)
+  next.setFullYear(next.getFullYear() + 1)
+  if (next.getMonth() !== month) next.setDate(0)
+  else if (next.getDate() !== day) next.setDate(day)
+  return next
 }
 
 /** Vorkommen im Fenster. Serie bleibt eine Zeile im Store; die GUI sieht Kopien. */
@@ -42,6 +53,16 @@ export function expandEvents(events: CalendarEvent[], from: Date, until: Date): 
       continue
     }
     let cursor = new Date(start)
+    if (row.recur === 'yearly') {
+      const targetYear = new Date(fromMs).getFullYear()
+      if (cursor.getFullYear() < targetYear - 1) {
+        const month = cursor.getMonth()
+        const day = cursor.getDate()
+        cursor.setFullYear(targetYear - 1)
+        if (cursor.getMonth() !== month) cursor.setDate(0)
+        else if (cursor.getDate() !== day) cursor.setDate(day)
+      }
+    }
     let guard = 0
     while (cursor.getTime() < untilMs && guard < 400) {
       const occ: CalendarEvent = {
@@ -53,6 +74,7 @@ export function expandEvents(events: CalendarEvent[], from: Date, until: Date): 
       const end = eventEndAt(occ).getTime()
       if (end > fromMs && t < untilMs) out.push(occ)
       if (row.recur === 'weekly') cursor = new Date(cursor.getTime() + 7 * DAY)
+      else if (row.recur === 'yearly') cursor = addYearsKeepDay(cursor)
       else {
         const next = new Date(cursor)
         next.setMonth(next.getMonth() + 1)
@@ -92,5 +114,6 @@ export function firstOverlap(candidate: CalendarEvent, others: CalendarEvent[]):
 export function recurLabel(row: Pick<CalendarEvent, 'recur'>): string | undefined {
   if (row.recur === 'weekly') return 'jede Woche'
   if (row.recur === 'monthly') return 'jeden Monat'
+  if (row.recur === 'yearly') return 'jedes Jahr'
   return undefined
 }

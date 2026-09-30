@@ -1,6 +1,6 @@
 # 95 — Ablauf auf der Tafel **CODE** (`18.23`)
 
-**Dieses Dokument ist CODE.** App-Code **`18.23.4`** (versionCode `182304`).
+**Dieses Dokument ist CODE.** App-Code **`18.23.5`** (versionCode `182305`).
 Sprints **410–416**. Katalog-Stand bleibt `18.20.0`. `18.23.1` macht das Fenster
 deckend, hält `So` nach einer Änderung und lässt aus `7:30` den Satz `Wecker um 7:30`.
 `18.23.2`: ein Bot fragt, bevor ein anderer dazukommt. `Ja` holt ihn, `Nein` nicht.

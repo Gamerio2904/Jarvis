@@ -229,6 +229,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const sheetStartY = useRef<number | null>(null)
   const sheetDragRef = useRef(0)
   const titleRef = useRef<HTMLInputElement>(null)
+  const sheetRef = useRef<HTMLDivElement>(null)
+  const headRef = useRef<HTMLHeadingElement>(null)
   const modeThumb = useSlidingThumb(mode)
 
   const year = cursor.getFullYear()
@@ -275,9 +277,31 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
 
   useEffect(() => {
     if (!sheetOpen) return
-    titleRef.current?.focus()
+    const head = headRef.current
+    const scroller = head?.closest('.cal-view')
+    if (!head || !(scroller instanceof HTMLElement)) return
+    const pin = () => {
+      const delta = head.getBoundingClientRect().top - scroller.getBoundingClientRect().top
+      if (Math.abs(delta) < 2) return
+      scroller.scrollTop += delta
+    }
+    titleRef.current?.focus({ preventScroll: true })
     if (editingId) titleRef.current?.select()
+    pin()
+    const frame = window.requestAnimationFrame(pin)
+    const soon = window.setTimeout(pin, 120)
+    const later = window.setTimeout(pin, 480)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(soon)
+      window.clearTimeout(later)
+    }
   }, [sheetOpen, editingId])
+
+  useEffect(() => {
+    if (!sheetOpen || themePick || themeGuess !== 'geburtstag') return
+    setRecur((cur) => cur || 'yearly')
+  }, [sheetOpen, themePick, themeGuess])
 
   useEffect(() => {
     if (mode !== 'year') return
@@ -363,6 +387,11 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setPlace('')
     setEditingId(null)
     setErr(null)
+  }
+
+  function pickTheme(id: CalThemeId) {
+    setThemePick(id)
+    if (id === 'geburtstag') setRecur('yearly')
   }
 
   function openCreate() {
@@ -832,6 +861,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       />
       <div
         className={`cal-sheet${sheetOpen ? ' is-open' : ''}`}
+        ref={sheetRef}
         role="dialog"
         aria-label={editingId ? 'Termin ändern' : 'Termin anlegen'}
         aria-hidden={!sheetOpen}
@@ -848,7 +878,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         >
           <i />
         </div>
-        <h3>{editingId ? 'Termin ändern' : 'Termin anlegen'}</h3>
+        <h3 ref={headRef}>{editingId ? 'Termin ändern' : 'Termin anlegen'}</h3>
         <p className="cal-sheet-when">{dayHeading(selected, today)}</p>
         <p className="settings-hint">Thema kommt aus dem Titel — Sie können es ändern.</p>
         <form
@@ -909,6 +939,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             <option value="">Einmal</option>
             <option value="weekly">Jede Woche</option>
             <option value="monthly">Jeden Monat</option>
+            <option value="yearly">Jedes Jahr</option>
           </select>
           <input
             className="cal-place"
@@ -926,7 +957,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 className={`cal-theme-chip${theme === t.id ? ' is-on' : ''}`}
                 style={theme === t.id ? { borderColor: t.color, background: `${t.color}33` } : undefined}
                 disabled={busy}
-                onClick={() => setThemePick(t.id)}
+                onClick={() => pickTheme(t.id)}
               >
                 <i className="cal-theme-swatch" style={{ background: t.color }} />
                 {t.label}

@@ -85,6 +85,7 @@ export function eventsToIcs(events: CalendarEvent[], now = new Date()): string {
     if (row.place) lines.push(`LOCATION:${escapeText(row.place)}`)
     if (row.recur === 'weekly') lines.push('RRULE:FREQ=WEEKLY;INTERVAL=1')
     if (row.recur === 'monthly') lines.push('RRULE:FREQ=MONTHLY;INTERVAL=1')
+    if (row.recur === 'yearly') lines.push('RRULE:FREQ=YEARLY;INTERVAL=1')
     const mins = row.remind_offsets_min
     if (mins && mins.length) lines.push(...alarmBlock(mins))
     else if (mins === undefined) lines.push(...alarmBlock([0]))
@@ -126,6 +127,7 @@ function recurFromRrule(raw: string | undefined): CalendarEvent['recur'] {
   const u = raw.toUpperCase()
   if (/\bFREQ=WEEKLY\b/.test(u)) return 'weekly'
   if (/\bFREQ=MONTHLY\b/.test(u)) return 'monthly'
+  if (/\bFREQ=YEARLY\b/.test(u)) return 'yearly'
   return undefined
 }
 

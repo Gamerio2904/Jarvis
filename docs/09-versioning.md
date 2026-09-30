@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.23.4`**. Sideload **`18.23.4`**, versionCode `182304`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.23.5`**. Sideload **`18.23.5`**, versionCode `182305`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -916,7 +916,7 @@ Sprints 404–409. Test: [`TEST-18.22.md`](./TEST-18.22.md).
 
 ### `18.23` — Ablauf [`95-next.md`](./95-next.md) **CODE**
 
-**`18.23.4`** (App-Code, versionCode `182304`). Die Tischplatte plant: Sprints und PSP als JSON zum Herunterladen. Das Agentenfenster ist weg. `Lade den PSP runter` und `Lade alles zu Projekt …` speichern die Datei. Jede Sprintvorlage liegt im Hausstand.
+**`18.23.5`** (App-Code, versionCode `182305`). Kalender: das Fenster bleibt unten, „Termin anlegen“ steht oben. Wiederholung „Jedes Jahr“. Geburtstag setzt sie.
 `18.23.1` deckt die Tafel ab. `18.23.2`: ein Bot fragt, bevor Recherche oder
 ein anderer Bot dazukommt. `Ja` holt ihn, `Nein` lässt ihn draußen.
 Sprints 410–416. Test: [`TEST-18.23.md`](./TEST-18.23.md).
@@ -935,6 +935,7 @@ Katalog-Stand bleibt `18.20.0`.
 | `18.23.2` | Bot fragt, bevor ein anderer dazukommt | Nachtest |
 | `18.23.3` | Großes Fenster, Agenten als Figuren, Plan live | Nachtest |
 | `18.23.4` | Tischplatte plant, PSP und Projekt als JSON | Nachtest |
+| `18.23.5` | Kalenderfenster unten, jedes Jahr, Geburtstag | Nachtest |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
