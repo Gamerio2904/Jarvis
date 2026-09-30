@@ -21,7 +21,8 @@ globalThis.localStorage = {
 const { normalizeUtterance } = await import('../src/engine/utterance.ts')
 const { parseCalendarIntent, normalizeCalendarSpeech, splitTitlePlace } = await import('../src/engine/calendar-parse.ts')
 const { handleCalendar, sameDay, takeCalendarFocus } = await import('../src/engine/calendar.ts')
-const { listEvents, clearPending } = await import('../src/engine/store.ts')
+const { getPending, listEvents, clearPending } = await import('../src/engine/store.ts')
+const { rewriteFollowUp } = await import('../src/engine/last-step.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
 const { scrubReply } = await import('../src/engine/guards.ts')
 
@@ -103,6 +104,49 @@ assert.match(listed.reply || '', /Geburtstag Jakob|Termine/)
 const icsAsk = await handleCalendar('cal-agent', 'Kalender als ICS')
 assert.equal(icsAsk.handled, true)
 assert.equal(icsAsk.tool?.action, 'export')
+
+const satz = 'Erinnerung 7.10. für Auslands Praktikum Erinnerung 18 Uhr am Tag davor'
+const datum = parseCalendarIntent(satz, frozen)
+assert.equal(datum?.kind, 'create')
+if (datum?.kind === 'create') {
+  assert.equal(datum.title, 'Auslands Praktikum')
+  assert.equal(datum.allDay, true)
+  assert.equal(datum.start.getFullYear(), 2026)
+  assert.equal(datum.start.getMonth(), 9)
+  assert.equal(datum.start.getDate(), 7)
+  assert.equal(datum.start.getHours(), 0)
+  assert.deepEqual(datum.remind_offsets_min, [360])
+  assert.equal(datum.remindLabel, '18:00 am Tag davor')
+}
+assert.equal(pickRoute(satz), 'calendar')
+assert.equal(pickRoute('erinner mich morgen um 9 an Steuer'), 'reminder')
+const nurTag = parseCalendarIntent('Erinnerung 7.10. für Auslands Praktikum', frozen)
+assert.equal(nurTag?.kind, 'create')
+if (nurTag?.kind === 'create') {
+  assert.equal(nurTag.title, 'Auslands Praktikum')
+  assert.equal(nurTag.start.getDate(), 7)
+  assert.equal(nurTag.remind_offsets_min, undefined)
+}
+assert.equal(
+  rewriteFollowUp('Ja', {
+    last_step_tool: 'proposal',
+    last_step_utterance: satz,
+  }),
+  null,
+)
+
+await clearPending('cal-erinnerung')
+const gelegt = await handleCalendar('cal-erinnerung', satz)
+assert.match(gelegt.reply || '', /Auslands Praktikum/)
+assert.match(gelegt.reply || '', /18:00 am Tag davor/)
+assert.doesNotMatch(gelegt.reply || '', /Wann soll ich Sie erinnern/)
+assert.equal(await getPending('cal-erinnerung'), undefined)
+const praktikum = (await listEvents()).find((e) => e.title === 'Auslands Praktikum')
+assert.ok(praktikum)
+assert.equal(new Date(praktikum.start_at).getDate(), 7)
+assert.equal(new Date(praktikum.start_at).getMonth(), 9)
+assert.deepEqual(praktikum.remind_offsets_min, [360])
+assert.equal(praktikum.all_day, true)
 
 const { cancelEventNotifies } = await import('../src/engine/calendar.ts')
 for (const e of await listEvents()) await cancelEventNotifies(e)

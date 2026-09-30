@@ -139,6 +139,8 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   }
 
   if (CONFIRM.test(raw) || RESEARCH_YES.test(raw)) {
+    /** „Soll ich?“ wartet auf das Wort Ja. Der alte Satz darf es nicht ersetzen. */
+    if (tool === 'proposal') return null
     const pending = expireResearchPending(parseResearchPending(step?.last_research_json))
     const accepted = acceptResearchPending(raw, pending)
     /** Offene Suche sticht eine alte Route — sonst wird „Ja“ zu Lidlovy Dvory. */

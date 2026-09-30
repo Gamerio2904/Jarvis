@@ -54,7 +54,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   }
 
   if (/\berinner/.test(t) && !/\b(termin|kalender)\b/.test(t)) {
-    out = drop(out, 'calendar')
+    if (has(out, 'reminder')) out = drop(out, 'calendar')
     out = drop(out, 'todo')
   }
 

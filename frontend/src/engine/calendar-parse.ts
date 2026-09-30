@@ -10,6 +10,8 @@ export type CalendarIntent =
       end?: Date
       allDay?: boolean
       recur?: 'weekly' | 'monthly'
+      remind_offsets_min?: number[]
+      remindLabel?: string
     }
   | { kind: 'list'; day?: Date; until?: Date; label?: string }
   | { kind: 'delete'; query: string }
@@ -238,6 +240,49 @@ function withAllDayAndSpan(
   return next
 }
 
+const ERINNERUNG_DATUM =
+  /^\s*erinnerung\s+(?:am\s+)?(\d{1,2})\.(\d{1,2})\.?\s*(\d{2,4})?\s+(?:(?:für|an|zum|zur|zu)\s+)?(.+)$/is
+const TAG_DAVOR_UHR =
+  /^(.*?)\s+(?:erinnerung\s+)?(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?\s*uhr\s+am\s+tag\s+davor\s*[.!]?\s*$/is
+const TAG_DAVOR_NACH =
+  /^(.*?)\s+am\s+tag\s+davor(?:\s+(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?\s*uhr)?\s*[.!]?\s*$/is
+
+/** „Erinnerung 7.10. für X, 18 Uhr am Tag davor“ — der Tag bleibt, die Uhr ist die Frist. */
+function parseErinnerungDatum(text: string, now: Date): CalendarIntent | null {
+  const hit = ERINNERUNG_DATUM.exec(text)
+  if (!hit) return null
+  const start = dateFromParts(now, hit[1], hit[2], hit[3] || undefined)
+  if (!start) return null
+  start.setHours(0, 0, 0, 0)
+  const rest = hit[4].replace(/\s+/g, ' ').trim()
+  const clockFirst = TAG_DAVOR_UHR.exec(rest)
+  const dayFirst = clockFirst ? null : TAG_DAVOR_NACH.exec(rest)
+  const tail = clockFirst || dayFirst
+  const rawTitle = (tail ? tail[1] : rest).replace(/[,.\s]+$/g, '').trim()
+  const split = splitTitlePlace(rawTitle)
+  if (!split.title || split.title.length < 2) return null
+  const whenLabel = `${start.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })} · ganztägig`
+  const base = {
+    kind: 'create' as const,
+    title: split.title,
+    place: split.place,
+    start,
+    whenLabel,
+    allDay: true,
+  }
+  if (!tail) return base
+  const hour = Number(tail[2] || 18)
+  const minute = tail[3] ? Number(tail[3]) : 0
+  if (!Number.isFinite(hour) || !Number.isFinite(minute) || hour > 23 || minute > 59) return null
+  const remind = new Date(start)
+  remind.setDate(remind.getDate() - 1)
+  remind.setHours(hour, minute, 0, 0)
+  const minutes = Math.round((start.getTime() - remind.getTime()) / 60_000)
+  if (minutes <= 0) return null
+  const clock = `${hour}:${String(minute).padStart(2, '0')}`
+  return { ...base, remind_offsets_min: [minutes], remindLabel: `${clock} am Tag davor` }
+}
+
 export function parseCalendarIntent(text: string, now = new Date()): CalendarIntent | null {
   const t = normalizeCalendarSpeech(text)
   if (!t || t.length > 220) return null
@@ -272,6 +317,9 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   if (del) return { kind: 'delete', query: del[1].replace(/[.!?]+$/, '').trim() }
   const renamed = parseRename(t)
   if (renamed) return renamed
+
+  const datedRemind = parseErinnerungDatum(t, now)
+  if (datedRemind) return datedRemind
 
   const weekly = WEEKLY_CAL.exec(t)
   if (weekly) {

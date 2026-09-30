@@ -171,6 +171,7 @@ export async function handleCalendar(
     const endAt = intent.end
       ? intent.end.toISOString()
       : defaultEndIso(intent.start, Boolean(intent.allDay))
+    const stated = intent.remind_offsets_min
     const row = await addEvent({
       title: intent.title,
       start_at: intent.start.toISOString(),
@@ -180,6 +181,7 @@ export async function handleCalendar(
       end_at: endAt,
       all_day: intent.allDay,
       recur: intent.recur,
+      remind_offsets_min: stated,
     })
     await scheduleEventNotifies(row)
     void refineThemeLater(row)
@@ -190,7 +192,7 @@ export async function handleCalendar(
     const clash = firstOverlap(row, await listEvents())
     const warn = clash ? ` Achtung: überlappt mit ${clash.label}.` : ''
     const running = isDebugRunActive()
-    if (!running) {
+    if (!running && !stated) {
       await setPending({
         conversation_id: conversationId,
         tool: 'calendar',
@@ -200,11 +202,13 @@ export async function handleCalendar(
         created_at: new Date().toISOString(),
       })
     }
+    const remindLine = stated ? ` Erinnerung: ${intent.remindLabel || formatRemindOffsets(stated)}.` : ''
     return {
       handled: true,
-      reply: running
-        ? `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.${series}${warn}`
-        : `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.${series}${warn} ${ASK_REMIND}`,
+      reply:
+        running || stated
+          ? `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.${series}${warn}${remindLine}`
+          : `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.${series}${warn} ${ASK_REMIND}`,
       tool: {
         tool_status: 'executed',
         tool: 'calendar',
