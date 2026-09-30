@@ -1,5 +1,5 @@
 /**
- * Feature-Katalog Freeze 2026-09-29, Bundle 18.19.0.
+ * Feature-Katalog Freeze 2026-09-30, Bundle 18.20.0. Sideload-APK bleibt 18.19.0.
  * Quelle: Hilfe + Kopf 42-planned + Unreleased. Kein Docs-Clone zur Laufzeit.
  */
 export type FeatureRow = {
@@ -12,8 +12,8 @@ export type FeatureRow = {
   prompt: string
 }
 
-export const CATALOG_STAND = '18.19.0'
-export const CATALOG_FREEZE = '2026-09-29'
+export const CATALOG_STAND = '18.20.0'
+export const CATALOG_FREEZE = '2026-09-30'
 
 export const FEATURE_CATALOG: FeatureRow[] = [
   { id: 'home', version: '18.18.0', area: 'home', title: 'Homescreen', can: 'App-Kacheln statt Chat beim Öffnen.', wont: 'Android-Launcher, fremde Apps.', prompt: 'Zeig Homescreen' },
@@ -21,6 +21,7 @@ export const FEATURE_CATALOG: FeatureRow[] = [
   { id: 'mini', version: '18.18.0', area: 'chat', title: 'Mini-Chat', can: 'Kleines Chatfenster auf dem Homescreen.', wont: 'Zweites Hirn.', prompt: '' },
   { id: 'voice-sphere', version: '18.18.0', area: 'voice', title: 'Sprach-Kugel', can: 'CSS-3D-Kugel als Sprach-Shortcut.', wont: 'WebGL.', prompt: '' },
   { id: 'board', version: '18.19.0', area: 'board', title: 'Tischplatte', can: 'Icons aus, HUD-Werkbank ohne Gesicht.', wont: 'Schreibtisch-Foto, Face-Hologramm, tldraw.', prompt: 'Tischplatte an' },
+  { id: 'clip', version: '18.20.0', area: 'medien', title: 'YouTube-Highlights', can: '1–3 YouTube-Links, der PC schneidet eine lokale Datei.', wont: 'Upload, TikTok, Instagram, Schnitt auf dem Handy.', prompt: 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ' },
   { id: 'calendar', version: '18.17.0', area: 'calendar', title: 'Kalender Alltag', can: 'Termine, ICS, Serie weekly/monthly, Konflikt ehrlich.', wont: 'Google-Kalender.', prompt: 'Termin morgen 15 Uhr Zahnarzt' },
   { id: 'ics', version: '18.17.0', area: 'calendar', title: 'ICS', can: 'Kalender als ICS raus und rein (RFC-Teilmenge).', wont: 'Cloud-Sync.', prompt: '' },
   { id: 'memory', version: '18.16.0', area: 'memory', title: 'Personen-Knäuel', can: 'Mama = Mutter. Geburtstag und Kontakt eine Person.', wont: 'Erfundener Vorname.', prompt: 'Mama hat am 3. März Geburtstag' },

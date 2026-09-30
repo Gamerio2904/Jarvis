@@ -13,6 +13,7 @@ export const EXECUTOR_IDS = [
   "drive",
   "device",
   "pc",
+  "clip",
   "maps",
   "teach",
   "pack",

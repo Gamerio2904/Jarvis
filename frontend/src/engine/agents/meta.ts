@@ -21,6 +21,7 @@ export const AGENT_META: Record<string, AgentMeta> = {
   amazon: { label: 'Amazon Music', department: 'geraete', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
   app: { label: 'App starten', department: 'geraete', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
   film: { label: 'Film / Streaming', department: 'medien', organs: ['mouth', 'eye'], visibility: 'domain', autonomy: 'parser', knowledge: true },
+  clip: { label: 'YouTube-Highlights', department: 'medien', organs: ['pc_hand', 'mouth'], visibility: 'domain', autonomy: 'parser' },
   drive: { label: 'Fahrmodus', department: 'navigation', organs: ['hand', 'eye'], visibility: 'domain', autonomy: 'parser' },
   maps: { label: 'Karten', department: 'navigation', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
   here: { label: 'Standort', department: 'navigation', organs: ['eye'], visibility: 'domain', autonomy: 'parser' },

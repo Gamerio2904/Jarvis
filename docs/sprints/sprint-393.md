@@ -1,6 +1,6 @@
 # Sprint 393 — PC-Probe
 
-**Version:** `18.20.0` — **PLAN** Must
+**Version:** `18.20.0` — **CODE** Must
 **Plan:** [`92-next.md`](../92-next.md)
 **Voraussetzung:** 392.
 

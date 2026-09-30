@@ -355,4 +355,5 @@ export const TEST_PROMPTS = [
   'jeden Montag 18 Uhr Training',
   'Kalender als ICS',
   'Zeig Homescreen',
+  'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ',
 ] as const

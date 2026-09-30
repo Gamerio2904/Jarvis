@@ -256,7 +256,7 @@ Kopierprompts Settings → Tests, Gruppe **Fachwissen-11** (wie Memory-10). Reel
 - Qdrant, HNSW, Qwen-Embed, ColPali, zweiter Encoder als Router
 - e5 verdrahten „weil Fachwissen“ — 195 bleibt Freeze
 - Stiller Web-Crawl, 6–12 h Background-Job, FGS-Research
-- Instagram/TikTok/Reel Download, Video-ASR, „lies das Reel“ als Must
+- Instagram/TikTok/Reel Download, Video-ASR, „lies das Reel“ als Must. YouTube-Highlights auf dem PC sind [`92-next.md`](./92-next.md), keine Reel-Quelle.
 - Auto-Code der App / der „Rüstung“
 - Tony-Stark-Persona, englische Filmzitate
 - Fachwissen in Cap-80-Pins

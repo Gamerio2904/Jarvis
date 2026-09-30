@@ -364,6 +364,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Hol die Nachrichten': 'news',
   'jeden Montag 18 Uhr Training': 'calendar',
   'Kalender als ICS': 'calendar',
+  'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ': 'clip',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

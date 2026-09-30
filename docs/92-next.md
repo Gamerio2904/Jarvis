@@ -1,13 +1,13 @@
-# 92 — YouTube-Highlights als Top-Liste **PLAN** (`18.20`)
+# 92 — YouTube-Highlights als Top-Liste **CODE** (`18.20`)
 
 PO: Reel [DYuOlndDUYF](https://www.instagram.com/reel/DYuOlndDUYF/) von
 [@rickandmortyhighlights1](https://www.instagram.com/rickandmortyhighlights1/).
 Frage: Kann der TikTok-Agent (und die anderen) das bauen, wenn man ihm
 YouTube-Links gibt und er die Highlights schneidet?
 
-**Dieses Dokument ist PLAN.** App-Code bleibt **`18.19.0`**. Sideload bleibt
-**`18.19.0`**. Sprints **392–397** sind geplant, nicht geliefert. Kein Merge
-mit Draft Clips `#152` / `18.13`.
+**Dieses Dokument ist CODE.** App-Code **`18.20.0`**. Sideload bleibt
+**`18.19.0`**, bis ein Windows-PC mit ffmpeg eine Datei geschrieben hat.
+Sprints **392–397** sind im Quellcode. Kein Merge mit Draft Clips `#152` / `18.13`.
 
 Hirn-Slots bleiben: **Groq primär → Gemini Spezialist (Vision) → 0,5B
 Fallback.** Parser wählen. Ein Domänen-Agent pro Zug. Kein Schwarm, kein
@@ -287,27 +287,27 @@ dem Job-Stand, er erfindet keine Zeiten.
 
 ---
 
-## 11. Sprints (`18.20.0` beim Execute, nicht jetzt)
+## 11. Sprints (`18.20.0` CODE, Sideload noch `18.19.0`)
 
 | Sprint | Thema | Rolle |
 |--------|--------|--------|
-| [392](./sprints/sprint-392.md) | Parser `clip`, Konflikte gegen `tv` / `film` / `wont`, Ja-Satz | Must PLAN |
-| [393](./sprints/sprint-393.md) | PC `/v1/clip` probe + status, yt-dlp json3, Werkzeug fehlt ehrlich | Must PLAN |
-| [394](./sprints/sprint-394.md) | Groq-Rang auf Sätzen, Grenzen 20–75 s, Summe ≤ 180 | Must PLAN |
-| [395](./sprints/sprint-395.md) | Ein JPEG, Gemini-Titel, Nutzer-Titel gewinnt | Must PLAN |
-| [396](./sprints/sprint-396.md) | Render 1080×1920, ASS-Liste, ein Wort, Originalton | Must PLAN |
-| [397](./sprints/sprint-397.md) | Gold, Job-TTL, Tests ohne Netz (Fixture-VTT) | Must PLAN |
+| [392](./sprints/sprint-392.md) | Parser `clip`, Konflikte gegen `tv` / `film` / `wont`, Ja-Satz | Must CODE |
+| [393](./sprints/sprint-393.md) | PC `/v1/clip` probe + status, yt-dlp json3, Werkzeug fehlt ehrlich | Must CODE |
+| [394](./sprints/sprint-394.md) | Groq-Rang auf Sätzen, Grenzen 20–75 s, Summe ≤ 180 | Must CODE |
+| [395](./sprints/sprint-395.md) | Ein JPEG, Gemini-Titel, Nutzer-Titel gewinnt | Must CODE |
+| [396](./sprints/sprint-396.md) | Render 1080×1920, ASS-Liste, ein Wort, Originalton | Must CODE |
+| [397](./sprints/sprint-397.md) | Gold, Job-TTL, Tests ohne Netz (Fixture-VTT) | Must CODE |
 
 Kette: 392 vor allem. 393 vor 394. 394 und 395 vor 396. 397 zuletzt.
 396 kann mit Fixture-Zeiten gegen ein lokales Testvideo laufen, ohne YouTube.
 
-Landet beim Execute in App-Code **`18.20.0`**. Sideload erst, wenn der
+Liegt in App-Code **`18.20.0`**. Sideload erst, wenn der
 PC-Pfad auf einem Windows-Rechner mit ffmpeg eine Datei geschrieben hat.
 Bis dahin bleibt die APK `18.19.0`.
 
 ---
 
-## 12. Testprompts (für Execute, nicht jetzt)
+## 12. Testprompts
 
 ```
 Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ

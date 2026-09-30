@@ -49,6 +49,12 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
       "Zeig Homescreen"
     ]
   },
+  "clip": {
+    "promptSlice": "YouTube-Highlights. 1–3 Links, Schnitt auf dem PC, Datei lokal, kein Upload.",
+    "goldPrompts": [
+      "Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ"
+    ]
+  },
   "film": {
     "promptSlice": "Domäne film: Parser-Fakten only.",
     "goldPrompts": [

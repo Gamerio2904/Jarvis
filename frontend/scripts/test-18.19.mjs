@@ -24,9 +24,9 @@ const src = (rel) => readFileSync(join(here, '..', rel), 'utf8')
 
 const { APP_VERSION } = await import('../src/engine/store.ts')
 const { PKG_VERSION, versionCodeOf } = await import('./app-version.mjs')
-assert.equal(APP_VERSION, '18.19.0')
-assert.equal(PKG_VERSION, '18.19.0')
 assert.equal(versionCodeOf('18.19.0'), 181900)
+assert.equal(APP_VERSION, PKG_VERSION)
+assert.ok(versionCodeOf(APP_VERSION) >= 182000)
 
 const { GOLD_EXPECT } = await import('../src/engine/eval/corpus.ts')
 const { TEST_PROMPTS } = await import('../src/engine/test-prompts.ts')

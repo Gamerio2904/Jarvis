@@ -481,6 +481,18 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'hud', 0.3)
   }
 
+  const clipDevice = /\b(?:fernseher|fernsehen|fernseh|\btv\b|tizen|samsung|fire\s*tv)\b/.test(t)
+  if (clipDevice) {
+    out = drop(out, 'clip')
+    out = boost(out, 'tv', 0.12)
+  } else if (has(out, 'clip')) {
+    out = drop(out, 'film')
+    out = drop(out, 'tv')
+    out = drop(out, 'wont')
+    out = drop(out, 'watchlist')
+    out = boost(out, 'clip', 0.22)
+  }
+
   if (parseWontIntent(text)) {
     out = drop(out, 'pc')
     out = drop(out, 'fx')

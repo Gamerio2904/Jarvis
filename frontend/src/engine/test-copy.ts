@@ -748,6 +748,16 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Tafel aus', text: 'Tischplatte aus', expect: { tool: 'board' } },
     ],
   },
+  {
+    title: '18.20 YouTube-Highlights',
+    items: [
+      {
+        label: 'Highlights schneiden',
+        text: 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ',
+        expect: { tool: 'clip' },
+      },
+    ],
+  },
 ]
 
 /*

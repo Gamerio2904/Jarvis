@@ -203,7 +203,7 @@ function endpoint(): { url: string; token: string } | { error: string } {
   return { url: `http://${host}:${port}`, token }
 }
 
-async function callPc(
+export async function callPc(
   path: string,
   body: Record<string, unknown> = {},
   timeoutMs = 12_000,
@@ -227,10 +227,13 @@ async function callPc(
       return { ok: false, message: 'PC-Token falsch. QR nochmal scannen oder Token aus dem Fenster.' }
     }
     if (json.ok === false) {
-      return {
+      const fail: Record<string, unknown> = {
         ok: false,
         message: String(json.message || 'PC nicht erreicht. Gleiches WLAN, App-Fenster offen, Token prüfen.'),
       }
+      if (json.error) fail.error = json.error
+      if (json.tool) fail.tool = json.tool
+      return fail
     }
     return json
   } catch {

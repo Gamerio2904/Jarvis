@@ -7,6 +7,7 @@ export const AGENT_SWEEP: Record<string, string> = {
   identity: 'Bist du ChatGPT?',
   tv: 'Fernseher an',
   film: 'Wie gut ist Dune',
+  clip: 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ',
   watchlist: 'Watchliste: Dune',
   osint: 'WHOIS example.com',
   fan: 'Ventilator an',

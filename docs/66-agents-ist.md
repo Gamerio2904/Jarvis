@@ -219,6 +219,8 @@ Antwort, Pfad, Zeiten, Agenten-Schritte, Hirn-Plätze und Kontingent-Stand.
 | Agenten mit `parse` | 60 | `agents/parse-catalog.ts` |
 | Agenten mit `execute` | 60 | `agents/execute-map.ts` |
 
+`18.20.0` hängt `clip` daran: YouTube-Highlights, das Handy wählt, der PC schneidet.
+
 `identity` hat seit `17.0.0` einen Executor (`PERSONA_ASK_TEXT`). Vorher fing
 `chat.ts` die Frage ab; der Umweg durch `runAgent` fiel stumm ans Modell.
 

@@ -5,11 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.20.0` — YouTube-Highlights — *PLAN*
+### `18.20.0` — YouTube-Highlights — *CODE*
 
-Top-Liste aus 1–3 YouTube-Links, Schnitt auf dem PC, Datei lokal, kein
-Upload. Sprints 392–397. Noch kein Code, APK bleibt `18.19.0`.
-[`92-next.md`](./92-next.md).
+Top-Liste aus 1–3 YouTube-Links. Das Handy wählt die Stellen, der PC
+schneidet, die Datei bleibt unter `Videos\Jarvis`, kein Upload. Sprints
+392–397. Sideload bleibt `18.19.0`, bis ein Windows-PC eine Datei
+geschrieben hat. [`92-next.md`](./92-next.md).
 
 ### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE + APK*
 

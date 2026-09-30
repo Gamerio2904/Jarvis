@@ -138,6 +138,9 @@ export function parseTvWatch(text: string, ctx?: TvWatchCtx | boolean): TvWatchI
   ) {
     return { kind: 'open', app }
   }
+  if (tvCue && app && rest.length >= 2) {
+    return { kind: 'play', title: rest, app, content: content || (app === 'youtube' ? 'video' : undefined) }
+  }
   if (
     playVerb &&
     rest.length >= 2 &&

@@ -99,7 +99,7 @@ assert.ok(cal.some((r) => r.id === 'calendar' || r.area === 'calendar'))
 assert.equal(catalogByArea('kochrezeptxyz').length, 0)
 assert.equal(catalogHasRice(), false)
 assert.ok(FEATURE_CATALOG.every((r) => r.version && r.can))
-assert.equal(CATALOG_STAND, '18.19.0')
+assert.equal(CATALOG_STAND, '18.20.0')
 
 const emptyJobs = parseBoardJobs('[{"id":"1","kind":"swarm","status":"running","label":"x","at":1}]')
 assert.equal(emptyJobs.length, 0)

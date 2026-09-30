@@ -54,6 +54,7 @@ const TIE_ORDER = [
   'warn',
   'fx',
   'sport',
+  'clip',
   'tv',
   'film',
   'drive',

@@ -72,6 +72,7 @@ import {
 } from './store.ts'
 import { handlePlaces } from './places.ts'
 import { handlePc } from './pc.ts'
+import { handleClip } from './clip.ts'
 import { handleTaxi } from './taxi.ts'
 import { handleInterrupt } from './interrupt.ts'
 import { clearChain, partitionChain, popChain, writeChain } from './chain.ts'
@@ -219,6 +220,21 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         reply: pcPending.reply,
         tool: pcPending.tool,
         lastTool: pcPending.lastTool || 'pc',
+      }
+    }
+  }
+
+  if (loadSettings().last_clip_json) {
+    if (pendingYields(content, 'clip')) {
+      saveSettings({ last_clip_json: '' })
+    } else {
+      const clipPending = await handleClip(conversationId, content)
+      if (clipPending.handled && clipPending.reply) {
+        return {
+          reply: clipPending.reply,
+          tool: clipPending.tool,
+          lastTool: clipPending.lastTool || 'clip',
+        }
       }
     }
   }
@@ -584,7 +600,11 @@ export async function streamChat(
     const settingsNow = loadSettings()
     const researchPending = parseResearchPending(settingsNow.last_research_json)
     const deviceBusy = Boolean(
-      settingsNow.last_pc_json || settingsNow.last_comm_json || settingsNow.last_taxi_json || settingsNow.last_interrupt_json,
+      settingsNow.last_pc_json ||
+        settingsNow.last_clip_json ||
+        settingsNow.last_comm_json ||
+        settingsNow.last_taxi_json ||
+        settingsNow.last_interrupt_json,
     )
     const texts = queue.map((p) => rewriteFollowUp(p, settingsNow) ?? p)
     const rewritten = texts[0] || content

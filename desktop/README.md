@@ -21,6 +21,10 @@ Ohne Kamera: IP (192.168… oder 10…), Port `18790` und Token aus dem grauen F
 
 PC-Gesamtablauf inkl. Browser und Testprompts: [`docs/TEST-PC.md`](../docs/TEST-PC.md).
 
+## YouTube-Highlights
+
+`Schneide Highlights aus <YouTube-Link>` fragt erst. Nach Ja holt `clip-job.mjs` die Stellen (yt-dlp, ffmpeg, libass) und schreibt eine Datei nach `%USERPROFILE%\Videos\Jarvis`. Kein Upload. Node, yt-dlp und ffmpeg müssen auf dem PATH liegen. Fehlt Node, sagt das Fenster `node fehlt.`
+
 ## Testen (Chat)
 
 - `PC QR scannen` — öffnet den Scanner

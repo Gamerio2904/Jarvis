@@ -3,6 +3,7 @@
  * Jarvis PC protocol server (dev + tests). On Windows, use JarvisPC.bat instead.
  */
 import http from 'node:http'
+import { handleClip } from './clip-job.mjs'
 
 const STUB_JPEG = Buffer.from(
   '/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDIBCQkJDAsMGA0NGDIhHCEyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMv/AABEIAAEAAQMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHB0f/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD3+iiigD//2Q==',
@@ -179,7 +180,8 @@ export function startJarvisPcServer(opts = {}) {
       return
     }
     const body = req.method === 'POST' ? await readBody(req) : {}
-    send(res, handle(path, body))
+    const result = path === '/v1/clip' ? await handleClip(body) : handle(path, body)
+    send(res, result)
   })
 
   return new Promise((resolve, reject) => {

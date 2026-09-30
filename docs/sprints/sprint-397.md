@@ -1,6 +1,6 @@
 # Sprint 397 — Gold und Fixture
 
-**Version:** `18.20.0` — **PLAN** Must
+**Version:** `18.20.0` — **CODE** Must
 **Plan:** [`92-next.md`](../92-next.md)
 **Voraussetzung:** 392–396.
 
@@ -16,7 +16,7 @@ Parser-Gold und ein Render gegen ein lokales Testvideo. Kein YouTube im Test.
 | S397-2 | Rang | `test-clip-rank.mjs` | Fixture-json3. Summe > 180 und Start hinter dem Ende fallen weg |
 | S397-3 | Render | Fixture-MP4, 4 s, stumm | Zwei Intervalle, ASS enthält beide Titel, Ausgabe 1080×1920, Dauer = Summe |
 | S397-4 | Job | `clip.ts` | Ein Job, TTL 30 min. `Clip-Status` ohne Job: „Kein Schnitt läuft.“ |
-| S397-5 | Version | Docs | Erst wenn ein Windows-PC eine Datei geschrieben hat: App `18.20.0`. Bis dahin APK `18.19.0` |
+| S397-5 | Version | Docs | App-Code `18.20.0`. Sideload-APK bleibt `18.19.0`, bis ein Windows-PC eine Datei geschrieben hat |
 
 ## Won't
 

@@ -398,6 +398,51 @@ function Invoke-Trace([string]$target) {
   }
 }
 
+function Write-HttpRaw($client, [string]$json, [int]$code = 200) {
+  $text = if ($json.Trim()) { $json.Trim() } else { '{"ok":false,"message":"Schnitt antwortet nicht."}' }
+  $bytes = [Text.Encoding]::UTF8.GetBytes($text)
+  $reason = if ($code -eq 401) { 'Unauthorized' } else { 'OK' }
+  $head = "HTTP/1.1 $code $reason`r`nContent-Type: application/json; charset=utf-8`r`nAccess-Control-Allow-Origin: *`r`nAccess-Control-Allow-Headers: *`r`nAccess-Control-Allow-Methods: GET, POST, OPTIONS`r`nContent-Length: $($bytes.Length)`r`nConnection: close`r`n`r`n"
+  $stream = $client.GetStream()
+  $hb = [Text.Encoding]::ASCII.GetBytes($head)
+  $stream.Write($hb, 0, $hb.Length)
+  $stream.Write($bytes, 0, $bytes.Length)
+  $stream.Flush()
+}
+
+function Invoke-ClipRaw([string]$bodyRaw) {
+  $node = Get-Command node -ErrorAction SilentlyContinue
+  $script = Join-Path $PSScriptRoot 'clip-job.mjs'
+  if (-not $node) {
+    return @{ raw = $false; obj = @{ ok = $false; error = 'tool'; tool = 'node'; message = 'node fehlt.' } }
+  }
+  if (-not (Test-Path -LiteralPath $script)) {
+    return @{ raw = $false; obj = @{ ok = $false; message = 'clip-job.mjs fehlt.' } }
+  }
+  $psi = New-Object System.Diagnostics.ProcessStartInfo
+  $psi.FileName = $node.Source
+  $psi.Arguments = '"' + $script + '"'
+  $psi.WorkingDirectory = $PSScriptRoot
+  $psi.UseShellExecute = $false
+  $psi.RedirectStandardInput = $true
+  $psi.RedirectStandardOutput = $true
+  $psi.RedirectStandardError = $true
+  $psi.CreateNoWindow = $true
+  $p = New-Object System.Diagnostics.Process
+  $p.StartInfo = $psi
+  [void]$p.Start()
+  $utf8 = New-Object System.IO.StreamWriter($p.StandardInput.BaseStream, (New-Object System.Text.UTF8Encoding $false))
+  $utf8.Write($bodyRaw)
+  $utf8.Close()
+  if (-not $p.WaitForExit(200000)) {
+    try { $p.Kill() } catch {}
+    return @{ raw = $false; obj = @{ ok = $false; message = 'Schnitt-Zeit überschritten.' } }
+  }
+  $out = $p.StandardOutput.ReadToEnd().Trim()
+  if (-not $out) { return @{ raw = $false; obj = @{ ok = $false; message = 'Schnitt antwortet nicht.' } } }
+  return @{ raw = $true; json = $out }
+}
+
 function Write-Http($client, $obj, [int]$code = 200) {
   $json = $obj | ConvertTo-Json -Compress -Depth 8
   $bytes = [Text.Encoding]::UTF8.GetBytes($json)
@@ -605,6 +650,12 @@ $serveTimer.Add_Tick({
         $bodyRaw = ''
         $idx = $raw.IndexOf("`r`n`r`n")
         if ($idx -ge 0) { $bodyRaw = $raw.Substring($idx + 4) }
+        if ($reqPath -eq '/v1/clip') {
+          $clip = Invoke-ClipRaw $bodyRaw
+          if ($clip.raw) { Write-HttpRaw $client ([string]$clip.json) } else { Write-Http $client $clip.obj }
+          $script:LastAction = 'Schnitt'
+          $client.Close(); continue
+        }
         $body = $null
         try { if ($bodyRaw.Trim()) { $body = $bodyRaw | ConvertFrom-Json } } catch { $body = $null }
         if (-not $body) { $body = [pscustomobject]@{} }
