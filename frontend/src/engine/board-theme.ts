@@ -70,3 +70,21 @@ export function cycleMotif(current: BoardMotif): BoardMotif {
   const i = MOTIFS.indexOf(current)
   return MOTIFS[(i + 1) % MOTIFS.length]
 }
+
+/** Drei deutlich verschiedene Flächen. Nur das Motiv zu tauschen bleibt unsichtbar. */
+export const THEME_LOOKS: BoardTheme[] = [
+  { motif: 'orbit', accent: '#7dd3c7', glow: 0.4, density: 0.3 },
+  { motif: 'grid', accent: '#e8c36a', glow: 0.62, density: 0.85 },
+  { motif: 'pulse', accent: '#8eb6ff', glow: 0.78, density: 0.16 },
+]
+
+export function nextTheme(current: BoardTheme): BoardTheme {
+  const i = MOTIFS.indexOf(current.motif)
+  return { ...THEME_LOOKS[(Math.max(i, 0) + 1) % THEME_LOOKS.length] }
+}
+
+export function motifLabel(motif: BoardMotif): string {
+  if (motif === 'grid') return 'Gitter'
+  if (motif === 'pulse') return 'Pulse'
+  return 'Orbit'
+}

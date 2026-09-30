@@ -1,9 +1,11 @@
 import type { ToolMeta } from './tools.ts'
 import { parseBoardIntent } from './board-parse.ts'
-import { parseThemeHint, serializeTheme, cycleMotif, DEFAULT_THEME } from './board-theme.ts'
+import { parseThemeHint, serializeTheme, nextTheme, motifLabel, DEFAULT_THEME } from './board-theme.ts'
 import { parseBoardJobs, serializeBoardJobs, upsertJob, stopJobs, type BoardJob } from './board-jobs.ts'
 import { catalogByArea, catalogPlanned, FEATURE_CATALOG, formatCatalog } from './feature-catalog.ts'
 import { fillDeepResearchLinks } from './web-search.ts'
+import { geminiReady } from './gemini.ts'
+import { groqReady } from './groq.ts'
 import { githubToken } from './github-search.ts'
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
 import { emptyPlan, formatPlan } from './idea-plan.ts'
@@ -34,6 +36,22 @@ function saveJobs(rows: BoardJob[]): void {
   }
 }
 
+function researchTitles(): string[] {
+  try {
+    const raw = loadSettings().last_research_json
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as { sources?: Array<{ title?: string; url?: string }> }
+    if (!Array.isArray(parsed.sources)) return []
+    return parsed.sources
+      .filter((s) => s && s.url)
+      .map((s) => String(s.title || s.url || '').trim())
+      .filter(Boolean)
+      .slice(0, 4)
+  } catch {
+    return []
+  }
+}
+
 export async function handleBoard(_conversationId: string, text: string): Promise<{
   handled: boolean
   reply?: string
@@ -61,13 +79,16 @@ export async function handleBoard(_conversationId: string, text: string): Promis
   }
   if (intent.kind === 'theme') {
     const cur = parseThemeHint(loadSettings().tischplatte_hint)
-    const next = { ...cur, motif: cycleMotif(cur.motif) }
+    const next = nextTheme(cur)
     try {
       saveSettings({ tischplatte_hint: serializeTheme(next), tischplatte_seed: Date.now() % 1_000_000 })
     } catch {
       /* */
     }
-    return pack(`Hintergrund: ${next.motif}, Accent ${next.accent}. Gilt für Launcher und Werkbank.`, 'theme')
+    return pack(
+      `Hintergrund: ${motifLabel(next.motif)}, Akzent ${next.accent}. Gilt für Launcher und Werkbank.`,
+      'theme',
+    )
   }
   if (intent.kind === 'stop') {
     saveJobs(stopJobs(parseBoardJobs(loadSettings().board_jobs_json)))
@@ -85,6 +106,13 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     }
     if (intent.view === 'sim') {
       return pack(`Simulation ${intent.sim || 'Modul'}: Drahtgitter, keine Live-App.`, 'sim', { view: intent.view })
+    }
+    if (intent.view === 'research') {
+      const titles = researchTitles()
+      const line = titles.length
+        ? `Sicht research. ${titles.length} Quellen: ${titles.join('; ')}.`
+        : 'Sicht research. Keine Quellen im Store.'
+      return pack(line, 'view', { view: intent.view })
     }
     return pack(`Sicht ${intent.view}.`, 'view', { view: intent.view })
   }
@@ -167,7 +195,10 @@ export async function handleBoard(_conversationId: string, text: string): Promis
           await putIdea({ ...hit, plan: empty })
           planJob.status = 'failed'
           planJob.label = 'Plan-Vorlage leer'
-          planLine = 'Kein Cloud-Key — Vorlage liegt, ohne erfundene Repos.'
+          planLine =
+            groqReady() || geminiReady()
+              ? 'Plan nicht übernommen.'
+              : 'Kein Cloud-Key — Vorlage liegt, ohne erfundene Repos.'
         } else {
           await putIdea({ ...hit, plan: filled })
           planJob.status = 'done'

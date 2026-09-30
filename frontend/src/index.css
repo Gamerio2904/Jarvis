@@ -498,6 +498,30 @@ textarea {
   display: none;
 }
 
+@media (min-width: 861px) {
+  .sidebar .brand {
+    order: 1;
+  }
+  .sidebar .new-chat {
+    order: 2;
+  }
+  .sidebar .chat-list {
+    order: 3;
+    flex: 1 1 auto;
+  }
+  .sidebar .nav-island-side {
+    order: 4;
+    width: 100%;
+    margin-top: 0;
+  }
+  .sidebar .status {
+    order: 5;
+  }
+  .sidebar .nav-island-side .nav-island-label {
+    font-size: 0.62rem;
+  }
+}
+
 @keyframes navPop {
   0% {
     transform: scale(1);
@@ -5153,36 +5177,100 @@ button.linkish {
 }
 
 @media (min-width: 900px) {
+  /* Tablet: Lage füllt die Fläche. Der Chat ist eine Spalte, die man aufmacht. */
   .main.is-lage {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    grid-template-rows: auto auto 1fr auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
-  .main.is-lage .topbar,
-  .main.is-lage .fallback-banner {
-    grid-column: 1 / -1;
+  .main.is-lage:not(.is-lage-sidechat) .topbar,
+  .main.is-lage:not(.is-lage-sidechat) .messages,
+  .main.is-lage:not(.is-lage-sidechat) .composer-wrap {
+    display: none;
   }
   .main.is-lage .lage {
-    grid-column: 1;
-    grid-row: 3;
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
   }
-  .main.is-lage .messages,
-  .main.is-lage .composer-wrap {
-    grid-column: 2;
+  .main.is-lage .lage:has(.lage-stage) {
+    overflow: hidden;
   }
-  .main.is-lage .messages {
+  .main.is-lage.is-lage-sidechat {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.72fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+  .main.is-lage.is-lage-sidechat .topbar,
+  .main.is-lage.is-lage-sidechat .fallback-banner {
+    grid-column: 1 / -1;
+  }
+  .main.is-lage.is-lage-sidechat .topbar {
+    display: flex;
+  }
+  .main.is-lage.is-lage-sidechat .lage {
+    grid-column: 1;
     grid-row: 3;
   }
-  .main.is-lage .composer-wrap {
+  .main.is-lage.is-lage-sidechat .messages,
+  .main.is-lage.is-lage-sidechat .composer-wrap {
+    display: block;
+    grid-column: 2;
+    background: rgba(5, 8, 6, 0.94);
+    border-left: 1px solid var(--border);
+  }
+  .main.is-lage.is-lage-sidechat .messages {
+    grid-row: 3;
+    min-height: 0;
+  }
+  .main.is-lage.is-lage-sidechat .composer-wrap {
     grid-row: 4;
     padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
     z-index: 3;
   }
   .lage-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .lage-hint {
+    display: none;
+  }
+  .lage-intel {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .lage-stage {
+    grid-template-columns: minmax(0, 1fr);
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .lage-stage .globe-wrap,
+  .lage-stage .serie-shell {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    aspect-ratio: auto;
+    min-height: 280px;
+  }
+  .lage-stage .globe-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+  .lage-stage .globe-wrap .lage-layers {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 8px 8px 6px;
+    background: rgba(5, 10, 16, 0.72);
+  }
+  .lage-stage .globe-wrap .globe-view {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
   }
 }
 
@@ -5260,16 +5348,18 @@ button.linkish {
 }
 
 .lage-layers {
-  position: absolute;
-  top: 8px;
-  left: 6px;
-  right: 6px;
+  position: relative;
   z-index: 2;
   display: flex;
   gap: 6px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 2px 0 4px;
+  flex: 0 0 auto;
+  padding: 8px 8px 6px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -5279,7 +5369,7 @@ button.linkish {
 }
 
 .lage-layer {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   padding: 7px 13px;
   font-size: 0.62rem;
   letter-spacing: 0.05em;
@@ -5853,6 +5943,17 @@ button.linkish {
   overflow: hidden;
 }
 
+@media (min-width: 900px) {
+  .lage-split.lage-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app:has(.glance-rail.is-open) .home-screen,
+  .app:has(.glance-rail.is-open) .main.is-lage .lage {
+    padding-right: 280px;
+  }
+}
+
 .pin-bubble {
   position: fixed;
   left: 12px;
@@ -6103,13 +6204,18 @@ button.linkish {
   z-index: 0;
   isolation: isolate;
   max-width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.28);
 }
 
 .globe-wrap .globe-view {
   border: 0;
   background: transparent;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
   max-height: none;
   aspect-ratio: auto;
 }
@@ -6427,6 +6533,7 @@ button.linkish {
   .main.is-lage.is-lage-chat .lage.is-compact .serie-map-canvas {
     min-height: 160px;
   }
+  .main.is-lage.is-lage-chat .lage.is-compact .agent-map-canvas { min-height: 160px; }
   .app.is-kb .main.is-lage.is-lage-chat .agent-map-shell,
   .app.is-kb .main.is-lage.is-lage-chat .agent-map-canvas,
   .app.is-kb .main.is-lage.is-lage-chat .lage.is-compact .agent-map-shell,
@@ -7098,6 +7205,25 @@ html.theme-wipe-dark::before {
   opacity: 1;
 }
 
+.home-screen[data-motif='grid'] .home-wall--launcher,
+.home-screen[data-motif='grid'] .home-wall--board {
+  background:
+    linear-gradient(color-mix(in srgb, var(--board-accent) 62%, transparent) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(90deg, color-mix(in srgb, var(--board-accent) 62%, transparent) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(180deg, #141006 0%, #1c1608 100%);
+}
+
+.home-screen[data-motif='grid'] .home-wall-ring {
+  display: none;
+}
+
+.home-screen[data-motif='pulse'] .home-wall--launcher,
+.home-screen[data-motif='pulse'] .home-wall--board {
+  background:
+    radial-gradient(circle at 50% 38%, transparent 0 7%, color-mix(in srgb, var(--board-accent) 34%, transparent) 8% 9%, transparent 10% 16%, color-mix(in srgb, var(--board-accent) 22%, transparent) 17% 18%, transparent 19% 27%, color-mix(in srgb, var(--board-accent) 16%, transparent) 28% 29%, transparent 30%),
+    linear-gradient(180deg, #070b16 0%, #10182c 100%);
+}
+
 .home-wall-ring {
   position: absolute;
   right: -18%;
@@ -7736,8 +7862,14 @@ html.theme-wipe-dark::before {
   }
 
   .mini-chat {
-    left: 300px;
-    bottom: 24px;
+    left: auto;
+    right: 18px;
+    bottom: 108px;
+  }
+
+  .mini-chat-panel {
+    width: min(320px, 28vw);
+    max-height: min(360px, 46vh);
   }
 
   .voice-shortcut,

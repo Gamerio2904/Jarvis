@@ -178,7 +178,7 @@ export function Workbench({
             (s) => (
               <article key={s.n} className={`workbench-card${focusN === s.n ? ' is-focus' : ''}`}>
                 <h3>{s.title}</h3>
-                <p>{s.ziel || (active ? 'Idee: Felder leer.' : 'Idee: …')}</p>
+                <p>{s.ziel || (active ? (s.n === '1' ? active.title : 'Noch leer.') : 'Idee: …')}</p>
               </article>
             ),
           )}

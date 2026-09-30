@@ -76,6 +76,7 @@
     "test:18.19": "node --experimental-strip-types scripts/test-18.19.mjs",
     "test:clip": "node --experimental-strip-types scripts/test-clip.mjs",
     "test:board": "node --experimental-strip-types scripts/test-board.mjs",
+    "test:tablet": "node --experimental-strip-types scripts/test-tablet-layout.mjs",
     "test:research-deep": "node --experimental-strip-types scripts/test-research-deep.mjs",
     "test:memory-propose": "node --experimental-strip-types scripts/test-memory-propose.mjs",
     "gui:18.18": "node --experimental-strip-types scripts/gui-18.18-home.mjs",
