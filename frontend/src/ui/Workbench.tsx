@@ -38,6 +38,7 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
   const [termin, setTermin] = useState('Kein Termin.')
   const [phase, setPhase] = useState('')
   const [scriptAt, setScriptAt] = useState(0)
+  const [sprintSide, setSprintSide] = useState<'left' | 'right'>('left')
 
   useEffect(() => {
     let dead = false
@@ -82,6 +83,7 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
         setSources(lastResearch())
         setPhase(settings.plan_phase || '')
         setScriptAt(settings.plan_script_at || 0)
+        setSprintSide(settings.script_sprint_side === 'right' ? 'right' : 'left')
       }
     }
     load()
@@ -106,7 +108,8 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
       .catch(() => setWire(null))
   }, [vis, focus])
 
-  const active = ideas.find((i) => i.status === 'open') || ideas[0]
+  const active =
+    phase === 'live' || phase === 'go' ? ideas.find((i) => i.status === 'open') || ideas[0] : undefined
 
   function stop() {
     const next = stopJobs(jobs)
@@ -127,6 +130,7 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
         proposals={proposals}
         phase={phase}
         scriptAt={scriptAt}
+        sprintSide={sprintSide}
         onStop={stop}
         onYes={(id) => void acceptProposal(id)}
         onNo={(id) => void rejectProposal(id)}

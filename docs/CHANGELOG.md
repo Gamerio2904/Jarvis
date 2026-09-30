@@ -9,7 +9,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 `Go` legt das live Skript ins Portfolio, und zwar die Idee auf der Tafel, nicht die neueste. Der Hauptbildschirm zeigt die Karten mit Shredder. Ein Tipp oder `Zeig Projekt …` öffnet die Dateien. Ziehen in den Schlitz sagt, dass die Karte im Archiv liegt. `Beispiel zu …` legt ein Bild unter `portfolio/<slug>/beispiele/`. Ein https-Bild bleibt, wenn es nicht verkleinert werden kann. Leere Sprintziele bleiben leer. Der Hausstand enthält die Zeilen. Kein neues Bildmodell.
 
-App-Code **`18.24.0`** (versionCode `182400`). Die Sideload-Datei ist noch **`18.23.12`**.
+Dieselbe Fassung enthält die Kalender- und Plan-Sätze: Löschen trifft nur echte Einträge, `Lösche den aktuellen Plan` räumt die Tafel, die Sprintliste rückt nach links und rechts, Chat und Kalendereintrag lassen sich gedrückt halten.
+
+App-Code und Sideload **`18.24.0`** (versionCode `182400`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
 
 ### `18.23.12` — Bild nur auf Verlangen — *CODE*
 

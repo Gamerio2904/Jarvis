@@ -10,6 +10,8 @@ const FAKE_CLAIM =
 
 const FAKE_WATCH_ACCESS =
   /kein(?:en)?\s+(?:direkten?\s+)?zugriff\s+auf\s+(?:ihre\s+)?(?:film|watch)?liste|den\s+film\s+nicht\s+in\s+ihrer\s+liste\s+gespeichert|nicht\s+in\s+ihrer\s+liste\s+gespeichert|keine\s+bestätigung.{0,80}(?:entfernt|gelöscht|duplikat)/i
+const FAKE_DONE =
+  /aus\s+dem\s+kalender\s+entfernt|die\s+erinnerungen\s+sind\s+gelöscht|keinen\s+zugriff\s+auf\s+die\s+aktuelle\s+anzeige|keine\s+aktionen\s+auf\s+dem\s+display/i
 
 const ACTION_VERB =
   /\b(?:verschoben|hinzugefügt|gespeichert|erledigt|angelegt|gelöscht|gestartet|geöffnet|verbunden|bestellt|geschickt|gesendet|kopiert|umbenannt|eingetragen|ausgeführt|gekoppelt|aufgenommen)\b/i
@@ -89,7 +91,7 @@ export function scrubReply(text: string, opts?: { searched?: boolean; names?: st
   if (INJECT.test(out)) {
     return 'Netter Versuch. Weiter im Chat?'
   }
-  if (FAKE_CLAIM.test(out) || FAKE_WATCH_ACCESS.test(out)) {
+  if (FAKE_CLAIM.test(out) || FAKE_WATCH_ACCESS.test(out) || FAKE_DONE.test(out)) {
     return 'Das habe ich nicht ausgeführt. Den Befehl bitte klar sagen.'
   }
   if (FAKE_CARPLAY.test(out)) {

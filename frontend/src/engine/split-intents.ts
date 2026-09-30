@@ -15,6 +15,10 @@ const SPLIT = /\s+und\s+|\s+dann\s+|\s+danach\s+|\s*,\s+|(?<=[a-zäöüß])\.\s+
 export function splitIntents(text: string): string[] {
   const raw = text.trim()
   if (!raw || MEMORY_WRITE.test(raw)) return [raw]
+  if (/^\s*plan(?:e)?\s+das\s*:/i.test(raw)) return [raw]
+  if (/\sund\s/i.test(raw) && /(?:entfernen|entfern(?:e)?|lösch(?:en|e)?|streich(?:e)?)\s*[.!?]?$/i.test(raw)) {
+    return [raw]
+  }
   if (!SPLIT.test(raw)) return [raw]
   const parts = raw.split(SPLIT).map((p) => p.trim()).filter(Boolean)
   if (parts.length < 2 || parts.length > 5) return [raw]

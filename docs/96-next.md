@@ -2,7 +2,7 @@
 
 **Dieses Dokument ist CODE.** App-Code **`18.24.0`** (versionCode `182400`).
 Sprints **417–423**. Katalog-Stand bleibt `18.20.0`.
-Die Sideload-Datei bleibt `18.23.12`, solange kein neues APK gebaut ist.
+Die Sideload-Datei dieses Stands ist `18.24.0`, versionCode `182400`.
 
 Der jetzige Tischplatten-Modus ist die Planung. `Plane das` zeigt das
 Skript live. `Go`, `Umsetzen`, `Leg los`, `So` oder `Übernehmen` setzen
@@ -230,7 +230,7 @@ geschrieben. Ohne live Skript bleibt der bisherige Satz von `Go`.
 - Die live Planung durch das Portfolio ersetzen
 - `saveDownload` für Ordner oder Bilder weiterverwenden
 - App-Datei, Sprint-Datei, Version oder APK aus dem Gerät
-- Die Sideload `18.23.12` in diesem Plan anheben
+- Die Datei auf `main` als `18.24.0` zeigen, solange dort noch `18.23.12` liegt
 - Eine zweite Hausstand-Datei neben `jarvis-haus-….json`
 
 ---

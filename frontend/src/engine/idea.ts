@@ -18,6 +18,7 @@ import { commitPortfolio, currentIdeaForTable, handlePortfolio } from './portfol
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
+import { parseBoardJobs, serializeBoardJobs, stopJobs } from './board-jobs.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
 import type { ToolMeta } from './tools.ts'
@@ -112,7 +113,21 @@ function clausesOf(work: string): string[] {
     .slice(0, 6)
 }
 
+function clearShownPlan(): string {
+  const phase = loadSettings().plan_phase
+  const jobs = stopJobs(parseBoardJobs(loadSettings().board_jobs_json))
+  saveSettings({
+    plan_phase: '',
+    plan_script_at: 0,
+    plan_idea_id: '',
+    board_jobs_json: serializeBoardJobs(jobs),
+  })
+  if (phase === 'live' || phase === 'go') return 'Der Plan ist von der Tischplatte weg.'
+  return 'Es liegt kein Plan auf der Tischplatte.'
+}
+
 async function planOntoTable(intent: AblaufIntent): Promise<string> {
+  if (intent.kind === 'clear') return clearShownPlan()
   if (intent.kind === 'accept') {
     const phase = loadSettings().plan_phase
     const waiting = ablaufWaiting()

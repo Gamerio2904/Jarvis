@@ -379,6 +379,8 @@ export type Settings = {
   leiste_zu: boolean
   /** `live` = Skript läuft. `go` = fest, Export bereit. */
   plan_phase: '' | 'live' | 'go'
+  /** Sprintliste im Skriptfenster. */
+  script_sprint_side: 'left' | 'right'
   /** Start der Laufschrift auf der Tafel. */
   plan_script_at: number
   /** Idee, die gerade auf der Tischplatte liegt. `Go` nimmt diese, nicht die neueste. */
@@ -584,6 +586,7 @@ export const DEFAULT_SETTINGS: Settings = {
   leiste_on: true,
   leiste_zu: false,
   plan_phase: '',
+  script_sprint_side: 'left',
   plan_script_at: 0,
   plan_idea_id: '',
   portfolio_focus: '',

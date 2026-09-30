@@ -1,6 +1,6 @@
 # TEST 18.24 — Portfolio
 
-In der App ab **`18.24.0`**. Die Sideload-Datei ist noch `18.23.12`.
+In der APK **`18.24.0`** (versionCode `182400`).
 Plan [`96-next.md`](./96-next.md), Sprints 417–423.
 Dieselben Sätze in Spur Heute, Gruppe `18.24 Portfolio`. Jede Box ist
 ein Satz. Einmal tippen, kopieren, in den Chat.

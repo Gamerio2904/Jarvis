@@ -80,7 +80,7 @@ saveSettings({ ablauf_status: 'warten', proposal_pending: true })
 assert.equal(parseAblaufIntent('Ja'), null)
 saveSettings({ ablauf_status: 'warten', proposal_pending: false, tischplatte_on: true, tischplatte_pieces_json: '' })
 const blocked = await handleBoard('c-ablauf', 'Schieb die Sprintliste nach links')
-assert.match(blocked.reply || '', /Tafel ist fest/)
+assert.match(blocked.reply || '', /steht links/)
 saveSettings({ ablauf_status: '' })
 
 const idea = await addIdea('Tik-Tak-To', '')

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { createPortal } from 'react-dom'
 import {
   clearMemory,
   createConversation,
@@ -9,6 +10,7 @@ import {
   getSettings,
   listConversations,
   listMemory,
+  listMessages,
   listResearchAudits,
   listReminders,
   markFiredByNotifyId,
@@ -45,6 +47,7 @@ import {
   APP_VERSION,
 } from './api.ts'
 import { researchStatusLabel } from './engine/research-parse.ts'
+import { saveToDownloads } from './native/device.ts'
 import { decodeHtml } from './engine/html-text.ts'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds.ts'
@@ -282,6 +285,15 @@ function App() {
   const [lastFailed, setLastFailed] = useState<string | null>(null)
   const [health, setHealth] = useState<Health | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [chatMenu, setChatMenu] = useState<{ id: string; x: number; y: number } | null>(null)
+  const pressTimer = useRef(0)
+  const pressFired = useRef('')
+  useEffect(() => {
+    if (!chatMenu) return
+    const close = () => setChatMenu(null)
+    window.addEventListener('pointerdown', close)
+    return () => window.removeEventListener('pointerdown', close)
+  }, [chatMenu])
   const [statusNote, setStatusNote] = useState<string | null>(null)
   const [hausScan, setHausScan] = useState(false)
   const [composerFocused, setComposerFocused] = useState(false)
@@ -1198,24 +1210,62 @@ function App() {
     stickToBottomRef.current = true
   }
 
-  async function onDeleteChat() {
-    if (!activeId || busy) return
+  async function deleteChatById(id: string) {
+    if (!id || busy) return
     const ok = window.confirm('Dieses Gespräch wirklich löschen?')
     if (!ok) return
     try {
-      await deleteConversation(activeId)
-      const remaining = conversations.filter((c) => c.id !== activeId)
+      await deleteConversation(id)
+      const remaining = conversations.filter((c) => c.id !== id)
       setConversations(remaining)
-      setMessages([])
-      setEnterIds({})
-      setActiveId(remaining[0]?.id ?? null)
-      setThreadKey((k) => k + 1)
-      if (remaining[0]) {
-        await openConversation(remaining[0].id)
+      if (id === activeId) {
+        setMessages([])
+        setEnterIds({})
+        setActiveId(remaining[0]?.id ?? null)
+        setThreadKey((k) => k + 1)
+        if (remaining[0]) await openConversation(remaining[0].id)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Löschen fehlgeschlagen')
     }
+  }
+
+  async function onDeleteChat() {
+    if (!activeId) return
+    await deleteChatById(activeId)
+  }
+
+  async function downloadChat(id: string) {
+    const conv = conversations.find((c) => c.id === id)
+    const rows = await listMessages(id)
+    const title = (conv?.title || 'Gespraech').replace(/\s+/g, ' ').trim() || 'Gespraech'
+    const body = [
+      title,
+      '',
+      ...rows.map((m) => `${m.role === 'user' ? 'Sie' : 'Jarvis'}: ${m.content}`),
+    ].join('\n')
+    const slug = title
+      .toLowerCase()
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 40) || 'gespraech'
+    const name = `${slug}-chat.txt`
+    const saved = await saveToDownloads(name, body)
+    if (saved.ok) return
+    const blob = new Blob([body], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    a.rel = 'noopener'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.setTimeout(() => URL.revokeObjectURL(url), 4000)
   }
 
   function onMessagesScroll() {
@@ -2009,7 +2059,45 @@ function App() {
                     type="button"
                     className={`chat-item ${c.id === activeId ? 'active' : ''}`}
                     style={{ ['--i' as string]: i }}
+                    onPointerDown={(e) => {
+                      if (e.button !== 0) return
+                      pressFired.current = ''
+                      const id = c.id
+                      const x = e.clientX
+                      const y = e.clientY
+                      const ox = x
+                      const oy = y
+                      window.clearTimeout(pressTimer.current)
+                      pressTimer.current = window.setTimeout(() => {
+                        pressFired.current = id
+                        setChatMenu({ id, x, y })
+                      }, 480)
+                      const move = (ev: PointerEvent) => {
+                        if (Math.hypot(ev.clientX - ox, ev.clientY - oy) > 14) {
+                          window.clearTimeout(pressTimer.current)
+                        }
+                      }
+                      const up = () => {
+                        window.clearTimeout(pressTimer.current)
+                        window.removeEventListener('pointermove', move)
+                        window.removeEventListener('pointerup', up)
+                        window.removeEventListener('pointercancel', up)
+                      }
+                      window.addEventListener('pointermove', move)
+                      window.addEventListener('pointerup', up)
+                      window.addEventListener('pointercancel', up)
+                    }}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      pressFired.current = c.id
+                      setChatMenu({ id: c.id, x: e.clientX, y: e.clientY })
+                    }}
                     onClick={() => {
+                      if (pressFired.current === c.id) {
+                        pressFired.current = ''
+                        return
+                      }
+                      setChatMenu(null)
                       setHomeOpen(false)
                       void openConversation(c.id)
                     }}
@@ -2040,6 +2128,44 @@ function App() {
           )}
         </div>
       </aside>
+      {chatMenu
+        ? createPortal(
+            <div
+              className="hold-menu"
+              role="menu"
+              style={{
+                left: Math.max(8, Math.min(chatMenu.x, window.innerWidth - 168)),
+                top: Math.max(8, Math.min(chatMenu.y, window.innerHeight - 108)),
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  const id = chatMenu.id
+                  setChatMenu(null)
+                  void downloadChat(id)
+                }}
+              >
+                Download
+              </button>
+              <button
+                type="button"
+                className="is-danger"
+                role="menuitem"
+                onClick={() => {
+                  const id = chatMenu.id
+                  setChatMenu(null)
+                  void deleteChatById(id)
+                }}
+              >
+                Löschen
+              </button>
+            </div>,
+            document.body,
+          )
+        : null}
 
       <main className={`main${homeOpen ? ' is-home' : ''}${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageSideChatOn ? ' is-lage-sidechat' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (

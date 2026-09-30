@@ -15,6 +15,7 @@ export type CalendarIntent =
     }
   | { kind: 'list'; day?: Date; until?: Date; label?: string }
   | { kind: 'delete'; query: string }
+  | { kind: 'delete_many'; clauses: RemoveClause[] }
   | { kind: 'delete_last' }
   | { kind: 'rename'; query: string; title: string }
   | { kind: 'move'; query: string; start: Date; whenLabel: string }
@@ -56,6 +57,49 @@ const LIST_WEEK =
 const LIST_DAYS =
   /^\s*was\s+steht\s+(?:so\s+)?(?:die\s+)?nächste(?:n)?\s+(\d{1,2})\s+tage(?:\s+an)?\s*\??\s*$/i
 const DELETE = /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?termin\s+(.+)$/is
+const CAL_NOUN =
+  /zahnarzt|arzt|termin|training|erinnerung|geburtstag|meeting|feier|unterricht/i
+const REMOVE_RECUR: Record<string, 'daily' | 'weekly' | 'monthly' | 'yearly'> = {
+  monatlichen: 'monthly',
+  wöchentlichen: 'weekly',
+  woechentlichen: 'weekly',
+  täglichen: 'daily',
+  taeglichen: 'daily',
+  jährlichen: 'yearly',
+  jaehrlichen: 'yearly',
+}
+
+export type RemoveClause = { query: string; recur?: 'daily' | 'weekly' | 'monthly' | 'yearly' }
+
+/** „Zahnarzttermin und die wöchentlichen Trainings entfernen“ — mehrere Treffer, Verb auch am Ende. */
+export function parseRemoveBundle(text: string): RemoveClause[] | null {
+  const t = text.trim().replace(/[.!?]+$/g, '').trim()
+  if (!t) return null
+  const tail = /^(.+?)\s+(?:entfernen|entfern(?:e)?|lösch(?:en|e)?|streich(?:e)?)$/i.exec(t)
+  const head = /^(?:lösch(?:e|en)?|entfern(?:e)?|streich(?:e)?|nimm\s+weg)\s+(?:bitte\s+)?(?:mir\s+)?(.+)$/i.exec(t)
+  const body = tail ? tail[1] : head && /\sund\s/i.test(head[1]) ? head[1] : ''
+  if (!body) return null
+  if (/^\s*(?:den\s+)?(?:aktuellen\s+|angezeigten\s+)?plan\b/i.test(body)) return null
+  if (!CAL_NOUN.test(body) && !/wöchentlich|woechentlich|monatlich|täglich|taeglich|jährlich|jaehrlich/i.test(body)) {
+    return null
+  }
+  const clauses: RemoveClause[] = []
+  for (const bit of body.split(/\s+und\s+/i)) {
+    let s = bit.trim().replace(/^(?:die|den|der|das|dem|ein|eine|einen)\s+/i, '').trim()
+    const rec =
+      /^(monatlichen|wöchentlichen|woechentlichen|täglichen|taeglichen|jährlichen|jaehrlichen)\s+(.+)$/i.exec(s)
+    const recur = rec ? REMOVE_RECUR[rec[1].toLowerCase()] : undefined
+    const query = (rec ? rec[2] : s)
+      .replace(/\b(?:erinnerungen|erinnerung)\b/gi, ' ')
+      .replace(/^(?:die|den|der|das)\s+/i, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (query.length >= 3) clauses.push(recur ? { query, recur } : { query })
+  }
+  if (!clauses.length) return null
+  if (!tail && clauses.length < 2) return null
+  return clauses
+}
 const DELETE_LAST =
   /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?letzten\s+termin\s*$/i
 const CANCEL_LAST =
@@ -315,6 +359,8 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   if (DELETE_LAST.test(t) || CANCEL_LAST.test(t)) return { kind: 'delete_last' }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: del[1].replace(/[.!?]+$/, '').trim() }
+  const bundle = parseRemoveBundle(t)
+  if (bundle) return { kind: 'delete_many', clauses: bundle }
   const renamed = parseRename(t)
   if (renamed) return renamed
 

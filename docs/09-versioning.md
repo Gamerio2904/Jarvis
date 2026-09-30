@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.24.0`**, versionCode `182400`. Sideload-Datei noch **`18.23.12`**. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.24.0`**, versionCode `182400`. Sideload **`18.24.0`**. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -916,7 +916,7 @@ Sprints 404–409. Test: [`TEST-18.22.md`](./TEST-18.22.md).
 
 ### `18.23` — Ablauf [`95-next.md`](./95-next.md) **CODE**
 
-**`18.24.0`** (App-Code, versionCode `182400`). `Go` speichert das live Skript im Portfolio. Der Hauptbildschirm zeigt die Karten. Die Sideload-Datei ist noch `18.23.12`. **`18.23.12`** (App-Code, versionCode `182312`). `Zeig mir ein Bild der Elbe` zeigt ein Bild mit Quelle. `Zeig mir London` bleibt die Kugel. **`18.23.11`** (App-Code, versionCode `182311`). `Hausstand übertragen` zeigt den Code. `Scanne QR Code` öffnet die Kamera, danach die Richtung und Export. `18.23.10` (App-Code, versionCode `182310`). `Erinnerung 7.10. für … 18 Uhr am Tag davor` legt den Termin an diesem Tag an. `Ja` nach „Soll ich?“ führt den Satz aus. `18.23.9`: `Nein 90 Minuten` setzt die Zeit. `Wer ist …` sucht. `18.23.8`: die linke Leiste klappt ein und lässt sich im rechten Menü ausstellen. Die Tischplatte ist ein festes Skript: `Plane das` zeigt es live, `Go` setzt es fest, danach ist der Export bereit. Ein anderer Satz löst die Termin-Erinnerung. `jeden Montag` nennt den Wochentag einmal. `18.23.7`: der Kalender öffnet in der Woche. Heute springt in dieselbe Woche. `18.23.6`: ein Tipp auf den Tag zeigt alle Termine. Die Woche legt die Stunden ab 7 Uhr nach links und die Tage nach rechts. `18.23.5`: das Fenster bleibt unten, „Termin anlegen“ steht oben. Wiederholung „Jedes Jahr“. Geburtstag setzt sie.
+**`18.24.0`** (App-Code und Sideload, versionCode `182400`). `Go` speichert das live Skript im Portfolio. Der Hauptbildschirm zeigt die Karten. Kalender-Löschen trifft nur echte Einträge. `Lösche den aktuellen Plan` räumt die Tafel. **`18.23.12`** (App-Code, versionCode `182312`). `Zeig mir ein Bild der Elbe` zeigt ein Bild mit Quelle. `Zeig mir London` bleibt die Kugel. **`18.23.11`** (App-Code, versionCode `182311`). `Hausstand übertragen` zeigt den Code. `Scanne QR Code` öffnet die Kamera, danach die Richtung und Export. `18.23.10` (App-Code, versionCode `182310`). `Erinnerung 7.10. für … 18 Uhr am Tag davor` legt den Termin an diesem Tag an. `Ja` nach „Soll ich?“ führt den Satz aus. `18.23.9`: `Nein 90 Minuten` setzt die Zeit. `Wer ist …` sucht. `18.23.8`: die linke Leiste klappt ein und lässt sich im rechten Menü ausstellen. Die Tischplatte ist ein festes Skript: `Plane das` zeigt es live, `Go` setzt es fest, danach ist der Export bereit. Ein anderer Satz löst die Termin-Erinnerung. `jeden Montag` nennt den Wochentag einmal. `18.23.7`: der Kalender öffnet in der Woche. Heute springt in dieselbe Woche. `18.23.6`: ein Tipp auf den Tag zeigt alle Termine. Die Woche legt die Stunden ab 7 Uhr nach links und die Tage nach rechts. `18.23.5`: das Fenster bleibt unten, „Termin anlegen“ steht oben. Wiederholung „Jedes Jahr“. Geburtstag setzt sie.
 `18.23.1` deckt die Tafel ab. `18.23.2`: ein Bot fragt, bevor Recherche oder
 ein anderer Bot dazukommt. `Ja` holt ihn, `Nein` lässt ihn draußen.
 Sprints 410–416. Test: [`TEST-18.23.md`](./TEST-18.23.md).
@@ -939,7 +939,8 @@ Katalog-Stand bleibt `18.20.0`.
 | `18.23.6` | Tagesliste, Woche mit Uhrzeit und Tagen | Nachtest |
 | `18.23.7` | Kalender öffnet in der Woche | Nachtest |
 | `18.23.8` | Festes Skript, Leiste klappt, Export nach Go | Nachtest |
-| `18.24.0` | Portfolio, Shredder, Hausstand | Code, Sideload-Datei noch `18.23.12` |
+| `18.24.0` | Portfolio, Shredder, Hausstand, Kalender-Halten | Sideload `18.24.0` |
+| `18.23.13` | Kalender und Plan nur bei echtem Treffer, Halten | in `18.24.0` |
 | `18.23.12` | Bild nur auf Verlangen | Nachtest |
 | `18.23.11` | Hausstand per QR im WLAN | Nachtest |
 | `18.23.10` | Erinnerung am Datum, Ja führt den Vorschlag aus | Nachtest |

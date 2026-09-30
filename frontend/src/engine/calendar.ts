@@ -1,12 +1,13 @@
 import { notifyIdFromKey, requestNotifyPermission, scheduleNotify, cancelNotify } from '../native/notify.ts'
 import { formatDue, startOfDay } from './remind-parse.ts'
-import { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets } from './calendar-parse.ts'
+import { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets, type RemoveClause } from './calendar-parse.ts'
 import { classifyEventTheme, eventTheme, isCalThemeId, type CalThemeId } from './calendar-theme.ts'
 import { isDebugRunActive } from './debug-flag.ts'
 import {
   addEvent,
   clearPending,
   deleteEvent,
+  deleteReminder,
   getPending,
   listEvents,
   listReminders,
@@ -15,6 +16,7 @@ import {
   putEvent,
   setPending,
   type CalendarEvent,
+  type Reminder,
 } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 import { defaultEndIso, expandEvents, firstOverlap, recurLabel } from './calendar-occur.ts'
@@ -245,6 +247,10 @@ export async function handleCalendar(
     }
   }
 
+  if (intent.kind === 'delete_many') {
+    return removeNamed(intent.clauses)
+  }
+
   if (intent.kind === 'delete_last') {
     const rows = await listEvents()
     const hit = [...rows].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0]
@@ -341,6 +347,82 @@ async function settlePendingRemind(
   await cancelEventNotifies(row)
   await putEvent(next)
   await scheduleEventNotifies(next)
+}
+
+function titleHits(title: string, query: string): boolean {
+  const t = title.toLowerCase().trim()
+  const q = query.toLowerCase().replace(/[.!?]+$/g, '').trim()
+  if (!t || !q) return false
+  if (t === q || t.includes(q) || q.includes(t)) return true
+  const stem = q.replace(/[^a-zäöüß0-9]+/g, '')
+  const compact = t.replace(/[^a-zäöüß0-9]+/g, '')
+  return stem.length >= 4 && compact.includes(stem.slice(0, 8))
+}
+
+function reminderFits(row: Reminder, recur?: RemoveClause['recur']): boolean {
+  if (!recur) return true
+  if (recur !== 'daily' && recur !== 'weekly') return false
+  return row.recur === recur
+}
+
+function recurFace(recur: NonNullable<RemoveClause['recur']>): string {
+  if (recur === 'daily') return 'tägliches'
+  if (recur === 'weekly') return 'wöchentliches'
+  if (recur === 'yearly') return 'jährliches'
+  return 'monatliches'
+}
+
+async function removeNamed(clauses: RemoveClause[]): Promise<{
+  handled: true
+  reply: string
+  tool: ToolMeta
+}> {
+  const events = await listEvents()
+  const reminders = (await listReminders()).filter((r) => r.status === 'open')
+  const gone: string[] = []
+  const missed: string[] = []
+  const seenE = new Set<string>()
+  const seenR = new Set<string>()
+  for (const clause of clauses) {
+    const evHits = events.filter(
+      (e) => !seenE.has(e.id) && titleHits(e.title, clause.query) && (!clause.recur || e.recur === clause.recur),
+    )
+    const remHits = reminders.filter(
+      (r) => !seenR.has(r.id) && titleHits(r.title, clause.query) && reminderFits(r, clause.recur),
+    )
+    if (!evHits.length && !remHits.length) {
+      missed.push(clause.recur ? `${recurFace(clause.recur)} ${clause.query}` : clause.query)
+      continue
+    }
+    for (const row of evHits) {
+      seenE.add(row.id)
+      await cancelEventNotifies(row)
+      await deleteEvent(row.id)
+      gone.push(row.title)
+    }
+    for (const row of remHits) {
+      seenR.add(row.id)
+      await cancelNotify(row.notify_id ?? notifyIdFromKey(row.id))
+      await deleteReminder(row.id)
+      gone.push(row.title)
+    }
+  }
+  const tool: ToolMeta = {
+    tool_status: 'executed',
+    tool: 'calendar',
+    action: 'delete',
+    label: gone.length ? 'Termin weg' : 'Nichts zu löschen',
+  }
+  if (!gone.length) {
+    return { handled: true, reply: `Nichts davon steht im Kalender: ${missed.join(', ')}.`, tool }
+  }
+  const names = [...new Set(gone)]
+  if (!missed.length) return { handled: true, reply: `Weg: ${names.join(', ')}.`, tool }
+  return {
+    handled: true,
+    reply: `Weg: ${names.join(', ')}. Nicht im Kalender: ${missed.join(', ')}.`,
+    tool,
+  }
 }
 
 function findEventByQuery(rows: CalendarEvent[], query: string): CalendarEvent | undefined {
