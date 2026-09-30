@@ -1,0 +1,107 @@
+# TEST 18.24 — Portfolio
+
+In der App ab **`18.24.0`**, erst wenn Sprint 423 ausgeführt ist.
+Plan [`96-next.md`](./96-next.md), Sprints 417–423.
+Dieselben Sätze in Spur Heute, Gruppe `18.24 Portfolio`. Jede Box ist
+ein Satz. Einmal tippen, kopieren, in den Chat.
+
+Tischplatte an. Breite ab 900 px und darunter dieselben Sätze.
+
+## 1. Planung bleibt
+
+```
+Plane das: Tik Tak To, Spielfeld bauen, Sieg prüfen
+```
+
+Die Mitte ist das live Skript. Es liegt noch keine Portfolio-Karte.
+Chat nennt das Skript und wartet auf `Go`.
+
+## 2. Fest
+
+```
+Go
+```
+
+Antwort `Fest. Tik Tak To liegt im Portfolio.` Die Mitte zeigt eine
+Karte, kurzer Name `Tik Tak To`, ein gezeichnetes Bild. Im Store eine
+Zeile. Dateien `projekt.json`, `sprints.json`, `psp.json`.
+
+```
+Go
+```
+
+Antwort `Tik Tak To liegt schon im Portfolio.` Es gibt weiter eine Zeile.
+
+## 3. Öffnen
+
+Tipp auf die Karte. Die Dateien kommen nacheinander. Tipp auf
+`projekt.json` zeigt den Titel und die Sprintzeilen.
+
+```
+Zeig Projekt Tik Tak To
+```
+
+Dieselbe Liste.
+
+```
+Portfolio
+```
+
+Die Liste geht zu. Die Karte steht wieder auf der Mitte.
+
+## 4. Archiv
+
+Die Karte in den Schlitz ziehen.
+
+Antwort `Tik Tak To liegt im Archiv.` Die Mitte ist leer von dieser
+Karte. Die Zeile ist noch im Store, `archived` true, die drei Dateien
+sind noch da.
+
+```
+Hol Projekt Tik Tak To zurück
+```
+
+Die Karte steht wieder auf der Mitte.
+
+```
+Schredder Tik Tak To
+```
+
+Wieder im Archiv, Dateien bleiben.
+
+## 5. Beispiel
+
+```
+Beispiel zu Tik Tak To
+```
+
+Ohne Bild davor: `Kein Bild zum Speichern.`
+
+```
+Zeig mir ein Bild der Elbe
+```
+
+Ein Bild mit Quelle, noch keine Datei unter `beispiele/`.
+
+```
+Beispiel zu Tik Tak To
+```
+
+Antwort `Beispiel liegt bei Tik Tak To.` Die Mitte zeigt das Bild als
+eigene Zeile unter der Karte. Pfad
+`portfolio/tik-tak-to/beispiele/`. Die Projektkarte zeigt dieses Bild.
+
+```
+Zeig mir London
+```
+
+Die Kugel. Kein neues Beispiel.
+
+## 6. Hausstand
+
+Hausstand exportieren. Die Vorschau enthält `1 Projekte` oder die
+echte Zahl, und `, 1 im Archiv`, wenn die Zeile archiviert ist.
+Die JSON enthält `portfolio` mit den Dateien.
+
+Eine ältere Datei ohne den Schlüssel, wieder eingespielt, lässt die
+Zeile auf dem Gerät.
