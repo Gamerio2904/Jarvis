@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.3` — Großes Planfenster — *CODE*
+
+Das Fenster ist größer. Zwei Drittel schreiben den Plan live. Ein Drittel
+zeigt die Agenten als Figuren. Neue kommen dazu, fertige gehen. Neben der
+Figur steht, was sie gerade tut.
+
+App-Code und Sideload **`18.23.3`** (versionCode `182303`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/bot-anfrage-0052/releases/Jarvis.apk
+
 ### `18.23.2` — Bot fragt Bot — *CODE*
 
 Ein Bot holt keinen anderen still dazu. Bleibt eine Zeile leer und die Frage

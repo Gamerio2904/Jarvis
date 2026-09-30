@@ -1,9 +1,12 @@
 # 95 — Ablauf auf der Tafel **CODE** (`18.23`)
 
-**Dieses Dokument ist CODE.** App-Code **`18.23.2`** (versionCode `182302`).
+**Dieses Dokument ist CODE.** App-Code **`18.23.3`** (versionCode `182303`).
 Sprints **410–416**. Katalog-Stand bleibt `18.20.0`. `18.23.1` macht das Fenster
 deckend, hält `So` nach einer Änderung und lässt aus `7:30` den Satz `Wecker um 7:30`.
 `18.23.2`: ein Bot fragt, bevor ein anderer dazukommt. `Ja` holt ihn, `Nein` nicht.
+`18.23.3`: das Fenster ist größer. Zwei Drittel schreiben den Plan live, ein Drittel
+zeigt die Agenten als Figuren. Neue erscheinen, fertige gehen. Neben der Figur
+steht, was sie gerade tut.
 
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md). Kein zweites
 Brett, kein neues Hirn, kein neuer Agent.
