@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ChatBlock } from '../engine/chat-blocks.ts'
+import { safeImageSrc } from '../engine/image-parse.ts'
 import { filesForDownload } from '../engine/xfer.ts'
 import { ChessBoard } from './lage/ChessBoard.tsx'
 
@@ -30,9 +31,11 @@ export function ChatBlocks({
             </div>
           )
         }
+        const src = safeImageSrc(b.src)
+        if (!src) return null
         return (
           <figure key={i} className="chat-image">
-            <img src={b.src} alt={b.alt} />
+            <img src={src} alt={b.alt} referrerPolicy="no-referrer" />
             {b.source ? <figcaption>{b.source}</figcaption> : null}
           </figure>
         )

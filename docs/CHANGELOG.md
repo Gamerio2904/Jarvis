@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.12` — Bild nur auf Verlangen — *CODE*
+
+`Zeig mir ein Bild der Elbe` zeigt ein Wikipedia-Bild mit Quelle. `wie sieht das wappen von bayern münchen aus` nimmt das Wappen von OpenLigaDB. `Zeig mir London` bleibt die Kugel. Ohne Treffer: `Kein Bild geladen.`
+
+App-Code und Sideload **`18.23.12`** (versionCode `182312`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/bild-auf-verlangen-ccff/releases/Jarvis.apk
+
 ### `18.23.11` — Hausstand per QR — *CODE*
 
 `Hausstand übertragen` oder `QR Code für Hausstand` zeigt einen Code. `Scanne QR Code` öffnet die Kamera. Danach Tablet zu Handy oder Handy zu Tablet, dann Export. Beide Geräte im selben WLAN. Ohne Gespräche. Keys gehen mit.
