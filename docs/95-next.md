@@ -1,7 +1,8 @@
 # 95 — Ablauf auf der Tafel **CODE** (`18.23`)
 
-**Dieses Dokument ist CODE.** App-Code **`18.23.0`** (versionCode `182300`).
-Sprints **410–416**. Katalog-Stand bleibt `18.20.0`.
+**Dieses Dokument ist CODE.** App-Code **`18.23.1`** (versionCode `182301`).
+Sprints **410–416**. Katalog-Stand bleibt `18.20.0`. `18.23.1` macht das Fenster
+deckend, hält `So` nach einer Änderung und lässt aus `7:30` den Satz `Wecker um 7:30`.
 
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md). Kein zweites
 Brett, kein neues Hirn, kein neuer Agent.

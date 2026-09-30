@@ -241,15 +241,35 @@ async function fillFromModel(work: string): Promise<Ablauf | null> {
   return null
 }
 
-async function rewriteTask(instruction: string, label: string): Promise<string | null> {
-  const fallback = clip(instruction, 160)
-  if (!groqReady() && !geminiReady()) return fallback.length >= 3 ? fallback : null
+/** Ohne Modell bleibt die Zeile ein Satz, den der Agent schon versteht. Eine nackte Uhrzeit wird in den bisherigen Satz gesetzt. */
+export function rewriteOffline(agent: string, previous: string, instruction: string): string | null {
+  const next = clip(instruction, 160)
+  if (!next) return null
+  const clockOnly = /^(?:um\s+|auf\s+)?\d{1,2}[:.]\d{2}(?:\s*uhr)?$/i.test(next)
+  if (clockOnly && previous) {
+    const hit = /\b\d{1,2}(?:[:.]\d{2})?(?:\s*uhr)?\b/i.exec(previous)
+    if (hit) {
+      const clock = next.replace(/^(?:um\s+|auf\s+)/i, '').replace(/\s*uhr$/i, '')
+      const swapped = previous.replace(hit[0], /\buhr\b/i.test(hit[0]) ? `${clock} Uhr` : clock)
+      if (swapped !== previous) return clip(swapped, 160)
+    }
+  }
+  if (agent === 'alarm' && !/\bwecker\b|\bweck(?:e)?\s+mich\b/i.test(next)) {
+    const body = /^(?:um|auf)\b/i.test(next) ? next : `um ${next}`
+    return clip(`Wecker ${body}`, 160)
+  }
+  return next.length >= 3 ? next : null
+}
+
+async function rewriteTask(instruction: string, agent: string, previous: string): Promise<string | null> {
+  const fallback = () => rewriteOffline(agent, previous, instruction)
+  if (!groqReady() && !geminiReady()) return fallback()
   const messages = [
     {
       role: 'system',
       content: 'Antworte NUR als JSON {"task":"..."}. Ein Satz auf Deutsch, den der genannte Agent schon versteht. Keine neue Id, kein Dateipfad.',
     },
-    { role: 'user', content: `Karte ${label}. Änderung: ${instruction}` },
+    { role: 'user', content: `Karte ${agentLabel(agent)}. Bisher: ${previous}. Änderung: ${instruction}` },
   ]
   const runs: Array<() => Promise<string>> = []
   if (groqReady()) runs.push(() => completeGroq(messages))
@@ -265,7 +285,7 @@ async function rewriteTask(instruction: string, label: string): Promise<string |
       /* nächster Slot */
     }
   }
-  return fallback.length >= 3 ? fallback : null
+  return fallback()
 }
 
 function allCards(plan: Ablauf): AblaufCard[] {
@@ -278,7 +298,7 @@ function findCard(plan: Ablauf, name: string, text: string): AblaufCard | null {
   if (q) {
     const hit = cards.find((c) => {
       const label = agentLabel(c.agent).toLowerCase()
-      return c.agent.toLowerCase() === q || label === q || q.includes(label) || label.includes(q)
+      return c.agent.toLowerCase() === q || label === q || (q.length > label.length && q.includes(label))
     })
     if (hit) return hit
   }
@@ -412,7 +432,7 @@ export async function handleAblauf(
 
   const card = findCard(current, intent.name, intent.text)
   if (!card) return pack(`Die Zeile gibt es nicht. ${namesOf(current)}`, 'ablauf_miss')
-  const nextTask = await rewriteTask(intent.text, agentLabel(card.agent))
+  const nextTask = await rewriteTask(intent.text, card.agent, card.task)
   if (!nextTask) return pack('Plan nicht übernommen.', 'ablauf_fail')
   card.was = card.task
   card.task = nextTask

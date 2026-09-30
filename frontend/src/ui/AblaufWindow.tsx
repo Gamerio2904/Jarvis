@@ -23,7 +23,8 @@ export function AblaufWindow({
 
   useEffect(() => {
     if (!plan) return
-    if (reducedMotion() || plan.status === 'läuft' || plan.status === 'fertig') {
+    const touched = plan.waves.some((w) => w.cards.some((c) => c.state !== 'vorgeschlagen'))
+    if (touched || reducedMotion() || plan.status === 'läuft' || plan.status === 'fertig') {
       setShownWork(plan.work.length)
       setShownCards(cards.length)
       return
@@ -70,7 +71,6 @@ export function AblaufWindow({
       <div className="ablauf-cols">
         <div>
           <h3>Arbeit</h3>
-          {plan?.title ? <blockquote>{plan.title}</blockquote> : null}
           <ul>
             {plan?.work.slice(0, shownWork).map((line, i) => (
               <li key={`${line}-${i}`} className={i === shownWork - 1 && shownWork < (plan?.work.length || 0) ? 'is-caret' : ''}>
@@ -110,7 +110,7 @@ export function AblaufWindow({
           {plan?.gray.length ? (
             <ul className="ablauf-gray">
               {plan.gray.map((card) => (
-                <li key={`${card.agent}-${card.task}`}>{card.task}</li>
+                <li key={`${card.agent}-${card.task}`}>{card.agent}: {card.task}</li>
               ))}
             </ul>
           ) : null}

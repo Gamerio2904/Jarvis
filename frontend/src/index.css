@@ -8088,7 +8088,7 @@ html.theme-wipe-dark::before {
   padding: 16px;
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 42%, transparent);
-  background: color-mix(in srgb, #041018 88%, transparent);
+  background: #071820;
   color: var(--text);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
   transform: translate(-50%, -50%);
@@ -8190,7 +8190,8 @@ html.theme-wipe-dark::before {
   margin: 0;
   padding: 8px;
   border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 35%, #071820);
+  background: #0c2430;
 }
 
 .ablauf-wave li strong,
@@ -8230,8 +8231,8 @@ html.theme-wipe-dark::before {
 }
 
 .ablauf-so {
-  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 50%, transparent);
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 55%, #0c2430);
+  background: color-mix(in srgb, var(--board-accent, var(--accent)) 18%, #0c2430);
   color: var(--text);
   border-radius: 999px;
   padding: 6px 16px;

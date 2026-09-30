@@ -1,6 +1,6 @@
-# Android-APK — Sideload `18.23.0`
+# Android-APK — Sideload `18.23.1`
 
-App-Code **`18.23.0`**. Sideload **`18.23.0`** (versionCode `182300`):
+App-Code **`18.23.1`**. Sideload **`18.23.1`** (versionCode `182301`):
 https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
 
 Ablauf: [`TEST-18.23.md`](./TEST-18.23.md). Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.

@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.1` — Ablauf lesbar — *CODE*
+
+Das Fenster deckt die Tafel ab. Eine nackte Uhrzeit bleibt ein Wecker-Satz
+(`Wecker um 7:30`). Nach einer Änderung bleibt der Knopf `So` da. Eine graue
+Zeile nennt die unbekannte Id.
+
+App-Code und Sideload **`18.23.1`** (versionCode `182301`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
+
 ### `18.23.0` — Ablauf auf der Tafel — *CODE*
 
 `Plane das` öffnet ein Fenster mitten auf der Tafel. Das Modell schreibt,

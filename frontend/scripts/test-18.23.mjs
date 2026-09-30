@@ -16,7 +16,7 @@ globalThis.localStorage = {
 }
 
 const { parseAblaufIntent } = await import('../src/engine/ablauf-parse.ts')
-const { draftFromModel, formatAblauf, handleAblauf, listPlans } = await import('../src/engine/ablauf.ts')
+const { draftFromModel, formatAblauf, handleAblauf, listPlans, rewriteOffline } = await import('../src/engine/ablauf.ts')
 const { parseIdeaIntent } = await import('../src/engine/idea-parse.ts')
 const { handleBoard } = await import('../src/engine/board.ts')
 const { applyBackup, asBackup, buildBackup, previewBackup, stripSettings } = await import('../src/engine/backup.ts')
@@ -138,5 +138,34 @@ assert.equal(done?.status, 'fertig')
 assert.equal(done?.waves[0].cards.every((c) => c.state === 'fertig'), true)
 assert.equal(done?.waves[1].cards[0].state, 'fertig')
 assert.equal(loadSettings().ablauf_list_id, 'plan-run')
+
+assert.equal(rewriteOffline('alarm', 'Wecker um 8', '7:30'), 'Wecker um 7:30')
+assert.equal(rewriteOffline('alarm', 'Wecker um 8 Uhr', '6:15'), 'Wecker um 6:15 Uhr')
+assert.equal(rewriteOffline('alarm', 'Wecker um 8', 'Wecker auf 6:15'), 'Wecker auf 6:15')
+assert.equal(rewriteOffline('idea', 'Zeig mir meine Ideen', 'Alle Ideen'), 'Alle Ideen')
+
+saveSettings({ ablauf_id: 'plan-edit', ablauf_status: 'warten' })
+await put('plans', {
+  id: 'plan-edit',
+  title: 'Wecker',
+  work: ['Wecker stellen'],
+  waves: [{ n: 1, cards: [
+    { n: 1, agent: 'alarm', task: 'Wecker um 8', state: 'vorgeschlagen' },
+    { n: 2, agent: 'idea', task: 'Zeig mir meine Ideen', state: 'vorgeschlagen' },
+  ] }],
+  gray: [],
+  status: 'warten',
+  created_at: '2026-01-04T00:00:00.000Z',
+  updated_at: '2026-01-04T00:00:00.000Z',
+})
+const edited = await handleAblauf('c-ablauf', 'Ändere den Wecker: 7:30')
+assert.match(edited.reply || '', /Wecker: Wecker um 7:30/)
+const editedRow = (await listPlans()).find((r) => r.id === 'plan-edit')
+assert.equal(editedRow?.waves[0].cards[0].task, 'Wecker um 7:30')
+assert.equal(editedRow?.waves[0].cards[0].state, 'geändert')
+assert.equal(editedRow?.status, 'warten')
+assert.equal((await listPlans()).some((r) => r.id === 'plan-run' && r.status === 'fertig'), true)
+const rest = await handleAblauf('c-ablauf', 'Wecker auf 6:15, Rest so')
+assert.match(rest.reply || '', /Wecker auf 6:15/)
 
 console.log('ok test-18.23')
