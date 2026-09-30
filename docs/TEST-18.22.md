@@ -1,21 +1,17 @@
-# TEST 18.22 — Tafel **PLAN**
+# TEST 18.22 — Tafel
 
-In der App ab **`18.22.0`**. Plan: [`94-next.md`](./94-next.md).
-Tablet quer, Breite ab 900 px. Jede Box ist ein Satz.
+In der App ab **`18.22.0`**. Dieselben Sätze in Spur Heute, Gruppe `18.22 Tafel`.
+Tablet quer, Breite ab 900 px. Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat.
 
-## 1. Stücke da
+## 1. Fläche
 
 ```
 Tischplatte an
 ```
 
-Auf der Fläche liegen Sprintliste, PSP, Auftrag, Uhr, Quellen, Termin
-und Jobleiste. Die Uhr zeigt die Gerätezeit. Ohne Idee sagt die
-Sprintliste `Noch kein Sprint.` oder listet geplante Produkt-Sprints mit
-Nummer und einer Zeile. Der PSP sagt ohne Auftrag `Noch kein Auftrag.`
-Module und Draht liegen nicht auf der Fläche.
-
-## 2. Liste und PSP mit Idee
+Sprintliste, PSP, Auftrag, Uhr, Quellen, Termin und Jobleiste liegen da.
+Die Uhr zeigt die Gerätezeit. Ohne Idee: Sprintliste `Noch kein Sprint.`,
+PSP `Noch kein Auftrag.` Module und Draht liegen in der Ablage.
 
 ```
 Idee: Tik-Tak-To auf der Tischplatte
@@ -25,28 +21,67 @@ Idee: Tik-Tak-To auf der Tischplatte
 Zeig Sprints
 ```
 
-Die Sprintliste ist nach Nummer sortiert. Jede Zeile ist Nummer plus ein
-kurzer Text. Der PSP zeigt drei Ebenen: Auftrag, Sprint, eine Zielzeile.
-Die anderen Stücke bleiben liegen. `Zeig Sprints` leert die Fläche nicht.
+Nummer und eine Zeile, aufsteigend. Die anderen Stücke bleiben liegen.
 
-## 3. Schieben
+```
+Zeig PSP
+```
+
+Drei Ebenen: Auftrag, Sprint, eine Zielzeile.
+
+```
+Zeig Quellen
+```
+
+```
+Zeig Module
+```
+
+```
+Simuliere Kalender
+```
+
+Module und Draht kommen auf die Fläche. Der Draht zeigt die Kalenderzeilen.
+
+## 2. Schieben
 
 ```
 Schieb die Sprintliste nach links
+```
+
+Antwort: `Sprintliste liegt links.`
+
+```
+Schieb den PSP nach rechts
+```
+
+```
+Schieb die Uhr nach oben
+```
+
+```
+Schieb die Quellen nach unten
 ```
 
 ```
 Leg die Uhr in die Mitte
 ```
 
-Die Sprintliste fährt nach links und setzt sich ab. Die Uhr fährt in die
-Mitte. Vor der Fahrt liegt kurz ein Ring auf dem Stück. Der Chat sagt
-`Sprintliste liegt links.`, erst wenn die Fahrt zu Ende ist.
+```
+Schieb den Auftrag in die Mitte
+```
 
-Dieselben Griffe mit dem Finger: anfassen, ziehen, loslassen. Das Stück
-nimmt denselben Weg.
+```
+Schieb den Termin in die Mitte
+```
 
-## 4. Aus dem Bild
+```
+Schieb die Jobleiste nach unten
+```
+
+Dieselben Griffe mit dem Finger: anfassen, ziehen, loslassen.
+
+## 3. Aus dem Bild
 
 ```
 Schieb die Sprintliste aus dem Bildschirm
@@ -56,36 +91,52 @@ Schieb die Sprintliste aus dem Bildschirm
 Wirf die Quellen vom Tisch
 ```
 
-Das Stück verlässt die Fläche und steht in der Ablage. Die Quellen im
-Speicher bleiben. Danach:
+Das Stück steht in der Ablage. Quellen und Termine im Speicher bleiben.
 
 ```
 Hol die Sprintliste zurück
 ```
 
-Sie fährt an die letzte Stelle auf der Fläche.
+```
+Hol die Quellen zurück
+```
 
 ```
 Räum den Tisch
 ```
 
 Die Stücke fahren nacheinander in die Ablage. Die Tischplatte bleibt an.
-`Tischplatte aus` holt die Icons zurück, wie bisher.
-
-## 5. Handy und leere Sätze
-
-Unter 900 px bleiben die Stücke untereinander.
 
 ```
-Schieb die Sprintliste nach links
+Hol den Auftrag zurück
 ```
 
-Antwort: `Die freie Fläche ist das Tablet.` Die Reihenfolge bleibt.
-
 ```
-Schieb das Wetter nach links
+Tischplatte aus
 ```
 
-Antwort nennt, dass es das Stück nicht gibt, und die neun Namen.
-`Hintergrund blau schwarz` stellt weiter die Wand um und schiebt nichts.
-`nächster Lidl` bleibt die Ortssuche.
+Die Icons kommen zurück.
+
+## 4. Was nicht schiebt
+
+```
+Schieb das Poster nach links
+```
+
+Antwort nennt die neun Namen.
+
+```
+Hintergrund blau schwarz
+```
+
+Die Wand wird blau auf schwarz. Kein Stück fährt.
+
+```
+nächster Lidl
+```
+
+Ortssuche, kein Schieben.
+
+Auf dem Handy, unter 900 px, derselbe Satz `Schieb die Sprintliste nach links`:
+Antwort `Die freie Fläche ist das Tablet.` Die Reihenfolge bleibt.
+Werfen und Zurückholen gelten auch dort.

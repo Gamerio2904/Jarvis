@@ -40,6 +40,29 @@ for (const sentence of [
 ]) {
   assert.ok(texts.includes(sentence), sentence)
 }
+const tafel22 = groupsForLane('heute').find((g) => g.title === '18.22 Tafel')
+assert.ok(tafel22, '18.22 Tafel fehlt in Spur Heute')
+for (const sentence of [
+  'Tischplatte an',
+  'Schieb die Sprintliste nach links',
+  'Wirf die Quellen vom Tisch',
+  'Räum den Tisch',
+  'Schieb das Poster nach links',
+  'Hintergrund blau schwarz',
+  'nächster Lidl',
+]) {
+  assert.ok(tafel22.items.some((i) => i.text === sentence), sentence)
+}
+const qr = groupsForLane('heute').find((g) => g.title === '18.21 Datei-QR')
+assert.ok(qr, '18.21 Datei-QR fehlt in Spur Heute')
+for (const sentence of [
+  'Übertrage das fürs Tablet',
+  'Mach den QR-Code',
+  'PC QR scannen',
+  'Lies das PDF',
+]) {
+  assert.ok(qr.items.some((i) => i.text === sentence), sentence)
+}
 assert.ok(groupsForLane('heute').some((g) => g.title === '18.20 YouTube-Highlights'))
 assert.ok(groupsForLane('story').some((g) => g.title === '🟢 18.20 Tafel der Reihe nach'))
 assert.deepEqual(unassignedCopyTitles(), [])

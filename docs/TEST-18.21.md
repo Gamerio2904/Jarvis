@@ -1,50 +1,68 @@
-# TEST 18.21 — Datei-QR **PLAN**
+# TEST 18.21 — Datei-QR
 
-In der App ab **`18.22.0`**. Plan: [`93-next.md`](./93-next.md).
-Zwei Geräte, derselbe Chat-Knopf für Dateien.
-Jede Box ist ein Satz.
+In der App ab **`18.22.0`**. Dieselben Sätze in Spur Heute, Gruppe `18.21 Datei-QR`.
+Zwei Geräte, derselbe Datei-Knopf. Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat.
 
-## 1. Nur Dateien
+## 1. Leer
 
-Auf Gerät A eine kleine Textdatei über den bisherigen Datei-Knopf schicken.
-Dann:
+Ohne Datei und ohne Kopierzeile:
 
 ```
 Übertrage das fürs Tablet
 ```
 
-Die Antwort zeigt einen QR und den Dateinamen. Kein „fertig“, wenn der
-Code fehlt.
+Antwort: `Keine Datei im Gespräch. Zuerst den Datei-Knopf.`
 
-Auf Gerät B ein Foto dieses Codes in den Chat:
+## 2. Nur Dateien
 
-Der Chat zeigt den Knopf `Dateien laden`. Ein Tippen speichert die Datei
-unter demselben Namen. Kein zweites Tippen, kein Öffnen von selbst.
+Auf Gerät A eine kleine Textdatei über den Datei-Knopf schicken. Dann:
 
-## 2. Nur Text
+```
+Übertrage das fürs Tablet
+```
+
+Die Antwort zeigt einen QR und `Drin:` mit dem Dateinamen.
+
+```
+Übertrage das fürs Handy
+```
+
+Auf Gerät B ein Foto dieses Codes in den Chat. Der Knopf heißt `Dateien laden`.
+Ein Tippen speichert die Datei unter demselben Namen. Kein Öffnen von selbst.
+
+## 3. Nur Text
 
 ```
 Das hier zum Kopieren als Anhang in der Nachricht: WLAN Blau12
 ```
 
 ```
+Zum Kopieren: Türcode 4711
+```
+
+```
 Mach den QR-Code
 ```
 
-Auf Gerät B steht unter der Antwort ein Feld `WLAN Blau12` mit `Kopieren`.
-Kein Lade-Knopf, weil keine Datei im Satz war.
+```
+Mach den QR Code
+```
 
-## 3. Beides, mehrere Zeilen
+Auf Gerät B steht ein Feld mit `Kopieren`. Kein Lade-Knopf, wenn keine Datei im Satz war.
+
+## 4. Beides
+
+Zuerst eine kleine Datei schicken, dann diese eine Box:
 
 ```
-Übertrage das fürs Handy. Zum Kopieren:
+Übertrage das fürs Tablet. Zum Kopieren:
 WLAN Blau12
 Türcode 4711
 ```
 
-Zwei Felder, ein Knopf, wenn auch eine Datei im Gespräch lag.
+Zwei Felder und ein Knopf `Dateien laden`.
 
-## 4. Zu groß
+## 5. Zu groß
 
 Eine große PDF schicken, dann:
 
@@ -52,22 +70,23 @@ Eine große PDF schicken, dann:
 Mach den QR Code
 ```
 
-Die Antwort nennt die PDF beim Namen und baut keinen Code, der sie
-still abschneidet. Kleine Dateien desselben Satzes dürfen trotzdem
-hinein, wenn sie in die sechs Codes passen.
+Die Antwort nennt die PDF bei `Fehlt:` und schneidet sie nicht still ab.
+Eine kleine Datei desselben Gesprächs darf trotzdem in den Code.
 
-## 5. Unvollständig und fremd
-
-Liegen drei Codes in der Antwort, ein Foto schicken. Die Antwort sagt,
-wie viele noch fehlen. Kein Knopf.
-
-Ein Foto ohne diesen Code, und ein Foto des PC-QR aus JarvisPC, bleiben
-beim bisherigen Lesen beziehungsweise beim PC-Koppeln. Kein Lade-Knopf.
-
-## 6. Leer
+## 6. Fremd
 
 ```
-Übertrage das fürs Tablet
+PC QR scannen
 ```
 
-Ohne Datei und ohne Kopierzeile: `Keine Datei im Gespräch. Zuerst den Datei-Knopf.`
+Das bleibt das Koppeln mit JarvisPC. Kein Lade-Knopf.
+
+```
+Lies das PDF
+```
+
+Das bleibt das Lesen. Kein Lade-Knopf.
+
+Ein Foto ohne diesen Code bleibt beim bisherigen Lesen. Liegen mehrere Codes
+in einer Antwort und es fehlt ein Foto, sagt die Antwort wie viele noch fehlen.
+Kein Knopf, bevor der Satz vollständig ist.
