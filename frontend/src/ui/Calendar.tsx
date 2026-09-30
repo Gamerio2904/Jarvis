@@ -441,7 +441,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [editingId, setEditingId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
-  const [mode, setMode] = useState<CalMode>('month')
+  const [mode, setMode] = useState<CalMode>('week')
   const [yearMarks, setYearMarks] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
   const [chipMins, setChipMins] = useState<number[]>([0])
@@ -606,7 +606,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setMonthDir(next.getTime() === cur.getTime() ? 'none' : next > cur ? 'left' : 'right')
     setCursor(next)
     setSelected(new Date(today))
-    setMode('month')
+    setMode('week')
   }
 
   function shiftMonth(delta: number) {

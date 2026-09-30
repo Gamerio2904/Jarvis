@@ -250,7 +250,7 @@ try {
     await waitQuiet(page, 200)
     await clickText(page, '.sidebar button', 'Kalender')
     await waitQuiet(page, 400)
-    if (!(await page.$('.cal-grid, .cal-year, [aria-label="Monat"], [aria-label="Jahr"]'))) {
+    if (!(await page.$('.cal-week, .cal-grid, .cal-year, [aria-label="Wochenübersicht"], [aria-label="Monat"], [aria-label="Jahr"]'))) {
       throw new Error('kein Kalender-Grid')
     }
     await closeSheets(page)
