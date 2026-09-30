@@ -26,7 +26,8 @@ zeichnet den Code in den Chat. Ein Foto davon ergibt den Knopf
 `Dateien laden` und Kopierfelder. Kein Server. Sprints 398–403.
 [`93-next.md`](./93-next.md). Test: [`TEST-18.21.md`](./TEST-18.21.md).
 
-App-Code **`18.22.0`** (versionCode `182200`).
+App-Code und Sideload **`18.22.0`** (versionCode `182200`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
 
 ### `18.21.0` — Datei-QR — *CODE in `18.22.0`*
 
