@@ -1,6 +1,6 @@
 # Sprint 263 — Bilder im Chat, nur auf Verlangen
 
-**Version:** `17.4.0` — **PLAN** Must
+**Version:** `18.23.12` — **CODE** Must (geliefert, nicht mehr `17.4.0`)
 **Plan:** [`70-next.md`](../70-next.md)
 **Voraussetzung:** Sprint **261**
 

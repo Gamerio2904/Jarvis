@@ -8,6 +8,7 @@ import { parseBoardIntent } from './board-parse.ts'
 import { parseAblaufIntent } from './ablauf-parse.ts'
 import { parseBotAskIntent } from './bot-ask.ts'
 import { parseXferIntent } from './xfer-parse.ts'
+import { parseImageAsk } from './image-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
   return cands.filter((c) => c.id !== id)
@@ -219,6 +220,13 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'drive')
     out = drop(out, 'hud')
     out = boost(out, 'chess', 0.32)
+  }
+
+  if (parseImageAsk(text)) {
+    out = drop(out, 'hud')
+    out = drop(out, 'eye')
+    out = drop(out, 'maps')
+    out = boost(out, 'search', 0.35)
   }
 
   if (/\b(aldi|lidl|rewe|edeka|netto|penny|kaufland)\b/.test(t) && !/\b(wetter|wecker|timer)\b/.test(t)) {

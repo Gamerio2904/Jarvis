@@ -45,6 +45,7 @@ import { parseEyeIntent } from '../eye-parse.ts'
 import { parseDocIntent } from '../doc-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../weather-parse.ts'
 import { parseNewsIntent } from '../news-parse.ts'
+import { parseImageAsk } from '../image-parse.ts'
 import { parseChatSearch } from '../search-chat-parse.ts'
 import { parseWarnIntent } from '../warn.ts'
 import { parseFerienIntent } from '../ferien.ts'
@@ -251,7 +252,12 @@ function buildParseCatalog(): AgentSpec[] {
           : null,
     },
     { id: 'news', sideEffect: 'read', parse: (ctx) => (parseNewsIntent(ctx.text) ? score(ctx.text) : null) },
-    { id: 'search', sideEffect: 'read', parse: (ctx) => (parseChatSearch(ctx.text) ? score(ctx.text) : null) },
+    {
+      id: 'search',
+      sideEffect: 'read',
+      parse: (ctx) =>
+        parseImageAsk(ctx.text) ? score(ctx.text, 0.1) : parseChatSearch(ctx.text) ? score(ctx.text) : null,
+    },
     { id: 'warn', sideEffect: 'read', parse: (ctx) => (parseWarnIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
     { id: 'blitzer', sideEffect: 'read', parse: (ctx) => (parseBlitzerIntent(ctx.text) ? score(ctx.text, ctx.inDrive ? 0.22 : 0.12) : null) },
     { id: 'chat-folder', sideEffect: 'write', parse: (ctx) => (parseFolderIntent(ctx.text) ? score(ctx.text, 0.18) : null) },
