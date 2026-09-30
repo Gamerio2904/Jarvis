@@ -14,6 +14,14 @@ LibHunt-Treffer. Zeitungsseiten werden nicht zum Merken angeboten.
 Sideload **`18.20.1`** (versionCode `182001`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
+### `18.21.0` — Datei-QR — *PLAN*
+
+Noch nicht gebaut. Datei-Knopf bleibt. `Übertrage das fürs Tablet` oder
+`Mach den QR-Code` zeichnet den Code in den Chat. Ein Foto davon auf dem
+anderen Gerät ergibt den Knopf `Dateien laden` und Kopierfelder für den
+Text nach dem Doppelpunkt. Kein Server. Sprints 398–403.
+[`93-next.md`](./93-next.md). Test: [`TEST-18.21.md`](./TEST-18.21.md).
+
 ### `18.20.0` — YouTube-Highlights, Tablet-Lage — *CODE + APK*
 
 Top-Liste aus 1–3 YouTube-Links. Das Handy wählt die Stellen, der PC

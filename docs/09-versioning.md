@@ -883,6 +883,21 @@ YouTube-Links, Schnitt auf dem PC, Datei lokal, kein Upload. Sprints 392–397.
 | `18.20.0` | Render 1080×1920, ASS, ein Wort | 396 CODE |
 | `18.20.0` | Gold, Fixture, Job-TTL | 397 CODE |
 
+### `18.21` — Datei-QR [`93-next.md`](./93-next.md) **PLAN**
+
+Noch nicht im Code. Sideload bleibt **`18.20.1`**. Dateien über den bisherigen
+Knopf, Satz baut einen QR, Foto auf dem anderen Gerät, Knopf `Dateien laden`
+und Kopierfelder. Sprints 398–403. Test: [`TEST-18.21.md`](./TEST-18.21.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.21.0` | Parser `xfer` | 398 PLAN |
+| `18.21.0` | Codec, höchstens sechs Codes | 399 PLAN |
+| `18.21.0` | Originalbytes 30 min, Lesen unverändert | 400 PLAN |
+| `18.21.0` | QR in der Antwort | 401 PLAN |
+| `18.21.0` | Foto, Knopf, Kopierfelder | 402 PLAN |
+| `18.21.0` | Gold, Testkarten, versionCode `182100` | 403 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.

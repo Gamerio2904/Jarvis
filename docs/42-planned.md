@@ -10,6 +10,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 
 0. **`18.19` Tischplatte** [`91-next.md`](./91-next.md) — Sprints **385–391 CODE + APK**. Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge. Sideload **`18.19.0`**.
 0-plan. **`18.20` YouTube-Highlights** [`92-next.md`](./92-next.md) — Sprints **392–397 CODE + APK**. Top-Liste aus 1–3 Links, Schnitt nur auf dem PC, kein Upload. Draft Clips `#152` bleibt getrennt.
+0-plan. **`18.21` Datei-QR** [`93-next.md`](./93-next.md) — Sprints **398–403 PLAN**. Datei-Knopf wie bisher, QR in der Antwort, Foto auf dem anderen Gerät lädt die Dateien und zeigt Kopierfelder. Kein Server. Nicht in der APK.
 0a. **`18.18` Homescreen** [`90-next.md`](./90-next.md) — Sprints **382–384 CODE + APK**. App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel. In Sideload **`18.19.0`**.
 0a. **`18.17` Kalender Alltag** [`89-next.md`](./89-next.md) — Sprints **377–381 CODE + APK**. Hausstand-Termine + ICS, Serie, Konflikt. Sideload **`18.17.0`**.
 0a. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE + APK**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname. Sideload **`18.16.0`**.

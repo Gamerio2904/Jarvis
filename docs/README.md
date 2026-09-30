@@ -96,6 +96,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 90 | [Homescreen 18.18](./90-next.md) | **CODE + APK** `18.18.0` — App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel; Sprints 382–384; in Sideload `18.19.0` |
 | 91 | [Tischplatte 18.19](./91-next.md) | **CODE + APK** `18.19.0` — Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge; Sprints 385–391 |
 | 92 | [YouTube-Highlights 18.20](./92-next.md) | **CODE + APK** `18.20.0` — Top-Liste aus 1–3 YouTube-Links, Schnitt auf dem PC; Sprints 392–397 |
+| 93 | [Datei-QR 18.21](./93-next.md) | **PLAN** — Dateien und Kopierzeilen als QR im Chat, Foto auf dem anderen Gerät, Lade-Knopf; Sprints 398–403. Nicht in der APK |
 | — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
 | — | [APK](./apk.md) | Sideload `18.20.0`; Test: [`TEST-18.20.md`](./TEST-18.20.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
@@ -330,5 +331,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 377–381 | `18.17.0` | **CODE + APK** (Kalender Alltag, [`89-next.md`](./89-next.md)) |
 | 382–384 | `18.18.0` | **CODE + APK** (Homescreen, [`90-next.md`](./90-next.md)) |
 | 385–391 | `18.19.0` | **CODE + APK** (Tischplatte, [`91-next.md`](./91-next.md)) |
+| 398–403 | `18.21.0` | **PLAN** (Datei-QR, [`93-next.md`](./93-next.md)) |
 
-**Aktuell:** App-Code **`18.20.1`**. Sideload-APK **`18.20.1`**, versionCode `182001`. 392–397 **CODE + APK**. Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.20.1`**. Sideload-APK **`18.20.1`**, versionCode `182001`. 392–397 **CODE + APK**. 398–403 **PLAN** ([`93-next.md`](./93-next.md)), nicht in der APK. Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md). Index: [`42-planned.md`](./42-planned.md).

@@ -379,8 +379,14 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 395 | [`sprint-395.md`](./sprint-395.md) | `18.20.0` | Bildtitel, ein JPEG | **CODE** Must |
 | 396 | [`sprint-396.md`](./sprint-396.md) | `18.20.0` | Render Top-Liste | **CODE** Must |
 | 397 | [`sprint-397.md`](./sprint-397.md) | `18.20.0` | Gold, Fixture, Job | **CODE** Must |
+| 398 | [`sprint-398.md`](./sprint-398.md) | `18.21.0` | Parser `xfer` | **PLAN** Must |
+| 399 | [`sprint-399.md`](./sprint-399.md) | `18.21.0` | Codec, Grenze | **PLAN** Must |
+| 400 | [`sprint-400.md`](./sprint-400.md) | `18.21.0` | Originalbytes 30 min | **PLAN** Must |
+| 401 | [`sprint-401.md`](./sprint-401.md) | `18.21.0` | QR in der Antwort | **PLAN** Must |
+| 402 | [`sprint-402.md`](./sprint-402.md) | `18.21.0` | Foto, Knopf, Felder | **PLAN** Must |
+| 403 | [`sprint-403.md`](./sprint-403.md) | `18.21.0` | Gold, Testkarten | **PLAN** Must |
 
-**Aktuell:** App-Code **`18.20.1`**. Sideload-APK **`18.20.1`**, versionCode `182001`. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
+**Aktuell:** App-Code **`18.20.1`**. Sideload-APK **`18.20.1`**, versionCode `182001`. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). 398–403 **PLAN** ([`93-next.md`](../93-next.md)), nicht in der APK. Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
