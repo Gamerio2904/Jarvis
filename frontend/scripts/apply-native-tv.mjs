@@ -58,6 +58,11 @@ const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
 mkdirSync(geoDest, { recursive: true })
 copyFileSync(join(geoSrc, 'JarvisGeoPlugin.java'), join(geoDest, 'JarvisGeoPlugin.java'))
 
+const hausSrc = join(root, 'native', 'haus')
+const hausDest = join(android, 'app/src/main/java/app/jarvis/haus')
+mkdirSync(hausDest, { recursive: true })
+copyFileSync(join(hausSrc, 'JarvisHausPlugin.java'), join(hausDest, 'JarvisHausPlugin.java'))
+
 const deviceSrc = join(root, 'native', 'device')
 const deviceDest = join(android, 'app/src/main/java/app/jarvis/device')
 mkdirSync(deviceDest, { recursive: true })
@@ -137,10 +142,9 @@ const perms = [
   'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
-  // CAMERA stand hier für die Taschenlampe. `setTorchMode` braucht es seit
-  // API 23 nicht, und nichts sonst in der App greift auf die Kamera zu — das
-  // Recht anzufragen war ein Schrecken ohne Gegenwert.
   'android.permission.FLASHLIGHT',
+  // Kamera nur für den Hausstand-QR. Taschenlampe braucht das Recht nicht.
+  'android.permission.CAMERA',
   'android.permission.CALL_PHONE',
   'android.permission.SEND_SMS',
   'android.permission.READ_CONTACTS',
@@ -154,6 +158,12 @@ for (const perm of perms) {
       `    <uses-permission android:name="${perm}" />\n</manifest>`,
     )
   }
+}
+if (!manifest.includes('android.hardware.camera')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    '    <uses-feature android:name="android.hardware.camera" android:required="false" />\n</manifest>',
+  )
 }
 if (!manifest.includes('android:usesCleartextTraffic')) {
   manifest = manifest.replace(

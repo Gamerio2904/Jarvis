@@ -1,4 +1,6 @@
 import { listPlans, type Ablauf } from './ablauf.ts'
+import type { ChatBlock } from './chat-blocks.ts'
+import { offerHausQr, openHausScan, parseHausLink } from './haus-link.ts'
 import {
   DEFAULT_SETTINGS,
   getAll,
@@ -391,7 +393,9 @@ export async function shareOrDownloadBackup(includeChats: boolean): Promise<stri
   return native.message || 'Datei nicht in Downloads geschrieben. Ordner Downloads prüfen oder nochmal.'
 }
 
-export function parseBackupIntent(text: string): 'export' | 'import' | null {
+export function parseBackupIntent(text: string): 'export' | 'import' | 'offer' | 'scan' | null {
+  const link = parseHausLink(text)
+  if (link) return link
   const t = text.trim()
   if (/\b(hausstand|einstellungen)\s+export(?:ieren)?\b/i.test(t) || /^\s*backup\s+export/i.test(t)) return 'export'
   if (/\b(hausstand|einstellungen)\s+import(?:ieren)?\b/i.test(t)) return 'import'
@@ -401,9 +405,27 @@ export function parseBackupIntent(text: string): 'export' | 'import' | null {
 export async function handleBackup(
   _conversationId: string,
   text: string,
-): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; blocks?: ChatBlock[] }> {
   const intent = parseBackupIntent(text)
   if (!intent) return { handled: false }
+  if (intent === 'scan') {
+    openHausScan()
+    return {
+      handled: true,
+      reply: 'Scanner ist offen. Den Code auf dem anderen Gerät vor die Kamera.',
+      tool: { tool_status: 'executed', tool: 'backup', action: 'scan', label: 'Hausstand' },
+    }
+  }
+  if (intent === 'offer') {
+    const data = await buildBackup(false)
+    const made = await offerHausQr(JSON.stringify(data))
+    return {
+      handled: true,
+      reply: made.reply,
+      blocks: made.blocks,
+      tool: { tool_status: 'executed', tool: 'backup', action: 'offer', label: 'Hausstand' },
+    }
+  }
   if (intent === 'import') {
     return {
       handled: true,

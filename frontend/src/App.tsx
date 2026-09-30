@@ -53,6 +53,9 @@ import { HomeScreen } from './ui/HomeScreen.tsx'
 import { GlanceRail } from './ui/GlanceRail.tsx'
 import { MiniChat } from './ui/MiniChat.tsx'
 import { VoiceSphere } from './ui/VoiceSphere.tsx'
+import { HausScan } from './ui/HausScan.tsx'
+import { hausStop, watchHausIncoming } from './native/haus.ts'
+import { applyBackup, parseImportPayload } from './engine/backup.ts'
 import { type HomeAppId } from './engine/home-apps.ts'
 import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
@@ -280,6 +283,7 @@ function App() {
   const [health, setHealth] = useState<Health | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [statusNote, setStatusNote] = useState<string | null>(null)
+  const [hausScan, setHausScan] = useState(false)
   const [composerFocused, setComposerFocused] = useState(false)
   const [threadKey, setThreadKey] = useState(0)
   const [enterIds, setEnterIds] = useState<Record<string, true>>({})
@@ -348,6 +352,23 @@ function App() {
   const voiceReqRef = useRef<string | null>(null)
   const [voiceSeed, setVoiceSeed] = useState('')
   const [lageWide, setLageWide] = useState(false)
+
+  useEffect(() => {
+    const open = () => setHausScan(true)
+    window.addEventListener('jarvis-haus-scan', open)
+    const stop = watchHausIncoming((json) => {
+      const choice = parseImportPayload(json)
+      if (!choice || choice.kind !== 'haus') return
+      void applyBackup(choice.data).then((line) => {
+        setStatusNote(line)
+        void hausStop()
+      })
+    })
+    return () => {
+      window.removeEventListener('jarvis-haus-scan', open)
+      stop()
+    }
+  }, [])
 
   useEffect(() => {
     activeIdRef.current = activeId
@@ -2505,6 +2526,11 @@ function App() {
           ) : null}
         </>
       ) : null}
+      <HausScan
+        open={hausScan}
+        onClose={() => setHausScan(false)}
+        onDone={(line) => setStatusNote(line)}
+      />
       {!driveOpen && !chessOpen ? (
         <NavIsland
           className="nav-dock"

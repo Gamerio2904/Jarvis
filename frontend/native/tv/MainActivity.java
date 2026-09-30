@@ -9,6 +9,7 @@ import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
 import app.jarvis.device.JarvisDevicePlugin;
+import app.jarvis.haus.JarvisHausPlugin;
 import app.jarvis.geo.JarvisGeoPlugin;
 import app.jarvis.home.JarvisHomePlugin;
 import app.jarvis.notify.JarvisNotifyPlugin;
@@ -26,6 +27,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(JarvisVoicePlugin.class);
         registerPlugin(JarvisHomePlugin.class);
         registerPlugin(JarvisDevicePlugin.class);
+        registerPlugin(JarvisHausPlugin.class);
         registerPlugin(JarvisPresencePlugin.class);
         super.onCreate(savedInstanceState);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);

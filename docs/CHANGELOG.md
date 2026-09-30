@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.11` — Hausstand per QR — *CODE*
+
+`Hausstand übertragen` oder `QR Code für Hausstand` zeigt einen Code. `Scanne QR Code` öffnet die Kamera. Danach Tablet zu Handy oder Handy zu Tablet, dann Export. Beide Geräte im selben WLAN. Ohne Gespräche. Keys gehen mit.
+
+App-Code und Sideload **`18.23.11`** (versionCode `182311`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tisch-skript-ccff/releases/Jarvis.apk
+
 ### `18.23.10` — Erinnerung am Datum — *CODE*
 
 `Erinnerung 7.10. für Auslands Praktikum Erinnerung 18 Uhr am Tag davor` legt den Termin am 7.10. an. Die Frist ist 18:00 am Tag davor. `Ja` nach „Soll ich?“ bleibt das Ja und führt den Satz aus.

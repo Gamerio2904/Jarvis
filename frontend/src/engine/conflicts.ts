@@ -358,6 +358,13 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'backup', 0.3)
   }
 
+  if (/(?:qr|qe)[\s-]*code/.test(t) && !/\b(?:pc|rechner)\b/.test(t) && /\b(?:scanne|scannen|scan|hausstand)\b/.test(t)) {
+    out = drop(out, 'search')
+    out = drop(out, 'xfer')
+    out = drop(out, 'pc')
+    out = boost(out, 'backup', 0.35)
+  }
+
   if (/\b(kalender|termine?)\b/.test(t) && /\bics\b/.test(t)) {
     out = drop(out, 'backup')
     out = drop(out, 'search')
