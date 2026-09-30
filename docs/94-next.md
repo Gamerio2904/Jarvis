@@ -1,7 +1,7 @@
 # 94 — Tafel auf der Tischplatte **PLAN** (`18.22`)
 
-**Dieses Dokument ist PLAN.** App-Code und Sideload bleiben **`18.20.1`**
-(versionCode `182001`), bis die Sprints ausgeführt sind. Sprints **404–409**.
+**Dieses Dokument ist CODE.** App-Code **`18.22.0`** (versionCode `182200`).
+Sprints **404–409**.
 Die Fläche bleibt die Tischplatte aus [`91-next.md`](./91-next.md). Kein
 zweites Brett, kein neues Hirn.
 
@@ -235,7 +235,7 @@ bleiben das Thema der Wand, kein Schieben.
 
 ---
 
-## 6. Sprints (`18.22.0` PLAN, Sideload noch `18.20.1`)
+## 6. Sprints (`18.22.0` CODE)
 
 | Sprint | Inhalt | Klasse |
 |--------|--------|--------|

@@ -82,6 +82,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_price_watch_at',
   'working_memory_json',
   'board_jobs_json',
+  'tischplatte_motion_json',
   'last_step_tool',
   'last_step_title',
   'last_step_when',

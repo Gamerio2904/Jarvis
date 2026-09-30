@@ -55,6 +55,12 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
       "Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ"
     ]
   },
+  "xfer": {
+    "promptSlice": "Datei-QR. Dateien und Kopierzeilen als Code im Chat, Foto auf dem anderen Gerät, Knopf Dateien laden. Kein Server.",
+    "goldPrompts": [
+      "Übertrage das fürs Tablet"
+    ]
+  },
   "film": {
     "promptSlice": "Domäne film: Parser-Fakten only.",
     "goldPrompts": [

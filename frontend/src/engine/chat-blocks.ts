@@ -4,6 +4,7 @@ export type ChatBlock =
   | { kind: 'table'; caption: string; columns: string[]; rows: string[][]; source?: string }
   | { kind: 'chess'; fen: string }
   | { kind: 'image'; src: string; alt: string; source: string }
+  | { kind: 'xfer'; id: string; files: string[]; copies: string[] }
 
 export function parseChatBlocks(raw: unknown): ChatBlock[] {
   if (!Array.isArray(raw)) return []
@@ -27,6 +28,15 @@ export function parseChatBlocks(raw: unknown): ChatBlock[] {
     }
     // Ein Bild ohne Quelle wird verworfen, nicht quellenlos gezeigt: das ist
     // das Abbruchkriterium aus `70-next.md` §7, hier fail-closed umgesetzt.
+    if (o.kind === 'xfer' && typeof o.id === 'string' && o.id.trim()) {
+      out.push({
+        kind: 'xfer',
+        id: o.id.trim(),
+        files: Array.isArray(o.files) ? o.files.map((f) => String(f)).slice(0, 12) : [],
+        copies: Array.isArray(o.copies) ? o.copies.map((f) => String(f)).slice(0, 8) : [],
+      })
+      continue
+    }
     if (o.kind === 'image' && typeof o.src === 'string' && o.src.trim() && String(o.source || '').trim()) {
       out.push({
         kind: 'image',
@@ -58,4 +68,4 @@ export function skipMicroMerge(reply: string, blocks?: ChatBlock[] | null): bool
 
 /** Write/Gerät: Canned-Satz bleibt. Micro-Merge hat hier schon Watchliste-Erfolge erfunden. */
 export const SKIP_MICRO_MERGE_TOOLS =
-  /^(?:watchlist|calendar|reminder|tools|memory|shopping|unknown|tv|device|pc|alarm|timer|home|idea|app|fan|plug|birthday|hud|board)$/
+  /^(?:watchlist|calendar|reminder|tools|memory|shopping|unknown|tv|device|pc|alarm|timer|home|idea|app|fan|plug|birthday|hud|board|xfer)$/

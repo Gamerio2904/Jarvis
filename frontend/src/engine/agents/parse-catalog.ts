@@ -1,6 +1,7 @@
 import { parseTvIntent, parseTvWatch, isTvDiscover } from '../tv-parse.ts'
 import { parseFilmIntent } from '../film-parse.ts'
 import { parseClipIntent } from '../clip-parse.ts'
+import { parseXferIntent } from '../xfer-parse.ts'
 import { parseFanIntent } from '../fan-parse.ts'
 import { parsePlugIntent } from '../plug-parse.ts'
 import { parseHereIntent } from '../here-parse.ts'
@@ -133,6 +134,12 @@ function buildParseCatalog(): AgentSpec[] {
       id: 'clip',
       sideEffect: 'device',
       parse: (ctx) => (parseClipIntent(ctx.text) ? score(ctx.text, 0.2) : null),
+    },
+    {
+      id: 'xfer',
+      label: 'Datei-QR',
+      sideEffect: 'read',
+      parse: (ctx) => (parseXferIntent(ctx.text) ? score(ctx.text, 0.24) : null),
     },
     {
       id: 'watchlist',

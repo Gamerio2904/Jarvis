@@ -1,7 +1,7 @@
 # TEST 18.22 — Tafel **PLAN**
 
-Noch nicht in der App. Sideload bleibt **`18.20.1`**, bis [`94-next.md`](./94-next.md)
-ausgeführt ist. Tablet quer, Breite ab 900 px. Jede Box ist ein Satz.
+In der App ab **`18.22.0`**. Plan: [`94-next.md`](./94-next.md).
+Tablet quer, Breite ab 900 px. Jede Box ist ein Satz.
 
 ## 1. Stücke da
 

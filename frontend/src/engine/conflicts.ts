@@ -5,6 +5,7 @@ import { parseRmSceneIntent } from './rm-scene-parse.ts'
 import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
 import { parseBoardIntent } from './board-parse.ts'
+import { parseXferIntent } from './xfer-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
   return cands.filter((c) => c.id !== id)
@@ -434,6 +435,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
       board.kind === 'catalog' ||
       board.kind === 'jobs' ||
       board.kind === 'theme' ||
+      board.kind === 'place' ||
       board.kind === 'stop')
   ) {
     out = drop(out, 'hud')
@@ -457,9 +459,22 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   if (
     has(out, 'board') &&
     has(out, 'calendar') &&
+    board?.kind !== 'place' &&
     !/\b(?:simulier|tischplatte|werkbank|projekttafel|features?|docs|geplant)\b/.test(t)
   ) {
     out = drop(out, 'board')
+  }
+
+  if (parseXferIntent(text)) {
+    out = drop(out, 'doc')
+    out = drop(out, 'pc')
+    out = drop(out, 'eye')
+    out = boost(out, 'xfer', 0.35)
+  }
+
+  if (/\bpc\s+qr\b/.test(t) || (/\bqr(?:[\s-]*code)?\b/.test(t) && /\b(?:pc|rechner)\b/.test(t))) {
+    out = drop(out, 'xfer')
+    out = boost(out, 'pc', 0.2)
   }
 
   if (parseDocIntent(text)) {

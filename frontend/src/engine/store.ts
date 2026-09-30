@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.20.1'
+export const APP_VERSION = '18.22.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -371,6 +371,8 @@ export type Settings = {
   tischplatte_focus: string
   tischplatte_seed: number
   tischplatte_hint: string
+  tischplatte_pieces_json: string
+  tischplatte_motion_json: string
   board_jobs_json: string
   proposal_pending: boolean
   github_token: string
@@ -555,6 +557,8 @@ export const DEFAULT_SETTINGS: Settings = {
   tischplatte_focus: '',
   tischplatte_seed: 0,
   tischplatte_hint: '',
+  tischplatte_pieces_json: '',
+  tischplatte_motion_json: '',
   board_jobs_json: '',
   proposal_pending: false,
   github_token: '',
@@ -739,7 +743,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 11)
+    const req = indexedDB.open('jarvis-ondevice', 12)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -758,6 +762,7 @@ function openDb(): Promise<IDBDatabase> {
         'shopping',
         'price_watches',
         'docs',
+        'xfer',
         'knowledge_packs',
         'rm_scene_skills',
         'memory_proposals',

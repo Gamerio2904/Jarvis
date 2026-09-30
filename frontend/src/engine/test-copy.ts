@@ -749,6 +749,31 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: '18.22 Tafel',
+    items: [
+      { label: 'Tafel an', text: 'Tischplatte an', expect: { tool: 'board' } },
+      { label: 'Sprintliste links', text: 'Schieb die Sprintliste nach links', expect: { tool: 'board' } },
+      { label: 'Uhr Mitte', text: 'Leg die Uhr in die Mitte', expect: { tool: 'board' } },
+      { label: 'Aus dem Bild', text: 'Schieb die Sprintliste aus dem Bildschirm', expect: { tool: 'board' } },
+      { label: 'Zurück', text: 'Hol die Sprintliste zurück', expect: { tool: 'board' } },
+      { label: 'Räumen', text: 'Räum den Tisch', expect: { tool: 'board' } },
+      { label: 'Sprints', text: 'Zeig Sprints', expect: { tool: 'board' } },
+    ],
+  },
+  {
+    title: '18.21 Datei-QR',
+    items: [
+      { label: 'Fürs Tablet', text: 'Übertrage das fürs Tablet', expect: { tool: 'xfer' } },
+      { label: 'QR-Code', text: 'Mach den QR-Code', expect: { tool: 'xfer' } },
+      {
+        label: 'Kopierzeile',
+        text: 'Das hier zum Kopieren als Anhang in der Nachricht: WLAN Blau12',
+        expect: { tool: 'xfer' },
+      },
+      { label: 'Zum Kopieren', text: 'Zum Kopieren: Türcode 4711', expect: { tool: 'xfer' } },
+    ],
+  },
+  {
     title: '18.20 YouTube-Highlights',
     items: [
       {

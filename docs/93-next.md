@@ -1,7 +1,7 @@
 # 93 — Dateien per QR aufs andere Gerät **PLAN** (`18.21`)
 
-**Dieses Dokument ist PLAN.** App-Code und Sideload bleiben **`18.20.1`**
-(versionCode `182001`), bis die Sprints ausgeführt sind. Sprints **398–403**.
+**Dieses Dokument ist CODE**, ausgeliefert in **`18.22.0`** (versionCode `182200`).
+Sprints **398–403**.
 Kein Server, kein Link, kein zweites Konto. Der PC-QR (`jarvis-pc:v1`) bleibt
 das Koppeln mit JarvisPC und wird nicht wiederverwendet.
 
@@ -137,7 +137,7 @@ eine Auswahl.
 
 ---
 
-## 6. Sprints (`18.21.0` PLAN, Sideload noch `18.20.1`)
+## 6. Sprints (`18.21.0` CODE, in `18.22.0`)
 
 | Sprint | Inhalt | Klasse |
 |--------|--------|--------|

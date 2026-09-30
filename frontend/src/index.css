@@ -7903,4 +7903,167 @@ html.theme-wipe-dark::before {
     transition: none !important;
     animation: none !important;
   }
+  .board-piece {
+    transition: opacity 120ms linear;
+  }
+}
+
+.xfer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.xfer-load,
+.xfer-copy {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.xfer-copy {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.xfer-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.board-stage {
+  position: relative;
+  flex: 1;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.board-piece {
+  margin: 0;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 42%, transparent);
+  background: color-mix(in srgb, #041018 72%, transparent);
+  color: var(--text);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  touch-action: none;
+}
+
+.board-piece h3 {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--board-accent, var(--accent));
+}
+
+.board-piece p,
+.board-piece li {
+  margin: 0;
+  font-size: 0.84rem;
+}
+
+.board-piece ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.board-piece.is-focus,
+.board-piece.is-touch {
+  box-shadow: 0 0 0 1px var(--board-accent, var(--accent)), 0 16px 32px rgba(0, 0, 0, 0.35);
+}
+
+.board-piece.is-grab {
+  transform: scale(0.97);
+}
+
+.board-clock {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+}
+
+.board-clock svg {
+  width: 88px;
+  height: 88px;
+}
+
+.board-clock text {
+  fill: var(--text);
+  font-size: 8px;
+}
+
+.board-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.board-tray button {
+  border: 1px dashed color-mix(in srgb, var(--board-accent, var(--accent)) 50%, transparent);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+@media (min-width: 900px) {
+  .board-stage {
+    min-height: 64vh;
+  }
+
+  .board-piece {
+    position: absolute;
+    width: min(280px, 32%);
+    transition: left 480ms cubic-bezier(0.22, 1.15, 0.36, 1), top 480ms cubic-bezier(0.22, 1.15, 0.36, 1), transform 80ms ease, box-shadow 80ms ease;
+  }
+
+  .board-piece[data-piece='jobleiste'] {
+    width: min(640px, 72%);
+  }
+
+  .board-piece[data-piece='uhr'] {
+    width: 120px;
+  }
+
+  .board-piece.is-drag {
+    transition: none;
+  }
+
+  .board-tray {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    z-index: 2;
+    max-width: 140px;
+  }
+}
+
+@keyframes board-fling {
+  to {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+
+.board-piece.is-fling {
+  animation: board-fling 480ms ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-piece.is-fling {
+    animation: none;
+  }
 }

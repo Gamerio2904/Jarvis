@@ -19,6 +19,10 @@ import {
   type DocKind,
 } from './doc-kind.ts'
 import { parseDocIntent } from './doc-parse.ts'
+import { applyPcPair } from './pc.ts'
+import { readQrFromFile } from './xfer-scan.ts'
+import { acceptXferChunk } from './xfer.ts'
+import { saveXferBlob } from './xfer-store.ts'
 import { fileToJpegDataUrl } from './eye.ts'
 import { saveLastEyeImage } from './agent-session.ts'
 import { scrubReply } from './guards.ts'
@@ -147,16 +151,50 @@ export async function ingestDocFile(
   let text = ''
   let ocrOk = false
   let fail = ''
+  let rawBytes: Uint8Array | null = null
+
+  if (kind === 'image') {
+    const raw = await readQrFromFile(file)
+    if (raw?.startsWith('jarvis-pc:v1')) {
+      const paired = await applyPcPair(raw)
+      const packed = packVerified({
+        domain: 'pc',
+        intent: 'pair',
+        plan: 'pair',
+        label: 'PC-QR',
+        observation: { stored: false, bytes, kind, chars: 0 },
+        verify: () => paired.ok,
+        successReply: paired.reply,
+        failReply: paired.reply,
+      })
+      await addMessage(conversationId, 'assistant', packed.reply, { tool: packed.tool })
+      return { reply: packed.reply, tool: packed.tool }
+    }
+    if (raw) {
+      const got = await acceptXferChunk(raw)
+      if (got) {
+        await addMessage(conversationId, 'assistant', got.reply, {
+          tool: { tool_status: 'executed', tool: 'xfer', action: 'photo', label: 'Übertrag' },
+          blocks: got.blocks,
+        })
+        return {
+          reply: got.reply,
+          tool: { tool_status: 'executed', tool: 'xfer', action: 'photo', label: 'Übertrag' },
+        }
+      }
+    }
+  }
 
   if (kind === 'text') {
     try {
-      text = clipDocText(await file.text())
+      rawBytes = new Uint8Array(await file.arrayBuffer())
+      text = clipDocText(new TextDecoder().decode(rawBytes))
     } catch {
       fail = 'Text nicht lesbar.'
     }
   } else if (kind === 'pdf') {
-    const buf = new Uint8Array(await file.arrayBuffer())
-    text = extractPdfText(buf)
+    rawBytes = new Uint8Array(await file.arrayBuffer())
+    text = extractPdfText(rawBytes)
     if (!text) fail = 'Kein Text im PDF. Gescannte Seiten: Foto der Seite, nicht behaupten dass ich gelesen habe.'
   } else {
     const prepared = await fileToJpegDataUrl(file)
@@ -169,6 +207,20 @@ export async function ingestDocFile(
         text = clipDocText(ocr.text)
         ocrOk = text.length > 0
       }
+    }
+  }
+
+  if (rawBytes && rawBytes.length) {
+    try {
+      await saveXferBlob(conversationId, name, mime || 'application/octet-stream', rawBytes)
+    } catch {
+      /* Bytes fehlen, Lesen bleibt. */
+    }
+  } else if (kind === 'image' && bytes > 0 && bytes <= MAX_DOC_BYTES) {
+    try {
+      await saveXferBlob(conversationId, name, mime || 'image/jpeg', new Uint8Array(await file.arrayBuffer()))
+    } catch {
+      /* */
     }
   }
 

@@ -7,6 +7,16 @@ import { fillDeepResearchLinks } from './web-search.ts'
 import { geminiReady } from './gemini.ts'
 import { groqReady } from './groq.ts'
 import { githubToken } from './github-search.ts'
+import {
+  applyPlace,
+  boardIsWide,
+  bringForward,
+  focusPiece,
+  hapticTick,
+  loadPieces,
+  serializePieces,
+  waitForMotion,
+} from './board-pieces.ts'
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
 import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan.ts'
 import { fillPlanWithModel, pickIdea } from './idea.ts'
@@ -122,16 +132,38 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     saveJobs(stopJobs(parseBoardJobs(loadSettings().board_jobs_json)))
     return pack('Jobs gestoppt.', 'stop')
   }
+  if (intent.kind === 'place') {
+    const applied = applyPlace(loadPieces(loadSettings().tischplatte_pieces_json), intent, boardIsWide())
+    try {
+      saveSettings({
+        tischplatte_on: true,
+        tischplatte_pieces_json: serializePieces(applied.pieces),
+        tischplatte_motion_json: JSON.stringify(applied.motion),
+      })
+    } catch {
+      /* */
+    }
+    hapticTick()
+    await waitForMotion(applied.motion.steps)
+    hapticTick()
+    return pack(applied.reply, 'place')
+  }
   if (intent.kind === 'view') {
+    const brought = bringForward(loadPieces(loadSettings().tischplatte_pieces_json), focusPiece(intent.view))
     try {
       saveSettings({
         tischplatte_on: true,
         tischplatte_view: intent.view,
         tischplatte_focus: intent.sim || '',
+        tischplatte_pieces_json: serializePieces(brought.pieces),
+        tischplatte_motion_json: JSON.stringify(brought.motion),
       })
     } catch {
       /* */
     }
+    hapticTick()
+    await waitForMotion(1)
+    hapticTick()
     if (intent.view === 'sim') {
       return pack(`Simulation ${intent.sim || 'Modul'}: Drahtgitter, keine Live-App.`, 'sim', { view: intent.view })
     }

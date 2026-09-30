@@ -8,6 +8,7 @@ export const AGENT_SWEEP: Record<string, string> = {
   tv: 'Fernseher an',
   film: 'Wie gut ist Dune',
   clip: 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ',
+  xfer: 'Übertrage das fürs Tablet',
   watchlist: 'Watchliste: Dune',
   osint: 'WHOIS example.com',
   fan: 'Ventilator an',

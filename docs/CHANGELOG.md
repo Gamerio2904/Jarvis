@@ -14,21 +14,23 @@ LibHunt-Treffer. Zeitungsseiten werden nicht zum Merken angeboten.
 Sideload **`18.20.1`** (versionCode `182001`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-### `18.22.0` — Tafel — *PLAN*
+### `18.22.0` — Tafel und Datei-QR — *CODE*
 
-Noch nicht gebaut. Die Tischplatte wird eine Tafel: sortierte Sprintliste,
-PSP in drei Ebenen, dazu Auftrag, Uhr, Quellen, Termin und Jobleiste.
-Jarvis und der Finger schieben jedes Stück auf demselben Weg, auch aus
-dem Bild. Sprints 404–409. [`94-next.md`](./94-next.md). Test:
-[`TEST-18.22.md`](./TEST-18.22.md).
+Die Tischplatte ist eine Tafel. Sprintliste, PSP, Auftrag, Uhr, Quellen,
+Termin und Jobleiste liegen zusammen. Finger und Jarvis schieben jedes
+Stück, auch aus dem Bild in die Ablage. Sprints 404–409.
+[`94-next.md`](./94-next.md). Test: [`TEST-18.22.md`](./TEST-18.22.md).
 
-### `18.21.0` — Datei-QR — *PLAN*
-
-Noch nicht gebaut. Datei-Knopf bleibt. `Übertrage das fürs Tablet` oder
-`Mach den QR-Code` zeichnet den Code in den Chat. Ein Foto davon auf dem
-anderen Gerät ergibt den Knopf `Dateien laden` und Kopierfelder für den
-Text nach dem Doppelpunkt. Kein Server. Sprints 398–403.
+Datei-Knopf bleibt. `Übertrage das fürs Tablet` oder `Mach den QR-Code`
+zeichnet den Code in den Chat. Ein Foto davon ergibt den Knopf
+`Dateien laden` und Kopierfelder. Kein Server. Sprints 398–403.
 [`93-next.md`](./93-next.md). Test: [`TEST-18.21.md`](./TEST-18.21.md).
+
+App-Code **`18.22.0`** (versionCode `182200`).
+
+### `18.21.0` — Datei-QR — *CODE in `18.22.0`*
+
+Mit der Tafel ausgeliefert, nicht als eigene Sideload. Sprints 398–403.
 
 ### `18.20.0` — YouTube-Highlights, Tablet-Lage — *CODE + APK*
 

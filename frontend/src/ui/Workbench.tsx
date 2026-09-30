@@ -2,15 +2,23 @@ import { useEffect, useState } from 'react'
 import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
 import { isTischplatteView, type TischplatteView } from '../engine/board-types.ts'
 import { parseBoardJobs, serializeBoardJobs, stopJobs, type BoardJob } from '../engine/board-jobs.ts'
+import {
+  focusPiece,
+  loadPieces,
+  serializePieces,
+  type MotionCue,
+  type PiecePos,
+} from '../engine/board-pieces.ts'
 import { wireFor, type WireFrame } from '../engine/board-wire.ts'
-import { CATALOG_STAND, FEATURE_CATALOG, versionAtLeast } from '../engine/feature-catalog.ts'
-import { CORE_TITLES } from '../engine/idea-plan.ts'
+import { CATALOG_STAND } from '../engine/feature-catalog.ts'
+import { expandEvents } from '../engine/calendar-occur.ts'
 import {
   acceptProposal,
   pendingProposals,
   rejectProposal,
 } from '../engine/memory-propose.ts'
 import {
+  listEvents,
   listIdeas,
   loadSettings,
   saveSettings,
@@ -18,6 +26,7 @@ import {
   type MemoryProposal,
 } from '../engine/store.ts'
 import type { ResearchSource } from '../engine/research-parse.ts'
+import { BoardStage } from './BoardStage.tsx'
 
 function lastResearch(): ResearchSource[] {
   try {
@@ -38,6 +47,16 @@ function hostOf(url: string): string {
   }
 }
 
+function readMotion(): MotionCue | null {
+  try {
+    const raw = loadSettings().tischplatte_motion_json
+    if (!raw) return null
+    return JSON.parse(raw) as MotionCue
+  } catch {
+    return null
+  }
+}
+
 export function Workbench({
   view,
   focus,
@@ -51,6 +70,10 @@ export function Workbench({
   const [sources, setSources] = useState<ResearchSource[]>([])
   const [proposals, setProposals] = useState<MemoryProposal[]>([])
   const [wire, setWire] = useState<WireFrame | null>(null)
+  const [pieces, setPieces] = useState<PiecePos[]>(() => loadPieces(loadSettings().tischplatte_pieces_json))
+  const [motion, setMotion] = useState<MotionCue | null>(() => readMotion())
+  const [termin, setTermin] = useState('Kein Termin.')
+  const [wide, setWide] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 900 : true))
 
   useEffect(() => {
     let dead = false
@@ -69,18 +92,43 @@ export function Workbench({
         .catch(() => {
           if (!dead) setProposals([])
         })
+      void listEvents()
+        .then((rows) => {
+          if (dead) return
+          const now = new Date()
+          const until = new Date(now.getTime() + 400 * 24 * 60 * 60 * 1000)
+          const next = expandEvents(rows, now, until)
+            .filter((e) => new Date(e.start_at).getTime() >= now.getTime() - 60_000)
+            .sort((a, b) => a.start_at.localeCompare(b.start_at))[0]
+          if (!next) {
+            setTermin('Kein Termin.')
+            return
+          }
+          const when = next.all_day
+            ? 'ganztägig'
+            : new Date(next.start_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+          setTermin(`${next.title} · ${when}`)
+        })
+        .catch(() => {
+          if (!dead) setTermin('Kein Termin.')
+        })
       if (!dead) {
         setJobs(parseBoardJobs(loadSettings().board_jobs_json))
         setSources(lastResearch())
+        setPieces(loadPieces(loadSettings().tischplatte_pieces_json))
+        setMotion(readMotion())
       }
     }
     load()
     const on = () => load()
     window.addEventListener('jarvis-settings', on)
     const id = window.setInterval(load, 2_000)
+    const onResize = () => setWide(window.innerWidth >= 900)
+    window.addEventListener('resize', onResize)
     return () => {
       dead = true
       window.removeEventListener('jarvis-settings', on)
+      window.removeEventListener('resize', onResize)
       window.clearInterval(id)
     }
   }, [])
@@ -97,10 +145,23 @@ export function Workbench({
   }, [vis, focus])
 
   const active = ideas.find((i) => i.status === 'open') || ideas[0]
-  const plan = active?.plan
-  const cores = plan?.sprints.filter((s) => s.kind === 'core') || []
-  const custom = plan?.sprints.filter((s) => s.kind === 'custom') || []
-  const focusN = loadSettings().tischplatte_focus || focus
+  const plan = [...(active?.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
+  const rows = active
+    ? plan.map((s) => ({
+        n: String(s.n),
+        line: s.ziel?.trim() ? s.ziel : s.n === '1' ? active.title || s.title : 'Noch leer.',
+      }))
+    : []
+  const psp = plan.map((s) => ({
+    n: String(s.n),
+    title: s.title,
+    ziel: s.ziel?.trim() ? s.ziel : 'Noch leer.',
+  }))
+
+  function savePieces(next: PiecePos[]) {
+    setPieces(next)
+    saveSettings({ tischplatte_pieces_json: serializePieces(next) })
+  }
 
   function stop() {
     saveSettings({ board_jobs_json: serializeBoardJobs(stopJobs(jobs)) })
@@ -113,118 +174,27 @@ export function Workbench({
         <p className="workbench-auftrag">
           {active ? `Auftrag: ${active.title}` : 'Sagen Sie Idee: … oder Tischplatte aus.'}
         </p>
-        <p className="workbench-meta">
-          Stand {CATALOG_STAND} · Sicht {vis}
-        </p>
+        <p className="workbench-meta">Stand {CATALOG_STAND}</p>
       </header>
-
-      {vis === 'psp' ? (
-        <div className="workbench-psp">
-          <ul className="workbench-tree">
-            {ideas.slice(0, 8).map((idea) => (
-              <li key={idea.id} className={idea.id === active?.id ? 'is-on' : ''}>
-                {idea.title}
-                <ul>
-                  {(idea.plan?.sprints || []).slice(0, 6).map((s) => (
-                    <li key={s.n} className={focusN === s.n ? 'is-focus' : ''}>
-                      {s.title}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-          <article className={`workbench-card is-grow${focusN ? ' is-focus' : ''}`}>
-            <h3>{active?.title || 'Kein Auftrag'}</h3>
-            <p>{plan?.sprints.find((s) => s.n === focusN)?.ziel || active?.body || 'Mitte frei. Karte wächst, Rest Haarlinie.'}</p>
-          </article>
-        </div>
-      ) : null}
-
-      {vis === 'modules' ? (
-        <ul className="workbench-mods">
-          {HOME_APPS.map((app) => (
-            <li key={app.id} className={focus === app.id ? 'is-focus' : ''}>
-              <span className="workbench-ghost" />
-              {app.label}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {vis === 'sim' ? (
-        <article className="workbench-sim" data-sim={wire?.id || focus}>
-          {(wire?.lines || ['Drahtgitter', 'Keine Live-App.']).map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-        </article>
-      ) : null}
-
-      {vis === 'research' ? (
-        <ul className="workbench-chips">
-          {sources.length
-            ? sources.map((s) => (
-                <li key={s.url}>
-                  {s.title.slice(0, 48)} · {hostOf(s.url)}
-                </li>
-              ))
-            : <li>Keine Quellen im Store.</li>}
-        </ul>
-      ) : null}
-
-      {vis === 'sprints' || !['psp', 'modules', 'sim', 'research'].includes(vis) ? (
-        <div className="workbench-sprints">
-          {(cores.length ? cores : CORE_TITLES.map((title, i) => ({ n: String(i + 1), title, ziel: '', kind: 'core' as const, lieferumfang: [], wont: [], abbruch: '' }))).map(
-            (s) => (
-              <article key={s.n} className={`workbench-card${focusN === s.n ? ' is-focus' : ''}`}>
-                <h3>{s.title}</h3>
-                <p>{s.ziel || (active ? (s.n === '1' ? active.title : 'Noch leer.') : 'Idee: …')}</p>
-              </article>
-            ),
-          )}
-          {custom.map((s) => (
-            <article key={s.n} className="workbench-card is-custom">
-              <h3>{s.title}</h3>
-              <p>{s.ziel}</p>
-            </article>
-          ))}
-        </div>
-      ) : null}
-
-      {vis === 'sprints' && !active ? (
-        <p className="workbench-catalog-head">
-          Jarvis-Plan: {FEATURE_CATALOG.filter((r) => versionAtLeast(r.version, '18.18.0')).map((r) => r.title).slice(0, 4).join(', ')}
-        </p>
-      ) : null}
-
-      {proposals.length ? (
-        <ul className="workbench-propose">
-          {proposals.slice(0, 3).map((p) => (
-            <li key={p.id}>
-              Vorschlag: {p.text.slice(0, 80)}
-              <button type="button" onClick={() => void acceptProposal(p.id)}>
-                Ja
-              </button>
-              <button type="button" onClick={() => void rejectProposal(p.id)}>
-                Nein
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      <footer className="workbench-jobs">
-        {jobs.map((j) => (
-          <span key={j.id} className={`workbench-job is-${j.status}`} data-job={j.kind}>
-            {j.label}
-          </span>
-        ))}
-        {jobs.some((j) => j.status === 'running' || j.status === 'pending') ? (
-          <button type="button" className="workbench-stop" onClick={stop}>
-            Jobs stopp
-          </button>
-        ) : null}
-      </footer>
+      <BoardStage
+        pieces={pieces}
+        focus={focusPiece(vis)}
+        wide={wide}
+        rows={rows}
+        pspTitle={active?.title || ''}
+        psp={psp}
+        sources={sources.map((s) => `${s.title.slice(0, 48)} · ${hostOf(s.url)}`)}
+        termin={termin}
+        jobs={jobs.map((j) => j.label)}
+        modules={HOME_APPS.map((a) => a.label)}
+        wire={wire?.lines || []}
+        proposals={proposals}
+        motion={motion}
+        onChange={savePieces}
+        onYes={(id) => void acceptProposal(id)}
+        onNo={(id) => void rejectProposal(id)}
+        onStop={stop}
+      />
     </div>
   )
 }

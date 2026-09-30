@@ -1,7 +1,7 @@
 # TEST 18.21 — Datei-QR **PLAN**
 
-Noch nicht in der App. Sideload bleibt **`18.20.1`**, bis [`93-next.md`](./93-next.md)
-ausgeführt ist. Danach: zwei Geräte, derselbe Chat-Knopf für Dateien.
+In der App ab **`18.22.0`**. Plan: [`93-next.md`](./93-next.md).
+Zwei Geräte, derselbe Chat-Knopf für Dateien.
 Jede Box ist ein Satz.
 
 ## 1. Nur Dateien
