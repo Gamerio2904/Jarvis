@@ -288,7 +288,7 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
           title: split.title,
           place: split.place,
           start: startDay,
-          whenLabel: `jeden ${weekly[1]} ${formatDue(startDay, now)}`,
+          whenLabel: weeklyWhenLabel(weekly[1], startDay, now),
           recur: 'weekly',
         },
         t,
@@ -421,6 +421,13 @@ function leftoverTitle(raw: string, ...spans: string[]): string {
     .replace(/\s+/g, ' ')
     .trim()
   return t
+}
+
+function weeklyWhenLabel(dayName: string, start: Date, now: Date): string {
+  const due = formatDue(start, now)
+  const wd = start.toLocaleDateString('de-DE', { weekday: 'long' })
+  const rest = due.replace(new RegExp(`^${wd}\\s*,?\\s*`, 'i'), '').trim()
+  return `jeden ${dayName} ${rest}`.replace(/\s+/g, ' ').trim()
 }
 
 function parseWhenBlob(raw: string, now: Date): { start: Date; whenLabel: string; rest: string } | null {

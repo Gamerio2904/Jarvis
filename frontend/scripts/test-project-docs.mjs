@@ -20,7 +20,21 @@ const { handleBoard } = await import('../src/engine/board.ts')
 const { handleIdea } = await import('../src/engine/idea.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
 const { fileFor, projectSlug } = await import('../src/engine/project-docs.ts')
-const { listIdeas, loadSettings } = await import('../src/engine/store.ts')
+const { addEvent, clearPending, getPending, listEvents, listIdeas, loadSettings } = await import('../src/engine/store.ts')
+const { parseCalendarIntent, handleCalendar, cancelEventNotifies } = await import('../src/engine/calendar.ts')
+const { parseReminderIntent } = await import('../src/engine/remind-parse.ts')
+const { handleReminders } = await import('../src/engine/reminders.ts')
+const { parseAblaufIntent } = await import('../src/engine/ablauf-parse.ts')
+
+assert.equal(parseAblaufIntent('Go'), null)
+const frozen = new Date(2026, 8, 22, 10, 0)
+const weekly = parseCalendarIntent('jeden Montag 18 Uhr Training', frozen)
+assert.equal(weekly?.kind, 'create')
+if (weekly?.kind === 'create') {
+  assert.equal(weekly.whenLabel, 'jeden Montag 28. September 18:00')
+  assert.doesNotMatch(weekly.whenLabel, /Montag Montag/)
+}
+assert.equal(parseReminderIntent('Lösche die monatlichen traingserinnerungen')?.kind, 'delete_recur')
 
 assert.equal(projectSlug('Tik Tak To'), 'tik-tak-to')
 assert.equal(parseBoardIntent('Lade den PSP runter')?.kind, 'download')
@@ -60,6 +74,40 @@ assert.match(named.reply || '', /Projektdateien/)
 assert.match(named.reply || '', /projekt\.json/)
 
 const moved = await handleBoard('c-plan', 'Schieb die Sprintliste nach links')
-assert.match(moved.reply || '', /Sprintliste liegt links/)
+assert.match(moved.reply || '', /Tafel ist fest/)
+assert.equal(loadSettings().plan_phase, 'live')
+assert.ok(loadSettings().plan_script_at > 0)
+const locked = await handleIdea('c-plan', 'Go')
+assert.match(locked.reply || '', /Umgesetzt/)
+assert.equal(loadSettings().plan_phase, 'go')
 
+const hold = 'plan-hold'
+await clearPending(hold)
+const made = await handleCalendar(hold, 'Termin morgen 18 Uhr HoldPlane')
+assert.equal((await getPending(hold))?.action, 'remind_offsets')
+const released = await handleCalendar(hold, 'Plane das: Tik Tak To, Spielfeld bauen')
+assert.equal(released.handled, false)
+assert.equal(await getPending(hold), undefined)
+const weather = await handleCalendar(hold, 'Termin morgen 19 Uhr WetterHold')
+assert.equal((await getPending(hold))?.action, 'remind_offsets')
+const stayed = await handleCalendar(hold, 'Wetter heute')
+assert.match(stayed.reply || '', /Wann soll ich Sie erinnern/)
+assert.equal((await getPending(hold))?.action, 'remind_offsets')
+
+await addEvent({
+  title: 'Training',
+  start_at: new Date(Date.now() + 86_400_000).toISOString(),
+  recur: 'weekly',
+})
+await addEvent({
+  title: 'Training Beitrag',
+  start_at: new Date(Date.now() + 2 * 86_400_000).toISOString(),
+  recur: 'monthly',
+})
+const wiped = await handleReminders(hold, 'Lösche die monatlichen traingserinnerungen')
+assert.match(wiped.reply || '', /Training Beitrag/)
+assert.ok((await listEvents()).some((e) => e.title === 'Training' && e.recur === 'weekly'))
+assert.equal((await listEvents()).some((e) => e.recur === 'monthly' && /Training/.test(e.title)), false)
+
+for (const row of await listEvents()) await cancelEventNotifies(row)
 console.log('ok test-project-docs')

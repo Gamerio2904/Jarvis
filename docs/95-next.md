@@ -1,6 +1,6 @@
 # 95 — Ablauf auf der Tafel **CODE** (`18.23`)
 
-**Dieses Dokument ist CODE.** App-Code **`18.23.7`** (versionCode `182307`).
+**Dieses Dokument ist CODE.** App-Code **`18.23.8`** (versionCode `182308`).
 Sprints **410–416**. Katalog-Stand bleibt `18.20.0`. `18.23.1` macht das Fenster
 deckend, hält `So` nach einer Änderung und lässt aus `7:30` den Satz `Wecker um 7:30`.
 `18.23.2`: ein Bot fragt, bevor ein anderer dazukommt. `Ja` holt ihn, `Nein` nicht.
@@ -9,6 +9,7 @@ deckend, hält `So` nach einer Änderung und lässt aus `7:30` den Satz `Wecker 
 Das Agentenfenster ist weg. Tisch sitzt in der Leiste unten links.
 `18.23.6`: ein Tipp auf den Tag zeigt alle Termine. Die Woche hat links die
 Uhrzeit ab 7 Uhr und oben die Tage. `18.23.7`: der Kalender öffnet in dieser Woche.
+`18.23.8`: die Tafel ist ein festes Skript. `Plane das` zeigt es live, `Go` setzt es fest, danach ist der Export bereit. Die linke Leiste klappt ein und lässt sich rechts ausstellen.
 
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md). Kein zweites
 Brett, kein neues Hirn, kein neuer Agent.

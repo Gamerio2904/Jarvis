@@ -13,6 +13,7 @@ export type ReminderIntent =
   | { kind: 'agenda' }
   | { kind: 'week' }
   | { kind: 'delete'; query: string }
+  | { kind: 'delete_recur'; recur: 'daily' | 'weekly' | 'monthly' | 'yearly'; query: string }
   | { kind: 'delete_last' }
   | { kind: 'delete_day'; day: Date; label: string }
   | { kind: 'ask'; title: string }
@@ -172,6 +173,17 @@ const AGENDA =
   /^\s*(?:was\s+steht\s+an|was\s+habe\s+ich\s+(?:heute\s+)?an|termine?\s+heute|was\s+liegt\s+an)\s*\??\s*$/i
 const DELETE =
   /^\s*(?:lösch(?:e)?|streich(?:e)?|nimm\s+weg|entferne)\s+(?:die\s+)?erinnerung(?:en)?\s*(?:an\s+)?(.+)$/is
+const DELETE_RECUR =
+  /^\s*(?:lösch(?:e)?|streich(?:e)?|entfern(?:e)?|nimm\s+weg)\s+(?:bitte\s+)?(?:die\s+)?(monatlichen|wöchentlichen|woechentlichen|täglichen|taeglichen|jährlichen|jaehrlichen)\s+(.+?)\s*[.!]?\s*$/i
+const RECUR_FROM: Record<string, 'daily' | 'weekly' | 'monthly' | 'yearly'> = {
+  monatlichen: 'monthly',
+  wöchentlichen: 'weekly',
+  woechentlichen: 'weekly',
+  täglichen: 'daily',
+  taeglichen: 'daily',
+  jährlichen: 'yearly',
+  jaehrlichen: 'yearly',
+}
 const DELETE_DAY =
   /^\s*(?:lösch(?:e)?|streich(?:e)?|nimm\s+weg|entferne)\s+(?:bitte\s+)?(?:alle\s+)?erinnerungen\s+(?:am|für(?:\s+den)?)\s+(.+?)\s*[.!]?\s*$/is
 
@@ -309,6 +321,11 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   if (delDay) {
     const day = parseDayStamp(delDay[1], now)
     if (day) return { kind: 'delete_day', day: startOfDay(day), label: formatDayLabel(day) }
+  }
+  const delRecur = DELETE_RECUR.exec(t)
+  if (delRecur) {
+    const recur = RECUR_FROM[delRecur[1].toLowerCase()]
+    if (recur) return { kind: 'delete_recur', recur, query: delRecur[2].trim() }
   }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: cleanTitle(del[1]) }

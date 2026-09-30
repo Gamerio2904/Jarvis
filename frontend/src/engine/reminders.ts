@@ -7,8 +7,10 @@ import {
 } from '../native/notify.ts'
 import { syncGlance } from './glance.ts'
 import { formatDue, parseReminderIntent, startOfDay } from './remind-parse.ts'
+import { cancelEventNotifies } from './calendar.ts'
 import {
   addReminder,
+  deleteEvent,
   deleteReminder,
   listEvents,
   listReminders,
@@ -154,6 +156,39 @@ export async function handleReminders(
     }
   }
 
+  if (intent.kind === 'delete_recur') {
+    const stem = recurStem(intent.query)
+    const label = recurWord(intent.recur)
+    const reminders = (await listReminders()).filter(
+      (r) => r.status === 'open' && r.recur === intent.recur && titleHits(r.title, stem),
+    )
+    const events = (await listEvents()).filter((e) => e.recur === intent.recur && titleHits(e.title, stem))
+    if (!reminders.length && !events.length) {
+      const topic = prettyRecurQuery(intent.query)
+      return {
+        handled: true,
+        reply: stem ? `Keine ${label} Erinnerung zu ${topic}.` : `Keine ${label} Erinnerung.`,
+        tool: { tool_status: 'executed', tool: 'reminder', action: 'delete', label: 'Nichts zu löschen' },
+      }
+    }
+    for (const hit of reminders) {
+      await cancelNotify(notifyIdOf(hit))
+      await deleteReminder(hit.id)
+    }
+    for (const row of events) {
+      await cancelEventNotifies(row)
+      await deleteEvent(row.id)
+    }
+    await syncGlance()
+    const names = [...reminders.map((r) => r.title), ...events.map((e) => e.title)]
+    const head = names.length === 1 ? `Weg: ${names[0]}.` : `${names.length} ${label} Einträge weg: ${names.join(', ')}.`
+    return {
+      handled: true,
+      reply: head,
+      tool: { tool_status: 'executed', tool: 'reminder', action: 'delete', label: 'Erinnerungen weg' },
+    }
+  }
+
   if (intent.kind !== 'delete') return { handled: false }
 
   const rows = await upcomingReminders()
@@ -240,6 +275,37 @@ function recurTag(r: Reminder): string {
   if (r.recur === 'daily') return 'täglich · '
   if (r.recur === 'weekly') return 'wöchentlich · '
   return ''
+}
+
+function recurWord(recur: 'daily' | 'weekly' | 'monthly' | 'yearly'): string {
+  if (recur === 'daily') return 'tägliche'
+  if (recur === 'weekly') return 'wöchentliche'
+  if (recur === 'yearly') return 'jährliche'
+  return 'monatliche'
+}
+
+function prettyRecurQuery(query: string): string {
+  const s = query
+    .replace(/erinnerungen|erinnerung/gi, ' ')
+    .replace(/traings/gi, 'Training')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return s || 'diesem Thema'
+}
+
+function recurStem(query: string): string {
+  const word = prettyRecurQuery(query)
+    .toLowerCase()
+    .replace(/[^a-zäöüß0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .find((w) => w.length >= 3)
+  return word ? word.slice(0, 5) : ''
+}
+
+function titleHits(title: string, stem: string): boolean {
+  if (!stem) return true
+  return title.toLowerCase().includes(stem)
 }
 
 export async function removeReminder(id: string): Promise<void> {

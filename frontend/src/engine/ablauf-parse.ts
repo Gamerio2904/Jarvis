@@ -48,8 +48,18 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
 
   if (new RegExp(String.raw`^\s*übernehmen${END}`, 'i').test(t)) return { kind: 'accept' }
 
-  if (!ablaufWaiting()) return null
-  if (new RegExp(String.raw`^\s*so${END}`, 'i').test(t)) return { kind: 'accept' }
-  if (new RegExp(String.raw`^\s*ja${END}`, 'i').test(t) && !otherWish()) return { kind: 'accept' }
+  if (ablaufWaiting()) {
+    if (new RegExp(String.raw`^\s*so${END}`, 'i').test(t)) return { kind: 'accept' }
+    if (new RegExp(String.raw`^\s*ja${END}`, 'i').test(t) && !otherWish()) return { kind: 'accept' }
+    return null
+  }
+  if (planScriptOpen() && new RegExp(String.raw`^\s*(?:so|go|umsetzen|leg\s+los)${END}`, 'i').test(t)) {
+    return { kind: 'accept' }
+  }
   return null
+}
+
+function planScriptOpen(): boolean {
+  const phase = loadSettings().plan_phase
+  return phase === 'live' || phase === 'go'
 }

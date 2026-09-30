@@ -12,6 +12,7 @@ import {
   type Idea,
 } from './store.ts'
 import { handleAblauf } from './ablauf.ts'
+import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
@@ -110,6 +111,22 @@ function clausesOf(work: string): string[] {
 }
 
 async function planOntoTable(intent: AblaufIntent): Promise<string> {
+  if (intent.kind === 'accept') {
+    const phase = loadSettings().plan_phase
+    const waiting = ablaufWaiting()
+    const live = phase === 'live' && !waiting
+    const already = phase === 'go' && !waiting
+    saveSettings({
+      tischplatte_on: true,
+      ablauf_status: '',
+      ablauf_id: '',
+      bot_ask_json: '',
+      ...(live || already ? { plan_phase: 'go' } : {}),
+    })
+    if (live) return 'Umgesetzt. Das Skript ist fest. Export ist bereit. Sag: Lade den PSP runter.'
+    if (already) return 'Das Skript ist fest. Export ist bereit. Sag: Lade den PSP runter.'
+    return 'Die Sprints liegen auf der Tischplatte. Sag: Lade den PSP runter.'
+  }
   saveSettings({
     tischplatte_on: true,
     tischplatte_view: 'psp',
@@ -119,7 +136,6 @@ async function planOntoTable(intent: AblaufIntent): Promise<string> {
   })
   if (intent.kind === 'open' && !intent.work) return 'Was soll geplant werden?'
   if (intent.kind === 'close') return 'Das Planfenster ist zu. Die Sprints bleiben auf der Tischplatte.'
-  if (intent.kind === 'accept') return 'Die Sprints liegen auf der Tischplatte. Sag: Lade den PSP runter.'
   if (intent.kind === 'revise') return reviseProject(intent.text)
   if (intent.kind === 'open' && intent.work) return writeProject(intent.work)
   return 'Planen schreibt Sprints und PSP auf der Tischplatte.'
@@ -142,7 +158,8 @@ async function writeProject(work: string): Promise<string> {
   plan.sprints[2].ziel = (parts[2] || 'Einen Durchlauf prüfen').slice(0, 160)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
-  return `${formatPlan(plan, hit.title)}\n\nSag: Lade den PSP runter. Oder: Lade alles zu Projekt ${hit.title}.`
+  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), tischplatte_on: true, tischplatte_view: 'psp' })
+  return `${formatPlan(plan, hit.title)}\n\nDas Skript läuft live auf der Tischplatte. Sag Go, dann ist der Export bereit. Sag: Lade den PSP runter. Oder: Lade alles zu Projekt ${hit.title}.`
 }
 
 async function reviseProject(text: string): Promise<string> {
@@ -157,6 +174,7 @@ async function reviseProject(text: string): Promise<string> {
   const k = sprint.lieferumfang.length + 1
   sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: line.slice(0, 160) })
   await putIdea({ ...hit, plan })
+  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), tischplatte_on: true })
   return formatPlan(plan, hit.title)
 }
 

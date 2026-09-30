@@ -10,6 +10,7 @@ import {
   getPending,
   listEvents,
   listReminders,
+  loadSettings,
   persistLastList,
   putEvent,
   setPending,
@@ -90,7 +91,10 @@ export async function handleCalendar(
     if (!hit) {
       const nextIntent = parseCalendarIntent(text)
       if (nextIntent) await settlePendingRemind(pending, conversationId)
-      else {
+      else if (releasesRemindHold(text)) {
+        await settlePendingRemind(pending, conversationId)
+        return { handled: false }
+      } else {
         return {
           handled: true,
           reply: ASK_REMIND,
@@ -304,6 +308,21 @@ export async function handleCalendar(
     reply: `Termin weg: ${hit.title}.`,
     tool: { tool_status: 'executed', tool: 'calendar', action: 'delete', label: 'Termin weg' },
   }
+}
+
+/** Wetter und Smalltalk bleiben in der Frage. Echte andere Sätze geben sie frei. */
+function releasesRemindHold(text: string): boolean {
+  const t = text.trim()
+  if (!t || t.length > 400) return false
+  if (/^\s*plan(?:e)?\s+das\b/i.test(t)) return true
+  if (/\b(?:tischplatte|werkbank|projekttafel)\b/i.test(t)) return true
+  if (/^\s*(?:lösch(?:e)?|streich(?:e)?|entfern(?:e)?|nimm\s+weg)\b/i.test(t)) return true
+  if (/^\s*lade\b/i.test(t)) return true
+  if (/^\s*(?:schieb|wirf|räum|raeum|hol)\b/i.test(t)) return true
+  if (/^\s*(?:zeig(?:e)?|hintergrund|idee\s*:|wecker|timer|erinner(?:e)?|mach|füll|fuell|such(?:e)?|stell)\b/i.test(t)) return true
+  if (/^\s*(?:go|umsetzen|leg\s+los|übernehmen|uebernehmen)\s*[.!?]?$/i.test(t)) return true
+  if (/^\s*so\s*[.!?]?$/i.test(t) && loadSettings().plan_phase === 'live') return true
+  return false
 }
 
 async function settlePendingRemind(

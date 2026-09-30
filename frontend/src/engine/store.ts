@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.23.7'
+export const APP_VERSION = '18.23.8'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -373,6 +373,14 @@ export type Settings = {
   tischplatte_hint: string
   tischplatte_pieces_json: string
   tischplatte_motion_json: string
+  /** Linke Leiste. `false` blendet sie aus, auch die Schublade am Telefon. */
+  leiste_on: boolean
+  /** Eingeklappt zur Icon-Leiste. Das rechte Menü schaltet sie ganz aus. */
+  leiste_zu: boolean
+  /** `live` = Skript läuft. `go` = fest, Export bereit. */
+  plan_phase: '' | 'live' | 'go'
+  /** Start der Laufschrift auf der Tafel. */
+  plan_script_at: number
   board_jobs_json: string
   /** Id der Ablauf-Zeile im Fenster. Kein zweites Vollstück. */
   ablauf_id: string
@@ -567,6 +575,10 @@ export const DEFAULT_SETTINGS: Settings = {
   tischplatte_hint: '',
   tischplatte_pieces_json: '',
   tischplatte_motion_json: '',
+  leiste_on: true,
+  leiste_zu: false,
+  plan_phase: '',
+  plan_script_at: 0,
   board_jobs_json: '',
   ablauf_id: '',
   ablauf_status: '',

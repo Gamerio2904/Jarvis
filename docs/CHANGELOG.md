@@ -5,6 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.8` — Festes Skript, Leiste klappt — *CODE*
+
+Die Tischplatte ist ein festes Skript. `Plane das` schreibt es live auf die Tafel.
+`Go`, `Umsetzen` oder `Leg los` setzt es fest, danach ist der Export bereit.
+Die linke Leiste klappt ein. Im rechten Menü lässt sie sich ausstellen.
+Ein anderer Satz löst die offene Termin-Erinnerung. `jeden Montag` nennt den Tag einmal.
+`Lösche die monatlichen …erinnerungen` trifft die monatliche Serie.
+
+App-Code und Sideload **`18.23.8`** (versionCode `182308`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tisch-skript-ccff/releases/Jarvis.apk
+
 ### `18.23.7` — Kalender öffnet in der Woche — *CODE*
 
 Der Kalender startet in der Wochenansicht. Heute springt in dieselbe Woche.

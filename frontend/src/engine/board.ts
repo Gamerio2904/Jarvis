@@ -7,16 +7,7 @@ import { fillDeepResearchLinks } from './web-search.ts'
 import { geminiReady } from './gemini.ts'
 import { groqReady } from './groq.ts'
 import { githubToken } from './github-search.ts'
-import {
-  applyPlace,
-  boardIsWide,
-  bringForward,
-  focusPiece,
-  hapticTick,
-  loadPieces,
-  serializePieces,
-  waitForMotion,
-} from './board-pieces.ts'
+import { pieceLabel } from './board-pieces.ts'
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
 import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan.ts'
 import { fillPlanWithModel, pickIdea } from './idea.ts'
@@ -152,38 +143,25 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     return pack('Jobs gestoppt.', 'stop')
   }
   if (intent.kind === 'place') {
-    const applied = applyPlace(loadPieces(loadSettings().tischplatte_pieces_json), intent, boardIsWide())
     try {
-      saveSettings({
-        tischplatte_on: true,
-        tischplatte_pieces_json: serializePieces(applied.pieces),
-        tischplatte_motion_json: JSON.stringify(applied.motion),
-      })
+      saveSettings({ tischplatte_on: true })
     } catch {
       /* */
     }
-    hapticTick()
-    await waitForMotion(applied.motion.steps)
-    hapticTick()
-    return pack(applied.reply, 'place')
+    const name = 'piece' in intent && intent.piece ? pieceLabel(intent.piece) : 'Alles'
+    return pack(`Die Tafel ist fest. ${name} bleibt im Skript.`, 'place')
   }
   if (intent.kind === 'view') {
-    const brought = bringForward(loadPieces(loadSettings().tischplatte_pieces_json), focusPiece(intent.view))
     try {
       saveSettings({
         tischplatte_on: true,
         tischplatte_view: intent.view,
         tischplatte_focus: intent.sim || '',
-        tischplatte_pieces_json: serializePieces(brought.pieces),
-        tischplatte_motion_json: JSON.stringify(brought.motion),
         ...(intent.view === 'sprints' ? { ablauf_list_id: '' } : {}),
       })
     } catch {
       /* */
     }
-    hapticTick()
-    await waitForMotion(1)
-    hapticTick()
     if (intent.view === 'sim') {
       return pack(`Simulation ${intent.sim || 'Modul'}: Drahtgitter, keine Live-App.`, 'sim', { view: intent.view })
     }

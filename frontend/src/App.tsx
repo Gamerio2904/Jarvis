@@ -1653,6 +1653,8 @@ function App() {
   const lageSideChatOn = lageOn && lageWide && lageSideChat
   const lageChat = lageOn && liveHud.hud_view === 'body' && liveHud.body_with_chat !== false
   const lageAmber = liveHud.hud_accent === 'amber'
+  const leisteOff = liveHud.leiste_on === false
+  const leisteZu = Boolean(liveHud.leiste_zu)
   const dockId = settingsPanelOpen
     ? 'settings'
     : watchlistOpen
@@ -1838,7 +1840,7 @@ function App() {
   }, [liveHud.tischplatte_on])
 
   return (
-    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
+    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1933,14 +1935,37 @@ function App() {
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="brand">
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
-          <div>
+          <div className="brand-copy">
             <h1>Jarvis</h1>
             <p>Handy · v{APP_VERSION}</p>
           </div>
+          <button
+            type="button"
+            className="leiste-fold"
+            aria-expanded={!leisteZu}
+            aria-label={leisteZu ? 'Leiste aufklappen' : 'Leiste einklappen'}
+            onClick={() => {
+              void patchSettings({ leiste_zu: !leisteZu }).then((s) => setSettings(s))
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden>
+              <path
+                d={leisteZu ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6'}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         </div>
 
         <button className="new-chat" type="button" onClick={() => void onNewChat()}>
-          + Neues Gespräch
+          <span className="new-chat-plus" aria-hidden>
+            +
+          </span>
+          <span className="new-chat-lab"> Neues Gespräch</span>
         </button>
         <NavIsland
           className="nav-island-side"
@@ -2444,6 +2469,11 @@ function App() {
                 tischplatte_on: on,
                 ...(on ? { hud_force: false, hud_hidden: true } : {}),
               }).then((s) => setSettings(s))
+            }}
+            leisteOn={!leisteOff}
+            onLeiste={(on) => {
+              if (!on) setSidebarOpen(false)
+              void patchSettings({ leiste_on: on }).then((s) => setSettings(s))
             }}
           />
           {homeOpen ? (
