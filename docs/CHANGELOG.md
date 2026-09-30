@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.0` — Portfolio auf dem Hauptbildschirm — *CODE*
+
+`Go` legt das live Skript ins Portfolio. Der Hauptbildschirm zeigt die Karten mit Shredder. Ein Tipp oder `Zeig Projekt …` öffnet die Dateien. `Beispiel zu …` legt ein Bild unter `portfolio/<slug>/beispiele/`. Der Hausstand enthält die Zeilen. Kein neues Bildmodell.
+
+App-Code **`18.24.0`** (versionCode `182400`). Die Sideload-Datei ist noch **`18.23.12`**.
+
 ### `18.23.12` — Bild nur auf Verlangen — *CODE*
 
 `Zeig mir ein Bild der Elbe` zeigt ein Wikipedia-Bild mit Quelle. `wie sieht das wappen von bayern münchen aus` nimmt das Wappen von OpenLigaDB. `Zeig mir London` bleibt die Kugel. Ohne Treffer: `Kein Bild geladen.`

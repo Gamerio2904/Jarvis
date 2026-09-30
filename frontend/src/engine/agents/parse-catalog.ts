@@ -36,6 +36,7 @@ import { parseTimerIntent } from '../timer-parse.ts'
 import { parseReminderIntent } from '../remind-parse.ts'
 import { parseToolIntent } from '../tools-parse.ts'
 import { parseAblaufIntent } from '../ablauf-parse.ts'
+import { parsePortfolioIntent } from '../portfolio-parse.ts'
 import { parseBotAskIntent } from '../bot-ask.ts'
 import { parseIdeaIntent } from '../idea-parse.ts'
 import { parseWatchlistIntent } from '../watchlist-parse.ts'
@@ -232,7 +233,10 @@ function buildParseCatalog(): AgentSpec[] {
       id: 'idea',
       label: 'Idee',
       sideEffect: 'write',
-      parse: (ctx) => (parseIdeaIntent(ctx.text) || parseAblaufIntent(ctx.text) || parseBotAskIntent(ctx.text) ? score(ctx.text, 0.16) : null),
+      parse: (ctx) =>
+        parseIdeaIntent(ctx.text) || parseAblaufIntent(ctx.text) || parsePortfolioIntent(ctx.text) || parseBotAskIntent(ctx.text)
+          ? score(ctx.text, 0.16)
+          : null,
     },
     { id: 'desk', sideEffect: 'read', parse: (ctx) => (parseDeskIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
     { id: 'board', label: 'Tischplatte', sideEffect: 'write', parse: (ctx) => (parseBoardIntent(ctx.text) ? score(ctx.text, 0.2) : null) },

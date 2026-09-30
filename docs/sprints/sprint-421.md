@@ -1,6 +1,6 @@
 # Sprint 421 — Beispiele
 
-**Version:** `18.24.0` — **PLAN** Must
+**Version:** `18.24.0` — **CODE** Must
 **Plan:** [`96-next.md`](../96-next.md)
 **Voraussetzung:** 418 und 420. Mappe und Dateiliste existieren.
 

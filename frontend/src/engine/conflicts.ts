@@ -6,6 +6,7 @@ import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
 import { parseBoardIntent } from './board-parse.ts'
 import { parseAblaufIntent } from './ablauf-parse.ts'
+import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseBotAskIntent } from './bot-ask.ts'
 import { parseXferIntent } from './xfer-parse.ts'
 import { parseImageAsk } from './image-parse.ts'
@@ -119,6 +120,14 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   if (parseBotAskIntent(text)) {
     out = drop(out, 'board')
     out = boost(out, 'idea', 0.4)
+  }
+
+  if (parsePortfolioIntent(text)) {
+    out = drop(out, 'search')
+    out = drop(out, 'hud')
+    out = drop(out, 'eye')
+    out = drop(out, 'board')
+    out = boost(out, 'idea', 0.45)
   }
 
   if (parseAblaufIntent(text)) {

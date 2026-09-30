@@ -14,6 +14,8 @@ import {
 import { handleAblauf } from './ablauf.ts'
 import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
+import { commitPortfolio, currentIdeaForTable, handlePortfolio } from './portfolio.ts'
+import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
 import { completeGroq, groqReady } from './groq.ts'
@@ -116,6 +118,23 @@ async function planOntoTable(intent: AblaufIntent): Promise<string> {
     const waiting = ablaufWaiting()
     const live = phase === 'live' && !waiting
     const already = phase === 'go' && !waiting
+    const hit = live || already ? await currentIdeaForTable() : undefined
+    if ((live || already) && hit) {
+      const saved = await commitPortfolio(hit)
+      saveSettings({
+        tischplatte_on: true,
+        ablauf_status: '',
+        ablauf_id: '',
+        bot_ask_json: '',
+        plan_phase: 'go',
+        portfolio_focus: '',
+        portfolio_file: '',
+      })
+      if (saved.full) return 'Das Portfolio ist voll.'
+      if (saved.folder === 'fail') return 'Im Haus gespeichert. Der Ordner fehlt.'
+      if (saved.created && saved.row) return `Fest. ${saved.row.name} liegt im Portfolio.`
+      if (saved.row) return `${saved.row.name} liegt schon im Portfolio.`
+    }
     saveSettings({
       tischplatte_on: true,
       ablauf_status: '',
@@ -182,6 +201,11 @@ export async function handleIdea(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const portfolio = parsePortfolioIntent(text)
+  if (portfolio) {
+    const reply = await handlePortfolio(conversationId, portfolio)
+    return pack(reply, 'portfolio')
+  }
   const table = parseAblaufIntent(text)
   if (table) {
     const reply = await planOntoTable(table)

@@ -1,8 +1,8 @@
-# 96 — Portfolio auf dem Hauptbildschirm **PLAN** (`18.24`)
+# 96 — Portfolio auf dem Hauptbildschirm **CODE** (`18.24`)
 
-**Dieses Dokument ist PLAN.** App-Code bleibt **`18.23.12`**, bis Sprint 423
-ausgeführt ist. Sprints **417–423**. Katalog-Stand bleibt `18.20.0`.
-Die Sideload-Datei bleibt `18.23.12`.
+**Dieses Dokument ist CODE.** App-Code **`18.24.0`** (versionCode `182400`).
+Sprints **417–423**. Katalog-Stand bleibt `18.20.0`.
+Die Sideload-Datei bleibt `18.23.12`, solange kein neues APK gebaut ist.
 
 Der jetzige Tischplatten-Modus ist die Planung. `Plane das` zeigt das
 Skript live. `Go`, `Umsetzen`, `Leg los`, `So` oder `Übernehmen` setzen
@@ -235,17 +235,17 @@ geschrieben. Ohne live Skript bleibt der bisherige Satz von `Go`.
 
 ---
 
-## 6. Sprints (`18.24.0` PLAN)
+## 6. Sprints (`18.24.0` CODE)
 
 | Sprint | Inhalt | Klasse |
 |--------|--------|--------|
-| [417](./sprints/sprint-417.md) | Zeile und kurzer Name bei Fest | Must PLAN |
-| [418](./sprints/sprint-418.md) | Dateien und Mappe | Must PLAN |
-| [419](./sprints/sprint-419.md) | Hauptbildschirm, Shredder | Must PLAN |
-| [420](./sprints/sprint-420.md) | Tipp, Satz, Dateiliste | Must PLAN |
-| [421](./sprints/sprint-421.md) | Beispiele auf der Fläche und im Ordner | Must PLAN |
-| [422](./sprints/sprint-422.md) | Portfolio im Hausstand | Must PLAN |
-| [423](./sprints/sprint-423.md) | Gold, Testkarten, Version erst dann | Must PLAN |
+| [417](./sprints/sprint-417.md) | Zeile und kurzer Name bei Fest | Must CODE |
+| [418](./sprints/sprint-418.md) | Dateien und Mappe | Must CODE |
+| [419](./sprints/sprint-419.md) | Hauptbildschirm, Shredder | Must CODE |
+| [420](./sprints/sprint-420.md) | Tipp, Satz, Dateiliste | Must CODE |
+| [421](./sprints/sprint-421.md) | Beispiele auf der Fläche und im Ordner | Must CODE |
+| [422](./sprints/sprint-422.md) | Portfolio im Hausstand | Must CODE |
+| [423](./sprints/sprint-423.md) | Gold, Testkarten, Version erst dann | Must CODE |
 
 Kette: 417 vor 418. 418 vor 419, vor 421 und vor 422. 419 vor 420.
 420 vor 421. 422 vor 423. 423 zuletzt.

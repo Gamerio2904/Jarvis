@@ -1,7 +1,9 @@
 # Android-APK — Sideload `18.23.12`
 
-App-Code **`18.23.12`**. Sideload **`18.23.12`** (versionCode `182312`):
+App-Code **`18.24.0`** (versionCode `182400`). Die gebaute Datei ist noch **`18.23.12`** (versionCode `182312`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Portfolio: [`TEST-18.24.md`](./TEST-18.24.md).
 
 Ablauf: [`TEST-18.23.md`](./TEST-18.23.md). Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.
 

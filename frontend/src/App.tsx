@@ -2079,6 +2079,7 @@ function App() {
             focus={liveHud.tischplatte_focus || ''}
             hint={liveHud.tischplatte_hint || ''}
             seed={liveHud.tischplatte_seed || 0}
+            planPhase={liveHud.plan_phase || ''}
           />
         ) : null}
         {calendarLayer.shown ? (

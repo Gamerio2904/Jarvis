@@ -1,6 +1,7 @@
 import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
 import { clockLabel, weekdayLabel } from '../engine/glance-snap.ts'
 import { parseThemeHint, DEFAULT_THEME, type BoardTheme } from '../engine/board-theme.ts'
+import { PortfolioStage } from './PortfolioStage.tsx'
 import { Workbench } from './Workbench.tsx'
 import { useEffect, useState } from 'react'
 
@@ -111,6 +112,7 @@ export function HomeScreen({
   focus,
   hint,
   seed,
+  planPhase,
 }: {
   face: 'jarvis' | 'friday'
   onOpen: (id: HomeAppId) => void
@@ -119,6 +121,7 @@ export function HomeScreen({
   focus: string
   hint: string
   seed: number
+  planPhase: '' | 'live' | 'go'
 }) {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
@@ -149,7 +152,8 @@ export function HomeScreen({
         <p className="home-clock-day">{weekdayLabel(now)}</p>
         <p className="home-clock-face">{face === 'friday' ? 'Friday' : 'Jarvis'}</p>
       </header>
-      {tischplatteOn ? <Workbench view={view} focus={focus} /> : null}
+      {tischplatteOn && planPhase === 'live' ? <Workbench view={view} focus={focus} /> : null}
+      {tischplatteOn && planPhase !== 'live' ? <PortfolioStage /> : null}
       <div className="home-grid" hidden={tischplatteOn} inert={tischplatteOn} aria-hidden={tischplatteOn}>
         {HOME_APPS.map((app) => (
           <button

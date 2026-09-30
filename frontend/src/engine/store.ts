@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.23.12'
+export const APP_VERSION = '18.24.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -381,6 +381,10 @@ export type Settings = {
   plan_phase: '' | 'live' | 'go'
   /** Start der Laufschrift auf der Tafel. */
   plan_script_at: number
+  /** Offenes Projekt auf dem Portfolio. Leer heißt die Kartenliste. */
+  portfolio_focus: string
+  /** Geöffnete Datei in der Liste. */
+  portfolio_file: string
   board_jobs_json: string
   /** Id der Ablauf-Zeile im Fenster. Kein zweites Vollstück. */
   ablauf_id: string
@@ -579,6 +583,8 @@ export const DEFAULT_SETTINGS: Settings = {
   leiste_zu: false,
   plan_phase: '',
   plan_script_at: 0,
+  portfolio_focus: '',
+  portfolio_file: '',
   board_jobs_json: '',
   ablauf_id: '',
   ablauf_status: '',
@@ -767,7 +773,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 13)
+    const req = indexedDB.open('jarvis-ondevice', 14)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -788,6 +794,7 @@ function openDb(): Promise<IDBDatabase> {
         'docs',
         'xfer',
         'plans',
+        'portfolio',
         'knowledge_packs',
         'rm_scene_skills',
         'memory_proposals',

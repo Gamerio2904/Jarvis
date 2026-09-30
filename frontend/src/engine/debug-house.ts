@@ -22,6 +22,7 @@ const STORES = [
   'memory',
   'ideas',
   'plans',
+  'portfolio',
   'watch_movies',
   'watched_movies',
   'pending',

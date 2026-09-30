@@ -80,7 +80,7 @@ assert.match(moved.reply || '', /Tafel ist fest/)
 assert.equal(loadSettings().plan_phase, 'live')
 assert.ok(loadSettings().plan_script_at > 0)
 const locked = await handleIdea('c-plan', 'Go')
-assert.match(locked.reply || '', /Umgesetzt/)
+assert.match(locked.reply || '', /Fest\. .+ liegt im Portfolio/)
 assert.equal(loadSettings().plan_phase, 'go')
 
 const hold = 'plan-hold'

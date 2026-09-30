@@ -1,6 +1,6 @@
 # Sprint 422 — Portfolio im Hausstand
 
-**Version:** `18.24.0` — **PLAN** Must
+**Version:** `18.24.0` — **CODE** Must
 **Plan:** [`96-next.md`](../96-next.md)
 **Voraussetzung:** 417 und 418. Zeile und Dateien existieren. Unabhängig vom Shredder.
 
