@@ -898,6 +898,22 @@ und Kopierfelder. Sprints 398–403. Test: [`TEST-18.21.md`](./TEST-18.21.md).
 | `18.21.0` | Foto, Knopf, Kopierfelder | 402 PLAN |
 | `18.21.0` | Gold, Testkarten, versionCode `182100` | 403 PLAN |
 
+### `18.22` — Tafel [`94-next.md`](./94-next.md) **PLAN**
+
+Noch nicht im Code. Sideload bleibt **`18.20.1`**. Die Tischplatte zeigt
+Sprintliste, PSP, Auftrag, Uhr, Quellen, Termin und Jobleiste gleichzeitig.
+Finger und Satz benutzen denselben Weg, auch aus dem Bild in eine Ablage.
+Sprints 404–409. Test: [`TEST-18.22.md`](./TEST-18.22.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.22.0` | Neun Stücke, echte Daten | 404 PLAN |
+| `18.22.0` | Finger, Lage in den Einstellungen | 405 PLAN |
+| `18.22.0` | Schiebe-Sätze, alte Sätze holen nach vorn | 406 PLAN |
+| `18.22.0` | Ablage, wenig Bewegung, Tick | 407 PLAN |
+| `18.22.0` | Ring, nacheinander, Antwort nach der Fahrt | 408 PLAN |
+| `18.22.0` | Gold, Testkarten, versionCode `182200` | 409 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.

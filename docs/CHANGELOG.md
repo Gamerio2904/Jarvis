@@ -14,6 +14,14 @@ LibHunt-Treffer. Zeitungsseiten werden nicht zum Merken angeboten.
 Sideload **`18.20.1`** (versionCode `182001`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
+### `18.22.0` — Tafel — *PLAN*
+
+Noch nicht gebaut. Die Tischplatte wird eine Tafel: sortierte Sprintliste,
+PSP in drei Ebenen, dazu Auftrag, Uhr, Quellen, Termin und Jobleiste.
+Jarvis und der Finger schieben jedes Stück auf demselben Weg, auch aus
+dem Bild. Sprints 404–409. [`94-next.md`](./94-next.md). Test:
+[`TEST-18.22.md`](./TEST-18.22.md).
+
 ### `18.21.0` — Datei-QR — *PLAN*
 
 Noch nicht gebaut. Datei-Knopf bleibt. `Übertrage das fürs Tablet` oder
