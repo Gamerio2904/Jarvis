@@ -1,6 +1,6 @@
 # Sprint 412 — Fenster auf der Tafel
 
-**Version:** `18.23.0` — **PLAN** Must
+**Version:** `18.23.0` — **CODE** Must
 **Plan:** [`95-next.md`](../95-next.md)
 **Voraussetzung:** 411. Der Ablauf steht auf `warten` oder ist leer.
 

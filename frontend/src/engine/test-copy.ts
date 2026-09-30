@@ -13,6 +13,27 @@ export type TestCopyGroup = { title: string; items: TestCopyItem[] }
 
 export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
+    title: '18.23 Ablauf',
+    items: [
+      { label: 'Ablauf', text: 'Plane das: Trag morgen 9 Uhr Zahnarzt ein, stell einen Wecker auf 8 und such Open Source zu Tic-Tac-Toe', expect: { tool: 'idea' } },
+      { label: 'Plane das', text: 'Plane das', expect: { tool: 'idea' } },
+      { label: 'Wecker ändern', text: 'Ändere den Wecker: 7:30', expect: { tool: 'idea' } },
+      { label: 'Rest so', text: 'Wecker auf 7:30, Rest so', expect: { tool: 'idea' } },
+      { label: 'Plan überarbeiten', text: 'Überarbeite den Plan: Wecker auf 7:30', expect: { tool: 'idea' } },
+      { label: 'Zeile fehlt', text: 'Ändere das Poster: links', expect: { tool: 'idea' } },
+      { label: 'So', text: 'So' },
+      { label: 'Übernehmen', text: 'Übernehmen', expect: { tool: 'idea' } },
+      { label: 'Plan zu', text: 'Plan zu', expect: { tool: 'idea' } },
+      { label: 'Fenster zu', text: 'Fenster zu', expect: { tool: 'idea' } },
+      { label: 'Sprintplan bleibt', text: 'Mach einen Sprintplan für Idee 1', expect: { tool: 'idea' } },
+      { label: 'OSS bleibt', text: 'Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1', expect: { tool: 'board' } },
+      { label: 'Lidl bleibt', text: 'nächster Lidl', expect: { tool: 'poi' } },
+      { label: 'Wand bleibt', text: 'Hintergrund blau schwarz', expect: { tool: 'board' } },
+      { label: 'Schieben bleibt', text: 'Schieb die Sprintliste nach links', expect: { tool: 'board' } },
+      { label: 'Hausstand', text: 'Hausstand exportieren', expect: { tool: 'backup' } },
+    ],
+  },
+  {
     title: "Smalltalk",
     items: [
       { label: "Hallo", text: "Hallo Jarvis.", expect: {"tool":"smalltalk"} },

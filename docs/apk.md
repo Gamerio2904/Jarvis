@@ -1,11 +1,9 @@
-# Android-APK — Sideload `18.22.0`
+# Android-APK — Sideload `18.23.0`
 
-App-Code **`18.22.0`**. Sideload **`18.22.0`** (versionCode `182200`):
+App-Code **`18.23.0`**. Sideload **`18.23.0`** (versionCode `182300`):
 https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
 
-Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.
-
-Geplant, nicht in dieser Datei: Ablauf `18.23` [`95-next.md`](./95-next.md).
+Ablauf: [`TEST-18.23.md`](./TEST-18.23.md). Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.
 
 Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). YouTube-Schnitt schreibt die Datei erst auf einem Windows-PC mit JarvisPC.
 

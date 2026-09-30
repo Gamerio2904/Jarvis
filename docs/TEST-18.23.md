@@ -1,8 +1,8 @@
 # TEST 18.23 — Ablauf
 
-Noch nicht in der App. Plan [`95-next.md`](./95-next.md), Sprints 410–416.
-Sideload bleibt **`18.22.0`**. Die Kästen kommen in Spur Heute erst mit
-Sprint 415. Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat.
+In der App ab **`18.23.0`**. Plan [`95-next.md`](./95-next.md), Sprints 410–416.
+Dieselben Sätze in Spur Heute, Gruppe `18.23 Ablauf`. Jede Box ist ein Satz.
+Einmal tippen, kopieren, in den Chat.
 
 Tablet quer, Breite ab 900 px, Tischplatte an. Das Fenster liegt in der
 Mitte. Darunter dieselben Sätze, das Fenster stapelt die Spalten.

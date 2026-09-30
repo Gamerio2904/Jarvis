@@ -268,6 +268,7 @@ function App() {
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const busyRef = useRef(false)
+  const sendRef = useRef<(text: string) => Promise<unknown>>(async () => undefined)
   const driveCloseGenRef = useRef(0)
   const [debugRunning, setDebugRunning] = useState(() => debugSnapshot().running)
   const debugRunningRef = useRef(false)
@@ -813,6 +814,16 @@ function App() {
     const on = () => void refreshSettings()
     window.addEventListener('jarvis-settings', on)
     return () => window.removeEventListener('jarvis-settings', on)
+  }, [])
+
+  useEffect(() => {
+    const onSay = (e: Event) => {
+      const text = String((e as CustomEvent<{ text?: string }>).detail?.text || '')
+      if (!text.trim()) return
+      void sendRef.current(text)
+    }
+    window.addEventListener('jarvis-say', onSay)
+    return () => window.removeEventListener('jarvis-say', onSay)
   }, [])
 
   async function refreshReminders() {
@@ -1411,6 +1422,8 @@ function App() {
     }
     return { reply: lastReply, tool: lastTool, error: lastError }
   }
+
+  sendRef.current = sendMessage
 
   async function startDebugChat(title: string) {
     const created = await createConversation(title)

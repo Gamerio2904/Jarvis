@@ -5,15 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.23.0` — Ablauf auf der Tafel — *PLAN*
+### `18.23.0` — Ablauf auf der Tafel — *CODE*
 
 `Plane das` öffnet ein Fenster mitten auf der Tafel. Das Modell schreibt,
 welcher vorhandene Agent was tut. `So` führt eine Welle gleichzeitig aus,
-die nächste erst danach. Kein neuer Agent, kein Code aus dem Gerät.
-Jede Sprintvorlage und jeder Ablauf gehen in denselben Hausstand.
-Sprints 410–416. [`95-next.md`](./95-next.md). Test: [`TEST-18.23.md`](./TEST-18.23.md).
+die nächste erst danach. Kein neuer Agent. Jede Sprintvorlage und jeder
+Ablauf gehen in denselben Hausstand. Sprints 410–416.
+[`95-next.md`](./95-next.md). Test: [`TEST-18.23.md`](./TEST-18.23.md).
 
-Noch kein App-Code. Sideload bleibt **`18.22.0`**.
+App-Code und Sideload **`18.23.0`** (versionCode `182300`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-lage-layout-0052/releases/Jarvis.apk
 
 ### `18.20.1` — Tafel sagt, was gilt — *CODE + APK*
 

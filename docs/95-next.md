@@ -1,7 +1,6 @@
-# 95 — Ablauf auf der Tafel **PLAN** (`18.23`)
+# 95 — Ablauf auf der Tafel **CODE** (`18.23`)
 
-**Dieses Dokument ist PLAN.** Noch kein App-Code. Sideload bleibt **`18.22.0`**
-(versionCode `182200`). Ziel beim Ausführen: `18.23.0`, versionCode `182300`.
+**Dieses Dokument ist CODE.** App-Code **`18.23.0`** (versionCode `182300`).
 Sprints **410–416**. Katalog-Stand bleibt `18.20.0`.
 
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md). Kein zweites
@@ -308,19 +307,18 @@ Die Sammelantwort geht nicht durch den Micro-Merge.
 
 ---
 
-## 7. Sprints (`18.23` PLAN)
+## 7. Sprints (`18.23.0` CODE)
 
 | Sprint | Inhalt | Klasse |
 |--------|--------|--------|
-| [410](./sprints/sprint-410.md) | Sätze, Speicher, Nachbarn bleiben | Must PLAN |
-| [411](./sprints/sprint-411.md) | Modell füllt Wellen, ehrliche Leere | Must PLAN |
-| [412](./sprints/sprint-412.md) | Fenster, live, Knopf So | Must PLAN |
-| [413](./sprints/sprint-413.md) | Eine Zeile ändern, Ablauf ersetzen | Must PLAN |
-| [414](./sprints/sprint-414.md) | Wellen gleichzeitig, danach die Sprintliste | Must PLAN |
-| [415](./sprints/sprint-415.md) | Gold, Testkarten, Version erst dann | Must PLAN |
-| [416](./sprints/sprint-416.md) | Jede Planungsdatei im Hausstand | Must PLAN |
+| [410](./sprints/sprint-410.md) | Sätze, Speicher, Nachbarn bleiben | Must CODE |
+| [411](./sprints/sprint-411.md) | Modell füllt Wellen, ehrliche Leere | Must CODE |
+| [412](./sprints/sprint-412.md) | Fenster, live, Knopf So | Must CODE |
+| [413](./sprints/sprint-413.md) | Eine Zeile ändern, Ablauf ersetzen | Must CODE |
+| [414](./sprints/sprint-414.md) | Wellen gleichzeitig, danach die Sprintliste | Must CODE |
+| [415](./sprints/sprint-415.md) | Gold, Testkarten, Version erst dann | Must CODE |
+| [416](./sprints/sprint-416.md) | Jede Planungsdatei im Hausstand | Must CODE |
 
 Kette: 410 vor 411 und vor 416. 411 vor 412. 412 vor 413. 413 vor 414.
 416 hängt nicht am Fenster. 415 zuletzt, erst wenn 416 grün ist.
-Test-Sätze: [`TEST-18.23.md`](./TEST-18.23.md). Die Karten kommen in Spur
-Heute erst, wenn 415 ausgeführt ist.
+Test-Sätze: [`TEST-18.23.md`](./TEST-18.23.md). Die Karten liegen in Spur Heute.

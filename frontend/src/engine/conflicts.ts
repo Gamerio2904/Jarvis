@@ -5,6 +5,7 @@ import { parseRmSceneIntent } from './rm-scene-parse.ts'
 import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
 import { parseBoardIntent } from './board-parse.ts'
+import { parseAblaufIntent } from './ablauf-parse.ts'
 import { parseXferIntent } from './xfer-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
@@ -111,6 +112,15 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'film')
     out = drop(out, 'drive')
     out = boost(out, 'watchlist', 0.18)
+  }
+
+  if (parseAblaufIntent(text)) {
+    out = drop(out, 'alarm')
+    out = drop(out, 'calendar')
+    out = drop(out, 'timer')
+    out = drop(out, 'reminder')
+    out = drop(out, 'board')
+    out = boost(out, 'idea', 0.4)
   }
 
   if (/^\s*idee[:\s]/.test(t) || /\bneue\s+idee\b/.test(t) || /\bzeig(?:e)?(?:\s+mir)?(?:\s+meine)?\s+ideen\b/.test(t)) {

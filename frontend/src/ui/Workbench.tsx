@@ -26,6 +26,9 @@ import {
   type MemoryProposal,
 } from '../engine/store.ts'
 import type { ResearchSource } from '../engine/research-parse.ts'
+import { agentLabel, readPlan, type Ablauf } from '../engine/ablauf.ts'
+import { ablaufWindowOpen } from '../engine/ablauf-state.ts'
+import { AblaufWindow } from './AblaufWindow.tsx'
 import { BoardStage } from './BoardStage.tsx'
 
 function lastResearch(): ResearchSource[] {
@@ -74,6 +77,10 @@ export function Workbench({
   const [motion, setMotion] = useState<MotionCue | null>(() => readMotion())
   const [termin, setTermin] = useState('Kein Termin.')
   const [wide, setWide] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 900 : true))
+  const [openPlan, setOpenPlan] = useState<Ablauf | null>(null)
+  const [listPlan, setListPlan] = useState<Ablauf | null>(null)
+  const [windowOn, setWindowOn] = useState(() => ablaufWindowOpen())
+  const [emptyPlanView, setEmptyPlanView] = useState(false)
 
   useEffect(() => {
     let dead = false
@@ -113,10 +120,19 @@ export function Workbench({
           if (!dead) setTermin('Kein Termin.')
         })
       if (!dead) {
-        setJobs(parseBoardJobs(loadSettings().board_jobs_json))
+        const settings = loadSettings()
+        setJobs(parseBoardJobs(settings.board_jobs_json))
         setSources(lastResearch())
-        setPieces(loadPieces(loadSettings().tischplatte_pieces_json))
+        setPieces(loadPieces(settings.tischplatte_pieces_json))
         setMotion(readMotion())
+        setWindowOn(ablaufWindowOpen(settings.ablauf_status))
+        setEmptyPlanView(settings.ablauf_status === 'leer')
+        void readPlan(settings.ablauf_id).then((row) => {
+          if (!dead) setOpenPlan(row || null)
+        })
+        void readPlan(settings.ablauf_list_id).then((row) => {
+          if (!dead) setListPlan(row || null)
+        })
       }
     }
     load()
@@ -146,12 +162,20 @@ export function Workbench({
 
   const active = ideas.find((i) => i.status === 'open') || ideas[0]
   const plan = [...(active?.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
-  const rows = active
-    ? plan.map((s) => ({
-        n: String(s.n),
-        line: s.ziel?.trim() ? s.ziel : s.n === '1' ? active.title || s.title : 'Noch leer.',
-      }))
-    : []
+  const listed = !windowOn && listPlan && listPlan.status === 'fertig'
+  const rows = listed
+    ? listPlan.waves.flatMap((wave) =>
+        wave.cards.map((card) => ({
+          n: String(card.n),
+          line: `${agentLabel(card.agent)}: ${card.task}${card.state === 'leer' ? ' · Noch leer.' : ' · fertig'}`,
+        })),
+      )
+    : active
+      ? plan.map((s) => ({
+          n: String(s.n),
+          line: s.ziel?.trim() ? s.ziel : s.n === '1' ? active.title || s.title : 'Noch leer.',
+        }))
+      : []
   const psp = plan.map((s) => ({
     n: String(s.n),
     title: s.title,
@@ -169,7 +193,7 @@ export function Workbench({
   }
 
   return (
-    <div className="workbench" data-board-view={vis} aria-label="Werkbank">
+    <div className={`workbench${windowOn ? ' is-ablauf' : ''}`} data-board-view={vis} aria-label="Werkbank">
       <header className="workbench-head">
         <p className="workbench-auftrag">
           {active ? `Auftrag: ${active.title}` : 'Sagen Sie Idee: … oder Tischplatte aus.'}
@@ -195,6 +219,13 @@ export function Workbench({
         onNo={(id) => void rejectProposal(id)}
         onStop={stop}
       />
+      {windowOn ? (
+        <AblaufWindow
+          plan={openPlan}
+          empty={emptyPlanView}
+          onSo={() => window.dispatchEvent(new CustomEvent('jarvis-say', { detail: { text: 'So' } }))}
+        />
+      ) : null}
     </div>
   )
 }

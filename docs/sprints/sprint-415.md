@@ -1,6 +1,6 @@
 # Sprint 415 — Gold
 
-**Version:** `18.23.0` — **PLAN** Must
+**Version:** `18.23.0` — **CODE** Must
 **Plan:** [`95-next.md`](../95-next.md)
 **Voraussetzung:** 410–414 und 416.
 

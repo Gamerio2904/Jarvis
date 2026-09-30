@@ -8067,3 +8067,188 @@ html.theme-wipe-dark::before {
     animation: none;
   }
 }
+
+.workbench.is-ablauf {
+  position: relative;
+}
+
+.workbench.is-ablauf .board-piece {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.ablauf-window {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 46%;
+  width: min(720px, calc(100% - 24px));
+  max-height: min(78vh, 640px);
+  overflow: auto;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 42%, transparent);
+  background: color-mix(in srgb, #041018 88%, transparent);
+  color: var(--text);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -50%);
+  animation: ablauf-in 280ms cubic-bezier(0.22, 1.15, 0.36, 1) forwards;
+}
+
+.ablauf-window.is-still {
+  animation: ablauf-fade 120ms ease;
+}
+
+@keyframes ablauf-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes ablauf-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ablauf-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ablauf-head p,
+.ablauf-cols h3,
+.ablauf-wave > p {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--board-accent, var(--accent));
+}
+
+.ablauf-head h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ablauf-head span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.ablauf-cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.ablauf-cols blockquote {
+  margin: 6px 0;
+  font-size: 0.84rem;
+}
+
+.ablauf-cols ul {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ablauf-cols li {
+  margin: 0 0 8px;
+  font-size: 0.84rem;
+}
+
+.ablauf-cols li.is-caret::after {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 1em;
+  margin-left: 4px;
+  vertical-align: text-bottom;
+  background: var(--board-accent, var(--accent));
+}
+
+.ablauf-wave ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ablauf-wave li {
+  flex: 1 1 140px;
+  margin: 0;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 35%, transparent);
+}
+
+.ablauf-wave li strong,
+.ablauf-wave li span,
+.ablauf-wave li s,
+.ablauf-wave li small,
+.ablauf-wave li em {
+  display: block;
+}
+
+.ablauf-wave li.is-changed {
+  box-shadow: 0 0 0 1px var(--board-accent, var(--accent));
+}
+
+.ablauf-wave li.is-run i {
+  display: block;
+  height: 2px;
+  margin-top: 6px;
+  background: var(--board-accent, var(--accent));
+}
+
+.ablauf-gray li {
+  color: var(--text-muted);
+}
+
+.ablauf-window footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.ablauf-window footer p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ablauf-so {
+  border: 1px solid color-mix(in srgb, var(--board-accent, var(--accent)) 50%, transparent);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 16px;
+}
+
+@media (min-width: 900px) {
+  .ablauf-window {
+    width: min(720px, 78vw);
+  }
+
+  .ablauf-cols {
+    grid-template-columns: 0.8fr 1.2fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ablauf-window {
+    animation: ablauf-fade 120ms ease;
+  }
+}

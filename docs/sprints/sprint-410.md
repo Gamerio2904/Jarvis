@@ -1,6 +1,6 @@
 # Sprint 410 — Sätze und Speicher
 
-**Version:** `18.23.0` — **PLAN** Must
+**Version:** `18.23.0` — **CODE** Must
 **Plan:** [`95-next.md`](../95-next.md)
 **Voraussetzung:** Tafel `18.22` bleibt die Fläche. Kein neuer Agent.
 

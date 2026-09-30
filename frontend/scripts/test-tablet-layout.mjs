@@ -63,6 +63,11 @@ for (const sentence of [
 ]) {
   assert.ok(qr.items.some((i) => i.text === sentence), sentence)
 }
+const ablauf = groupsForLane('heute').find((g) => g.title === '18.23 Ablauf')
+assert.ok(ablauf, '18.23 Ablauf fehlt in Spur Heute')
+for (const sentence of ['Plane das', 'Plan zu', 'Hausstand exportieren', 'Ändere den Wecker: 7:30']) {
+  assert.ok(ablauf.items.some((i) => i.text === sentence), sentence)
+}
 assert.ok(groupsForLane('heute').some((g) => g.title === '18.20 YouTube-Highlights'))
 assert.ok(groupsForLane('story').some((g) => g.title === '🟢 18.20 Tafel der Reihe nach'))
 assert.deepEqual(unassignedCopyTitles(), [])

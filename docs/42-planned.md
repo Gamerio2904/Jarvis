@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.22.0`**, versionCode `182200`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.20.md`](./TEST-18.20.md), [`TEST-18.22.md`](./TEST-18.22.md).
+**Live-APK:** **`18.23.0`**, versionCode `182300`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.20.md`](./TEST-18.20.md), [`TEST-18.22.md`](./TEST-18.22.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -12,7 +12,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 0-plan. **`18.20` YouTube-Highlights** [`92-next.md`](./92-next.md) — Sprints **392–397 CODE + APK**. Top-Liste aus 1–3 Links, Schnitt nur auf dem PC, kein Upload. Draft Clips `#152` bleibt getrennt.
 0-plan. **`18.21` Datei-QR** [`93-next.md`](./93-next.md) — Sprints **398–403 CODE** in `18.22.0`. Datei-Knopf wie bisher, QR in der Antwort, Foto auf dem anderen Gerät lädt die Dateien und zeigt Kopierfelder. Kein Server.
 0-plan. **`18.22` Tafel** [`94-next.md`](./94-next.md) — Sprints **404–409 CODE**. Sprintliste und PSP liegen mit Uhr, Quellen, Termin und Jobs auf der Tischplatte. Finger und Jarvis schieben jedes Stück, auch aus dem Bild. Kein WebGL, keine Fremdbilder. App-Code **`18.22.0`**.
-0-plan. **`18.23` Ablauf** [`95-next.md`](./95-next.md) — Sprints **410–416 PLAN**. `Plane das` öffnet ein Fenster über der Tafel. Das Modell schreibt, welcher Agent was tut. `So` führt unabhängige Schritte gleichzeitig aus. Jede Sprintvorlage und jeder Ablauf gehen in denselben Hausstand. Kein neuer Agent, keine Version in diesem Plan. Sideload bleibt **`18.22.0`**. Test: [`TEST-18.23.md`](./TEST-18.23.md), Karten erst beim Ausführen.
+0-plan. **`18.23` Ablauf** [`95-next.md`](./95-next.md) — Sprints **410–416 CODE**. `Plane das` öffnet ein Fenster über der Tafel. Das Modell schreibt, welcher Agent was tut. `So` führt unabhängige Schritte gleichzeitig aus. Jede Sprintvorlage und jeder Ablauf gehen in denselben Hausstand. Kein neuer Agent. App-Code **`18.23.0`**. Test: [`TEST-18.23.md`](./TEST-18.23.md).
 0a. **`18.18` Homescreen** [`90-next.md`](./90-next.md) — Sprints **382–384 CODE + APK**. App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel. In Sideload **`18.19.0`**.
 0a. **`18.17` Kalender Alltag** [`89-next.md`](./89-next.md) — Sprints **377–381 CODE + APK**. Hausstand-Termine + ICS, Serie, Konflikt. Sideload **`18.17.0`**.
 0a. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE + APK**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname. Sideload **`18.16.0`**.

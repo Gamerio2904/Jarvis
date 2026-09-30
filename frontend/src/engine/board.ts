@@ -20,6 +20,7 @@ import {
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
 import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan.ts'
 import { fillPlanWithModel, pickIdea } from './idea.ts'
+import { ablaufWindowOpen } from './ablauf-state.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
@@ -133,6 +134,7 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     return pack('Jobs gestoppt.', 'stop')
   }
   if (intent.kind === 'place') {
+    if (ablaufWindowOpen()) return pack('Der Ablauf liegt auf dem Tisch.', 'place')
     const applied = applyPlace(loadPieces(loadSettings().tischplatte_pieces_json), intent, boardIsWide())
     try {
       saveSettings({
@@ -157,6 +159,7 @@ export async function handleBoard(_conversationId: string, text: string): Promis
         tischplatte_focus: intent.sim || '',
         tischplatte_pieces_json: serializePieces(brought.pieces),
         tischplatte_motion_json: JSON.stringify(brought.motion),
+        ...(intent.view === 'sprints' ? { ablauf_list_id: '' } : {}),
       })
     } catch {
       /* */

@@ -10,6 +10,7 @@ import {
   setPending,
   type Idea,
 } from './store.ts'
+import { handleAblauf } from './ablauf.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
 import { completeGroq, groqReady } from './groq.ts'
@@ -102,6 +103,8 @@ export async function handleIdea(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const ablauf = await handleAblauf(conversationId, text)
+  if (ablauf.handled) return { handled: true, reply: ablauf.reply, tool: ablauf.tool }
   const intent = parseIdeaIntent(text)
   if (!intent) return { handled: false }
 
