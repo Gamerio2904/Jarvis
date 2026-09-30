@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.23.6`**. Sideload **`18.23.6`**, versionCode `182306`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.23.7`**. Sideload **`18.23.7`**, versionCode `182307`. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -916,7 +916,7 @@ Sprints 404–409. Test: [`TEST-18.22.md`](./TEST-18.22.md).
 
 ### `18.23` — Ablauf [`95-next.md`](./95-next.md) **CODE**
 
-**`18.23.6`** (App-Code, versionCode `182306`). Kalender: ein Tipp auf den Tag zeigt alle Termine. Die Woche legt die Stunden ab 7 Uhr nach links und die Tage nach rechts. `18.23.5`: das Fenster bleibt unten, „Termin anlegen“ steht oben. Wiederholung „Jedes Jahr“. Geburtstag setzt sie.
+**`18.23.7`** (App-Code, versionCode `182307`). Der Kalender öffnet in der Woche. Heute springt in dieselbe Woche. `18.23.6`: ein Tipp auf den Tag zeigt alle Termine. Die Woche legt die Stunden ab 7 Uhr nach links und die Tage nach rechts. `18.23.5`: das Fenster bleibt unten, „Termin anlegen“ steht oben. Wiederholung „Jedes Jahr“. Geburtstag setzt sie.
 `18.23.1` deckt die Tafel ab. `18.23.2`: ein Bot fragt, bevor Recherche oder
 ein anderer Bot dazukommt. `Ja` holt ihn, `Nein` lässt ihn draußen.
 Sprints 410–416. Test: [`TEST-18.23.md`](./TEST-18.23.md).
@@ -937,6 +937,7 @@ Katalog-Stand bleibt `18.20.0`.
 | `18.23.4` | Tischplatte plant, PSP und Projekt als JSON | Nachtest |
 | `18.23.5` | Kalenderfenster unten, jedes Jahr, Geburtstag | Nachtest |
 | `18.23.6` | Tagesliste, Woche mit Uhrzeit und Tagen | Nachtest |
+| `18.23.7` | Kalender öffnet in der Woche | Nachtest |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
