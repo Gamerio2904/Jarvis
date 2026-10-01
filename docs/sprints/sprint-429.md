@@ -1,6 +1,6 @@
 # Sprint 429 — Entwürfe im Hausstand
 
-**Version:** `18.25.0` — **PLAN** Must
+**Version:** `18.25.0` — **CODE** Must
 **Plan:** [`97-next.md`](../97-next.md) §3
 **Voraussetzung:** 424. Der Store `drafts` existiert. Unabhängig von den Rahmen.
 

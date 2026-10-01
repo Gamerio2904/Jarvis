@@ -1,4 +1,5 @@
 import { listPlans, type Ablauf } from './ablauf.ts'
+import type { Draft } from './entwurf-muster.ts'
 import { listPortfolio, mirrorPortfolio, type PortfolioRow } from './portfolio.ts'
 import type { ChatBlock } from './chat-blocks.ts'
 import { offerHausQr, openHausScan, parseHausLink } from './haus-link.ts'
@@ -142,6 +143,7 @@ export type HausBackup = {
   ideas?: Idea[]
   plans?: Ablauf[]
   portfolio?: PortfolioRow[]
+  drafts?: Draft[]
   watch_movies?: WatchMovie[]
   watched_movies?: WatchedMovie[]
   shopping: ShoppingItem[]
@@ -213,7 +215,7 @@ export function previewBackup(raw: unknown): BackupPreview {
   const contacts = (data.memory || []).filter((m) => m.category === 'contact' || m.category === 'email').length
   return {
     ok: true,
-    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.events || []).length} Termine, ${(data.ideas || []).length} Ideen${Array.isArray(data.plans) ? `, ${data.plans.length} Abläufe` : ''}${Array.isArray(data.portfolio) ? `, ${data.portfolio.length} Projekte${data.portfolio.filter((row) => row.archived).length ? `, ${data.portfolio.filter((row) => row.archived).length} im Archiv` : ''}` : ''}, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
+    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.events || []).length} Termine, ${(data.ideas || []).length} Ideen${Array.isArray(data.plans) ? `, ${data.plans.length} Abläufe` : ''}${Array.isArray(data.portfolio) ? `, ${data.portfolio.length} Projekte${data.portfolio.filter((row) => row.archived).length ? `, ${data.portfolio.filter((row) => row.archived).length} im Archiv` : ''}` : ''}${Array.isArray(data.drafts) ? `, ${data.drafts.length} Entwürfe` : ''}, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
     keys,
     contacts,
     reminders: (data.reminders || []).length,
@@ -249,6 +251,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     ideas: arr(o.ideas),
     plans: Object.prototype.hasOwnProperty.call(o, 'plans') ? arr(o.plans) : undefined,
     portfolio: Object.prototype.hasOwnProperty.call(o, 'portfolio') ? arr(o.portfolio) : undefined,
+    drafts: Object.prototype.hasOwnProperty.call(o, 'drafts') ? arr(o.drafts) : undefined,
     watch_movies: arr(o.watch_movies),
     watched_movies: arr(o.watched_movies),
     shopping: arr(o.shopping),
@@ -288,6 +291,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     ideas: await listIdeas(),
     plans: await listPlans(),
     portfolio: await listPortfolio(),
+    drafts: await getAll<Draft>('drafts'),
     watch_movies: await listWatchMovies(),
     watched_movies: await listWatchedMovies(),
     shopping: await listShopping(),
@@ -327,6 +331,14 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   if (data.portfolio) {
     await replaceStore('portfolio', data.portfolio)
     await mirrorPortfolio(data.portfolio)
+  }
+  if (data.drafts) {
+    const rows = data.drafts.filter((row) => row && typeof row.id === 'string' && row.id)
+    await replaceStore('drafts', rows)
+    const shown = String(loadSettings().entwurf_id || '')
+    if (shown && !rows.some((row) => row.id === shown)) {
+      saveSettings({ entwurf_id: '', entwurf_status: '' })
+    }
   }
   await replaceStore('watch_movies', data.watch_movies || [])
   await replaceStore('watched_movies', data.watched_movies || [])

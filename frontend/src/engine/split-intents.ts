@@ -16,6 +16,8 @@ export function splitIntents(text: string): string[] {
   const raw = text.trim()
   if (!raw || MEMORY_WRITE.test(raw)) return [raw]
   if (/^\s*plan(?:e)?\s+das\s*:/i.test(raw)) return [raw]
+  if (/^\s*entwirf(?:e)?\b/i.test(raw)) return [raw]
+  if (/^\s*(?:zeig(?:e)?(?:\s+mir)?\s+)?(?:hast\s+du\s+)?(?:inspiration|animationen)\b/i.test(raw)) return [raw]
   if (/\sund\s/i.test(raw) && /(?:entfernen|entfern(?:e)?|lösch(?:en|e)?|streich(?:e)?)\s*[.!?]?$/i.test(raw)) {
     return [raw]
   }

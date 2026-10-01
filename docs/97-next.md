@@ -1,7 +1,7 @@
-# 97 — Entwurf auf der Tafel **PLAN** (`18.25`)
+# 97 — Entwurf auf der Tafel **CODE** (`18.25.0`)
 
-**Dieses Dokument ist PLAN.** Nichts davon liegt im App-Code.
-App-Code ist **`18.24.8`** (versionCode `182408`). Die Sideload-Datei bleibt **`18.24.7`**.
+**Dieses Dokument ist CODE.** Die Rahmen liegen in der App.
+App-Code ist **`18.25.0`** (versionCode `182500`). Die Sideload-Datei bleibt **`18.24.7`**.
 Die Datei `releases/Jarvis.apk` auf `main` ist dieser Stand: Portfolio,
 Ultron-Fläche, Raum- und Objekt-Scan, Schachbrett, rotes Auge.
 
@@ -10,8 +10,7 @@ Portfolio in [`96-next.md`](./96-next.md). Der Scan liegt in
 [`roomar-openscan-plan.md`](./roomar-openscan-plan.md), Test
 [`TEST-18.24.6.md`](./TEST-18.24.6.md). Diese Schiene hebt die Sideload-Datei nicht an.
 
-Fertig gebaut ist der Entwurf erst als **`18.25.0`** (versionCode `182500`),
-und erst wenn Sprint 430 grün ist.
+Der Entwurf ist **`18.25.0`** (versionCode `182500`). Sprint 430 ist im Code.
 
 Sprints **424–430**.
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md) und die
@@ -308,18 +307,18 @@ Felder füllen. Kommt nichts Gültiges zurück, gilt der Satz aus §1.
 
 ---
 
-## 8. Sprints (`18.25.0` PLAN)
+## 8. Sprints (`18.25.0` CODE)
 
 | Sprint | Inhalt | Klasse |
 |--------|--------|--------|
-| [424](./sprints/sprint-424.md) | Sätze, Speicher, Nachbarn bleiben | Must PLAN |
-| [425](./sprints/sprint-425.md) | Modell füllt Varianten, ehrliche Leere | Must PLAN |
-| [426](./sprints/sprint-426.md) | Drei Rahmen auf der Tafel | Must PLAN |
-| [427](./sprints/sprint-427.md) | Inspiration, drei Muster, Wahl merken | Must PLAN |
-| [428](./sprints/sprint-428.md) | Wahl, Schließen, Ablauf und Scan gewinnen | Must PLAN |
-| [429](./sprints/sprint-429.md) | Entwürfe im Hausstand | Must PLAN |
-| [430](./sprints/sprint-430.md) | Gold, Testkarten, Version erst dann | Must PLAN |
+| [424](./sprints/sprint-424.md) | Sätze, Speicher, Nachbarn bleiben | Must CODE |
+| [425](./sprints/sprint-425.md) | Modell füllt Varianten, ehrliche Leere | Must CODE |
+| [426](./sprints/sprint-426.md) | Drei Rahmen auf der Tafel | Must CODE |
+| [427](./sprints/sprint-427.md) | Inspiration, drei Muster, Wahl merken | Must CODE |
+| [428](./sprints/sprint-428.md) | Wahl, Schließen, Ablauf und Scan gewinnen | Must CODE |
+| [429](./sprints/sprint-429.md) | Entwürfe im Hausstand | Must CODE |
+| [430](./sprints/sprint-430.md) | Gold, Testkarten, Version erst dann | Must CODE |
 
 Kette: 424 vor 425 und vor 429. 425 vor 426. 426 vor 427. 427 vor 428.
 429 hängt nicht an den Rahmen. 430 zuletzt, erst wenn 428 und 429 grün sind.
-Test-Sätze: [`TEST-18.25.md`](./TEST-18.25.md). Die Karten liegen erst nach 430 in Spur Heute.
+Test-Sätze: [`TEST-18.25.md`](./TEST-18.25.md). Die Karten liegen in Spur Heute, Gruppe `18.25 Entwurf`.

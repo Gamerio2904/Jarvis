@@ -7,6 +7,7 @@
  */
 import { isHelpCommand } from '../guards.ts'
 import { normalizeUtterance } from '../utterance.ts'
+import { draftFramesOpen, parseEntwurfIntent } from '../entwurf-parse.ts'
 import { parseOrdinalFollowUp } from '../ordinal.ts'
 import { isLiveLookup, parseShopDiscountIntent } from '../research-parse.ts'
 import { decideRoute } from '../route-pick.ts'
@@ -36,7 +37,9 @@ export function routeForEval(text: string, ctx: EvalCtx = {}): string {
   if (!norm.trim()) return 'llm'
   if (isHelpCommand(norm)) return 'help'
   if (parseShopDiscountIntent(norm)) return 'discount'
-  if (parseOrdinalFollowUp(norm)) return 'ordinal'
+  if (parseOrdinalFollowUp(norm) && !(draftFramesOpen() && parseEntwurfIntent(norm)?.kind === 'draft_pick')) {
+    return 'ordinal'
+  }
   const pick = decideRoute(routeCtx(text, ctx))
   const id = pick.kind === 'run' ? pick.id : pick.kind === 'ask' ? pick.a : null
   if (id === 'todo') return 'tools'

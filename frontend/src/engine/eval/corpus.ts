@@ -673,6 +673,19 @@ function push(
   if (!seen.tags.includes(tag)) seen.tags.push(tag)
 }
 
+/** Sprint 430. Gruppe `18.25 Entwurf`. Nachbarn behalten ihr Werkzeug. */
+export const ENTWURF_EXPECT: Record<string, string> = {
+  'Entwirf eine App: Einkaufsliste': 'board',
+  'Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig': 'board',
+  'Entwirf das': 'board',
+  'Entwirf: Notizen': 'board',
+  'Entwirf: Notizen, drei Karten, ein Feld oben': 'board',
+  'Zeig mir Inspiration zum Knopf': 'board',
+  'Hast du Animationen zur Karte': 'board',
+  'Inspiration zur Liste': 'board',
+  'Entwurf zu': 'board',
+}
+
 /** Sprint 423. Gruppe `18.24 Portfolio`. `Zeig mir London` bleibt in GOLD `hud`. */
 export const PORTFOLIO_EXPECT: Record<string, string> = {
   Portfolio: 'idea',
@@ -701,6 +714,7 @@ export function evalCases(): EvalCase[] {
   for (const [text, expect] of Object.entries(ALLTAG_EXPECT)) push(out, text, expect, 'regress', 'sprint-257')
   for (const [text, expect] of Object.entries(STT_EXPECT)) push(out, text, expect, 'stt', 'sprachmodus')
   for (const [text, expect] of Object.entries(PORTFOLIO_EXPECT)) push(out, text, expect, 'gold', '18.24 Portfolio')
+  for (const [text, expect] of Object.entries(ENTWURF_EXPECT)) push(out, text, expect, 'gold', '18.25 Entwurf')
   cache = [...out.values()]
   return cache
 }

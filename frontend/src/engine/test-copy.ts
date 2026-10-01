@@ -13,6 +13,25 @@ export type TestCopyGroup = { title: string; items: TestCopyItem[] }
 
 export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
+    title: '18.25 Entwurf',
+    items: [
+      { label: 'App', text: 'Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig', expect: { tool: 'board' } },
+      { label: 'Das', text: 'Entwirf das', expect: { tool: 'board' } },
+      { label: 'Knopf', text: 'Zeig mir Inspiration zum Knopf', expect: { tool: 'board' } },
+      { label: 'Karte', text: 'Hast du Animationen zur Karte', expect: { tool: 'board' } },
+      { label: 'Muster', text: 'Die zweite' },
+      { label: 'Notizen', text: 'Entwirf: Notizen, drei Karten, ein Feld oben', expect: { tool: 'board' } },
+      { label: 'Wahl', text: 'Die zweite' },
+      { label: 'Zu', text: 'Entwurf zu', expect: { tool: 'board' } },
+      { label: 'Kalender bleibt', text: 'Simuliere Kalender', expect: { tool: 'board' } },
+      { label: 'Ablauf bleibt', text: 'Plane das: Trag morgen 9 Uhr Zahnarzt ein', expect: { tool: 'idea' } },
+      { label: 'Raum', text: 'Scanne den Raum', expect: { tool: 'board' } },
+      { label: 'Scan aus', text: 'Scan beenden', expect: { tool: 'board' } },
+      { label: 'Projekt bleibt', text: 'Zeig Projekt Einkauf', expect: { tool: 'idea' } },
+      { label: 'Sprints', text: 'Zeig Sprints', expect: { tool: 'board' } },
+    ],
+  },
+  {
     title: '18.23 Ablauf',
     items: [
       { label: 'Ablauf', text: 'Plane das: Trag morgen 9 Uhr Zahnarzt ein, stell einen Wecker auf 8 und such Open Source zu Tic-Tac-Toe', expect: { tool: 'idea' } },

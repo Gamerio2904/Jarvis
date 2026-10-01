@@ -14,6 +14,7 @@ import { fillPlanWithModel, pickIdea } from './idea.ts'
 import { fileFor, saveProjectJson } from './project-docs.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
 import { applyScan } from './room-scan.ts'
+import { handleEntwurf, hideDraftFrames } from './entwurf.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
 
@@ -75,7 +76,7 @@ function researchTitles(): string[] {
   }
 }
 
-export async function handleBoard(_conversationId: string, text: string): Promise<{
+export async function handleBoard(conversationId: string, text: string): Promise<{
   handled: boolean
   reply?: string
   tool?: ToolMeta
@@ -84,7 +85,17 @@ export async function handleBoard(_conversationId: string, text: string): Promis
   const intent = parseBoardIntent(text)
   if (!intent) return { handled: false }
 
+  if (
+    intent.kind === 'entwurf' ||
+    intent.kind === 'inspiration' ||
+    intent.kind === 'draft_pick' ||
+    intent.kind === 'draft_close'
+  ) {
+    return pack(await handleEntwurf(conversationId, intent), intent.kind, { kind: intent.kind })
+  }
+
   if (intent.kind === 'scan') {
+    if (intent.op === 'start' || intent.op === 'end') hideDraftFrames()
     return pack(applyScan(intent), `scan_${intent.op}`, { op: intent.op })
   }
 
@@ -167,6 +178,7 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     return pack(`Die Tafel ist fest. ${name} bleibt im Skript.`, 'place')
   }
   if (intent.kind === 'view') {
+    if (intent.view === 'sprints' || intent.view === 'psp' || intent.view === 'sim') hideDraftFrames()
     try {
       saveSettings({
         tischplatte_on: true,

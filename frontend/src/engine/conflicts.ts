@@ -478,7 +478,11 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
       board.kind === 'place' ||
       board.kind === 'stop' ||
       board.kind === 'download' ||
-      board.kind === 'scan')
+      board.kind === 'scan' ||
+      board.kind === 'entwurf' ||
+      board.kind === 'inspiration' ||
+      board.kind === 'draft_pick' ||
+      board.kind === 'draft_close')
   ) {
     out = drop(out, 'hud')
     out = drop(out, 'desk')
@@ -502,7 +506,19 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'board', 0.35)
   }
 
-  if (has(out, 'board') && board?.kind !== 'scan' && (has(out, 'plug') || has(out, 'weather'))) {
+  const draft =
+    board?.kind === 'entwurf' ||
+    board?.kind === 'inspiration' ||
+    board?.kind === 'draft_pick' ||
+    board?.kind === 'draft_close'
+  if (draft) {
+    out = drop(out, 'idea')
+    out = drop(out, 'calendar')
+    out = drop(out, 'shopping')
+    out = boost(out, 'board', 0.4)
+  }
+
+  if (has(out, 'board') && board?.kind !== 'scan' && !draft && (has(out, 'plug') || has(out, 'weather'))) {
     out = drop(out, 'board')
   }
 
@@ -511,7 +527,8 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     has(out, 'calendar') &&
     board?.kind !== 'place' &&
     board?.kind !== 'scan' &&
-    !/\b(?:simulier|tischplatte|werkbank|projekttafel|features?|docs|geplant)\b/.test(t)
+    !draft &&
+    !/\b(?:simulier|tischplatte|werkbank|projekttafel|features?|docs|geplant|entwirf|entwurf|inspiration|animationen)\b/.test(t)
   ) {
     out = drop(out, 'board')
   }

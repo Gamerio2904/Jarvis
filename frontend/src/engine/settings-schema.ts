@@ -22,6 +22,7 @@ export const ENUM_FIELDS = {
   tischplatte_view: ['sprints', 'psp', 'modules', 'sim', 'research'],
   plan_phase: ['', 'live', 'go'],
   script_sprint_side: ['left', 'right'],
+  entwurf_status: ['', 'offen', 'gewählt', 'zu'],
   drive_speak: ['after', 'only'],
   presence_role: ['brain', 'window'],
   body_view: ['classic', 'agents'],

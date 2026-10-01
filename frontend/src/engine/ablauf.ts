@@ -7,6 +7,7 @@ import { pickRoute } from './route-pick.ts'
 import { formatResearchReply, researchHasSources } from './research-parse.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
 import { completeGroq, groqReady } from './groq.ts'
+import { closeDraftRow } from './entwurf.ts'
 import { get, getAll, listIdeas, listMessages, loadSettings, newId, put, saveSettings } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -496,6 +497,7 @@ export async function handleAblauf(
 
   const current = await readPlan(loadSettings().ablauf_id)
   if (intent.kind === 'close') {
+    if (/^\s*fenster\s+zu\b/i.test(text.trim())) await closeDraftRow()
     if (!current || current.status === 'zu' || current.status === 'fertig') {
       if (loadSettings().ablauf_status === 'leer') {
         saveSettings({ ablauf_status: '', ablauf_id: '' })

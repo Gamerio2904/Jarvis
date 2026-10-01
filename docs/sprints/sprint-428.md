@@ -1,6 +1,6 @@
 # Sprint 428 — Wahl und Schließen
 
-**Version:** `18.25.0` — **PLAN** Must
+**Version:** `18.25.0` — **CODE** Must
 **Plan:** [`97-next.md`](../97-next.md) §4 §5
 **Voraussetzung:** 427. Rahmen und Muster liegen.
 

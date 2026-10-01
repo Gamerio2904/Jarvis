@@ -1,6 +1,6 @@
 # Sprint 424 — Sätze und Speicher
 
-**Version:** `18.25.0` — **PLAN** Must
+**Version:** `18.25.0` — **CODE** Must
 **Plan:** [`97-next.md`](../97-next.md) §3 §5
 **Voraussetzung:** Tafel `18.22`, Ablauf `18.23`, Portfolio und Scan `18.24.7` bleiben. Kein neuer Agent.
 

@@ -1,6 +1,6 @@
 # Sprint 426 — Drei Rahmen
 
-**Version:** `18.25.0` — **PLAN** Must
+**Version:** `18.25.0` — **CODE** Must
 **Plan:** [`97-next.md`](../97-next.md) §4
 **Voraussetzung:** 425. Eine Zeile `offen` hat Varianten.
 

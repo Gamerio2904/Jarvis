@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.24.8'
+export const APP_VERSION = '18.25.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -398,6 +398,12 @@ export type Settings = {
   ablauf_status: string
   /** Nach dem Lauf zeigt die Sprintliste diese Zeile, bis „Zeig Sprints“. */
   ablauf_list_id: string
+  /** Gezeigte Entwurfszeile. Kein zweites Vollstück. */
+  entwurf_id: string
+  /** Baustein und Musterindex, bis „Entwurf zu“. */
+  entwurf_muster: string
+  /** Spiegel, damit ein Tipp bei gleicher Id die Fläche neu zeichnet. */
+  entwurf_status: '' | 'offen' | 'gewählt' | 'zu'
   /** Eine offene Bitte, einen anderen Bot dazuzuholen. Kein Lauf ohne Ja. */
   bot_ask_json: string
   proposal_pending: boolean
@@ -598,6 +604,9 @@ export const DEFAULT_SETTINGS: Settings = {
   ablauf_id: '',
   ablauf_status: '',
   ablauf_list_id: '',
+  entwurf_id: '',
+  entwurf_muster: '',
+  entwurf_status: '',
   bot_ask_json: '',
   proposal_pending: false,
   github_token: '',
@@ -782,7 +791,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 14)
+    const req = indexedDB.open('jarvis-ondevice', 15)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -804,6 +813,7 @@ function openDb(): Promise<IDBDatabase> {
         'xfer',
         'plans',
         'portfolio',
+        'drafts',
         'knowledge_packs',
         'rm_scene_skills',
         'memory_proposals',

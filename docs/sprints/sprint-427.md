@@ -1,6 +1,6 @@
 # Sprint 427 — Inspiration
 
-**Version:** `18.25.0` — **PLAN** Must
+**Version:** `18.25.0` — **CODE** Must
 **Plan:** [`97-next.md`](../97-next.md) §2
 **Voraussetzung:** 426. Die Rahmen können drei Spalten zeichnen.
 

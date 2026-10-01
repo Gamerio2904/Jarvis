@@ -83,6 +83,8 @@ import { pendingYields } from './pending-yield.ts'
 import { handleTvOrdinal, tvStatusFromSettings } from './tv.ts'
 import { handleFuelOrdinal } from './fuel.ts'
 import { handlePoiOrdinal } from './poi.ts'
+import { draftFramesOpen, parseEntwurfIntent } from './entwurf-parse.ts'
+import { handleEntwurf } from './entwurf.ts'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal.ts'
 import { type ToolMeta } from './tools.ts'
 import { routeRegistry, type RouteHit } from './registry.ts'
@@ -297,6 +299,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   }
 
   const ord = parseOrdinalFollowUp(content)
+  if (ord && draftFramesOpen()) {
+    const draft = parseEntwurfIntent(content)
+    if (draft?.kind === 'draft_pick') {
+      const reply = await handleEntwurf(conversationId, draft)
+      return {
+        reply,
+        tool: { tool_status: 'executed', tool: 'board', action: 'draft_pick', label: 'Tischplatte' },
+        lastTool: 'board',
+      }
+    }
+  }
   if (ord) {
     const s = loadSettings()
     if (s.last_step_tool === 'tv') {

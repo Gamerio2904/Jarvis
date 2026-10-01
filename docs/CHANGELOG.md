@@ -5,15 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.0` — Entwurf auf der Tafel — *CODE*
+
+`Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tischplatte. Ein Tipp oder `Die zweite` merkt die Wahl. `Zeig mir Inspiration zum Knopf` zeigt drei feste Muster. Ablauf und Scan gehen vor. Die Entwürfe stehen im Hausstand. Die Sideload-Datei auf `main` ist weiter `18.24.7`.
+
 ### `18.24.8` — Prompt je Sprint — *CODE*
 
 `Plane das` lässt das Modell zu jedem Sprint einen Prompt schreiben. Der Prompt ist eine Anleitung für einen Programmier-Agenten: Ziel, Arbeiten, Abbruch, was nicht gebaut wird. Auf der Tafel steht er unter dem Sprint, `Prompt kopieren` legt ihn in die Zwischenablage. Die Sprint-Datei enthält dasselbe Feld. Ohne Modell bleibt der Prompt leer. Die Sideload-Datei auf `main` ist weiter `18.24.7`.
-
-### `18.25.0` — Entwurf auf der Tafel — *PLAN*
-
-Noch nicht gebaut. `Entwirf eine App` soll bis zu drei stumme Bildschirme
-auf die Tischplatte legen. `Die zweite` merkt die Wahl. App-Code ist
-**`18.24.8`**. Plan: [`97-next.md`](./97-next.md), Sprints 424–430.
 
 ### `18.24.7` — Brett, Icon, Scan — *CODE*
 

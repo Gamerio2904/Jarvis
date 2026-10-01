@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.24.8`**, versionCode `182408`. Sideload-Datei noch **`18.24.7`**. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.25.0`**, versionCode `182500`. Sideload-Datei noch **`18.24.7`**. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -957,22 +957,20 @@ beenden ihn. Sprints 417–423 sind das Portfolio. Der Scan liegt im Code
 ohne neue Sprintnummer.
 Test: [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 
-### `18.25` — Entwurf [`97-next.md`](./97-next.md) **PLAN**
+### `18.25` — Entwurf [`97-next.md`](./97-next.md) **CODE**
 
-Noch nicht gebaut. App-Code ist **`18.24.8`**. Fertig ist die Schiene
-erst **`18.25.0`** (versionCode `182500`), wenn Sprint 430 grün ist.
-`Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel.
+**`18.25.0`** (App-Code, versionCode `182500`). `Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel. `Die zweite` merkt die Wahl. Inspiration zeigt drei feste Muster. Die Sideload-Datei ist noch **`18.24.7`**.
 Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.25.0` | Sätze, Speicher | 424 PLAN |
-| `18.25.0` | Modell füllt Varianten | 425 PLAN |
-| `18.25.0` | Drei Rahmen auf der Tafel | 426 PLAN |
-| `18.25.0` | Inspiration, drei Muster | 427 PLAN |
-| `18.25.0` | Wahl, Schließen, Ablauf und Scan gewinnen | 428 PLAN |
-| `18.25.0` | Entwürfe im Hausstand | 429 PLAN |
-| `18.25.0` | Gold, Testkarten, versionCode `182500` | 430 PLAN |
+| `18.25.0` | Sätze, Speicher | 424 CODE |
+| `18.25.0` | Modell füllt Varianten | 425 CODE |
+| `18.25.0` | Drei Rahmen auf der Tafel | 426 CODE |
+| `18.25.0` | Inspiration, drei Muster | 427 CODE |
+| `18.25.0` | Wahl, Schließen, Ablauf und Scan gewinnen | 428 CODE |
+| `18.25.0` | Entwürfe im Hausstand | 429 CODE |
+| `18.25.0` | Gold, Testkarten, versionCode `182500` | 430 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
