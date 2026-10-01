@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.0` — Entwurf auf der Tafel — *PLAN*
+
+Noch nicht gebaut. `Entwirf eine App` soll bis zu drei stumme Bildschirme
+auf die Tischplatte legen. `Die zweite` merkt die Wahl. `18.24.6` gibt es
+nicht. Plan: [`96-next.md`](./96-next.md), Sprints 417–423.
+
 ### `18.23.12` — Bild nur auf Verlangen — *CODE*
 
 `Zeig mir ein Bild der Elbe` zeigt ein Wikipedia-Bild mit Quelle. `wie sieht das wappen von bayern münchen aus` nimmt das Wappen von OpenLigaDB. `Zeig mir London` bleibt die Kugel. Ohne Treffer: `Kein Bild geladen.`

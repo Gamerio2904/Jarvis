@@ -944,6 +944,23 @@ Katalog-Stand bleibt `18.20.0`.
 | `18.23.10` | Erinnerung am Datum, Ja führt den Vorschlag aus | Nachtest |
 | `18.23.9` | Nein plus Minuten setzt die Zeit, Wer-ist sucht | Nachtest |
 
+### `18.24` — Entwurf [`96-next.md`](./96-next.md) **PLAN**
+
+Noch nicht gebaut. App-Code bleibt **`18.23.12`**. Fertig ist die Schiene
+erst **`18.24.0`** (versionCode `182400`), wenn Sprint 423 grün ist.
+**`18.24.6` gibt es nicht** und ist in diesem Plan nicht vorgesehen.
+Sprints 417–423. Test: [`TEST-18.24.md`](./TEST-18.24.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.24.0` | Sätze, Speicher | 417 PLAN |
+| `18.24.0` | Modell füllt Varianten | 418 PLAN |
+| `18.24.0` | Drei Rahmen auf der Tafel | 419 PLAN |
+| `18.24.0` | Inspiration, drei Muster | 420 PLAN |
+| `18.24.0` | Wahl, Schließen, Ablauf gewinnt | 421 PLAN |
+| `18.24.0` | Entwürfe im Hausstand | 422 PLAN |
+| `18.24.0` | Gold, Testkarten, versionCode `182400` | 423 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.

@@ -99,9 +99,11 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 93 | [Datei-QR 18.21](./93-next.md) | **CODE** in `18.22.0` — Dateien und Kopierzeilen als QR im Chat, Foto auf dem anderen Gerät, Lade-Knopf; Sprints 398–403 |
 | 94 | [Tafel 18.22](./94-next.md) | **CODE** `18.22.0` — Tischplatte als Tafel: Sprintliste, PSP, Uhr, Quellen, Termin, Jobs. Finger und Jarvis schieben jedes Stück, auch aus dem Bild; Sprints 404–409 |
 | 95 | [Ablauf 18.23](./95-next.md) | **CODE** `18.23.0` — Fenster über der Tafel, Ablauf welcher Agent was tut, nach `So` gleichzeitig, jede Planungsdatei im Hausstand; Sprints 410–416 |
+| 96 | [Entwurf 18.24](./96-next.md) | **PLAN** — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; fertig erst `18.24.0`; Sprints 417–423 |
 | — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
 | — | [Test 18.22](./TEST-18.22.md) | Tafel-Sätze, in der App ab `18.22.0` |
 | — | [Test 18.23](./TEST-18.23.md) | Ablauf-Sätze, noch nicht in der App |
+| — | [Test 18.24](./TEST-18.24.md) | Entwurf-Sätze, noch nicht in der App |
 | — | [APK](./apk.md) | Sideload `18.20.0`; Test: [`TEST-18.20.md`](./TEST-18.20.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
@@ -338,5 +340,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 398–403 | `18.21.0` | **CODE** in `18.22.0` (Datei-QR, [`93-next.md`](./93-next.md)) |
 | 404–409 | `18.22.0` | **CODE** (Tafel, [`94-next.md`](./94-next.md)) |
 | 410–416 | `18.23.0` | **CODE** (Ablauf, [`95-next.md`](./95-next.md)) |
+| 417–423 | `18.24.0` | **PLAN** (Entwurf, [`96-next.md`](./96-next.md)) |
 
-**Aktuell:** App-Code **`18.23.12`**. Sideload-APK **`18.23.12`**, versionCode `182312`. 392–397 **CODE + APK**. 398–403 **CODE** ([`93-next.md`](./93-next.md)), 404–409 **CODE** ([`94-next.md`](./94-next.md)). 410–416 **CODE** ([`95-next.md`](./95-next.md)). Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md), [`TEST-18.22.md`](./TEST-18.22.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.23.12`**. Sideload-APK **`18.23.12`**, versionCode `182312`. 392–397 **CODE + APK**. 398–403 **CODE** ([`93-next.md`](./93-next.md)), 404–409 **CODE** ([`94-next.md`](./94-next.md)). 410–416 **CODE** ([`95-next.md`](./95-next.md)). 417–423 **PLAN** ([`96-next.md`](./96-next.md)), fertig erst `18.24.0`. Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.20.md`](./TEST-18.20.md), [`TEST-18.22.md`](./TEST-18.22.md). Index: [`42-planned.md`](./42-planned.md).
