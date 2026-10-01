@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { createPortal } from 'react-dom'
 import {
   clearMemory,
@@ -72,11 +72,14 @@ import { WakeBubble } from './ui/WakeBubble.tsx'
 import { ToolChip } from './ui/ToolChip.tsx'
 import { hideToolChip } from './ui/tool-chip.ts'
 import { ChatBlocks } from './ui/ChatBlocks.tsx'
-import { parseChatBlocks } from './engine/chat-blocks.ts'
+import { parseChatBlocks, type ChatBlock } from './engine/chat-blocks.ts'
+import { clipboardImageFile } from './engine/clipboard-image.ts'
+import { fileToJpegDataUrl } from './engine/eye.ts'
+import { saveLastEyeImage } from './engine/agent-session.ts'
 import { useOverlay } from './overlay.ts'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm.ts'
 import { closeDrive, subscribeDrive } from './engine/drive.ts'
-import { deleteMessage, loadSettings, patchMessage } from './engine/store.ts'
+import { addMessage, deleteMessage, loadSettings, patchMessage } from './engine/store.ts'
 import { truncateSpoken } from './engine/turn-detect.ts'
 import { warmCloud } from './engine/cloud-warm.ts'
 import { syncGlance } from './engine/glance.ts'
@@ -273,6 +276,7 @@ function App() {
   const activeIdRef = useRef<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
+  const [pasteImage, setPasteImage] = useState<{ src: string; alt: string } | null>(null)
   const [busy, setBusy] = useState(false)
   const busyRef = useRef(false)
   const sendRef = useRef<(text: string) => Promise<unknown>>(async () => undefined)
@@ -1277,7 +1281,7 @@ function App() {
 
   async function sendMessage(
     content: string,
-    opts?: { conversationId?: string; source?: TurnSource; requestId?: string },
+    opts?: { conversationId?: string; source?: TurnSource; requestId?: string; blocks?: ChatBlock[] },
   ): Promise<{ reply: string; tool?: ToolMeta; error?: string }> {
     const source: TurnSource = opts?.source || 'user'
     if (!content) return { reply: '' }
@@ -1347,6 +1351,7 @@ function App() {
         role: 'user',
         content,
         created_at: new Date().toISOString(),
+        meta: opts?.blocks?.length ? { blocks: opts.blocks } : null,
       }
       markEnter(optimistic.id)
       if (showUi()) setMessages((prev) => [...prev, optimistic])
@@ -1467,7 +1472,7 @@ function App() {
           lastError = detail
           if (showUi()) setError(detail)
         },
-      })
+      }, opts?.blocks?.length ? { blocks: opts.blocks } : undefined)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Senden fehlgeschlagen'
       lastError = msg
@@ -1537,11 +1542,63 @@ function App() {
     }
   }
 
+  function pastedBlock(image: { src: string; alt: string }): ChatBlock {
+    return { kind: 'image', src: image.src, alt: image.alt, source: 'Zwischenablage' }
+  }
+
+  async function attachClipboardImage(file: File) {
+    const got = await fileToJpegDataUrl(file)
+    if ('error' in got) {
+      setError(got.error)
+      return
+    }
+    setError(null)
+    setPasteImage({ src: got.dataUrl, alt: 'Eingefügtes Bild' })
+  }
+
+  function onPasteImage(e: ClipboardEvent<HTMLTextAreaElement>) {
+    const file = clipboardImageFile(e.clipboardData)
+    if (!file || busy) return
+    e.preventDefault()
+    void attachClipboardImage(file)
+  }
+
+  async function commitPastedImage(image: { src: string; alt: string }) {
+    setBusy(true)
+    busyRef.current = true
+    setError(null)
+    try {
+      const conversationId = await ensureConversation()
+      saveLastEyeImage(image.src)
+      await addMessage(conversationId, 'user', 'Bild', { blocks: [pastedBlock(image)] })
+      await addMessage(conversationId, 'assistant', 'Bild liegt an der Nachricht.')
+      const conv = await getConversation(conversationId)
+      setMessages(conv.messages)
+      setConversations((prev) => {
+        const rest = prev.filter((c) => c.id !== conv.id)
+        return [conv, ...rest]
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Bild nicht angehängt')
+    } finally {
+      setBusy(false)
+      busyRef.current = false
+      textareaRef.current?.focus()
+    }
+  }
+
   async function onSend() {
     const content = draft.trim()
-    if (!content || busy) return
+    const image = pasteImage
+    if (busy || (!content && !image)) return
     setDraft('')
-    await sendMessage(content)
+    setPasteImage(null)
+    if (image && !content) {
+      await commitPastedImage(image)
+      return
+    }
+    if (image) saveLastEyeImage(image.src)
+    await sendMessage(content, { blocks: image ? [pastedBlock(image)] : undefined })
   }
 
   async function sendVoiceTurn(
@@ -2351,7 +2408,7 @@ function App() {
                 enterIds[m.id] &&
                 (m.role === 'user' ? 'enter-user' : 'enter-assistant')
               const tool = m.role === 'assistant' ? (m.meta?.tool as ToolMeta | undefined) : undefined
-              const blocks = m.role === 'assistant' ? parseChatBlocks(m.meta?.blocks) : []
+              const blocks = parseChatBlocks(m.meta?.blocks)
               return (
                 <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
                   {m.role === 'assistant' ? (
@@ -2433,6 +2490,14 @@ function App() {
             </div>
           ) : null}
           <div className={`composer ${composerFocused ? 'is-focused' : ''} ${busy ? 'is-busy' : ''}`}>
+            {pasteImage ? (
+              <div className="paste-preview">
+                <img src={pasteImage.src} alt={pasteImage.alt} />
+                <button type="button" onClick={() => setPasteImage(null)} aria-label="Bild von der Nachricht nehmen">
+                  Weg
+                </button>
+              </div>
+            ) : null}
             <input
               ref={eyeFileRef}
               type="file"
@@ -2448,6 +2513,7 @@ function App() {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={onKeyDown}
+              onPaste={onPasteImage}
               onFocus={() => setComposerFocused(true)}
               onBlur={() => setComposerFocused(false)}
               placeholder="Nachricht an Ultron…"
@@ -2482,7 +2548,7 @@ function App() {
                 type="button"
                 className="icon-btn send-round"
                 onClick={() => void onSend()}
-                disabled={busy || !draft.trim()}
+                disabled={busy || (!draft.trim() && !pasteImage)}
                 aria-label="Senden"
                 title="Senden"
               >
@@ -2651,6 +2717,9 @@ function App() {
               draft={draft}
               setDraft={setDraft}
               onSend={() => void onSend()}
+              onPasteImage={onPasteImage}
+              pasteImage={pasteImage}
+              onClearPaste={() => setPasteImage(null)}
               face="ultron"
             />
           ) : null}

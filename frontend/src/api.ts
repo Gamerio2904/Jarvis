@@ -13,6 +13,7 @@ import {
   releaseModel as engineReleaseModel,
   type StreamHandlers,
 } from './engine/chat.ts'
+import type { ChatBlock } from './engine/chat-blocks.ts'
 import {
   APP_VERSION,
   addMessage,
@@ -247,7 +248,7 @@ export async function streamChat(
   id: string,
   content: string,
   handlers: StreamHandlers,
-  opts?: { voice?: boolean },
+  opts?: { voice?: boolean; blocks?: ChatBlock[] },
 ): Promise<void> {
   return engineStream(id, content, handlers, opts)
 }

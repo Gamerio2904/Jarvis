@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.5` — Bild aus der Zwischenablage — *CODE + APK*
+
+Ein Bild aus der Zwischenablage hängt an der Nachricht. Einfügen zeigt es über dem Feld. Senden legt es an den Satz. Ohne Satz bleibt es als Bild liegen. `Weg` nimmt es vor dem Senden ab.
+
+App-Code und Sideload **`18.25.5`** (versionCode `182505`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.4` — Ein Plan auf der Tischplatte — *CODE + APK*
 
 `Neues Projekt`, `Plane eine App` und `Plane das Projekt` öffnen denselben Planungsbildschirm und legen die Karte. Wer, Anforderung und Sprint stehen je einmal. Die Statuszeile sagt, ob die Karte liegt. Ein Plansatz, den kein Parser annimmt, bleibt auf der Tischplatte liegen. Der kleine Chat bleibt offen.

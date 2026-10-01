@@ -2308,6 +2308,30 @@ button.linkish {
   cursor: default;
 }
 
+.paste-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.paste-preview img,
+.mini-chat-shot {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+.paste-preview button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
 .composer {
   width: min(820px, 100%);
   margin: 0 auto;
@@ -7911,6 +7935,11 @@ html.theme-wipe-dark::before {
   gap: 8px;
   padding: 8px;
   border-top: 1px solid var(--border);
+}
+
+.mini-chat-compose .paste-preview {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 
 .mini-chat-compose textarea {

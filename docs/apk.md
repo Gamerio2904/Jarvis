@@ -1,9 +1,9 @@
-# Android-APK — App-Code `18.25.4`
+# Android-APK — App-Code `18.25.5`
 
-App-Code und Sideload **`18.25.4`** (versionCode `182504`):
+App-Code und Sideload **`18.25.5`** (versionCode `182505`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-`Neues Projekt`, `Plane eine App` und `Plane das Projekt` öffnen denselben Planungsbildschirm und legen die Karte. Jede Zeile steht einmal. Ein unerkannter Plansatz ändert die Tischplatte nicht. `Fertig` schließt den Bildschirm. `Plane das:` bleibt das live Skript. `Lösche das Projekt` legt die Karte ins Archiv. Diese Datei ersetzt `18.25.3`, weil der versionCode steigt.
+Ein Bild aus der Zwischenablage hängt an der Nachricht, im großen Chat und im kleinen. Diese Datei ersetzt `18.25.4`, weil der versionCode steigt.
 
 Entwurf: [`TEST-18.25.md`](./TEST-18.25.md). Testsätze ab Hausstand-Code: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md). Portfolio: [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 

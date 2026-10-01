@@ -584,7 +584,7 @@ export async function streamChat(
   conversationId: string,
   content: string,
   handlers: StreamHandlers,
-  opts?: { voice?: boolean },
+  opts?: { voice?: boolean; blocks?: ChatBlock[] },
 ): Promise<void> {
   const conv = await storeGet<Conversation>('conversations', conversationId)
   if (!conv) throw new Error('Gespräch nicht gefunden.')
@@ -592,7 +592,12 @@ export async function streamChat(
   openHistoryTurn(content)
 
   noteTurn('user', content)
-  const userMessage = await addMessage(conversationId, 'user', content)
+  const userMessage = await addMessage(
+    conversationId,
+    'user',
+    content,
+    opts?.blocks?.length ? { blocks: opts.blocks } : null,
+  )
   const convAfterUser = (await storeGet<Conversation>('conversations', conversationId)) || conv
   const kind = brainKind()
   handlers.onMeta?.({

@@ -1,5 +1,7 @@
-import type { KeyboardEvent } from 'react'
+import type { ClipboardEvent, KeyboardEvent } from 'react'
 import type { Message } from '../api.ts'
+import { parseChatBlocks } from '../engine/chat-blocks.ts'
+import { safeImageSrc } from '../engine/image-parse.ts'
 
 export function MiniChat({
   open,
@@ -11,6 +13,9 @@ export function MiniChat({
   draft,
   setDraft,
   onSend,
+  onPasteImage,
+  pasteImage,
+  onClearPaste,
   face,
 }: {
   open: boolean
@@ -22,6 +27,9 @@ export function MiniChat({
   draft: string
   setDraft: (v: string) => void
   onSend: () => void
+  onPasteImage: (e: ClipboardEvent<HTMLTextAreaElement>) => void
+  pasteImage: { src: string; alt: string } | null
+  onClearPaste: () => void
   face: 'ultron'
 }) {
   const recent = messages.slice(-6)
@@ -52,6 +60,12 @@ export function MiniChat({
                 <p key={m.id} className={`mini-chat-line is-${m.role}`}>
                   <span>{m.role === 'user' ? 'Sie' : 'U'}</span>
                   {m.content}
+                  {parseChatBlocks(m.meta?.blocks).map((block, i) => {
+                    if (block.kind !== 'image') return null
+                    const src = safeImageSrc(block.src)
+                    if (!src) return null
+                    return <img key={i} className="mini-chat-shot" src={src} alt={block.alt} />
+                  })}
                 </p>
               ))
             ) : (
@@ -65,15 +79,24 @@ export function MiniChat({
             ) : null}
           </div>
           <div className="mini-chat-compose">
+            {pasteImage ? (
+              <div className="paste-preview">
+                <img src={pasteImage.src} alt={pasteImage.alt} />
+                <button type="button" onClick={onClearPaste} aria-label="Bild von der Nachricht nehmen">
+                  Weg
+                </button>
+              </div>
+            ) : null}
             <textarea
               rows={2}
               value={draft}
               placeholder="Schreiben…"
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={onKey}
+              onPaste={onPasteImage}
               disabled={busy}
             />
-            <button type="button" className="retry-btn" disabled={busy || !draft.trim()} onClick={onSend}>
+            <button type="button" className="retry-btn" disabled={busy || (!draft.trim() && !pasteImage)} onClick={onSend}>
               Senden
             </button>
           </div>
