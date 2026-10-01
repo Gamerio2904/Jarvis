@@ -1,4 +1,5 @@
 import { listPlans, type Ablauf } from './ablauf.ts'
+import { listPortfolio, mirrorPortfolio, type PortfolioRow } from './portfolio.ts'
 import type { ChatBlock } from './chat-blocks.ts'
 import { offerHausQr, openHausScan, parseHausLink } from './haus-link.ts'
 import {
@@ -93,6 +94,8 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_step_utterance',
   'last_medium',
   'last_eye_line',
+  'portfolio_focus',
+  'portfolio_file',
   'last_ground_json',
   'last_weather_place',
   'last_weather_when',
@@ -138,6 +141,7 @@ export type HausBackup = {
   todos: Todo[]
   ideas?: Idea[]
   plans?: Ablauf[]
+  portfolio?: PortfolioRow[]
   watch_movies?: WatchMovie[]
   watched_movies?: WatchedMovie[]
   shopping: ShoppingItem[]
@@ -191,7 +195,7 @@ export function previewBackup(raw: unknown): BackupPreview {
   if (!data) {
     return {
       ok: false,
-      message: 'Keine Jarvis-Hausstand-Datei.',
+      message: 'Keine Hausstand-Datei.',
       keys: 0,
       contacts: 0,
       reminders: 0,
@@ -209,7 +213,7 @@ export function previewBackup(raw: unknown): BackupPreview {
   const contacts = (data.memory || []).filter((m) => m.category === 'contact' || m.category === 'email').length
   return {
     ok: true,
-    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.events || []).length} Termine, ${(data.ideas || []).length} Ideen${Array.isArray(data.plans) ? `, ${data.plans.length} Abläufe` : ''}, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
+    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.events || []).length} Termine, ${(data.ideas || []).length} Ideen${Array.isArray(data.plans) ? `, ${data.plans.length} Abläufe` : ''}${Array.isArray(data.portfolio) ? `, ${data.portfolio.length} Projekte${data.portfolio.filter((row) => row.archived).length ? `, ${data.portfolio.filter((row) => row.archived).length} im Archiv` : ''}` : ''}, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
     keys,
     contacts,
     reminders: (data.reminders || []).length,
@@ -244,6 +248,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     todos: arr(o.todos),
     ideas: arr(o.ideas),
     plans: Object.prototype.hasOwnProperty.call(o, 'plans') ? arr(o.plans) : undefined,
+    portfolio: Object.prototype.hasOwnProperty.call(o, 'portfolio') ? arr(o.portfolio) : undefined,
     watch_movies: arr(o.watch_movies),
     watched_movies: arr(o.watched_movies),
     shopping: arr(o.shopping),
@@ -282,6 +287,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     todos: await listTodos(),
     ideas: await listIdeas(),
     plans: await listPlans(),
+    portfolio: await listPortfolio(),
     watch_movies: await listWatchMovies(),
     watched_movies: await listWatchedMovies(),
     shopping: await listShopping(),
@@ -318,6 +324,10 @@ export async function applyBackup(data: HausBackup): Promise<string> {
       saveSettings({ ablauf_id: '', ablauf_status: '' })
     }
   }
+  if (data.portfolio) {
+    await replaceStore('portfolio', data.portfolio)
+    await mirrorPortfolio(data.portfolio)
+  }
   await replaceStore('watch_movies', data.watch_movies || [])
   await replaceStore('watched_movies', data.watched_movies || [])
   await replaceStore('shopping', data.shopping || [])
@@ -352,7 +362,17 @@ export async function applyBackup(data: HausBackup): Promise<string> {
 export type ImportChoice = { kind: 'haus'; data: HausBackup } | { kind: 'ics'; events: CalendarEvent[] }
 
 export function parseImportPayload(raw: string, filename = ''): ImportChoice | null {
-  const text = String(raw || '')
+  const text = String(raw || '').trim()
+  if (!text) return null
+  const namedJson = /\.json$/i.test(filename) || text.startsWith('{')
+  if (namedJson) {
+    try {
+      const data = asBackup(JSON.parse(text) as unknown)
+      if (data) return { kind: 'haus', data }
+    } catch {
+      /* keine JSON-Datei, dann ICS */
+    }
+  }
   if (looksLikeIcs(text) || /\.ics$/i.test(filename)) {
     return { kind: 'ics', events: icsToEvents(text) }
   }

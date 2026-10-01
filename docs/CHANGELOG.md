@@ -5,11 +5,56 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.24.0` — Entwurf auf der Tafel — *PLAN*
+### `18.24.6` — Raum- und Objekt-Scan — *CODE*
 
-Noch nicht gebaut. `Entwirf eine App` soll bis zu drei stumme Bildschirme
-auf die Tischplatte legen. `Die zweite` merkt die Wahl. `18.24.6` gibt es
-nicht. Plan: [`96-next.md`](./96-next.md), Sprints 417–423.
+„Scanne den Raum“ und „Scanne den Apfel“ öffnen die Kamera auf der Tischplatte. „Beende den Scan“ legt ein Tiefennetz auf den Tisch, wenn das Gerät Tiefenwerte liefert. Ein Finger dreht, zwei schieben, Ziehen zoomt. Ohne Tiefe bleibt das Modell aus. „Entferne alles aus dem Raum“ und „Tausche Bett mit Schreibtisch“ greifen nur, wenn die Klassen wirklich da sind.
+
+App-Code und Sideload **`18.24.6`** (versionCode `182406`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/raum-scan-cbd1/releases/Jarvis.apk
+
+### `18.24.5` — Ultron-Fläche — *CODE*
+
+Die Fläche ist neu: Chromplatten, scharfe Kanten, eine Schrift, das rote Auge nur als Licht. Start, Chat, Lage und Einstellungen sitzen auf derselben Platte. Der Senden-Knopf ist rot.
+
+App-Code und Sideload **`18.24.5`** (versionCode `182405`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
+
+### `18.24.4` — Nur Ultron — *CODE*
+
+Jarvis und Friday sind als Namen weg. Wake, Stimme, Hilfe und das Fenster heißen Ultron. Freitag und „Was steht am Friday an?“ bleiben Kalender. Die App-ID und `JarvisPC.bat` bleiben, damit das Update auf derselben App landet.
+
+App-Code und Sideload **`18.24.4`** (versionCode `182404`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
+
+### `18.24.3` — Ultron in der Mitte — *CODE*
+
+Jarvis und Friday sind an der Oberfläche ein Hirn. Die Mitte der Agentenkarte ist Ultron: Chromscheibe, rotes Auge, die Äste bleiben antippbar. Stahl und Rot statt Grün.
+
+App-Code und Sideload **`18.24.3`** (versionCode `182403`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
+
+### `18.24.2` — Wege vor den Sprints — *CODE*
+
+`Plane das` schreibt zuerst die Lösungswege aus dem Satz, dann Kern, Härten und Probe. Die Anleitung kopiert den Satz nicht mehr. `wege.json` und `luecken.json` nennen Recherche, Abnahme, Risiken und Schnittstellen als offen, solange keine Quelle da ist. Die Dateiliste ist deckend. Das Cover hat einen Ring. Die Tafel ist Glas.
+
+App-Code und Sideload **`18.24.2`** (versionCode `182402`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
+
+### `18.24.1` — Hausstand kommt an — *CODE*
+
+Eine Hausstand-Datei mit Terminen wurde beim Hochladen als leerer Kalender gelesen. Die Vorschau zeigte `0 Keys`. Jetzt bleibt sie der Hausstand: Keys, Nummern, Erinnerungen, Termine und Ideen.
+
+App-Code und Sideload **`18.24.1`** (versionCode `182401`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
+
+### `18.24.0` — Portfolio auf dem Hauptbildschirm — *CODE*
+
+`Go` legt das live Skript ins Portfolio, und zwar die Idee auf der Tafel, nicht die neueste. Der Hauptbildschirm zeigt die Karten mit Shredder. Ein Tipp oder `Zeig Projekt …` öffnet die Dateien. Ziehen in den Schlitz sagt, dass die Karte im Archiv liegt. `Beispiel zu …` legt ein Bild unter `portfolio/<slug>/beispiele/`. Ein https-Bild bleibt, wenn es nicht verkleinert werden kann. Leere Sprintziele bleiben leer. Der Hausstand enthält die Zeilen. Kein neues Bildmodell.
+
+Dieselbe Fassung enthält die Kalender- und Plan-Sätze: Löschen trifft nur echte Einträge, `Lösche den aktuellen Plan` räumt die Tafel, die Sprintliste rückt nach links und rechts, Chat und Kalendereintrag lassen sich gedrückt halten.
+
+App-Code und Sideload **`18.24.0`** (versionCode `182400`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
 
 ### `18.23.12` — Bild nur auf Verlangen — *CODE*
 

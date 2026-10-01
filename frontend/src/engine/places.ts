@@ -1068,7 +1068,7 @@ async function handleWaInbox(
     return {
       handled: true,
       reply:
-        'WhatsApp-Eingang braucht den Meldungszugriff. Jarvis in der Liste erlauben, dann nochmal. Stilles Senden mache ich nicht.',
+        'WhatsApp-Eingang braucht den Meldungszugriff. Ultron in der Liste erlauben, dann nochmal. Stilles Senden mache ich nicht.',
       tool: commTool('ask', 'WhatsApp', 'meldungen'),
       lastTool: 'maps',
     }

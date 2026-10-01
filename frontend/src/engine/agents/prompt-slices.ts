@@ -403,7 +403,7 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   "face": {
     "promptSlice": "Domäne face: Parser-Fakten only.",
     "goldPrompts": [
-      "Friday"
+      "Ultron"
     ]
   }
 }

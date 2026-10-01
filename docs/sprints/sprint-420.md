@@ -1,26 +1,26 @@
-# Sprint 420 — Inspiration
+# Sprint 420 — Öffnen und Archiv
 
-**Version:** `18.24.0` — **PLAN** Must
-**Plan:** [`96-next.md`](../96-next.md) §2
-**Voraussetzung:** 419. Die Rahmen können drei Spalten zeichnen.
+**Version:** `18.24.0` — **CODE** Must
+**Plan:** [`96-next.md`](../96-next.md)
+**Voraussetzung:** 419. Die Karten stehen auf der Mitte.
 
 ## Ziel
 
-Ein Satz zu einem Baustein zeigt drei feste Muster.
-`Die erste` merkt das Muster für den nächsten Entwurf.
+Ein Tipp oder `Zeig Projekt …` öffnet die Dateiliste. Der Schlitz und
+`Schredder` legen die Karte ins Archiv und lassen die Dateien liegen.
 
 ## Lieferumfang
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S420-1 | Muster | `entwurf-muster.ts` | Die Tabelle aus Plan §2, fest im Code. Drei Muster je Baustein. Unbekannter Name: `Den Baustein gibt es nicht.` und die sechs Namen. Kein Netz, kein Paket |
-| S420-2 | Fläche | `EntwurfStage.tsx` | Dieselben Rahmen. Beschriftung wie in der Tabelle. Kein Arbeitstext ans Modell |
-| S420-3 | Merken | `store.ts` | `Die erste` bis `Die dritte` schreibt `entwurf_muster`. Das nächste `Entwirf` setzt dieses Muster auf Bausteine dieser Art. `Entwurf zu` leert `entwurf_muster` |
+| S420-1 | Tipp | `PortfolioStage.tsx` `Shredder.tsx` | Bewegung unter 8 px öffnet. Darüber beginnt das Ziehen. `onShred` setzt `archived` true. Antwort `Tik Tak To liegt im Archiv.` Dateien, Mappe und Hausstand bleiben |
+| S420-2 | Liste | `PortfolioStage.tsx` `index.css` | Dateien in der Reihenfolge aus Plan §3, Bewegung 280 ms, Versatz 50 ms, Skala 0,96. Dahinter Deckkraft 0,45, kein Finger. JSON zeigt Titel und Sprintzeilen. Wenig Bewegung nur Deckkraft |
+| S420-3 | Sätze | `portfolio-parse.ts` `portfolio.ts` | `Zeig Projekt`, `Schredder`, `Archivier Projekt`, `Hol Projekt … zurück`, `Portfolio` als Zurück. Dieselben Funktionen wie Tipp und Schlitz. Zwei Treffer nennen die vollen Titel |
 
 ## Won't
 
-ReactBits, eine siebte Art, eine Schleife.
+Beispiele, ein Tipp, der schreddert, stilles Löschen.
 
 ## Abbruchkriterium
 
-`Inspiration zum Knopf` lädt eine Adresse oder installiert ein Paket.
+`onShred` oder `Schredder` entfernt die Zeile aus dem Store, oder ein Tipp ohne Ziehen archiviert.

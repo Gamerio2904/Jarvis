@@ -419,4 +419,17 @@ if (brand.status !== 0) {
   process.exit(brand.status || 1)
 }
 
+const cap = JSON.parse(readFileSync(join(root, 'capacitor.config.json'), 'utf8'))
+const appName = String(cap.appName || 'Ultron').replace(/[<>&]/g, '')
+const stringsPath = join(android, 'app/src/main/res/values/strings.xml')
+if (existsSync(stringsPath)) {
+  let strings = readFileSync(stringsPath, 'utf8')
+  strings = strings.replace(/<string name="app_name">[^<]*<\/string>/, `<string name="app_name">${appName}</string>`)
+  strings = strings.replace(
+    /<string name="title_activity_main">[^<]*<\/string>/,
+    `<string name="title_activity_main">${appName}</string>`,
+  )
+  writeFileSync(stringsPath, strings)
+}
+
 console.log(`[apply-native-tv] Plugin, Manifest, versionCode ${versionCode}, OkHttp, Brand.`)

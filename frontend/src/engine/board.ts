@@ -13,6 +13,7 @@ import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan
 import { fillPlanWithModel, pickIdea } from './idea.ts'
 import { fileFor, saveProjectJson } from './project-docs.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
+import { applyScan } from './room-scan.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
 
@@ -83,6 +84,10 @@ export async function handleBoard(_conversationId: string, text: string): Promis
   const intent = parseBoardIntent(text)
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'scan') {
+    return pack(applyScan(intent), `scan_${intent.op}`, { op: intent.op })
+  }
+
   if (intent.kind === 'download') {
     const rows = await listIdeas()
     const hit = pickIdea(
@@ -143,6 +148,16 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     return pack('Jobs gestoppt.', 'stop')
   }
   if (intent.kind === 'place') {
+    if (intent.op === 'move' && intent.piece === 'sprintliste' && (intent.dir === 'links' || intent.dir === 'rechts')) {
+      const side = intent.dir === 'links' ? 'left' : 'right'
+      try {
+        saveSettings({ script_sprint_side: side, tischplatte_on: true })
+      } catch {
+        /* */
+      }
+      const where = side === 'left' ? 'links' : 'rechts'
+      return pack(`Die Sprintliste steht ${where}. Die Tafel bleibt das Skript.`, 'place')
+    }
     try {
       saveSettings({ tischplatte_on: true })
     } catch {

@@ -60,7 +60,7 @@ export function DebugChatDock({
         {recent.length ? (
           recent.map((m) => (
             <p key={m.id} className={`debug-chat-line is-${m.role}`}>
-              <span>{m.role === 'user' ? 'Sie' : 'Jarvis'}</span>
+              <span>{m.role === 'user' ? 'Sie' : 'Ultron'}</span>
               {m.content}
             </p>
           ))
@@ -76,7 +76,7 @@ export function DebugChatDock({
         )}
         {streaming && sameChat ? (
           <p className="debug-chat-line is-assistant is-stream">
-            <span>Jarvis</span>
+            <span>Ultron</span>
             {streaming}
           </p>
         ) : null}

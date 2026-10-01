@@ -6,6 +6,7 @@ import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
 import { parseBoardIntent } from './board-parse.ts'
 import { parseAblaufIntent } from './ablauf-parse.ts'
+import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseBotAskIntent } from './bot-ask.ts'
 import { parseXferIntent } from './xfer-parse.ts'
 import { parseImageAsk } from './image-parse.ts'
@@ -119,6 +120,14 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   if (parseBotAskIntent(text)) {
     out = drop(out, 'board')
     out = boost(out, 'idea', 0.4)
+  }
+
+  if (parsePortfolioIntent(text)) {
+    out = drop(out, 'search')
+    out = drop(out, 'hud')
+    out = drop(out, 'eye')
+    out = drop(out, 'board')
+    out = boost(out, 'idea', 0.45)
   }
 
   if (parseAblaufIntent(text)) {
@@ -397,7 +406,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'calendar', 0.25)
   }
 
-  if (/^(?:(?:hey|hallo|hi)\s+)?friday\b/.test(t) && !/\bfreitag\b/.test(t) && !/\bwas\s+steht\b/.test(t)) {
+  if (/^(?:(?:hey|hallo|hi)\s+)?(?:ultron|ultorn|altron)\b/.test(t) && !/\bwas\s+steht\b/.test(t) && !/\bfreitag\b/.test(t)) {
     out = drop(out, 'calendar')
     out = boost(out, 'face', 0.25)
   }
@@ -468,7 +477,8 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
       board.kind === 'theme' ||
       board.kind === 'place' ||
       board.kind === 'stop' ||
-      board.kind === 'download')
+      board.kind === 'download' ||
+      board.kind === 'scan')
   ) {
     out = drop(out, 'hud')
     out = drop(out, 'desk')
@@ -484,7 +494,15 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'desk', 0.24)
   }
 
-  if (has(out, 'board') && (has(out, 'plug') || has(out, 'weather'))) {
+  if (board?.kind === 'scan') {
+    out = drop(out, 'eye')
+    out = drop(out, 'pc')
+    out = drop(out, 'maps')
+    out = drop(out, 'xfer')
+    out = boost(out, 'board', 0.35)
+  }
+
+  if (has(out, 'board') && board?.kind !== 'scan' && (has(out, 'plug') || has(out, 'weather'))) {
     out = drop(out, 'board')
   }
 
@@ -492,6 +510,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     has(out, 'board') &&
     has(out, 'calendar') &&
     board?.kind !== 'place' &&
+    board?.kind !== 'scan' &&
     !/\b(?:simulier|tischplatte|werkbank|projekttafel|features?|docs|geplant)\b/.test(t)
   ) {
     out = drop(out, 'board')

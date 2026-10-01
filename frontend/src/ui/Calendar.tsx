@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import {
   createEventFromGui,
   formatRemindOffsets,
@@ -188,6 +189,69 @@ function upcomingGroups(
   return [...by.values()].sort((a, b) => a.day.getTime() - b.day.getTime())
 }
 
+function PressBox({
+  className,
+  style,
+  label,
+  onTap,
+  onHold,
+  children,
+}: {
+  className?: string
+  style?: CSSProperties
+  label?: string
+  onTap?: () => void
+  onHold: (x: number, y: number) => void
+  children: ReactNode
+}) {
+  const timer = useRef(0)
+  const fired = useRef(false)
+  const origin = useRef({ x: 0, y: 0 })
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  return (
+    <button
+      type="button"
+      className={className}
+      style={style}
+      aria-label={label}
+      onPointerDown={(e) => {
+        if (e.button !== 0) return
+        fired.current = false
+        origin.current = { x: e.clientX, y: e.clientY }
+        window.clearTimeout(timer.current)
+        const x = e.clientX
+        const y = e.clientY
+        timer.current = window.setTimeout(() => {
+          fired.current = true
+          onHold(x, y)
+        }, 480)
+      }}
+      onPointerMove={(e) => {
+        if (Math.hypot(e.clientX - origin.current.x, e.clientY - origin.current.y) > 14) {
+          window.clearTimeout(timer.current)
+        }
+      }}
+      onPointerUp={() => window.clearTimeout(timer.current)}
+      onPointerCancel={() => window.clearTimeout(timer.current)}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        fired.current = true
+        onHold(e.clientX, e.clientY)
+      }}
+      onClick={(e) => {
+        e.stopPropagation()
+        if (fired.current) {
+          fired.current = false
+          return
+        }
+        onTap?.()
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 function EventCard({
   title,
   when,
@@ -197,6 +261,7 @@ function EventCard({
   kind,
   onEdit,
   onDelete,
+  onHold,
   busy,
 }: {
   title: string
@@ -207,6 +272,7 @@ function EventCard({
   kind?: string
   onEdit?: () => void
   onDelete?: () => void
+  onHold?: (x: number, y: number) => void
   busy?: boolean
 }) {
   const face = theme ? calThemeOf(theme) : null
@@ -219,7 +285,50 @@ function EventCard({
         className="cal-card-main"
         role={onEdit ? 'button' : undefined}
         tabIndex={onEdit ? 0 : undefined}
-        onClick={onEdit}
+        onPointerDown={
+          onHold
+            ? (e) => {
+                if (e.button !== 0) return
+                const node = e.currentTarget
+                node.dataset.ox = String(e.clientX)
+                node.dataset.oy = String(e.clientY)
+                node.dataset.held = ''
+                window.clearTimeout(Number(node.dataset.hold || 0))
+                const x = e.clientX
+                const y = e.clientY
+                const id = window.setTimeout(() => {
+                  node.dataset.held = '1'
+                  onHold(x, y)
+                }, 480)
+                node.dataset.hold = String(id)
+              }
+            : undefined
+        }
+        onPointerUp={(e) => window.clearTimeout(Number(e.currentTarget.dataset.hold || 0))}
+        onPointerCancel={(e) => window.clearTimeout(Number(e.currentTarget.dataset.hold || 0))}
+        onPointerMove={(e) => {
+          const node = e.currentTarget
+          const ox = Number(node.dataset.ox || e.clientX)
+          const oy = Number(node.dataset.oy || e.clientY)
+          if (Math.hypot(e.clientX - ox, e.clientY - oy) > 14) {
+            window.clearTimeout(Number(node.dataset.hold || 0))
+          }
+        }}
+        onContextMenu={
+          onHold
+            ? (e) => {
+                e.preventDefault()
+                onHold(e.clientX, e.clientY)
+              }
+            : undefined
+        }
+        onClick={(e) => {
+          if (e.currentTarget.dataset.held === '1') {
+            e.currentTarget.dataset.held = ''
+            return
+          }
+          onEdit?.()
+        }}
         onKeyDown={
           onEdit
             ? (e) => {
@@ -271,6 +380,7 @@ function WeekBoard({
   today,
   onSelect,
   onEdit,
+  onHold,
 }: {
   week: Date[]
   shown: CalendarEvent[]
@@ -279,6 +389,7 @@ function WeekBoard({
   today: Date
   onSelect: (day: Date) => void
   onEdit: (event: CalendarEvent) => void
+  onHold: (event: CalendarEvent, x: number, y: number) => void
 }) {
   const { startH, endH } = weekHourSpan(week, shown, reminders)
   const hours = Array.from({ length: endH - startH }, (_, i) => startH + i)
@@ -315,15 +426,16 @@ function WeekBoard({
                   {all.map((e) => {
                     const face = calThemeOf(eventTheme(e))
                     return (
-                      <button
+                      <PressBox
                         key={`${e.id}-${e.start_at}`}
-                        type="button"
                         className="cal-week-all-item"
                         style={{ ['--cal-theme']: face.color, borderLeftColor: face.color } as CSSProperties}
-                        onClick={() => onEdit(e)}
+                        label={e.title}
+                        onTap={() => onEdit(e)}
+                        onHold={(x, y) => onHold(e, x, y)}
                       >
                         {e.title}
-                      </button>
+                      </PressBox>
                     )
                   })}
                 </div>
@@ -354,6 +466,7 @@ function WeekBoard({
                 color: face.color,
                 rem: false,
                 onOpen: () => onEdit(e),
+                onHold: (x: number, y: number) => onHold(e, x, y),
               }
             })
           const rems = reminders
@@ -368,6 +481,7 @@ function WeekBoard({
                 color: '#94a3b8',
                 rem: true,
                 onOpen: undefined as (() => void) | undefined,
+                onHold: undefined as ((x: number, y: number) => void) | undefined,
               }
             })
           const placed = placeColumns([...timed, ...rems])
@@ -406,18 +520,16 @@ function WeekBoard({
                   )
                 }
                 return (
-                  <button
+                  <PressBox
                     key={block.key}
-                    type="button"
                     className="cal-week-block"
                     style={style}
-                    onClick={(ev) => {
-                      ev.stopPropagation()
-                      block.onOpen?.()
-                    }}
+                    label={block.title}
+                    onTap={() => block.onOpen?.()}
+                    onHold={(x, y) => block.onHold?.(x, y)}
                   >
                     {body}
-                  </button>
+                  </PressBox>
                 )
               })}
             </div>
@@ -447,6 +559,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [chipMins, setChipMins] = useState<number[]>([0])
   const [themePick, setThemePick] = useState<CalThemeId | null>(null)
   const [allDay, setAllDay] = useState(false)
+  const [hold, setHold] = useState<{ id: string; x: number; y: number } | null>(null)
   const [recur, setRecur] = useState<CalendarEvent['recur']>(null)
   const [monthDir, setMonthDir] = useState<'left' | 'right' | 'none'>('none')
   const [sheetDrag, setSheetDrag] = useState(0)
@@ -456,6 +569,13 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const titleRef = useRef<HTMLInputElement>(null)
   const sheetRef = useRef<HTMLDivElement>(null)
   const headRef = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (!hold) return
+    const close = () => setHold(null)
+    window.addEventListener('pointerdown', close)
+    return () => window.removeEventListener('pointerdown', close)
+  }, [hold])
   const dayRef = useRef<HTMLElement>(null)
   const [dayTick, setDayTick] = useState(0)
   const modeThumb = useSlidingThumb(mode)
@@ -1005,6 +1125,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                       busy={busy}
                       onEdit={() => openEdit(e)}
                       onDelete={() => void onDelete(e.id)}
+                      onHold={(x, y) => setHold({ id: e.id, x, y })}
                     />
                   ))}
                   {g.rems.map((r) => (
@@ -1026,6 +1147,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           today={today}
           onSelect={(d) => showDay(d)}
           onEdit={openEdit}
+          onHold={(event, x, y) => setHold({ id: event.id, x, y })}
         />
       ) : null}
 
@@ -1066,6 +1188,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                   busy={busy}
                   onEdit={() => openEdit(e)}
                   onDelete={() => void onDelete(e.id)}
+                  onHold={(x, y) => setHold({ id: e.id, x, y })}
                 />
               ))}
               {dayRems.map((r) => (
@@ -1217,6 +1340,33 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         </form>
         {err ? <p className="settings-hint">{err}</p> : null}
       </div>
+      {hold
+        ? createPortal(
+            <div
+              className="hold-menu"
+              role="menu"
+              style={{
+                left: Math.max(8, Math.min(hold.x, window.innerWidth - 168)),
+                top: Math.max(8, Math.min(hold.y, window.innerHeight - 64)),
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="is-danger"
+                role="menuitem"
+                onClick={() => {
+                  const id = hold.id
+                  setHold(null)
+                  void onDelete(id)
+                }}
+              >
+                Löschen
+              </button>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   )
 }

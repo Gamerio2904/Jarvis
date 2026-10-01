@@ -20,6 +20,12 @@ type NativeDevice = {
   callNow(opts: { number: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
   sendSms(opts: { number: string; body: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
   saveDownload(opts: { name: string; text: string }): Promise<{ ok: boolean; path?: string; message?: string }>
+  saveTreeFile(opts: {
+    relative: string
+    mime: string
+    text?: string
+    base64?: string
+  }): Promise<{ ok: boolean; path?: string; message?: string }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
@@ -99,10 +105,10 @@ export async function openAmazonMusic(): Promise<{ ok: boolean; message?: string
       // der Rückfallweg ins Leere. market:// bietet stattdessen das Installieren an.
       return await withTimeout(native.openApp({ pkg: 'com.amazon.mp3', uri: 'market://details?id=com.amazon.mp3' }), 8_000, {
         ok: false,
-        message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.',
+        message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Ultron.',
       })
     } catch {
-      return { ok: false, message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.' }
+      return { ok: false, message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Ultron.' }
     }
   }
   try {
@@ -281,4 +287,23 @@ export async function saveToDownloads(
     }
   }
   return { ok: false, message: 'Native Downloads nur auf dem Handy.' }
+}
+
+export async function saveTreeFile(
+  relative: string,
+  mime: string,
+  text = '',
+  base64 = '',
+): Promise<{ ok: boolean; missing?: boolean; path?: string; message?: string }> {
+  const path = relative.trim()
+  if (!path || path.includes('..')) return { ok: false, message: 'Pfad nicht erlaubt.' }
+  if (!native) return { ok: false, missing: true, message: 'Native Downloads nur auf dem Handy.' }
+  try {
+    return await withTimeout(native.saveTreeFile({ relative: path, mime, text, base64 }), 45_000, {
+      ok: false,
+      message: 'Datei nicht in Downloads geschrieben.',
+    })
+  } catch {
+    return { ok: false, message: 'Datei nicht in Downloads geschrieben.' }
+  }
 }

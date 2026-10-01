@@ -11,7 +11,7 @@ export type BoardTheme = {
 }
 
 export const DEFAULT_THEME: BoardTheme = {
-  accent: '#7dd3c7',
+  accent: '#e23a42',
   glow: 0.4,
   density: 0.3,
   motif: 'orbit',

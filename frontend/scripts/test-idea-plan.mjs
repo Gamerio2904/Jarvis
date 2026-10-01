@@ -1,21 +1,19 @@
 import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
 import { parseIdeaIntent, dueFromRel } from '../src/engine/idea-parse.ts'
-import { emptyPlan, parsePlan, formatPlan, CORE_TITLES, nextCustomN, planFromSources, planHasBody } from '../src/engine/idea-plan.ts'
+import { blankSprint, emptyPlan, parsePlan, formatPlan, nextSprintN, planFromSources, planHasBody } from '../src/engine/idea-plan.ts'
 import { addIdea, listIdeas } from '../src/engine/store.ts'
 import { handleIdea } from '../src/engine/idea.ts'
 import { parseReminderIntent } from '../src/engine/remind-parse.ts'
 
 const plan = emptyPlan('idea-1')
-assert.equal(plan.sprints.length, 3)
-assert.deepEqual(
-  plan.sprints.map((s) => s.title),
-  [...CORE_TITLES],
-)
-assert.ok(plan.sprints.every((s) => s.kind === 'core'))
-assert.match(formatPlan(plan, 'Test'), /Kern/)
-assert.match(formatPlan(plan, 'Test'), /Härten/)
-assert.match(formatPlan(plan, 'Test'), /Probe/)
+assert.equal(plan.sprints.length, 0)
+assert.equal(plan.gateway, 'offen')
+assert.ok(plan.rahmen.length >= 8)
+assert.match(formatPlan(plan, 'Test'), /Sprints: noch keine/)
+plan.sprints.push(blankSprint('1', 'Punkte', 'Ein Raum liegt als Datei'))
+assert.match(formatPlan(plan, 'Test'), /Sprint 1 — Punkte/)
+assert.doesNotMatch(formatPlan(plan, 'Test'), /Härten|Probe/)
 
 {
   const ok = parsePlan(
@@ -24,13 +22,15 @@ assert.match(formatPlan(plan, 'Test'), /Probe/)
         { n: '1', kind: 'core', title: 'Kern', ziel: 'Festhalten', lieferumfang: [{ id: 'S1-1', task: 'Store' }] },
         { n: '2', kind: 'core', title: 'Härten', ziel: 'Parser', lieferumfang: [] },
         { n: '3', kind: 'core', title: 'Probe', ziel: 'Tests', lieferumfang: [] },
-        { n: 'C1', kind: 'custom', title: 'Gerät', ziel: 'Gerätetest nach Sideload', lieferumfang: [] },
+        { n: '4', title: 'Gerät', ziel: 'Gerätetest nach Sideload', lieferumfang: [] },
       ],
     },
     'idea-1',
   )
   assert.ok(ok)
-  assert.equal(ok.sprints.filter((s) => s.kind === 'custom').length, 1)
+  assert.equal(ok.sprints.length, 4)
+  assert.equal(ok.sprints[3].title, 'Gerät')
+  assert.equal(ok.sprints[0].title, 'Kern')
 }
 
 {
@@ -97,14 +97,17 @@ assert.ok(parseReminderIntent('in 2 Wochen Milch') || parseReminderIntent('Erinn
   await addIdea('Sideload prüfen')
   await handleIdea('c', 'Zeig meine Ideen')
   const custom = await handleIdea('c', 'Custom Sprint: auf dem Handy nach dem Sideload')
-  assert.match(custom.reply || '', /C1/)
+  assert.match(custom.reply || '', /Sprint 1/)
+  const added = await handleIdea('c', 'Custom Sprint: zweites Tor nach dem ersten')
+  assert.match(added.reply || '', /Sprint 2/)
   const strike = await handleIdea('c', 'streich Sprint 2')
-  assert.match(strike.reply || '', /entfällt/)
+  assert.match(strike.reply || '', /nogo|No-Go|Gateway: nogo/i)
   const rows = await listIdeas()
-  const plan = rows.find((r) => r.plan)?.plan
+  const plan = rows.find((r) => r.plan && r.plan.sprints.some((s) => s.n === '2'))?.plan
   assert.ok(plan)
-  assert.equal(plan.sprints.find((s) => s.n === '2')?.ziel, 'entfällt: auf Zuruf')
-  assert.equal(nextCustomN(plan), 'C2')
+  assert.equal(plan.sprints.find((s) => s.n === '2')?.gateway, 'nogo')
+  assert.equal(plan.sprints.find((s) => s.n === '2')?.nogo_wenn, 'auf Zuruf')
+  assert.equal(nextSprintN(plan), '3')
 }
 
 {
@@ -120,11 +123,12 @@ assert.ok(parseReminderIntent('in 2 Wochen Milch') || parseReminderIntent('Erinn
       { n: '3', kind: 'core', title: 'Probe', ziel: 'Eine Runde', lieferumfang: [] },
     ],
   })
-  assert.equal(titled?.sprints[0].title, 'Kern')
+  assert.equal(titled?.sprints[0].title, 'Kernsprint')
   assert.equal(planHasBody(titled), true)
   const fromHits = planFromSources('idea-x', 'Tik-Tak-To', ['Top 23 tic-tac-toe Open-Source Projects'])
   assert.ok(fromHits)
-  assert.match(fromHits.sprints[1].ziel, /Top 23/)
+  assert.equal(fromHits.sprints.length, 1)
+  assert.match(fromHits.sprints[0].ziel, /Top 23/)
   assert.equal(planHasBody(emptyPlan('idea-x')), false)
 }
 

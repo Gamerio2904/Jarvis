@@ -1,89 +1,113 @@
-# TEST 18.24 — Entwurf
+# TEST 18.24 — Portfolio
 
-Noch nicht in der App. Plan [`96-next.md`](./96-next.md), Sprints 417–423.
-Die Karten kommen mit Sprint 423 in Spur Heute, Gruppe `18.24 Entwurf`.
-Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat.
+In der APK **`18.24.2`** (versionCode `182402`).
+Plan [`96-next.md`](./96-next.md), Sprints 417–423.
+Dieselben Sätze in Spur Heute, Gruppe `18.24 Portfolio`. Jede Box ist
+ein Satz. Einmal tippen, kopieren, in den Chat.
 
-Tablet quer, Breite ab 900 px, Tischplatte an. Drei Rahmen in einer Reihe.
-Darunter dieselben Sätze, die Rahmen stehen untereinander.
+Tischplatte an. Breite ab 900 px und darunter dieselben Sätze.
 
-## 1. Öffnen
-
-```
-Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig
-```
-
-Drei Rahmen, Status **offen**. Chat endet mit
-`Sag die erste, die zweite oder die dritte.` Ein Tipp auf den Knopf
-ändert nichts. Es liegt kein Eintrag und kein Termin.
+## 1. Planung bleibt
 
 ```
-Entwirf das
+Plane das: Tik Tak To, Spielfeld bauen, Sieg prüfen
 ```
 
-Ohne vorige Nachricht: `Was soll der Entwurf zeigen?` und keine Rahmen.
+Die Mitte ist das live Skript. Zuerst die Wege aus dem Satz, dann die
+Sprints. Chat sagt, dass eine Quelle fehlt. Es liegt noch keine
+Portfolio-Karte. Chat wartet auf `Go`.
 
-## 2. Inspiration
-
-```
-Zeig mir Inspiration zum Knopf
-```
-
-Drei Knöpfe, Beschriftung `Weiter`, die Bewegungen `sofort`, `gleiten`,
-`aufklappen`. Keine Seite, kein Paket.
+## 2. Fest
 
 ```
-Hast du Animationen zur Karte
+Go
 ```
 
-Drei Karten: flach, Haarlinie, Akzentlinie.
+Antwort `Fest. Tik Tak To liegt im Portfolio.` Die Mitte zeigt eine
+Karte, kurzer Name `Tik Tak To`, ein gezeichnetes Bild. Im Store eine
+Zeile. Dateien `projekt.json`, `wege.json`, `sprints.json`, `psp.json`,
+`luecken.json`.
 
 ```
-Die zweite
+Go
 ```
 
-Chat: das zweite Muster bleibt für den nächsten Entwurf.
+Antwort `Tik Tak To liegt schon im Portfolio.` Es gibt weiter eine Zeile.
+Eine neuere Idee dazwischen ändert das nicht: `Go` nimmt die Tafel.
+Ein Satz ohne zweite Klausel lässt Härten und Probe leer. Kein
+erfundenes Ziel. Nach dem Archiv sagt dasselbe `Go`:
+`Tik Tak To liegt wieder im Portfolio.`
 
-## 3. Wählen
+## 3. Öffnen
 
-```
-Entwirf: Notizen, drei Karten, ein Feld oben
-```
-
-```
-Die zweite
-```
-
-Der mittlere Rahmen hat die Akzentlinie. Die anderen bleiben blass.
-Chat: `Entwurf 2. Notizen.`
+Tipp auf die Karte. Die Dateien kommen nacheinander. Tipp auf
+`projekt.json` zeigt den Titel und die Sprintzeilen.
 
 ```
-Entwurf zu
+Zeig Projekt Tik Tak To
 ```
 
-Die Rahmen gehen zu. Die Stücke nehmen den Finger wieder an.
-Antwort: `Entwurf zu.`
-
-## 4. Nachbarn
+Dieselbe Liste.
 
 ```
-Simuliere Kalender
+Portfolio
 ```
 
-Der Draht, echter nächster Termin oder `Kein Termin im Store.`
-Keine drei App-Rahmen.
+Die Liste geht zu. Die Karte steht wieder auf der Mitte.
+
+## 4. Archiv
+
+Die Karte in den Schlitz ziehen.
+
+Antwort `Tik Tak To liegt im Archiv.` Die Mitte ist leer von dieser
+Karte. Die Zeile ist noch im Store, `archived` true, die Dateien
+sind noch da.
 
 ```
-Plane das: Trag morgen 9 Uhr Zahnarzt ein
+Hol Projekt Tik Tak To zurück
 ```
 
-Der Ablauf. Ein Entwurf bleibt zu, solange der Ablauf offen ist.
-Antwort auf `Entwirf eine App: Einkauf`, während der Ablauf wartet:
-`Erst den Ablauf.`
+Die Karte steht wieder auf der Mitte.
 
 ```
-Zeig Sprints
+Schredder Tik Tak To
 ```
 
-Die Sprintliste. Offene Rahmen gehen zu, die Zeile bleibt `offen`,
-wenn noch nichts gewählt ist.
+Wieder im Archiv, Dateien bleiben.
+
+## 5. Beispiel
+
+```
+Beispiel zu Tik Tak To
+```
+
+Ohne Bild davor: `Kein Bild zum Speichern.`
+
+```
+Zeig mir ein Bild der Elbe
+```
+
+Ein Bild mit Quelle, noch keine Datei unter `beispiele/`.
+
+```
+Beispiel zu Tik Tak To
+```
+
+Antwort `Beispiel liegt bei Tik Tak To.` Die Mitte zeigt das Bild als
+eigene Zeile unter der Karte. Pfad
+`portfolio/tik-tak-to/beispiele/`. Die Projektkarte zeigt dieses Bild.
+
+```
+Zeig mir London
+```
+
+Die Kugel. Kein neues Beispiel.
+
+## 6. Hausstand
+
+Hausstand exportieren. Die Vorschau enthält `1 Projekte` oder die
+echte Zahl, und `, 1 im Archiv`, wenn die Zeile archiviert ist.
+Die JSON enthält `portfolio` mit den Dateien.
+
+Eine ältere Datei ohne den Schlüssel, wieder eingespielt, lässt die
+Zeile auf dem Gerät.

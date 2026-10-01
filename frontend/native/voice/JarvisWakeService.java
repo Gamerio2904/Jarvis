@@ -152,8 +152,8 @@ public class JarvisWakeService extends Service {
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-                .setContentTitle("Jarvis hört auf den Namen")
-                .setContentText("Bildschirm aus und andere Apps: nur „Jarvis“. Beenden in der Meldung.")
+                .setContentTitle("Ultron hört auf den Namen")
+                .setContentText("Bildschirm aus und andere Apps: nur „Ultron“. Beenden in der Meldung.")
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .addAction(0, "Beenden", stopPi);
@@ -220,18 +220,8 @@ public class JarvisWakeService extends Service {
                 .replace('ö', 'o')
                 .replace('ü', 'u')
                 .replaceAll("[^a-z]", "");
-        if (n.contains("jarvis") || n.contains("jarwis") || n.contains("javis")
-                || n.contains("yarvis") || n.contains("charvis") || n.contains("gervis")
-                || n.contains("djarvis") || n.contains("scharvis") || n.contains("jaervis")
-                || n.contains("service")) {
-            return true;
-        }
-        if (n.contains("friday") || n.contains("fraidi") || n.contains("freidi")
-                || n.contains("fridei") || n.equals("fridi")) {
-            return true;
-        }
-        if (n.contains("freitag")) return false;
-        return n.contains("jar") && (n.contains("vis") || n.contains("wis") || n.contains("bis"));
+        if (n.contains("freitag") || n.equals("ultra") || n.equals("friday")) return false;
+        return n.contains("ultron") || n.contains("ultorn") || n.contains("altron") || n.contains("ultronn");
     }
 
     private void hit(Bundle results) {
@@ -250,7 +240,7 @@ public class JarvisWakeService extends Service {
         if (raw == null) return "";
         String t = raw.trim();
         java.util.regex.Matcher m = java.util.regex.Pattern
-                .compile("(?i)^(?:(?:hey|hallo|hi|ok(?:ay)?)\\s+)?(?:jarvis|jarwis|javis|yarvis|charvis|gervis|djarvis|scharvis|jaervis|service|friday|fraidi|freidi|fridei)\\s*[,:\\-–]?\\s*(.*)$")
+                .compile("(?i)^(?:(?:hey|hallo|hi|ok(?:ay)?)\\s+)?(?:ultron|ultorn|altron|ultronn)\\s*[,:\\-–]?\\s*(.*)$")
                 .matcher(t);
         if (m.find()) {
             String rest = m.group(1) == null ? "" : m.group(1).trim();

@@ -93,7 +93,7 @@ public class JarvisDebugService extends Service {
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_menu_info_details)
-                .setContentTitle("Jarvis testet…")
+                .setContentTitle("Ultron testet…")
                 .setContentText("Debug-Lauf. Home lässt ihn weiterlaufen. App schließen oder Stop beendet ihn.")
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)

@@ -1,6 +1,8 @@
 import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
 import { clockLabel, weekdayLabel } from '../engine/glance-snap.ts'
 import { parseThemeHint, DEFAULT_THEME, type BoardTheme } from '../engine/board-theme.ts'
+import { PortfolioStage } from './PortfolioStage.tsx'
+import { scanPhase, ScanStage } from './ScanStage.tsx'
 import { Workbench } from './Workbench.tsx'
 import { useEffect, useState } from 'react'
 
@@ -111,26 +113,36 @@ export function HomeScreen({
   focus,
   hint,
   seed,
+  planPhase,
 }: {
-  face: 'jarvis' | 'friday'
+  face: 'ultron'
   onOpen: (id: HomeAppId) => void
   tischplatteOn: boolean
   view: string
   focus: string
   hint: string
   seed: number
+  planPhase: '' | 'live' | 'go'
 }) {
   const [now, setNow] = useState(() => new Date())
+  const [scan, setScan] = useState(() => scanPhase())
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 15_000)
     return () => window.clearInterval(id)
   }, [])
+  useEffect(() => {
+    const on = () => setScan(scanPhase())
+    on()
+    window.addEventListener('jarvis-settings', on)
+    return () => window.removeEventListener('jarvis-settings', on)
+  }, [])
   const theme: BoardTheme = parseThemeHint(hint) || DEFAULT_THEME
   return (
     <section
-      className={`home-screen${tischplatteOn ? ' is-tischplatte' : ''}`}
+      className={`home-screen${tischplatteOn ? ' is-tischplatte' : ''}${scan === 'live' ? ' is-scan-live' : ''}${scan === 'model' ? ' is-scan-model' : ''}`}
       aria-label="Homescreen"
       data-home-wall={tischplatteOn ? 'board' : 'launcher'}
+      data-voice={face}
       data-motif={theme.motif}
       style={{
         ['--board-accent' as string]: theme.accent,
@@ -147,9 +159,11 @@ export function HomeScreen({
       <header className="home-clock">
         <p className="home-clock-time">{clockLabel(now)}</p>
         <p className="home-clock-day">{weekdayLabel(now)}</p>
-        <p className="home-clock-face">{face === 'friday' ? 'Friday' : 'Jarvis'}</p>
+        <p className="home-clock-face">Ultron</p>
       </header>
-      {tischplatteOn ? <Workbench view={view} focus={focus} /> : null}
+      {tischplatteOn && planPhase === 'live' && scan === 'off' ? <Workbench view={view} focus={focus} /> : null}
+      {tischplatteOn && planPhase !== 'live' && scan === 'off' ? <PortfolioStage /> : null}
+      {tischplatteOn && scan !== 'off' ? <ScanStage phase={scan} /> : null}
       <div className="home-grid" hidden={tischplatteOn} inert={tischplatteOn} aria-hidden={tischplatteOn}>
         {HOME_APPS.map((app) => (
           <button

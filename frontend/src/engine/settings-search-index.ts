@@ -14,7 +14,7 @@ export const SETTINGS_FIELD_INDEX: SettingsSearchHit[] = [
   { tab: 'keys', field: 'Tankerkönig', keywords: ['tank', 'tanke', 'sprit', 'benzin'], elementId: 'sf-tank-key' },
   { tab: 'hirn', field: 'Netz-Suche', keywords: ['research', 'netz', 'suche', 'internet'], elementId: 'sf-research' },
   { tab: 'hirn', field: 'e5 Rerank', keywords: ['e5', 'rerank', 'embed'], elementId: 'sf-e5' },
-  { tab: 'stimme', field: 'Wake-Wort', keywords: ['wake', 'wecken', 'jarvis'], elementId: 'sf-wake' },
+  { tab: 'stimme', field: 'Wake-Wort', keywords: ['wake', 'wecken', 'ultron'], elementId: 'sf-wake' },
   { tab: 'stimme', field: 'TTS Stimme', keywords: ['stimme', 'vorlesen', 'tts', 'edge', 'piper'], elementId: 'sf-tts' },
   { tab: 'alltag', field: 'Wecker', keywords: ['wecker', 'alarm', 'aufstehen'], elementId: 'sf-wecker' },
   { tab: 'alltag', field: 'Kalender', keywords: ['kalender', 'termin', 'event'], elementId: 'sf-kalender' },

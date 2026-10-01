@@ -1,26 +1,27 @@
-# Sprint 419 — Drei Rahmen
+# Sprint 419 — Hauptbildschirm
 
-**Version:** `18.24.0` — **PLAN** Must
-**Plan:** [`96-next.md`](../96-next.md) §4
-**Voraussetzung:** 418. Eine Zeile `offen` hat Varianten.
+**Version:** `18.24.0` — **CODE** Must
+**Plan:** [`96-next.md`](../96-next.md)
+**Voraussetzung:** 418. Jede Zeile hat Name und Cover.
 
 ## Ziel
 
-Bis zu drei stumme Bildschirme liegen in der Mitte der Tafel.
-Bausteine nehmen keinen Finger an.
+Bei angeschalteter Tischplatte und ohne live Skript zeigt die Mitte
+das Portfolio mit dem Shredder. Die Planung bleibt das live Skript.
 
 ## Lieferumfang
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S419-1 | Rahmen | `EntwurfStage.tsx` | Maße, Glas und Kopfzeile aus Plan §4. Ab 900 px eine Reihe, darunter untereinander. Die sieben Stücke auf Deckkraft 0,45, `inert`. Mini-Chat bleibt |
-| S419-2 | Bausteine | `EntwurfStage.tsx` | Leiste, Liste, Karte, Knopf, Feld, Tab aus der Zeile. Ein Tipp darauf ändert nichts. Leere Zeile zeigt `Noch leer.` |
-| S419-3 | Erscheinen | `EntwurfStage.tsx` | Live: Bausteine nacheinander, etwa 80 ms, dann Status **offen**. Bewegung nur `sofort`, `gleiten`, `aufklappen`, höchstens 280 ms. `prefers-reduced-motion`: 120 ms Deckkraft. Wenig Bewegung: alles auf einmal |
+| S419-1 | Komponente | `Shredder.tsx` `index.css` | TS-CSS von reactbits.dev/micro/shredder kopieren. Klassen unter `.shredder`. Props aus Plan §3. `autoAnimate` false. Kein Tailwind, kein Fetch zur Laufzeit |
+| S419-2 | Fläche | `HomeScreen.tsx` `PortfolioStage.tsx` | `tischplatteOn` und `plan_phase` `live`: `Workbench` wie heute. `tischplatteOn` und Phase leer oder `go`: `PortfolioStage`. Tischplatte aus: `HOME_APPS`. Die Leisten-Icons bleiben |
+| S419-3 | Zeilen | `PortfolioStage.tsx` | Eine Zeile je nicht archiviertem Projekt. Bild und kurzer Name. Archivierte Zeilen fehlen. Leere Liste: `Das Portfolio ist leer.` |
+| S419-4 | Bewegung | `index.css` | `prefers-reduced-motion`: die Karte geht in 120 ms Deckkraft weg, ohne Streifen. Der Schlitz setzt in diesem Sprint noch nichts um. Das Öffnen ist Sprint 420 |
 
 ## Won't
 
-Wahl, Hausstand, WebGL, Ziehen der Rahmen.
+Dateiliste, Beispiele, Löschen durch den Schlitz, Icon-Raster bei angeschalteter Tischplatte.
 
 ## Abbruchkriterium
 
-Der Knopf in der Attrappe öffnet eine Fläche, oder der Tisch scrollt mit.
+`plan_phase` `live` zeigt das Portfolio statt des Skripts, oder die Komponente lädt Quelltext von reactbits.dev.

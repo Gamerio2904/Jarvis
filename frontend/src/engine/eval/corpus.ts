@@ -155,7 +155,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Kugel an': 'hud',
   'Wo liegt Berlin': 'hud',
   'klick das Captcha': 'wont',
-  Friday: 'face',
+  Ultron: 'face',
   'Was steht am Freitag an?': 'calendar',
   'Darf ich im Park grillen?': 'law',
   'Wo ist Speichern': 'pc',
@@ -513,8 +513,8 @@ export const REGRESS_EXPECT: Record<string, string> = {
   'klick Start': 'pc',
   'Was steht auf dem Beleg': 'eye',
   'Einstellungen, dann Datenschutz': 'pc',
-  Friday: 'face',
-  Jarvis: 'face',
+  Ultron: 'face',
+  Jarvis: 'llm',
   'Was steht am Freitag an?': 'calendar',
   'Darf ich im Park grillen?': 'law',
   'Hausstand exportieren': 'backup',
@@ -597,7 +597,7 @@ export const REGRESS_EXPECT: Record<string, string> = {
   Kugel: 'llm',
   Erde: 'llm',
   'zeig mal hirn bitte ganz groß': 'llm',
-  'Friday Körper an': 'hud',
+  'Ultron Körper an': 'hud',
   'Was steht am Friday an?': 'calendar',
   'Freitag übernimmt': 'llm',
   'Wo liegt Berlin': 'hud',
@@ -673,6 +673,19 @@ function push(
   if (!seen.tags.includes(tag)) seen.tags.push(tag)
 }
 
+/** Sprint 423. Gruppe `18.24 Portfolio`. `Zeig mir London` bleibt in GOLD `hud`. */
+export const PORTFOLIO_EXPECT: Record<string, string> = {
+  Portfolio: 'idea',
+  'Zeig das Portfolio': 'idea',
+  'Zeig Projekt Tik Tak To': 'idea',
+  'Beispiel zu Tik Tak To': 'idea',
+  'Beispiel zu Tik Tak To: Bild der Elbe': 'idea',
+  'Schredder Tik Tak To': 'idea',
+  'Archivier Projekt Tik Tak To': 'idea',
+  'Hol Projekt Tik Tak To zurück': 'idea',
+  'Plane das: Tik Tak To, Spielfeld bauen, Sieg prüfen': 'idea',
+}
+
 let cache: EvalCase[] | null = null
 
 /**
@@ -687,6 +700,7 @@ export function evalCases(): EvalCase[] {
   for (const [text, expect] of Object.entries(REGRESS_EXPECT)) push(out, text, expect, 'regress', 'sprints-115-120')
   for (const [text, expect] of Object.entries(ALLTAG_EXPECT)) push(out, text, expect, 'regress', 'sprint-257')
   for (const [text, expect] of Object.entries(STT_EXPECT)) push(out, text, expect, 'stt', 'sprachmodus')
+  for (const [text, expect] of Object.entries(PORTFOLIO_EXPECT)) push(out, text, expect, 'gold', '18.24 Portfolio')
   cache = [...out.values()]
   return cache
 }

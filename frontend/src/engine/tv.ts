@@ -208,7 +208,7 @@ export async function pairTv(body: {
   const res = await tvPairNative({
     host,
     port,
-    name: 'Jarvis',
+    name: 'Ultron',
     token: s.tv_token || undefined,
   })
   if (!res.ok) {

@@ -11,7 +11,7 @@ export type SpotifyIntent =
 export type SpotifySource = 'internal' | 'connect' | 'preview'
 
 export function spotifySourceLabel(source?: SpotifySource | null): string {
-  if (source === 'internal') return 'in Jarvis'
+  if (source === 'internal') return 'in Ultron'
   if (source === 'preview') return '30s-Vorschau'
   if (source === 'connect') return 'anderes Gerät'
   return ''

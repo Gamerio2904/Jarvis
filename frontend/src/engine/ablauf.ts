@@ -492,6 +492,7 @@ export async function handleAblauf(
   if (!intent) return { handled: false }
 
   if (intent.kind === 'open') return openWork(conversationId, intent.work)
+  if (intent.kind === 'clear') return { handled: false }
 
   const current = await readPlan(loadSettings().ablauf_id)
   if (intent.kind === 'close') {

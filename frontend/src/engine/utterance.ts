@@ -5,7 +5,7 @@ import { setFace } from './face.ts'
 /** Spoken German → written command. Vocative, fillers, STT-Tippfehler. */
 
 const VOCATIVE =
-  /^(?:(?:hey|hallo|hi|ok(?:ay)?|so)\s+)?(?:jarvis|friday|service)\s*[,:\-–]?\s+/i
+  /^(?:(?:hey|hallo|hi|ok(?:ay)?|so)\s+)?(?:ultron|ultorn|altron|ultronn|service)\s*[,:\-–]?\s+/i
 const FOREIGN_WAKE = /^(?:ok(?:ay)?\s+google|hey\s+siri|alexa)\s*[,:\-–]?\s+/i
 const FILLER =
   /^(?:ähm+|also|ja\s+)?(?:bitte\s+)?(?:kannst\s+du(?:\s+mal)?|könntest\s+du|könnten\s+sie|würdest\s+du|ich\s+(?:möchte|will|würde\s+gerne)|mach(?:e)?(?:\s+mal)?)\s+/i
@@ -86,6 +86,10 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\binglorious\b/gi, 'Inglourious'],
   [/\bbastard+s\b/gi, 'Basterds'],
   [/basterdszu/gi, 'Basterds zu '],
+  [/wöchentlichen(?=[a-zäöü])/gi, 'wöchentlichen '],
+  [/woechentlichen(?=[a-zäöü])/gi, 'woechentlichen '],
+  [/trainings(?=erinner)/gi, 'trainings '],
+  [/training(?=erinner)/gi, 'training '],
 ]
 
 /** STT klebt Watchliste-Sätze: Jaentfernenes, zuLieblingsfilmen, istdoppelt. */
@@ -134,9 +138,7 @@ export function normalizeUtterance(text: string): string {
   if (!raw) return raw
   const voc = VOCATIVE.exec(raw)
   if (voc) {
-    const spoken = voc[0].toLowerCase()
-    if (/\bfriday\b/.test(spoken)) setFace('friday')
-    else if (/\bjarvis\b/.test(spoken)) setFace('jarvis')
+    if (/\b(?:ultron|ultorn|altron|ultronn)\b/.test(voc[0].toLowerCase())) setFace('ultron')
     const rest = raw.slice(voc[0].length).trim()
     if (rest && !/^übernimmt\b/i.test(rest) && (COMMAND_START.test(rest) || rest.length >= 2)) raw = rest
   }

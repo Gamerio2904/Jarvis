@@ -603,6 +603,89 @@ public class JarvisDevicePlugin extends Plugin {
         call.resolve(r);
     }
 
+    @PluginMethod
+    public void saveTreeFile(PluginCall call) {
+        String relative = call.getString("relative", "");
+        String mime = call.getString("mime", "");
+        String text = call.getString("text", "");
+        String base64 = call.getString("base64", "");
+        JSObject r = new JSObject();
+        String path = relative == null ? "" : relative.trim().replace('\\', '/');
+        String kind = mime == null ? "" : mime.trim().toLowerCase();
+        if (!treePathOk(path) || !treeMimeOk(kind)) {
+            r.put("ok", false);
+            r.put("message", "Pfad nicht erlaubt.");
+            call.resolve(r);
+            return;
+        }
+        byte[] bytes;
+        try {
+            if (base64 != null && !base64.isEmpty()) {
+                bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
+            } else if (text != null && !text.isEmpty() && "application/json".equals(kind)) {
+                bytes = text.getBytes(StandardCharsets.UTF_8);
+            } else {
+                throw new Exception("leer");
+            }
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Datei nicht in Downloads geschrieben.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            int slash = path.lastIndexOf('/');
+            String folder = path.substring(0, slash);
+            String name = path.substring(slash + 1);
+            if (Build.VERSION.SDK_INT >= 29) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME, name);
+                values.put(MediaStore.Downloads.MIME_TYPE, kind);
+                values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/" + folder);
+                values.put(MediaStore.Downloads.IS_PENDING, 1);
+                android.content.ContentResolver cr = getContext().getContentResolver();
+                Uri uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (uri == null) throw new Exception("insert");
+                OutputStream os = cr.openOutputStream(uri);
+                if (os == null) throw new Exception("stream");
+                try {
+                    os.write(bytes);
+                } finally {
+                    os.close();
+                }
+                values.clear();
+                values.put(MediaStore.Downloads.IS_PENDING, 0);
+                cr.update(uri, values, null, null);
+            } else {
+                File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File dir = new File(root, folder);
+                if (!dir.exists() && !dir.mkdirs()) throw new Exception("mkdir");
+                File out = new File(dir, name);
+                FileOutputStream fos = new FileOutputStream(out);
+                try {
+                    fos.write(bytes);
+                } finally {
+                    fos.close();
+                }
+            }
+            r.put("ok", true);
+            r.put("path", "Downloads/" + path);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Datei nicht in Downloads geschrieben.");
+        }
+        call.resolve(r);
+    }
+
+    private boolean treeMimeOk(String mime) {
+        return "application/json".equals(mime) || "image/jpeg".equals(mime) || "image/png".equals(mime) || "image/webp".equals(mime);
+    }
+
+    private boolean treePathOk(String path) {
+        if (path == null || path.contains("..") || path.startsWith("/")) return false;
+        return path.matches("portfolio/[a-z0-9-]{1,40}/(cover\\.jpg|projekt\\.json|wege\\.json|sprints\\.json|psp\\.json|luecken\\.json|beispiele/[a-z0-9-]{1,40}\\.(jpg|png|webp))");
+    }
+
     private String safeFileName(String raw) {
         if (raw == null) return "";
         String t = raw.trim().replace('\\', '/');

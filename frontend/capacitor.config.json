@@ -1,6 +1,6 @@
 {
   "appId": "local.jarvis.app",
-  "appName": "Jarvis",
+  "appName": "Ultron",
   "webDir": "dist",
   "server": {
     "androidScheme": "https",

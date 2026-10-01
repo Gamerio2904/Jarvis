@@ -199,7 +199,7 @@ function endpoint(): { url: string; token: string } | { error: string } {
   }
   if (!isAllowedPcHost(host)) return { error: PC_HOST_HINT }
   const port = s.pc_port > 0 ? s.pc_port : 18790
-  if (!token) return { error: 'Kein Token. Den Code aus dem Jarvis-PC-Fenster unter Einstellungen → PC eintragen.' }
+  if (!token) return { error: 'Kein Token. Den Code aus dem Ultron-PC-Fenster unter Einstellungen → PC eintragen.' }
   return { url: `http://${host}:${port}`, token }
 }
 
@@ -241,7 +241,7 @@ export async function callPc(
     return {
       ok: false,
       message:
-        `PC nicht erreicht${where}. Fenster „Jarvis PC“ offen lassen. IP muss 192.168…/10… sein (nicht 172…/WSL). Gleiches WLAN, kein Gäste-Netz. Im PC-Fenster „Firewall erlauben“, dann PC testen.`,
+        `PC nicht erreicht${where}. Fenster „Ultron PC“ offen lassen. IP muss 192.168…/10… sein (nicht 172…/WSL). Gleiches WLAN, kein Gäste-Netz. Im PC-Fenster „Firewall erlauben“, dann PC testen.`,
     }
   }
 }
@@ -404,7 +404,7 @@ async function runIntent(intent: PcIntent): Promise<PcHit> {
   if (intent.kind === 'pair_scan') {
     return {
       handled: true,
-      reply: 'Kamera auf den QR im grauen Jarvis-PC-Fenster. Einstellungen → Geräte → QR scannen.',
+      reply: 'Kamera auf den QR im grauen Ultron-PC-Fenster. Einstellungen → Geräte → QR scannen.',
       tool: { tool_status: 'executed', tool: 'pc', action: 'pair_scan', label: 'PC-QR' },
       lastTool: 'pc',
     }

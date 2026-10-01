@@ -31,10 +31,8 @@ export function wantNeuralMouth(): boolean {
   return loadSettings().voice_tts !== 'system'
 }
 
-export function ttsVoiceName(face?: string): string {
+export function ttsVoiceName(_face?: string): string {
   const s = loadSettings()
-  const who = (face || s.face || 'jarvis').toLowerCase()
-  if (who === 'friday') return (s.tts_voice_friday || '').trim() || TTS_VOICE_FRIDAY
   return (s.gemini_tts_voice || s.tts_voice_jarvis || '').trim() || TTS_VOICE
 }
 

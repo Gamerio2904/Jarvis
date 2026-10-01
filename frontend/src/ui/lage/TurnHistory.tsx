@@ -25,7 +25,7 @@ function Detail({ t }: { t: HistoryTurn }) {
         <strong>Du:</strong> {t.text}
       </p>
       <p className="turn-said">
-        <strong>Jarvis:</strong> {t.reply || '—'}
+        <strong>Ultron:</strong> {t.reply || '—'}
       </p>
       <p className="lage-hint">
         {t.path} · {times.join(' · ')}

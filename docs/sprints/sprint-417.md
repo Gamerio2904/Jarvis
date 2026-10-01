@@ -1,26 +1,27 @@
-# Sprint 417 — Sätze und Speicher
+# Sprint 417 — Zeile bei Fest
 
-**Version:** `18.24.0` — **PLAN** Must
-**Plan:** [`96-next.md`](../96-next.md) §3 §5
-**Voraussetzung:** Tafel `18.22` und Ablauf `18.23` bleiben. Kein neuer Agent.
+**Version:** `18.24.0` — **CODE** Must
+**Plan:** [`96-next.md`](../96-next.md)
+**Voraussetzung:** `plan_phase` `live` und `go` bleiben. Kein neuer Agent.
 
 ## Ziel
 
-`Entwirf`, Inspiration, Wahl und `Entwurf zu` erkennt der Parser.
-Eine Zeile lässt sich speichern. Noch kein Modell, keine Rahmen.
+`Go` auf einem live Skript schreibt eine Portfolio-Zeile mit kurzem
+Namen. Noch kein Bildschirm und keine Mappe.
 
 ## Lieferumfang
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S417-1 | Parser | `entwurf-parse.ts` | Formen aus Plan §5. `Entwirf das` ohne Rest nimmt die vorige Nutzernachricht, sonst `Was soll der Entwurf zeigen?`. Text nach `Entwirf eine App:` oder `Entwirf:` ist der Arbeitstext, höchstens 2000 Zeichen. Inspiration trifft nur die sechs Bausteine. `Die erste` bis `Die dritte` nur bei offenen Rahmen. `Entwurf zu` schließt |
-| S417-2 | Speicher | `store.ts` | Store `drafts`, IndexedDB 14. Form aus Plan §3. Einstellungen `entwurf_id` und `entwurf_muster`, nicht flüchtig, kein `entwurf_json`. Bis Sprint 418 antwortet `Entwirf` mit `Entwurf nicht gezeichnet.` und legt keine Zeile an |
-| S417-3 | Nachbarn | `board-parse.ts` `ablauf-parse.ts` | `Simuliere Kalender` bleibt `sim`. `Plane das` bleibt der Ablauf. `Mach einen Sprintplan` bleibt `fill_plan`. `nächster Lidl` bleibt `poi`. `Hintergrund blau schwarz` bleibt Thema. Ohne Rahmen fällt `Die erste` durch |
+| S417-1 | Store | `store.ts` | IndexedDB 14, Store `portfolio`. Eine Zeile je `idea_id`, Felder aus Plan §2. `putPortfolio` ersetzt dieselbe Id. Keine zweite Zeile |
+| S417-2 | Name | `portfolio.ts` | `shortName(title)` nach Plan §2. `Tik Tak To` bleibt. `Einkauf, Liste schreiben und Route prüfen` wird `Einkauf`. Leer wird `Projekt`. Kein Modell |
+| S417-3 | Fest | `idea.ts` | Nur wenn `plan_phase` von `live` auf `go` geht und eine offene Idee da ist. Antwort `Fest. Tik Tak To liegt im Portfolio.` Zweites `Go`: Dateien noch nicht, die Zeile wird nur aufgefrischt, Antwort `Tik Tak To liegt schon im Portfolio.` Ohne live Skript bleibt der bisherige Satz |
+| S417-4 | Sätze | `portfolio-parse.ts` | `Portfolio` und `Zeig Projekt …` aus Plan §4. Leer: `Das Portfolio ist leer.` Unbekannt: `Das Projekt liegt nicht im Portfolio.` Zwei Treffer: `Welches: …` mit den vollen Titeln. `Plane das` und `Go` bleiben in `ablauf-parse.ts` |
 
 ## Won't
 
-Modell, Rahmen, Version, Testkarten, `18.24.6`.
+Shredder, Mappe, Hausstand, Beispiele, Version.
 
 ## Abbruchkriterium
 
-`Entwirf` legt eine Idee an, oder `Simuliere Kalender` öffnet drei Rahmen.
+`Go` ohne live Skript legt eine Zeile an, oder zwei Ideen mit derselben Id entstehen.

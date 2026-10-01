@@ -95,7 +95,7 @@ public class JarvisNotifyPlugin extends Plugin {
     @PluginMethod
     public void schedule(PluginCall call) {
         Integer id = call.getInt("id");
-        String title = call.getString("title", "Jarvis");
+        String title = call.getString("title", "Ultron");
         String body = call.getString("body", "");
         Long atMs = call.getLong("atMs");
         boolean alarm = Boolean.TRUE.equals(call.getBoolean("alarm", false));
@@ -233,7 +233,7 @@ public class JarvisNotifyPlugin extends Plugin {
                 "Erinnerungen",
                 NotificationManager.IMPORTANCE_HIGH
         );
-        ch.setDescription("Jarvis-Erinnerungen zur vereinbarten Zeit");
+        ch.setDescription("Ultron-Erinnerungen zur vereinbarten Zeit");
         nm.createNotificationChannel(ch);
         for (String old : new String[]{"jarvis_alarms", "jarvis_alarms_v2", "jarvis_alarms_v3"}) {
             try {
@@ -258,7 +258,7 @@ public class JarvisNotifyPlugin extends Plugin {
                 "Timer",
                 NotificationManager.IMPORTANCE_HIGH
         );
-        timer.setDescription("Jarvis sagt die Zeit an, ohne Klingeln");
+        timer.setDescription("Ultron sagt die Zeit an, ohne Klingeln");
         timer.setBypassDnd(true);
         timer.enableVibration(false);
         timer.enableLights(true);
@@ -426,7 +426,7 @@ public class JarvisNotifyPlugin extends Plugin {
             JSONObject o = arr.optJSONObject(i);
             if (o == null) continue;
             int id = o.optInt("id");
-            String title = o.optString("title", "Jarvis");
+            String title = o.optString("title", "Ultron");
             String body = o.optString("body", "");
             long at = o.optLong("atMs");
             boolean alarm = o.optBoolean("alarm", true);
@@ -475,7 +475,7 @@ public class JarvisNotifyPlugin extends Plugin {
         }
         Notification n = new NotificationCompat.Builder(ctx, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle(title == null || title.isEmpty() ? "Jarvis" : title)
+                .setContentTitle(title == null || title.isEmpty() ? "Ultron" : title)
                 .setContentText(body == null ? "" : body)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(body == null ? "" : body))
                 .setAutoCancel(true)
@@ -562,7 +562,7 @@ public class JarvisNotifyPlugin extends Plugin {
         boolean on = JarvisInboxService.enabled(getContext());
         r.put("ok", true);
         r.put("enabled", on);
-        if (!on) r.put("message", "Meldungszugriff aus. Unter Einstellungen Jarvis erlauben.");
+        if (!on) r.put("message", "Meldungszugriff aus. Unter Einstellungen Ultron erlauben.");
         call.resolve(r);
     }
 
@@ -573,7 +573,7 @@ public class JarvisNotifyPlugin extends Plugin {
         r.put("ok", on);
         r.put("enabled", on);
         r.put("items", JarvisInboxService.snapshot(null));
-        if (!on) r.put("message", "Meldungszugriff aus. Unter Einstellungen Jarvis erlauben.");
+        if (!on) r.put("message", "Meldungszugriff aus. Unter Einstellungen Ultron erlauben.");
         call.resolve(r);
     }
 
@@ -584,7 +584,7 @@ public class JarvisNotifyPlugin extends Plugin {
         JSObject r = new JSObject();
         if (!JarvisInboxService.enabled(getContext())) {
             r.put("ok", false);
-            r.put("message", "Meldungszugriff aus. Unter Einstellungen Jarvis erlauben.");
+            r.put("message", "Meldungszugriff aus. Unter Einstellungen Ultron erlauben.");
             call.resolve(r);
             return;
         }

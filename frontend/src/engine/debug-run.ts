@@ -1,5 +1,5 @@
 import { getBrainSlots, getTurnTraces } from './agents/trace-store.ts'
-import { APP_VERSION, loadSettings } from './store.ts'
+import { APP_VERSION } from './store.ts'
 import { geminiReady } from './gemini.ts'
 import type { TestCopyGroup, TestCopyItem, TestExpect } from './test-copy.ts'
 import { judgeTurn, type DebugVerdict } from './debug-judge.ts'
@@ -47,12 +47,11 @@ export function buildReport(opts: {
   turns: DebugTurn[]
   stopped: boolean
 }): DebugReport {
-  const s = loadSettings()
   return {
     app_version: APP_VERSION,
     generated_at: new Date().toISOString(),
     brain: geminiReady() ? 'gemini' : 'local',
-    face: s.face === 'friday' ? 'friday' : 'jarvis',
+    face: 'ultron',
     gemini: geminiReady(),
     categories: opts.categories,
     stopped: opts.stopped,
@@ -72,7 +71,7 @@ export function buildReport(opts: {
 
 export function reportToText(rep: DebugReport): string {
   const lines = [
-    `Jarvis Debug ${rep.app_version}`,
+    `Ultron Debug ${rep.app_version}`,
     `Stand ${rep.generated_at}`,
     `Hirn ${rep.brain} · Face ${rep.face} · Gemini ${rep.gemini ? 'an' : 'aus'}`,
     `Kategorien: ${rep.categories.join(', ') || '—'}`,
@@ -94,7 +93,7 @@ export function reportToText(rep: DebugReport): string {
   for (const t of rep.turns) {
     lines.push(`## ${t.group} · ${t.label}`)
     lines.push(`Sie: ${t.prompt}`)
-    lines.push(`Jarvis: ${t.reply || '—'}`)
+    lines.push(`Ultron: ${t.reply || '—'}`)
     lines.push(
       `tool ${t.tool?.id || '—'} ${t.tool?.status || ''} ${t.tool?.action || ''} · soll ${t.expect?.tool || '—'} · ${t.ms} ms`,
     )

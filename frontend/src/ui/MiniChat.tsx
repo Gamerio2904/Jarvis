@@ -22,7 +22,7 @@ export function MiniChat({
   draft: string
   setDraft: (v: string) => void
   onSend: () => void
-  face: 'jarvis' | 'friday'
+  face: 'ultron'
 }) {
   const recent = messages.slice(-6)
   function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -36,7 +36,7 @@ export function MiniChat({
       {open ? (
         <div className="mini-chat-panel" role="dialog" aria-label="Kleiner Chat">
           <header className="mini-chat-bar">
-            <p>{face === 'friday' ? 'Friday' : 'Jarvis'}</p>
+            <p data-voice={face}>Ultron</p>
             <div className="mini-chat-actions">
               <button type="button" className="ghost-btn" onClick={onExpand}>
                 Groß
@@ -50,7 +50,7 @@ export function MiniChat({
             {recent.length ? (
               recent.map((m) => (
                 <p key={m.id} className={`mini-chat-line is-${m.role}`}>
-                  <span>{m.role === 'user' ? 'Sie' : face === 'friday' ? 'F' : 'J'}</span>
+                  <span>{m.role === 'user' ? 'Sie' : 'U'}</span>
                   {m.content}
                 </p>
               ))
@@ -59,7 +59,7 @@ export function MiniChat({
             )}
             {streaming !== null ? (
               <p className="mini-chat-line is-assistant is-stream">
-                <span>{face === 'friday' ? 'F' : 'J'}</span>
+                <span>U</span>
                 {streaming || '…'}
               </p>
             ) : null}

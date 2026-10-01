@@ -4,7 +4,7 @@ import { AGENT_META } from '../../engine/agents/meta.ts'
 import { getBrainSlots, getTurnTraces, subscribeAgentTraces } from '../../engine/agents/trace-store.ts'
 
 function statusLine(busy: boolean): { main: string; path: string } {
-  if (!busy) return { main: 'Haus-Gehirn · bereit', path: '' }
+  if (!busy) return { main: 'Ultron · bereit', path: '' }
   const agentId = activeAgentId()
   const meta = agentId ? AGENT_META[agentId] : undefined
   const traces = getTurnTraces()
@@ -12,7 +12,7 @@ function statusLine(busy: boolean): { main: string; path: string } {
   const brain = getBrainSlots().at(-1)
   const path = activeTracePath()
 
-  if (!last && !brain) return { main: 'Jarvis denkt…', path: '' }
+  if (!last && !brain) return { main: 'Ultron denkt…', path: '' }
   if (last?.agentId === 'curator') return { main: 'Curator · Gedächtnis-Gate', path: path.join(' → ') }
   if (last?.agentId === 'router') return { main: 'Router · Agent wählen', path: path.join(' → ') }
   if (last?.phase === 'execute' && agentId && meta) {
@@ -22,7 +22,7 @@ function statusLine(busy: boolean): { main: string; path: string } {
     }
   }
   if (brain?.ok) return { main: `Hirn · ${brain.slot} (${brain.model})`, path: path.join(' → ') }
-  return { main: 'Haus-Gehirn · bereit', path: '' }
+  return { main: 'Ultron · bereit', path: '' }
 }
 
 export function AgentStatusBar({ busy }: { busy?: boolean }) {

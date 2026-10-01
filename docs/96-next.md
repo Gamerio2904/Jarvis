@@ -1,301 +1,254 @@
-# 96 — Entwurf auf der Tafel **PLAN** (`18.24`)
+# 96 — Portfolio auf dem Hauptbildschirm **CODE** (`18.24`)
 
-**Dieses Dokument ist PLAN.** Nichts davon liegt im App-Code.
-App-Code und Sideload bleiben **`18.23.12`** (versionCode `182312`),
-Datei `releases/Jarvis.apk` auf `main`.
+**Dieses Dokument ist CODE.** App-Code **`18.24.0`** (versionCode `182400`).
+Sprints **417–423**. Katalog-Stand bleibt `18.20.0`.
+Die Sideload-Datei dieses Stands ist `18.24.0`, versionCode `182400`.
+Die laufende Datei auf diesem Branch ist `18.24.2`, versionCode `182402`.
 
-Fertig gebaut ist diese Schiene erst als **`18.24.0`** (versionCode `182400`),
-und erst wenn Sprint 423 grün ist. **`18.24.6` ist nirgends fertig:**
-kein Zweig, kein Dokument, keine APK, kein versionCode `182406`.
-Ein Patch `.6` entsteht erst nach sechs Nachziehern auf einem gelieferten
-`18.24.0`. Dieser Plan legt `18.24.6` nicht fest und baut sie nicht.
+Der jetzige Tischplatten-Modus ist die Planung. `Plane das` zeigt das
+Skript live. `Go`, `Umsetzen`, `Leg los`, `So` oder `Übernehmen` setzen
+es fest. In dem Moment liegt das Projekt im Portfolio, mit Dateien und
+einem kurzen Namen. Der Hauptbildschirm zeigt diese Karten. Ein Tipp
+oder ein Satz öffnet die Dateien.
 
-Sprints **417–423**.
-Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md).
-`Plane das` bleibt der Ablauf aus [`95-next.md`](./95-next.md).
-`Simuliere Kalender` bleibt der Draht in `board-wire.ts`.
-Kein zweites Brett, kein neues Hirn, kein neuer Agent.
+Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md) und der
+Ablauf aus [`95-next.md`](./95-next.md). Kein zweites Hirn, kein neuer
+Agent, kein neues Bildmodell.
 
-Hirn-Slots bleiben: **Groq primär → Gemini Spezialist → 0,5B.**
-Der Parser öffnet, schließt und merkt die Wahl. Das Modell füllt nur
-Beschriftung und Bausteinart. Es schreibt kein CSS und keinen Komponenten-Code.
+Hirn-Slots bleiben: **Groq primär → Gemini Spezialist → 0,5B.** Der
+Parser entscheidet Portfolio, Öffnen, Beispiel und Archiv. Das Modell
+erfindet keinen Namen und keinen Erfolg.
+
+Jarvis schreibt dabei keine App-Datei, keine Sprint-Datei, keine Version
+und kein APK.
 
 ---
 
 ## 0. Antwort in einem Satz
 
-`Entwirf eine App: Einkaufsliste` legt bis zu drei stumme Bildschirme auf
-die Tischplatte. Jeder ist ein Gerüst aus festen Bausteinen. Ein Tipp
-oder `Die zweite` merkt die Wahl. Der Bildschirm führt nichts aus.
+`Go` legt das live Skript ins Portfolio. Der Hauptbildschirm zeigt die
+Karte. Ein Tipp oder `Zeig Projekt …` öffnet die Dateien.
 
 ---
 
-## 1. Was ein Entwurf zeigt
+## 1. Zwei Zustände der Tischplatte
 
-Ein Entwurf ist ein Bildschirm. Eine Spalte, höchstens sechs Bausteine.
-Bis zu drei Entwürfe liegen nebeneinander. Sie sehen aus wie eine kleine
-App und bleiben eine Attrappe: kein Tippen in ein Feld, kein Speichern,
-kein Agent, keine zweite Sicht.
+`plan_phase` `live` ist die Planung. Dann bleibt `ScriptStage` in der
+Mitte, so wie heute. Sprintliste, PSP und die Sätze `Plane das`,
+`Lade den PSP runter` und `Lade alles zu Projekt …` bleiben.
 
-Die Bausteine stehen fest im Code, im Glas der Tafel.
+`plan_phase` `go` ist fest. Dieselbe Idee bekommt genau eine
+Portfolio-Zeile. Die Mitte wechselt auf das Portfolio. Das Skript liegt
+in den Dateien der Zeile, nicht noch einmal als live Tafel.
 
-| Art | Was man sieht | Was der Finger in der Attrappe tut |
-|-----|----------------|-------------------------------------|
-| Leiste | eine Zeile, der Titel | nichts |
-| Liste | bis zu fünf Zeilen | nichts |
-| Karte | eine Fläche, eine Zeile | nichts |
-| Knopf | eine Zeile in einer Pille | nichts |
-| Feld | eine leere Zeile, ein Platzhalter | keine Tastatur |
-| Tab | zwei oder drei Wörter nebeneinander | kein Wechsel |
+`plan_phase` leer und Tischplatte an: die Mitte ist das Portfolio.
+Tischplatte aus: das Icon-Raster `HOME_APPS` bleibt. Die Icons in der
+Leiste bleiben in allen drei Fällen.
 
-Eine Art, die nicht in der Tabelle steht, fällt weg. Ein Entwurf mit
-weniger als einem Baustein fällt weg. Bleibt keiner übrig, bleibt die
-Tafel, wie sie war. Antwort: `Kein Entwurf. Der Text nennt keine Fläche.`
-
-Beschriftungen kommen aus dem Arbeitstext, höchstens 42 Zeichen je Zeile.
-Fehlt eine Zeile, steht `Noch leer.` Der Entwurf erfindet keinen Termin,
-keine Zahl aus dem Store, kein Foto, kein Logo, keine Quelle.
-
-Erscheinen, einmal, drei feste Arten im Code: `sofort`, `gleiten`,
-`aufklappen`. Dauer höchstens 280 ms. Unter `prefers-reduced-motion`
-nur Deckkraft, 120 ms, keine Verschiebung. Keine Schleife, kein WebGL.
+Ein zweites `Go` auf derselben Idee schreibt die Dateien neu und legt
+keine zweite Zeile an. Eine geleerte live Tafel lässt die Zeile liegen.
 
 ---
 
-## 2. Inspiration zu einem Baustein
+## 2. Speicher
 
-`Zeig mir Inspiration zum Knopf` und `Hast du Animationen zur Karte`
-öffnen keine Bibliothek. Sie legen drei Muster desselben Bausteins
-nebeneinander. Die Muster stehen im Code. Dieselben sechs Arten wie in §1.
+Sichtbar ist eine Karte. Gespeichert wird eine Zeile pro Idee.
+IndexedDB `jarvis-ondevice` geht von Version 13 auf 14. Store-Name
+`portfolio`.
 
-| Satz, Beispiele | Baustein | Die drei Muster |
-|-----------------|----------|-----------------|
-| `Inspiration zum Knopf`, `Animationen zum Knopf` | Knopf | `sofort`, `gleiten`, `aufklappen`, Beschriftung `Weiter` |
-| `zur Karte` | Karte | flach, Haarlinie, Akzentlinie |
-| `zur Liste` | Liste | drei, vier, fünf Zeilen, Text `Zeile` |
-| `zur Leiste` | Leiste | Titel links, Titel mittig, Titel mit Nebenwort |
-| `zum Feld` | Feld | Platzhalter `Suchen`, `Name`, `Notiz` |
-| `zum Tab` | Tab | zwei Wörter, drei Wörter, ein Wort breit |
+| Feld | Was |
+|------|-----|
+| `id` | dieselbe Id wie die Idee |
+| `idea_id` | dieselbe Id |
+| `name` | kurzer Name, höchstens 22 Zeichen |
+| `slug` | `projectSlug` aus `project-docs.ts` |
+| `title` | voller Ideentitel |
+| `fixed_at` | Zeitpunkt von `Go` |
+| `cover` | `drawn`, `photo` oder `research`, dazu die Bildquelle |
+| `files` | `projekt`, `sprints`, `psp`, danach Beispiele |
+| `archived` | `true`, wenn die Karte durch den Schlitz ging |
 
-`Die erste` merkt das Muster. Das nächste `Entwirf` benutzt es für
-diesen Baustein, bis `Entwurf zu`. Ein Baustein ohne gemerkte Wahl
-nimmt das erste Muster.
+Der kurze Name nimmt die ersten zwei Wörter des Titels vor dem ersten
+Komma. Füllwörter `der`, `die`, `das`, `ein`, `eine`, `und`, `projekt`
+fallen weg. Bleibt nichts, heißt die Karte `Projekt`. Der Name wird
+nicht vom Modell erfunden. `Tik Tak To` bleibt `Tik Tak To`.
+`Einkauf, Liste schreiben und Route prüfen` wird `Einkauf`.
 
-ReactBits, shadcn, Tailwind, Motion, GSAP, Three.js und OGL bleiben
-draußen. Die Vorschau lädt keine Seite und kein Paket.
+### Kartenbild
 
----
+Es gibt kein Imagen und keinen Satz `generiere ein Bild`. Das erste
+Bild zeichnet das Gerät: Canvas 512 px, JPEG bei Qualität 0,7, höchstens
+120 KB, zwei Buchstaben aus dem kurzen Namen, Farbe aus dem Titel.
+`cover.kind` ist dann `drawn`.
 
-## 3. Speicher
+Liegt später ein Beispiel in der Zeile, zeigt die Karte dieses Bild.
+Ein Recherche-Bild setzt `research` und behält die Quelle. Ein Foto
+setzt `photo`.
 
-Sichtbar sind die Rahmen. Gespeichert wird jeder Entwurf, der einmal
-`offen` war. Der nächste `Entwirf` setzt den vorigen auf `zu` und lässt
-die Zeile liegen. Der alte zeichnet sich nicht noch einmal.
+### Dateien und Ordner
 
-Zwei lokale Dinge, kein Repo:
+Beim Festschreiben entstehen drei JSON-Dateien aus den Funktionen, die
+es schon gibt: `projectDocument`, `sprintsDocument`, `pspDocument`.
+Dazu das Kartenbild.
 
-| Was | Wo | Inhalt |
-|-----|----|--------|
-| Entwurf | Store `drafts`, eine Zeile | Titel, bis zu drei Varianten, Wahl, Bewegung, Status |
-| Wahl eines Musters | Einstellungen `entwurf_muster` | Baustein und Musterindex, bis `Entwurf zu` |
+Auf dem Handy liegt dieselbe Mappe unter `Downloads/portfolio/<slug>/`:
 
-Die Einstellungen halten dazu `entwurf_id`. Kein zweites Vollstück in
-`entwurf_json`. IndexedDB geht von Version 13 auf 14, Store-Name `drafts`.
+```
+portfolio/<slug>/cover.jpg
+portfolio/<slug>/projekt.json
+portfolio/<slug>/sprints.json
+portfolio/<slug>/psp.json
+portfolio/<slug>/beispiele/<name>.jpg
+```
 
-Form einer Zeile:
+`saveDownload` in `JarvisDevicePlugin.java` streicht Schrägstriche und
+hängt `.json` an. Dafür kommt eine eigene Methode `saveTreeFile`. Sie
+nimmt nur Pfade, die auf `portfolio/` zeigen, lehnt `..` ab und schreibt
+JPEG, PNG, WebP oder JSON. Schlägt sie fehl, bleibt die Zeile im Store.
+Antwort dann: `Im Haus gespeichert. Der Ordner fehlt.`
 
-- `title`: eine Zeile, höchstens 80 Zeichen
-- `variants`: bis zu drei Varianten, jede mit `name` und bis zu sechs Bausteinen `art` und `zeile`
-- `pick`: `0`, `1`, `2` oder leer
-- `motion`: `sofort`, `gleiten` oder `aufklappen`
-- `status`: `offen`, `gewählt`, `zu`
+Wahrheit ist der Store. Die Mappe ist die sichtbare Kopie.
 
-`Plane das` legt keine Entwurfszeile an. `Entwirf` legt keine Idee an.
+### Grenzen
+
+Höchstens 48 Projekte. Höchstens sechs Beispiele je Projekt. Ein
+Beispiel hat die lange Kante 1024 px und höchstens 400 KB. Was darüber
+liegt, wird einmal auf Qualität 0,6 gerechnet. Passt es dann noch
+nicht: `Das Bild ist zu groß.` und nichts gespeichert.
 
 ### Hausstand
 
-Dieselbe Datei `jarvis-haus-….json` enthält `drafts`, jede Zeile, auch `zu`.
-Die Vorschau nennt die Zahl, auch null: `2 Entwürfe`. Eine alte Datei ohne
-Schlüssel `drafts` lässt den Store. Ist der Schlüssel da, auch als leeres
-Array, ersetzt der Import den Store. `entwurf_id` kommt mit den
-Einstellungen. Fehlt die Zeile dazu, bleiben die Rahmen zu.
+`Hausstand exportieren` bleibt eine Datei `jarvis-haus-….json`. Sie
+enthält `portfolio`: jede Zeile, auch archivierte, mit Dateitext und
+den gekappten Bildern. Die Vorschau nennt die Zahl, auch null:
+`3 Projekte`. Ist mindestens eine Zeile archiviert, hängt `, 1 im Archiv`
+an.
 
-Debug-Rollback führt `drafts` in derselben Store-Liste wie `plans`.
+Eine alte Datei ohne Schlüssel `portfolio` lässt den Store. Ist der
+Schlüssel da, auch als leeres Array, ersetzt der Import den Store.
+Debug-Rollback führt `portfolio` neben `ideas` und `plans`.
 
----
-
-## 4. Fläche
-
-Solange der Status `offen` oder `gewählt` ist und die Zeile die
-`entwurf_id` ist, liegen bis zu drei Rahmen in der Mitte der Tafel.
-Sie sind keine Tafelstücke: kein Ziehen, kein Werfen, `Räum den Tisch`
-trifft sie nicht.
-
-Die sieben Stücke dahinter bleiben liegen, Deckkraft 0,45, und nehmen
-keinen Finger an. Der Mini-Chat bleibt benutzbar. Ist ein Ablauf
-`schreibt`, `warten`, `überarbeitet` oder `läuft`, bleiben die Rahmen zu.
-Antwort: `Erst den Ablauf.`
-
-Ab **900 px**: eine Reihe, Abstand 16 px, jeder Rahmen
-`min(220px, 26vw)` breit und `min(64vh, 520px)` hoch. Dasselbe Glas wie
-die Stücke, `#041018` bei etwa 88 Prozent, Ecken 18 px. Auf geht jede
-Spalte in 280 ms. Unter `prefers-reduced-motion` nur 120 ms Deckkraft.
-
-Darunter: dieselben Rahmen untereinander, Rand 12 px. Sie scrollen innen.
-Der Tisch scrollt nicht mit.
-
-Kopfzeile über der Reihe: links in Versalien **Entwurf**, daneben der
-Titel, rechts **offen** oder **gewählt**.
-
-Schreiben, live: die Daten kommen im Ganzen an, die Rahmen füllen sich
-nacheinander. Zuerst die Kopfzeile. Dann je Rahmen die Bausteine als
-ganze Zeile, Abstand etwa 80 ms. Steht der letzte Baustein, wird der
-Status **offen**. Wenig Bewegung zeigt alles auf einmal.
-
-Wählen: der gewählte Rahmen bekommt die Akzentlinie. Die anderen bleiben
-auf Deckkraft 0,45. Chat: `Entwurf 2. Einkaufsliste.`
-
-`Entwurf zu` und `Fenster zu` schließen die Rahmen. Die Zeile bleibt,
-Status `zu`. Die Stücke nehmen den Finger wieder an. `Zeig Sprints`,
-`Zeig PSP` und `Simuliere Kalender` schließen die Rahmen ebenfalls und
-lassen die Zeile auf `offen`, wenn noch nichts gewählt ist.
-
-Ein Tipp auf den Rahmen wählt ihn. Ein Tipp auf Leiste, Liste, Karte,
-Knopf, Feld oder Tab ändert nichts und öffnet nichts.
+Bewegung der Tafel und `last_research_json` bleiben draußen, wie bisher.
+Ein Beispiel kommt nur in den Hausstand, wenn es in einer Zeile liegt.
 
 ---
 
-## 5. Sätze
+## 3. Hauptbildschirm
 
-Der Parser in `entwurf-parse.ts` nimmt nur diese Formen. Der Executor
-bleibt `board`. Nachbarsätze bleiben, wo sie sind.
+Solange die Tischplatte an ist und `plan_phase` nicht `live` ist, zeigt
+die Mitte das Portfolio. Die Liste ist die Shredder-Komponente von
+[reactbits.dev/micro/shredder](https://reactbits.dev/micro/shredder).
 
-Öffnen. `Entwirf das` allein nimmt die vorige Nutzernachricht desselben
-Gesprächs, gekürzt auf 2000 Zeichen. Fehlt sie: `Was soll der Entwurf zeigen?`
-und keine Rahmen.
+Beim CODE-Sprint wird die TS-CSS-Variante nach
+`frontend/src/ui/Shredder.tsx` kopiert. Die Klassen liegen in
+`index.css` unter `.shredder`. Kein Tailwind, kein Laufzeit-Fetch, keine
+neue Animationsbibliothek.
 
-```
-Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig
-```
+Jede Zeile braucht eine eigene `id`. `renderItem` zeigt das Kartenbild
+und den kurzen Namen. Eigenschaften: `feedSpeed` 180, `bite` 18,
+`stripWidth` 10, `curl` 1, `dragTilt` 6, `lift` 1.02, `autoAnimate`
+false. `autoFeed` nur, während eine Zeile im Schlitz ist.
 
-```
-Entwirf das
-```
+Ein Tipp, der sich weniger als 8 px bewegt, öffnet das Projekt.
+`onShred` setzt `archived` auf true. Die Karte und ihre Beispiele
+verlassen die Liste. Die Dateien im Store, in der Mappe und im
+Hausstand bleiben. Die Antwort ist `Tik Tak To liegt im Archiv.`
 
-```
-Entwirf: Notizen, drei Karten, ein Feld oben
-```
+Unter `prefers-reduced-motion` fällt die Karte in 120 ms Deckkraft weg,
+ohne Streifen.
 
-Der Text nach dem Doppelpunkt oder nach `Entwirf eine App:` ist der
-Arbeitstext. Ein zweites `Entwirf`, solange Rahmen offen sind, öffnet
-eine neue Zeile. Die vorige bleibt, Status `zu`.
+Beispiele stehen als eigene Zeilen unter ihrer Projektkarte, mit dem
+kurzen Namen als Beschriftung. Eine Beispielzeile durch den Schlitz
+archiviert nur dieses Bild.
 
-Inspiration, ohne Arbeitstext ans Modell:
+### Dateiliste
 
-```
-Zeig mir Inspiration zum Knopf
-```
+Nach dem Öffnen liegt die Liste vor der Shredder-Liste. Die Liste
+dahinter hat Deckkraft 0,45 und nimmt keinen Finger an.
 
-```
-Hast du Animationen zur Karte
-```
+Die Dateien kommen nacheinander: Deckkraft 0 auf 1, 12 px nach oben,
+280 ms, Kurve `cubic-bezier(0.2, 0.8, 0.2, 1)`, je Zeile 50 ms später,
+Skala 0,96 auf 1. Wenig Bewegung nur 120 ms Deckkraft.
 
-```
-Inspiration zur Liste
-```
-
-Trifft der Name keinen Baustein aus §1: `Den Baustein gibt es nicht.`
-und die sechs Namen. Keine Rahmen einer App.
-
-Wählen, nur solange Rahmen offen sind:
-
-```
-Die erste
-```
-
-```
-Die zweite
-```
-
-```
-Die dritte
-```
-
-`Die zweite` bei nur einem Rahmen: `Die Zeile gibt es nicht.` Die Zahl
-zählt von links, auf dem schmalen Bildschirm von oben. Ohne offene Rahmen
-fällt `Die erste` durch, wie bisher.
-
-Schließen:
-
-```
-Entwurf zu
-```
-
-Ohne offene Zeile: `Es ist kein Entwurf offen.`
-
-`Simuliere Kalender` bleibt Sicht `sim` und der Draht mit echtem Termin
-oder `Kein Termin im Store.` `Plane das` bleibt der Ablauf.
-`Mach einen Sprintplan` bleibt die Vorlage. `Hintergrund blau schwarz`
-bleibt das Thema. `nächster Lidl` bleibt `poi`.
-
-Chat, sobald die Rahmen `offen` sind:
-
-```
-Entwurf. Einkaufsliste.
-1. Liste
-2. Karten
-3. Feld
-Sag die erste, die zweite oder die dritte.
-```
-
-Nach der Wahl: `Entwurf 2. Einkaufsliste.`
+Reihenfolge: `projekt.json`, `sprints.json`, `psp.json`, dann die
+Beispiele. Ein Tipp auf JSON zeigt den Projekttitel und die
+Sprintzeilen. Ein Tipp auf ein Bild zeigt das Bild und, bei Recherche,
+die Quelle. `Zurück` oder der Satz `Portfolio` schließt die Liste.
 
 ---
 
-## 6. Modell
+## 4. Sätze
 
-Ein Aufruf, erst ab Sprint 418. Das Modell sieht den Arbeitstext und die
-sechs Art-Namen. Es liefert bis zu drei Varianten. Der Code prüft jede
-Art gegen §1, kürzt jede Zeile auf 42 Zeichen und wirft den Rest weg.
-Eine Variante ohne gültigen Baustein fällt weg. Über drei Varianten fällt
-der Rest weg. Die Antwort nennt die Grenze nicht noch einmal.
+Der Parser nimmt nur diese Formen. `Plane das`, `Go` und die
+Download-Sätze bleiben, wo sie sind.
 
-Das Modell legt keine Route an, keinen Store-Schlüssel, keine Datei und
-keinen Agenten. Groq formuliert die Zeilen. Der 0,5B-Fallback darf dieselben
-Felder füllen. Kommt nichts Gültiges zurück, gilt der Satz aus §1.
+```
+Portfolio
+Zeig das Portfolio
+Zeig Projekt Tik Tak To
+Beispiel zu Tik Tak To
+Beispiel zu Tik Tak To: Bild der Elbe
+Schredder Tik Tak To
+Archivier Projekt Tik Tak To
+Hol Projekt Tik Tak To zurück
+```
+
+`Portfolio` und `Zeig das Portfolio` öffnen die Mitte. Leer:
+`Das Portfolio ist leer.`
+
+`Zeig Projekt` trifft zuerst den kurzen Namen, dann den vollen Titel.
+Zwei Treffer: `Welches: Einkauf, Einkauf Liste.` Kein Treffer:
+`Das Projekt liegt nicht im Portfolio.`
+
+`Beispiel zu` ohne Bildrest nimmt das erste vorhandene Bild in dieser
+Reihenfolge: das letzte Chat-Bild dieser Unterhaltung, dann
+`readLastEyeImage()`. Mit Bildrest holt `image-fetch.ts` genau dieses
+eine Bild. Ohne Bild: `Kein Bild zum Speichern.` Ohne Projekt:
+`Welches Projekt?` Mit Bild: `Beispiel liegt bei Tik Tak To.`
+`Zeig mir London` bleibt die Kugel. Eine Recherche ohne diesen Satz
+speichert kein Bild.
+
+`Schredder` und `Archivier Projekt` tun dasselbe wie der Schlitz.
+`Hol Projekt … zurück` setzt `archived` auf false. Die Karte steht
+wieder in der Liste.
+
+Nach einem echten Festschreiben lautet die Antwort
+`Fest. Tik Tak To liegt im Portfolio.` War die Zeile schon da:
+`Tik Tak To liegt schon im Portfolio.` Die Dateien werden neu
+geschrieben. Ohne live Skript bleibt der bisherige Satz von `Go`.
 
 ---
 
-## 7. Won't
+## 5. Won't
 
-- Ein neuer Agent, ein Schwarm, ein iframe, eine zweite App
-- ReactBits, shadcn, Tailwind, Motion, GSAP, Three.js, OGL, Lottie, tldraw
-- CSS oder Komponenten-Code aus dem Modell
-- Eine laufende Funktion: Tippen, Speichern, Navigieren, Agenten starten
-- Echte Termine, Store-Zahlen, Fotos, Logos oder Web-Bilder in der Attrappe
-- Mehr als drei Varianten, sechs Bausteine oder eine Spalte
-- `Simuliere Kalender` zur Attrappe machen
-- `Plane das`, `Füll den Plan` und die Open-Source-Suche auf den Entwurf umbiegen
-- Die Rahmen ziehen, werfen oder als zehntes Tafelstück speichern
-- Eine App-Datei, eine Sprint-Datei, eine Version oder eine APK aus dem Gerät
-- `18.24.6` oder einen versionCode außer `182400` in Sprint 423
-- Die Sideload `18.23.12` anheben, bevor Sprint 423 grün ist
-- Testkarten in der App, bevor Sprint 423 ausgeführt ist
+- Ein neuer Agent oder ein Schwarm
+- Imagen, `generiere ein Bild`, ein gemaltes Szenenbild
+- Jede Recherche automatisch als Beispiel speichern
+- Der Schlitz oder `Schredder` löscht Dateien
+- Ein Tipp schreddert die Karte
+- Tailwind, Laufzeit-Fetch von reactbits.dev, WebGL, Three.js, Lottie
+- Das Icon-Raster ersetzen, solange die Tischplatte aus ist
+- Die live Planung durch das Portfolio ersetzen
+- `saveDownload` für Ordner oder Bilder weiterverwenden
+- App-Datei, Sprint-Datei, Version oder APK aus dem Gerät
+- Die Datei auf `main` als `18.24.0` zeigen, solange dort noch `18.23.12` liegt
+- Eine zweite Hausstand-Datei neben `jarvis-haus-….json`
 
 ---
 
-## 8. Sprints (`18.24.0` PLAN)
+## 6. Sprints (`18.24.0` CODE)
 
 | Sprint | Inhalt | Klasse |
 |--------|--------|--------|
-| [417](./sprints/sprint-417.md) | Sätze, Speicher, Nachbarn bleiben | Must PLAN |
-| [418](./sprints/sprint-418.md) | Modell füllt Varianten, ehrliche Leere | Must PLAN |
-| [419](./sprints/sprint-419.md) | Drei Rahmen auf der Tafel | Must PLAN |
-| [420](./sprints/sprint-420.md) | Inspiration, drei Muster, Wahl merken | Must PLAN |
-| [421](./sprints/sprint-421.md) | Wahl, Schließen, Ablauf gewinnt | Must PLAN |
-| [422](./sprints/sprint-422.md) | Entwürfe im Hausstand | Must PLAN |
-| [423](./sprints/sprint-423.md) | Gold, Testkarten, Version erst dann | Must PLAN |
+| [417](./sprints/sprint-417.md) | Zeile und kurzer Name bei Fest | Must CODE |
+| [418](./sprints/sprint-418.md) | Dateien und Mappe | Must CODE |
+| [419](./sprints/sprint-419.md) | Hauptbildschirm, Shredder | Must CODE |
+| [420](./sprints/sprint-420.md) | Tipp, Satz, Dateiliste | Must CODE |
+| [421](./sprints/sprint-421.md) | Beispiele auf der Fläche und im Ordner | Must CODE |
+| [422](./sprints/sprint-422.md) | Portfolio im Hausstand | Must CODE |
+| [423](./sprints/sprint-423.md) | Gold, Testkarten, Version erst dann | Must CODE |
 
-Kette: 417 vor 418 und vor 422. 418 vor 419. 419 vor 420. 420 vor 421.
-422 hängt nicht an den Rahmen. 423 zuletzt, erst wenn 421 und 422 grün sind.
-Test-Sätze: [`TEST-18.24.md`](./TEST-18.24.md). Die Karten liegen erst nach 423 in Spur Heute.
+Kette: 417 vor 418. 418 vor 419, vor 421 und vor 422. 419 vor 420.
+420 vor 421. 422 vor 423. 423 zuletzt.
+
+Test-Sätze: [`TEST-18.24.md`](./TEST-18.24.md).

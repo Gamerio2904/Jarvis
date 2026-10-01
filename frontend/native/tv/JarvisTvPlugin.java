@@ -87,7 +87,7 @@ public class JarvisTvPlugin extends Plugin {
         runBg(call, () -> {
             String host = call.getString("host", "");
             Integer port = call.getInt("port");
-            String name = call.getString("name", "Jarvis");
+            String name = call.getString("name", "Ultron");
             String token = call.getString("token", "");
             resolve(call, doPair(host, port, name, token, 45));
         });
@@ -106,7 +106,7 @@ public class JarvisTvPlugin extends Plugin {
             String host = call.getString("host", "");
             Integer port = call.getInt("port");
             String token = call.getString("token", "");
-            resolve(call, doPair(host, port, "Jarvis", token == null ? "" : token, 12));
+            resolve(call, doPair(host, port, "Ultron", token == null ? "" : token, 12));
         });
     }
 
@@ -566,7 +566,7 @@ public class JarvisTvPlugin extends Plugin {
         for (int p : ports) {
             TizenSession session = new TizenSession();
             try {
-                session.open(host, p, "Jarvis", token);
+                session.open(host, p, "Ultron", token);
                 if (!session.await(10) || session.unauthorized) {
                     last = session.unauthorized
                         ? "TV hat abgelehnt. Neu koppeln."
@@ -646,7 +646,7 @@ public class JarvisTvPlugin extends Plugin {
         for (int p : ports) {
             TizenSession session = new TizenSession();
             try {
-                session.open(host, p, "Jarvis", token);
+                session.open(host, p, "Ultron", token);
                 if (!session.await(10) || session.unauthorized) {
                     last = session.unauthorized
                         ? "TV hat abgelehnt. Neu koppeln."
@@ -684,7 +684,7 @@ public class JarvisTvPlugin extends Plugin {
 
         void open(String host, int port, String name, String token) throws Exception {
             String encoded = Base64.encodeToString(
-                (name == null || name.isEmpty() ? "Jarvis" : name).getBytes(StandardCharsets.UTF_8),
+                (name == null || name.isEmpty() ? "Ultron" : name).getBytes(StandardCharsets.UTF_8),
                 Base64.NO_WRAP
             );
             String scheme = port == 8002 ? "wss" : "ws";

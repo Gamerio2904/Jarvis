@@ -55,7 +55,7 @@ export function parsePcPairPayload(raw: string): PcPair | null {
 
 export function pcPairRejectReason(raw: string): string {
   const t = String(raw || '').trim()
-  if (!t) return 'Kein Code. Den QR aus dem Jarvis-PC-Fenster scannen.'
+  if (!t) return 'Kein Code. Den QR aus dem Ultron-PC-Fenster scannen.'
   const pipeHost = /^jarvis-pc:v1\|([^|\s]+)\|/i.exec(t)?.[1]
   if (pipeHost && !isAllowedPcHost(pipeHost)) return PC_HOST_HINT
   try {
@@ -75,5 +75,5 @@ export function pcPairRejectReason(raw: string): string {
       /* */
     }
   }
-  return 'QR ist kein Jarvis-PC-Code. Nur den Code aus dem grauen PC-Fenster scannen.'
+  return 'QR ist kein Ultron-PC-Code. Nur den Code aus dem grauen PC-Fenster scannen.'
 }

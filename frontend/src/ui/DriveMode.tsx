@@ -459,9 +459,9 @@ function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string
   const fromTrack = spotifySourceLabel(now?.source)
   if (fromTrack) return fromTrack
   if (status === 'loading') return 'Player startet…'
-  if (status === 'ready') return 'bereit in Jarvis'
+  if (status === 'ready') return 'bereit in Ultron'
   if (status === 'unavailable') return 'Vorschau oder anderes Gerät'
-  return 'Spotify in Jarvis'
+  return 'Spotify in Ultron'
 }
 
 export function DriveMode({
@@ -751,7 +751,7 @@ export function DriveMode({
           <div className="drive-now-row">
             {now?.art ? <img className="drive-art" src={now.art} alt="" /> : <div className="drive-art drive-art-empty" />}
             <div>
-              <p className="drive-now">{now ? `${now.playing ? '▶' : '❚❚'} ${now.name}` : 'Spotify in Jarvis'}</p>
+              <p className="drive-now">{now ? `${now.playing ? '▶' : '❚❚'} ${now.name}` : 'Spotify in Ultron'}</p>
               <p className="drive-now-sub">
                 {now?.artist ? `${now.artist} · ` : ''}
                 {sourceHint(now, player)}

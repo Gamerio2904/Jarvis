@@ -5,7 +5,6 @@ import { pickHeard } from '../engine/heard.ts'
 import { repairSpeech } from '../engine/utterance.ts'
 import { upsertWorking } from '../engine/working-memory.ts'
 import { refineHeard } from '../engine/stt-groq.ts'
-import { loadFace } from '../engine/face.ts'
 import { markFirstAudio } from '../engine/latency.ts'
 import { loadSettings } from '../engine/store.ts'
 import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, TALK_TAIL_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
@@ -519,7 +518,7 @@ export function createSpeakPipeline() {
 function speakNative(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, ' ').replace(/\s+/g, ' ').trim()
   if (!clean) return Promise.resolve()
-  const gender = loadFace() === 'friday' ? 'female' : 'male'
+  const gender = 'male'
   setAppTalking(true)
   const done = () => setAppTalking(false)
   if (native) {

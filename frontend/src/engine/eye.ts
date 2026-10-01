@@ -121,7 +121,7 @@ export async function readEyeImage(
   try {
     const tv = loadSettings().last_step_tool === 'tv'
     const prompt = tv
-      ? 'Fernseher-Foto: Sagen Sie nur, was auf dem Schirm steht (Login, Suche, Liste). Keine erfundenen Tasten. 1–3 Sätze, Siezen. Jarvis sieht den TV nicht live — nur dieses Foto.'
+      ? 'Fernseher-Foto: Sagen Sie nur, was auf dem Schirm steht (Login, Suche, Liste). Keine erfundenen Tasten. 1–3 Sätze, Siezen. Ultron sieht den TV nicht live — nur dieses Foto.'
       : 'Lesen Sie nur, was auf dem Bild steht. Deutsch, Siezen, 1–3 Sätze. Nichts erfinden, was nicht zu sehen ist.'
     const text = await completeGeminiVision(prompt, m[2], m[1])
     const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')

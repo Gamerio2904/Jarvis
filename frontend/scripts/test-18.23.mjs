@@ -20,7 +20,7 @@ const { draftFromModel, formatAblauf, handleAblauf, listPlans, rewriteOffline } 
 const { parseIdeaIntent } = await import('../src/engine/idea-parse.ts')
 const { handleBoard } = await import('../src/engine/board.ts')
 const { applyBackup, asBackup, buildBackup, previewBackup, stripSettings } = await import('../src/engine/backup.ts')
-const { emptyPlan } = await import('../src/engine/idea-plan.ts')
+const { blankSprint, emptyPlan } = await import('../src/engine/idea-plan.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
 const { addIdea, listIdeas, loadSettings, put, putIdea, saveSettings } = await import('../src/engine/store.ts')
 
@@ -80,11 +80,12 @@ saveSettings({ ablauf_status: 'warten', proposal_pending: true })
 assert.equal(parseAblaufIntent('Ja'), null)
 saveSettings({ ablauf_status: 'warten', proposal_pending: false, tischplatte_on: true, tischplatte_pieces_json: '' })
 const blocked = await handleBoard('c-ablauf', 'Schieb die Sprintliste nach links')
-assert.match(blocked.reply || '', /Tafel ist fest/)
+assert.match(blocked.reply || '', /steht links/)
 saveSettings({ ablauf_status: '' })
 
 const idea = await addIdea('Tik-Tak-To', '')
 const plan = emptyPlan(idea.id)
+plan.sprints.push(blankSprint('1', 'Tor', ''))
 plan.sprints[0].ziel = 'Kern bleibt'
 await putIdea({ ...idea, plan })
 const rowA = { ...draft, id: 'plan-a', status: 'zu', created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-01T00:00:00.000Z' }

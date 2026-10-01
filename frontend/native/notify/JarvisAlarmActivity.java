@@ -36,7 +36,7 @@ public class JarvisAlarmActivity extends Activity {
         String tone = getIntent() != null ? getIntent().getStringExtra("tone") : null;
         String mode = getIntent() != null ? getIntent().getStringExtra("mode") : null;
         String say = getIntent() != null ? getIntent().getStringExtra("say") : null;
-        if (title == null || title.isEmpty()) title = "Jarvis";
+        if (title == null || title.isEmpty()) title = "Ultron";
         if (body == null) body = "";
         boolean speak = JarvisNotifyPlugin.isTimerSpeak(mode, title);
         if (speak) {
@@ -56,7 +56,7 @@ public class JarvisAlarmActivity extends Activity {
 
         TextView h = new TextView(this);
         String heading = speak
-                ? (body != null && !body.isEmpty() && !"Timer".equalsIgnoreCase(body) ? body : "Jarvis")
+                ? (body != null && !body.isEmpty() && !"Timer".equalsIgnoreCase(body) ? body : "Ultron")
                 : title;
         h.setText(heading);
         h.setTextColor(0xFFE8F5E9);
