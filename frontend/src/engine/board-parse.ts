@@ -2,6 +2,7 @@
 
 import { pieceFromName, type PieceId, type PlaceDir } from './board-pieces.ts'
 import { HOME_APP_IDS, isHomeAppId, type HomeAppId } from './home-apps.ts'
+import { parseScanCommand, type ScanCommand } from './room-scan.ts'
 import { loadSettings } from './store.ts'
 import type { TischplatteView } from './board-types.ts'
 
@@ -19,6 +20,7 @@ export type BoardIntent =
   | { kind: 'place'; op: 'recall'; piece: PieceId | null }
   | { kind: 'place'; op: 'clear' }
   | { kind: 'download'; which: 'psp' | 'sprints' | 'all'; query?: string }
+  | ScanCommand
 
 const END = String.raw`[.!?]?\s*$`
 
@@ -121,6 +123,8 @@ function planRef(raw: string): { planIndex?: number; planQuery?: string } {
 export function parseBoardIntent(text: string): BoardIntent | null {
   const t = text.trim()
   if (!t || t.length > 280) return null
+  const scan = parseScanCommand(t)
+  if (scan) return scan
   if (/\b(?:schreibtisch|wetter|hotel|zimmertemperatur)\b/i.test(t) && !/\btischplatte\b/i.test(t)) {
     return null
   }

@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.6` — Raum- und Objekt-Scan — *CODE*
+
+„Scanne den Raum“ und „Scanne den Apfel“ öffnen die Kamera auf der Tischplatte. „Beende den Scan“ legt ein Tiefennetz auf den Tisch, wenn das Gerät Tiefenwerte liefert. Ein Finger dreht, zwei schieben, Ziehen zoomt. Ohne Tiefe bleibt das Modell aus. „Entferne alles aus dem Raum“ und „Tausche Bett mit Schreibtisch“ greifen nur, wenn die Klassen wirklich da sind.
+
+App-Code und Sideload **`18.24.6`** (versionCode `182406`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/raum-scan-cbd1/releases/Jarvis.apk
+
 ### `18.24.5` — Ultron-Fläche — *CODE*
 
 Die Fläche ist neu: Chromplatten, scharfe Kanten, eine Schrift, das rote Auge nur als Licht. Start, Chat, Lage und Einstellungen sitzen auf derselben Platte. Der Senden-Knopf ist rot.

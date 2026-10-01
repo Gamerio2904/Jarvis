@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.24.5'
+export const APP_VERSION = '18.24.6'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -373,6 +373,8 @@ export type Settings = {
   tischplatte_hint: string
   tischplatte_pieces_json: string
   tischplatte_motion_json: string
+  /** Raum- oder Objekt-Scan auf der Tischplatte. Kein Video. */
+  scan_json: string
   /** Linke Leiste. `false` blendet sie aus, auch die Schublade am Telefon. */
   leiste_on: boolean
   /** Eingeklappt zur Icon-Leiste. Das rechte Menü schaltet sie ganz aus. */
@@ -583,6 +585,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tischplatte_hint: '',
   tischplatte_pieces_json: '',
   tischplatte_motion_json: '',
+  scan_json: '',
   leiste_on: true,
   leiste_zu: false,
   plan_phase: '',
