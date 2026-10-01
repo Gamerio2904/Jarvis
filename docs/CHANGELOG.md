@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.0` — Entwurf auf der Tafel — *PLAN*
+
+Noch nicht gebaut. `Entwirf eine App` soll bis zu drei stumme Bildschirme
+auf die Tischplatte legen. `Die zweite` merkt die Wahl. App-Code bleibt
+**`18.24.6`**. Plan: [`97-next.md`](./97-next.md), Sprints 424–430.
+
 ### `18.24.6` — Raum- und Objekt-Scan — *CODE*
 
 „Scanne den Raum“ und „Scanne den Apfel“ öffnen die Kamera auf der Tischplatte. „Beende den Scan“ legt ein Tiefennetz auf den Tisch, wenn das Gerät Tiefenwerte liefert. Ein Finger dreht, zwei schieben, Ziehen zoomt. Ohne Tiefe bleibt das Modell aus. „Entferne alles aus dem Raum“ und „Tausche Bett mit Schreibtisch“ greifen nur, wenn die Klassen wirklich da sind.

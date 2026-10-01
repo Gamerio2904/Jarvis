@@ -946,22 +946,30 @@ Katalog-Stand bleibt `18.20.0`.
 | `18.23.10` | Erinnerung am Datum, Ja führt den Vorschlag aus | Nachtest |
 | `18.23.9` | Nein plus Minuten setzt die Zeit, Wer-ist sucht | Nachtest |
 
-### `18.24` — Entwurf [`96-next.md`](./96-next.md) **PLAN**
+### `18.24` — Portfolio, Ultron, Raum-Scan [`96-next.md`](./96-next.md) **CODE**
 
-Noch nicht gebaut. App-Code bleibt **`18.23.12`**. Fertig ist die Schiene
-erst **`18.24.0`** (versionCode `182400`), wenn Sprint 423 grün ist.
-**`18.24.6` gibt es nicht** und ist in diesem Plan nicht vorgesehen.
-Sprints 417–423. Test: [`TEST-18.24.md`](./TEST-18.24.md).
+**`18.24.6`** (App-Code und Sideload, versionCode `182406`). `Go` legt das
+Skript ins Portfolio. Die Fläche ist Ultron. `Scanne den Raum` und
+`Scanne den Apfel` öffnen die Kamera auf der Tischplatte. Sprints 417–423
+sind das Portfolio. Der Scan liegt im Code ohne neue Sprintnummer.
+Test: [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md).
+
+### `18.25` — Entwurf [`97-next.md`](./97-next.md) **PLAN**
+
+Noch nicht gebaut. App-Code bleibt **`18.24.6`**. Fertig ist die Schiene
+erst **`18.25.0`** (versionCode `182500`), wenn Sprint 430 grün ist.
+`Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel.
+Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.24.0` | Sätze, Speicher | 417 PLAN |
-| `18.24.0` | Modell füllt Varianten | 418 PLAN |
-| `18.24.0` | Drei Rahmen auf der Tafel | 419 PLAN |
-| `18.24.0` | Inspiration, drei Muster | 420 PLAN |
-| `18.24.0` | Wahl, Schließen, Ablauf gewinnt | 421 PLAN |
-| `18.24.0` | Entwürfe im Hausstand | 422 PLAN |
-| `18.24.0` | Gold, Testkarten, versionCode `182400` | 423 PLAN |
+| `18.25.0` | Sätze, Speicher | 424 PLAN |
+| `18.25.0` | Modell füllt Varianten | 425 PLAN |
+| `18.25.0` | Drei Rahmen auf der Tafel | 426 PLAN |
+| `18.25.0` | Inspiration, drei Muster | 427 PLAN |
+| `18.25.0` | Wahl, Schließen, Ablauf und Scan gewinnen | 428 PLAN |
+| `18.25.0` | Entwürfe im Hausstand | 429 PLAN |
+| `18.25.0` | Gold, Testkarten, versionCode `182500` | 430 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
