@@ -18,12 +18,15 @@ import { commitPortfolio, currentIdeaForTable, handlePortfolio } from './portfol
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import {
+  blankSprint,
   emptyPlan,
   findSprint,
   formatPlan,
-  nextCustomN,
+  nextSprintN,
   parsePlan,
   planHasBody,
+  PLAN_BEDINGUNG,
+  PLAN_RAHMEN,
   WEG_ANLEITUNG,
   type IdeaPlan,
 } from './idea-plan.ts'
@@ -32,13 +35,12 @@ import { completeGroq, groqReady } from './groq.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
 import type { ToolMeta } from './tools.ts'
 
-const FILL_SYSTEM = `Du füllst eine feste Sprint-Vorlage auf Deutsch.
-Antwort NUR als JSON-Objekt { "sprints": [ ... ] }.
-Genau drei Kern-Sprints: n "1" title "Kern", n "2" title "Härten", n "3" title "Probe", kind "core".
-Du darfst lieferumfang-Zeilen {id, task, anleitung} ergänzen.
-Custom-Sprints kind "custom" n "C1" nur mit Grund im ziel (Gerät, Sideload, Parser-Konflikt, Risiko).
-Keine RICE, keine App-Version, keine englischen Kapitel, keine anderen Agenten, keine docs/sprints.
-Keine Daten erfinden.`
+const FILL_SYSTEM = `${PLAN_BEDINGUNG}
+Rahmen: ${PLAN_RAHMEN.join(' ')}
+Antwort NUR als JSON-Objekt mit bedingung, anforderungen [{id, satz, abnahme, gateway}], entscheidungen [{id, schnitt, grund, gateway}], sprints [{n, title, ziel, anforderungen, lieferumfang:[{id, task, anleitung}], gateway, go_wenn, nogo_wenn, abbruch, haengt_an}], luecken [{id, name, satz}], gateway, go_wenn, nogo_wenn.
+n ist 1, 2, 3, … ohne Lücke und ohne Obergrenze. title nennst du. Eine Hülle, kein zweites Muster.
+gateway go nur mit Anforderung, go_wenn und abbruch. Sonst offen.
+Keine RICE, keine App-Version, keine Titel Kern, Härten oder Probe, keine erfundenen Quellen.`
 
 function pack(
   reply: string,
@@ -89,12 +91,12 @@ function extractJson(text: string): unknown {
 
 export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
   if (!groqReady() && !geminiReady()) return null
-  const skeleton = emptyPlan(idea.id)
+  const skeleton = emptyPlan(idea.id, idea.body || idea.title)
   const messages = [
     { role: 'system', content: FILL_SYSTEM },
     {
       role: 'user',
-      content: `Idee: ${idea.title}\n${idea.body || ''}\nVorlage: ${JSON.stringify(skeleton)}`,
+      content: `Bedingung: ${skeleton.bedingung}\nRahmen: ${skeleton.rahmen.join(' | ')}\nHülle: ${JSON.stringify(blankSprint('1'))}`,
     },
   ]
   const runs: Array<() => Promise<string>> = []
@@ -115,29 +117,36 @@ export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
 }
 
 function fillFromClauses(plan: IdeaPlan, parts: string[], title: string) {
-  plan.sprints[0].ziel = (parts.join(', ') || title).slice(0, 160)
-  plan.sprints[0].lieferumfang = parts.map((task, i) => ({
+  const ziel = (parts.join(', ') || title).slice(0, 160)
+  const first = blankSprint('1', (parts[0] || title).slice(0, 48), ziel)
+  first.lieferumfang = parts.map((task, i) => ({
     id: `S1-${i + 1}`,
     task: task.slice(0, 120),
     anleitung: WEG_ANLEITUNG,
   }))
-  if (parts.length < 2) return
-  plan.sprints[1].ziel = 'Die Wege gegeneinander halten.'
-  plan.sprints[1].lieferumfang = [
-    {
-      id: 'S2-1',
-      task: 'Wege vergleichen',
-      anleitung: 'Jeden Weg aus dem Satz gegen die anderen halten.',
-    },
-  ]
-  plan.sprints[2].ziel = 'Einen Weg einmal durchspielen.'
-  plan.sprints[2].lieferumfang = [
-    {
-      id: 'S3-1',
-      task: 'Einen Weg durchspielen',
-      anleitung: 'Einen Weg aus dem Satz einmal prüfen.',
-    },
-  ]
+  const second = blankSprint('2')
+  const third = blankSprint('3')
+  if (parts.length >= 2) {
+    second.title = 'Wege'
+    second.ziel = 'Die Wege gegeneinander halten.'
+    second.lieferumfang = [
+      {
+        id: 'S2-1',
+        task: 'Wege vergleichen',
+        anleitung: 'Jeden Weg aus dem Satz gegen die anderen halten.',
+      },
+    ]
+    third.title = 'Durchspielen'
+    third.ziel = 'Einen Weg einmal durchspielen.'
+    third.lieferumfang = [
+      {
+        id: 'S3-1',
+        task: 'Einen Weg durchspielen',
+        anleitung: 'Einen Weg aus dem Satz einmal prüfen.',
+      },
+    ]
+  }
+  plan.sprints = [first, second, third]
 }
 
 function clausesOf(work: string): string[] {
@@ -217,7 +226,7 @@ async function writeProject(work: string): Promise<string> {
   const rows = await listIdeas()
   let hit = rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
   if (!hit) hit = await addIdea(title, work)
-  const plan = emptyPlan(hit.id)
+  const plan = emptyPlan(hit.id, work)
   fillFromClauses(plan, parts, title)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
@@ -237,9 +246,9 @@ async function reviseProject(text: string): Promise<string> {
   const rows = await listIdeas()
   const hit = rows.find((r) => r.status === 'open') || rows[0]
   if (!hit) return 'Noch kein Projekt auf der Tischplatte.'
-  const plan = hit.plan || emptyPlan(hit.id)
+  const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
   const sprint = findSprint(plan, '1')
-  if (!sprint) return 'Diesen Kern-Sprint gibt es nicht.'
+  if (!sprint) return 'Sprint 1 gibt es noch nicht.'
   const k = sprint.lieferumfang.length + 1
   sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: WEG_ANLEITUNG })
   await putIdea({ ...hit, plan })
@@ -278,9 +287,7 @@ export async function handleIdea(
 
   if (intent.kind === 'create') {
     const row = await addIdea(intent.title, intent.body, conversationId)
-    const plan = emptyPlan(row.id)
-    const kern = plan.sprints.find((s) => s.n === '1')
-    if (kern) kern.ziel = row.title
+    const plan = emptyPlan(row.id, row.body || row.title)
     await putIdea({ ...row, plan })
     persistLastList('idea', titlesOf(await listIdeas('open')))
     return pack(`Idee liegt: ${row.title}.`, 'create', row.title)
@@ -336,10 +343,10 @@ export async function handleIdea(
     const rows = await listIdeas()
     const hit = pickIdea(rows, intent.query, intent.index)
     if (!hit) return pack('Die Idee finde ich nicht.', 'miss')
-    const plan = hit.plan || emptyPlan(hit.id)
+    const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
     const n = String(intent.sprint || 1)
     const sprint = findSprint(plan, n)
-    if (!sprint || sprint.kind !== 'core') return pack('Diesen Kern-Sprint gibt es nicht.', 'plan_fail')
+    if (!sprint) return pack('Den Sprint finde ich nicht.', 'plan_fail')
     const k = sprint.lieferumfang.length + 1
     sprint.lieferumfang.push({ id: `S${n}-${k}`, task: intent.line, anleitung: intent.line })
     await putIdea({ ...hit, plan })
@@ -351,17 +358,10 @@ export async function handleIdea(
     const rows = await listIdeas()
     const hit = pickIdea(rows, intent.query, intent.index)
     if (!hit) return pack('Die Idee finde ich nicht.', 'miss')
-    const plan = hit.plan || emptyPlan(hit.id)
-    const n = nextCustomN(plan)
-    plan.sprints.push({
-      n,
-      kind: 'custom',
-      title: intent.title.slice(0, 80),
-      ziel: intent.ziel,
-      lieferumfang: [],
-      wont: ['—'],
-      abbruch: '—',
-    })
+    const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
+    const n = nextSprintN(plan)
+    const sprint = blankSprint(n, intent.title.slice(0, 80), intent.ziel)
+    plan.sprints.push(sprint)
     await putIdea({ ...hit, plan })
     persistLastList('idea', [hit.title])
     return pack(formatPlan(plan, hit.title), 'plan_custom', hit.title)
@@ -371,15 +371,12 @@ export async function handleIdea(
     const rows = await listIdeas()
     const hit = pickIdea(rows, intent.query, intent.index)
     if (!hit) return pack('Die Idee finde ich nicht.', 'miss')
-    const plan = hit.plan || emptyPlan(hit.id)
+    const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
     const sprint = findSprint(plan, intent.n)
     if (!sprint) return pack('Den Sprint finde ich nicht.', 'miss')
-    if (sprint.kind === 'core') {
-      sprint.ziel = 'entfällt: auf Zuruf'
-      sprint.lieferumfang = []
-    } else {
-      plan.sprints = plan.sprints.filter((s) => s !== sprint)
-    }
+    sprint.gateway = 'nogo'
+    sprint.nogo_wenn = 'auf Zuruf'
+    sprint.abbruch = 'auf Zuruf'
     await putIdea({ ...hit, plan })
     persistLastList('idea', [hit.title])
     return pack(formatPlan(plan, hit.title), 'plan_strike', hit.title)
