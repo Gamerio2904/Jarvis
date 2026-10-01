@@ -29,6 +29,14 @@ Zeile. Dateien `projekt.json`, `wege.json`, `sprints.json`, `psp.json`,
 `luecken.json`.
 
 ```
+Neues Projekt: Haushaltsbuch
+```
+
+Dieselbe Karte, ohne `Go`. Die Mitte bleibt das Portfolio, nicht das
+live Skript. Leeres `Neues Projekt` fragt `Was soll geplant werden?`
+und legt nichts an.
+
+```
 Go
 ```
 
@@ -74,6 +82,13 @@ Schredder Tik Tak To
 ```
 
 Wieder im Archiv, Dateien bleiben.
+
+```
+Lösche das Projekt Tik Tak To
+```
+
+Dieselbe Ablage. `tik Taktik to` trifft `Tik Tak To`. Die anderen
+Karten bleiben. `Lösche den Plan` räumt nur das Skript, nicht die Karte.
 
 ## 5. Beispiel
 

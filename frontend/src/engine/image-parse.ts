@@ -29,11 +29,16 @@ export function parseImageAsk(text: string): ImageAsk | null {
   return { q, kind }
 }
 
-/** `http:` und `javascript:` bleiben unsichtbar. Kamera bleibt `data:image`. */
+/**
+ * `http:` und `javascript:` bleiben unsichtbar. Kamera bleibt `data:image`.
+ * Hausstand- und Datei-QR sind `data:image/svg+xml;charset=utf-8,…`.
+ * In einem `<img>` läuft darin kein Skript.
+ */
 export function safeImageSrc(src: string): string | null {
   const s = (src || '').trim()
   if (/^https:\/\//i.test(s)) return s
   if (/^blob:/i.test(s)) return s
   if (/^data:image\/(?:jpeg|jpg|png|webp|gif);/i.test(s)) return s
+  if (/^data:image\/svg\+xml;charset=utf-8,/i.test(s)) return s
   return null
 }

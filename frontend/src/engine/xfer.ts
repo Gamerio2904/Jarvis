@@ -7,7 +7,7 @@ import {
   assembleChunks,
   parseXferChunk,
   planTransfer,
-  qrSvgDataUrl,
+  qrImageDataUrl,
   type XferChunk,
   type XferFile,
 } from './xfer-codec.ts'
@@ -121,7 +121,7 @@ export async function handleXfer(
   }
   const blocks: ChatBlock[] = []
   plan.codes.forEach((code, i) => {
-    const src = qrSvgDataUrl(code)
+    const src = qrImageDataUrl(code)
     if (!src) return
     blocks.push({
       kind: 'image',

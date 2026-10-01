@@ -195,3 +195,113 @@ export function qrSvgDataUrl(text: string): string | null {
     `<g fill="#04141c">${rects}</g></svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
+
+function crc32(bytes: Uint8Array): number {
+  let c = 0xffffffff
+  for (let i = 0; i < bytes.length; i++) {
+    c ^= bytes[i]
+    for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1))
+  }
+  return (c ^ 0xffffffff) >>> 0
+}
+
+function pngChunk(type: string, data: Uint8Array): Uint8Array {
+  const out = new Uint8Array(12 + data.length)
+  const view = new DataView(out.buffer)
+  view.setUint32(0, data.length)
+  out[4] = type.charCodeAt(0)
+  out[5] = type.charCodeAt(1)
+  out[6] = type.charCodeAt(2)
+  out[7] = type.charCodeAt(3)
+  out.set(data, 8)
+  view.setUint32(8 + data.length, crc32(out.subarray(4, 8 + data.length)))
+  return out
+}
+
+function adler32(data: Uint8Array): number {
+  let a = 1
+  let b = 0
+  for (let i = 0; i < data.length; i++) {
+    a = (a + data[i]) % 65521
+    b = (b + a) % 65521
+  }
+  return ((b << 16) | a) >>> 0
+}
+
+/** PNG ohne Bibliothek. Stored-Blöcke, damit WebView kein SVG braucht. */
+function zlibStore(data: Uint8Array): Uint8Array {
+  const parts: Uint8Array[] = [new Uint8Array([0x78, 0x01])]
+  let off = 0
+  do {
+    const n = Math.min(65535, data.length - off)
+    const last = off + n >= data.length
+    const block = new Uint8Array(5 + n)
+    block[0] = last ? 1 : 0
+    block[1] = n & 255
+    block[2] = (n >> 8) & 255
+    const nlen = (~n) & 0xffff
+    block[3] = nlen & 255
+    block[4] = (nlen >> 8) & 255
+    if (n) block.set(data.subarray(off, off + n), 5)
+    parts.push(block)
+    off += n
+  } while (off < data.length)
+  const sum = adler32(data)
+  const tail = new Uint8Array(4)
+  tail[0] = (sum >>> 24) & 255
+  tail[1] = (sum >>> 16) & 255
+  tail[2] = (sum >>> 8) & 255
+  tail[3] = sum & 255
+  parts.push(tail)
+  const total = parts.reduce((n, part) => n + part.length, 0)
+  const out = new Uint8Array(total)
+  let at = 0
+  for (const part of parts) {
+    out.set(part, at)
+    at += part.length
+  }
+  return out
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let bin = ''
+  const step = 0x8000
+  for (let i = 0; i < bytes.length; i += step) {
+    bin += String.fromCharCode(...bytes.subarray(i, Math.min(i + step, bytes.length)))
+  }
+  return btoa(bin)
+}
+
+function pngFromRgba(rgba: { data: Uint8ClampedArray; width: number; height: number }): string {
+  const { data, width, height } = rgba
+  const stride = width * 4
+  const raw = new Uint8Array((stride + 1) * height)
+  for (let y = 0; y < height; y++) {
+    const dest = y * (stride + 1)
+    raw[dest] = 0
+    raw.set(data.subarray(y * stride, y * stride + stride), dest + 1)
+  }
+  const ihdr = new Uint8Array(13)
+  const view = new DataView(ihdr.buffer)
+  view.setUint32(0, width)
+  view.setUint32(4, height)
+  ihdr[8] = 8
+  ihdr[9] = 6
+  const sig = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])
+  const parts = [sig, pngChunk('IHDR', ihdr), pngChunk('IDAT', zlibStore(raw)), pngChunk('IEND', new Uint8Array())]
+  const total = parts.reduce((n, part) => n + part.length, 0)
+  const png = new Uint8Array(total)
+  let at = 0
+  for (const part of parts) {
+    png.set(part, at)
+    at += part.length
+  }
+  return `data:image/png;base64,${bytesToBase64(png)}`
+}
+
+/** Sichtbarer Code. PNG, damit die Kachel ihn zeichnet. SVG bleibt der Fallback. */
+export function qrImageDataUrl(text: string): string | null {
+  const rgba = renderRgba(text)
+  if (rgba) return pngFromRgba(rgba)
+  return qrSvgDataUrl(text)
+}

@@ -1,7 +1,9 @@
-# Android-APK — App-Code `18.25.0`
+# Android-APK — App-Code `18.25.1`
 
-App-Code und Sideload **`18.25.0`** (versionCode `182500`):
+App-Code und Sideload **`18.25.1`** (versionCode `182501`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+`Neues Projekt` zeigt die Karte. `Lösche das Projekt` legt sie ins Archiv. Der Hausstand-Code wird gezeichnet. Dieselbe Datei ersetzt `18.25.0` nur, weil der versionCode steigt.
 
 Entwurf: [`TEST-18.25.md`](./TEST-18.25.md). Testsätze ab Hausstand-Code: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md). Portfolio: [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 

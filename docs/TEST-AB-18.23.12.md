@@ -1,6 +1,6 @@
 # TEST ab 18.23.12 — Hausstand-Code und alles danach
 
-Sideload **`18.25.0`** (versionCode `182500`):
+Sideload **`18.25.1`** (versionCode `182501`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Darin liegen Hausstand per QR

@@ -1,7 +1,7 @@
 /** Hausstand von Gerät zu Gerät. Der Code ist die Adresse, die Datei bleibt im WLAN. */
 
 import type { ChatBlock } from './chat-blocks.ts'
-import { qrSvgDataUrl } from './xfer-codec.ts'
+import { qrImageDataUrl } from './xfer-codec.ts'
 import { hausNative, hausOffer } from '../native/haus.ts'
 
 export type HausLinkIntent = 'offer' | 'scan'
@@ -49,7 +49,7 @@ export async function offerHausQr(json: string): Promise<{ reply: string; blocks
   const live = await hausOffer(json)
   if (!live.ok || !live.url) {
     if (!hausNative()) {
-      const src = qrSvgDataUrl(hausCode('http://192.168.0.2/hausstand?t=vorschau'))
+      const src = qrImageDataUrl(hausCode('http://192.168.0.2/hausstand?t=vorschau'))
       const blocks: ChatBlock[] = src
         ? [{ kind: 'image', src, alt: 'Hausstand-Code', source: 'Vorschau' }]
         : []
@@ -60,7 +60,7 @@ export async function offerHausQr(json: string): Promise<{ reply: string; blocks
     }
     return { reply: live.message || 'Kein WLAN. Beide Geräte ins selbe Netz, dann den Satz nochmal.' }
   }
-  const src = qrSvgDataUrl(live.code || hausCode(live.url))
+  const src = qrImageDataUrl(live.code || hausCode(live.url))
   if (!src) return { reply: 'Der Code fehlt.' }
   return {
     reply: 'Hausstand-Code. Gleiches WLAN. Ohne Gespräche. Keys sind drin. Auf dem anderen Gerät: Scanne QR Code.',

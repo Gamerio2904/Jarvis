@@ -39,6 +39,10 @@ assert.equal(safeImageSrc('https://upload.wikimedia.org/a.jpg'), 'https://upload
 assert.equal(safeImageSrc('http://example.com/a.jpg'), null)
 assert.equal(safeImageSrc('javascript:alert(1)'), null)
 assert.equal(safeImageSrc('data:image/jpeg;base64,abc'), 'data:image/jpeg;base64,abc')
+const qrSvg = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E'
+assert.equal(safeImageSrc(qrSvg), qrSvg)
+assert.equal(safeImageSrc('data:image/svg+xml,<svg></svg>'), null)
+assert.equal(safeImageSrc('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4='), null)
 
 assert.equal(wikiTitle('elbe'), 'Elbe')
 assert.equal(

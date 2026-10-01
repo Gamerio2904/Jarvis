@@ -43,7 +43,7 @@ const {
 const { applyBackup, asBackup, buildBackup, previewBackup, stripSettings } = await import('../src/engine/backup.ts')
 const { listPortfolio } = await import('../src/engine/portfolio.ts')
 
-assert.equal(APP_VERSION, '18.25.0')
+assert.equal(APP_VERSION, '18.25.1')
 
 assert.equal(parseBoardIntent('Simuliere Kalender')?.view, 'sim')
 assert.equal(parseBoardIntent('Plane das: Trag morgen 9 Uhr Zahnarzt ein'), null)

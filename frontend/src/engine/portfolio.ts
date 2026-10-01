@@ -280,6 +280,36 @@ export async function mirrorPortfolio(rows: PortfolioRow[]): Promise<void> {
   }
 }
 
+const NAME_FILLER = new Set(['der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'und', 'projekt', 'bitte', 'mir'])
+
+function nameTokens(value: string): string[] {
+  return value
+    .toLowerCase()
+    .split(/[^a-z0-9äöüß]+/i)
+    .filter((token) => token && !NAME_FILLER.has(token))
+}
+
+function tokenHit(left: string, right: string): boolean {
+  if (left === right) return true
+  if (left.length < 3 || right.length < 3) return false
+  return left.startsWith(right) || right.startsWith(left)
+}
+
+/** Ein kurzes Wort trifft nicht jede Karte. Ab drei Wörtern darf eines danebenliegen. */
+function tokensCover(have: string[], query: string[]): boolean {
+  if (!have.length || !query.length) return false
+  const used = new Set<number>()
+  let hits = 0
+  for (const token of have) {
+    const idx = query.findIndex((part, i) => !used.has(i) && tokenHit(token, part))
+    if (idx < 0) continue
+    used.add(idx)
+    hits += 1
+  }
+  const need = have.length >= 3 ? have.length - 1 : have.length
+  return hits >= need
+}
+
 function matchRows(rows: PortfolioRow[], query: string): PortfolioRow[] {
   const q = query.trim().toLowerCase()
   if (!q) return []
@@ -287,7 +317,11 @@ function matchRows(rows: PortfolioRow[], query: string): PortfolioRow[] {
   if (byName.length) return byName
   const byTitle = rows.filter((r) => r.title.toLowerCase() === q)
   if (byTitle.length) return byTitle
-  return rows.filter((r) => r.name.toLowerCase().includes(q) || r.title.toLowerCase().includes(q))
+  const loose = rows.filter((r) => r.name.toLowerCase().includes(q) || r.title.toLowerCase().includes(q))
+  if (loose.length) return loose
+  const tokens = nameTokens(q)
+  if (!tokens.length) return []
+  return rows.filter((r) => tokensCover(nameTokens(r.name), tokens) || tokensCover(nameTokens(r.title), tokens))
 }
 
 function which(rows: PortfolioRow[]): string {
@@ -308,7 +342,10 @@ function openRow(row: PortfolioRow): void {
   })
 }
 
-export async function handlePortfolio(conversationId: string, intent: PortfolioIntent): Promise<string> {
+export async function handlePortfolio(
+  conversationId: string,
+  intent: Exclude<PortfolioIntent, { kind: 'create' }>,
+): Promise<string> {
   const rows = await listPortfolio()
   if (intent.kind === 'home') {
     saveSettings({ tischplatte_on: true, portfolio_focus: '', portfolio_file: '' })

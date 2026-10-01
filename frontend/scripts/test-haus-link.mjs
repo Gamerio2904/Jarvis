@@ -17,7 +17,8 @@ globalThis.localStorage = {
 const { parseHausLink, parseHausQr, hausCode } = await import('../src/engine/haus-link.ts')
 const { parseBackupIntent } = await import('../src/engine/backup.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
-const { qrSvgDataUrl } = await import('../src/engine/xfer-codec.ts')
+const { qrSvgDataUrl, qrImageDataUrl } = await import('../src/engine/xfer-codec.ts')
+const { safeImageSrc } = await import('../src/engine/image-parse.ts')
 
 assert.equal(parseHausLink('Hausstand übertragen'), 'offer')
 assert.equal(parseHausLink('QR Code für Hausstand'), 'offer')
@@ -39,6 +40,11 @@ assert.equal(pickRoute('PC QR scannen'), 'pc')
 const url = 'http://192.168.1.20:43210/hausstand?t=abc123'
 assert.equal(parseHausQr(hausCode(url)), url)
 assert.equal(parseHausQr('jarvis-pc:v1|192.168.0.2|18790|x'), null)
-assert.ok(qrSvgDataUrl(hausCode(url))?.startsWith('data:image/svg+xml'))
+const svg = qrSvgDataUrl(hausCode(url))
+assert.ok(svg?.startsWith('data:image/svg+xml;charset=utf-8,'))
+assert.equal(safeImageSrc(svg), svg)
+const png = qrImageDataUrl(hausCode(url))
+assert.ok(png?.startsWith('data:image/png;base64,'))
+assert.equal(safeImageSrc(png), png)
 
 console.log('ok test-haus-link')

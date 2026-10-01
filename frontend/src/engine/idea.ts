@@ -222,6 +222,31 @@ async function planOntoTable(intent: AblaufIntent): Promise<string> {
   return 'Planen schreibt Sprints und PSP auf der Tischplatte.'
 }
 
+async function layNewProject(work: string): Promise<string> {
+  const text = work.replace(/\s+/g, ' ').trim()
+  if (text.length < 3) return 'Was soll geplant werden?'
+  await writeProject(text)
+  const hit = await ideaOnTable()
+  if (!hit) return 'Was soll geplant werden?'
+  const saved = await commitPortfolio(hit)
+  saveSettings({
+    tischplatte_on: true,
+    ablauf_status: '',
+    ablauf_id: '',
+    bot_ask_json: '',
+    plan_phase: '',
+    plan_script_at: 0,
+    portfolio_focus: '',
+    portfolio_file: '',
+  })
+  if (saved.full) return 'Das Portfolio ist voll.'
+  if (saved.folder === 'fail') return 'Im Haus gespeichert. Der Ordner fehlt.'
+  if (saved.revived && saved.row) return `${saved.row.name} liegt wieder im Portfolio.`
+  if (saved.created && saved.row) return `Fest. ${saved.row.name} liegt im Portfolio.`
+  if (saved.row) return `${saved.row.name} liegt schon im Portfolio.`
+  return 'Was soll geplant werden?'
+}
+
 async function writeProject(work: string): Promise<string> {
   const parts = clausesOf(work)
   const title = (parts[0] || work).slice(0, 72)
@@ -274,6 +299,7 @@ export async function handleIdea(
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
   const portfolio = parsePortfolioIntent(text)
   if (portfolio) {
+    if (portfolio.kind === 'create') return pack(await layNewProject(portfolio.work), 'portfolio')
     const reply = await handlePortfolio(conversationId, portfolio)
     return pack(reply, 'portfolio')
   }

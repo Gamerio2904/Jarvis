@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.1` — Projekt anlegen, löschen, Hausstand-Code — *CODE + APK*
+
+`Neues Projekt: …` legt die Karte auf die Tischplatte. `Lösche das Projekt …` legt sie ins Archiv, auch bei einem verschobenen Namen wie `tik Taktik to`. Der Hausstand-Code und der Datei-Code werden gezeichnet.
+
+App-Code und Sideload **`18.25.1`** (versionCode `182501`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.0` — Entwurf auf der Tafel — *CODE + APK*
 
 `Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tischplatte. Ein Tipp oder `Die zweite` merkt die Wahl. `Zeig mir Inspiration zum Knopf` zeigt drei feste Muster. Ablauf und Scan gehen vor. Die Entwürfe stehen im Hausstand.
