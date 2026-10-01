@@ -14,7 +14,9 @@ import {
 import { handleAblauf } from './ablauf.ts'
 import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
-import { commitPortfolio, currentIdeaForTable, handlePortfolio } from './portfolio.ts'
+import { commitPortfolio, currentIdeaForTable, handlePortfolio, listPortfolio } from './portfolio.ts'
+import { artLabel } from './entwurf-muster.ts'
+import { fallbackFromWork } from './entwurf-fill.ts'
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
 import { closeDraftRow } from './entwurf.ts'
@@ -172,7 +174,7 @@ function clearShownPlan(): string {
   return 'Es liegt kein Plan auf der Tischplatte.'
 }
 
-async function planOntoTable(intent: AblaufIntent): Promise<string> {
+async function planOntoTable(intent: AblaufIntent, raw = ''): Promise<string> {
   if (intent.kind === 'clear') return clearShownPlan()
   if (intent.kind === 'accept') {
     const phase = loadSettings().plan_phase
@@ -215,11 +217,179 @@ async function planOntoTable(intent: AblaufIntent): Promise<string> {
     ablauf_id: '',
     bot_ask_json: '',
   })
+  if (intent.kind === 'session') return openPlanningSession(intent.work)
   if (intent.kind === 'open' && !intent.work) return 'Was soll geplant werden?'
-  if (intent.kind === 'close') return 'Das Planfenster ist zu. Die Sprints bleiben auf der Tischplatte.'
+  if (intent.kind === 'close') return closePlanningScreen(raw)
   if (intent.kind === 'revise') return reviseProject(intent.text)
   if (intent.kind === 'open' && intent.work) return writeProject(intent.work)
   return 'Planen schreibt Sprints und PSP auf der Tischplatte.'
+}
+
+async function closePlanningScreen(raw: string): Promise<string> {
+  if (/^\s*fenster\s+zu\b/i.test(raw.trim())) await closeDraftRow()
+  const phase = loadSettings().plan_phase
+  if (phase === 'live' || phase === 'go') {
+    saveSettings({ plan_phase: '', plan_script_at: 0, tischplatte_on: true })
+    return 'Der Planungsbildschirm ist zu. Der Plan bleibt.'
+  }
+  return 'Das Planfenster ist zu. Die Sprints bleiben auf der Tischplatte.'
+}
+
+async function namedProject(name: string): Promise<Idea | undefined> {
+  const q = name.trim().toLowerCase()
+  if (!q || q.includes(',') || /\sund\s/i.test(q)) return undefined
+  const ideas = await listIdeas()
+  const exact = ideas.find((row) => row.status !== 'done' && row.title.toLowerCase() === q)
+  if (exact) return exact
+  const rows = await listPortfolio()
+  const card = rows.find((row) => !row.archived && (row.name.toLowerCase() === q || row.title.toLowerCase() === q))
+  if (!card) return undefined
+  return ideas.find((row) => row.id === card.idea_id && row.status !== 'done')
+}
+
+function addSurface(plan: IdeaPlan, source: string, refresh = false): void {
+  const fill = fallbackFromWork(source)
+  const blocks = fill?.variants[0]?.blocks || []
+  if (!blocks.length) return
+  if (!refresh && plan.anforderungen.some((row) => row.id.startsWith('O'))) return
+  plan.anforderungen = plan.anforderungen.filter((row) => !row.id.startsWith('O'))
+  blocks.forEach((block, i) => {
+    const zeile = block.zeile && block.zeile !== 'Noch leer.' ? block.zeile : artLabel(block.art)
+    plan.anforderungen.push({
+      id: `O${i + 1}`,
+      satz: `${artLabel(block.art)}: ${zeile}`,
+      abnahme: '',
+      gateway: 'offen',
+    })
+  })
+}
+
+function ensureRoster(plan: IdeaPlan): void {
+  if (plan.entscheidungen.length) return
+  plan.entscheidungen = [
+    {
+      id: 'W1',
+      schnitt: 'Idee',
+      grund: 'Anforderungen, Sprints und Planungsdateien aus dem Satz.',
+      gateway: 'offen',
+    },
+    {
+      id: 'W2',
+      schnitt: 'Tischplatte',
+      grund: 'Stumme Oberfläche, sobald der Satz einen Baustein nennt.',
+      gateway: 'offen',
+    },
+  ]
+}
+
+async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
+  const plan = idea.plan || emptyPlan(idea.id, work || idea.body || idea.title)
+  const source = (work || plan.bedingung || idea.body || idea.title).trim()
+  const parts = clausesOf(source)
+  if (!plan.anforderungen.length && parts.length) {
+    plan.anforderungen = parts.map((satz, i) => ({
+      id: `A${i + 1}`,
+      satz,
+      abnahme: '',
+      gateway: 'offen' as const,
+    }))
+  }
+  if (!plan.sprints.length) fillFromClauses(plan, parts.length ? parts : [idea.title], idea.title)
+  ensureRoster(plan)
+  addSurface(plan, source)
+  const next = { ...idea, body: idea.body || source, plan }
+  await putIdea(next)
+  return next
+}
+
+function formatSession(plan: IdeaPlan, title: string): string {
+  const lines = [`Planungsbildschirm ist offen. ${title}.`, 'Wer']
+  for (const cut of plan.entscheidungen) lines.push(`- ${cut.schnitt}: ${cut.grund}`)
+  const needs = plan.anforderungen.filter((row) => !row.id.startsWith('O'))
+  const face = plan.anforderungen.filter((row) => row.id.startsWith('O'))
+  lines.push(needs.length ? 'Anforderungen' : 'Anforderungen: noch keine.')
+  for (const row of needs) lines.push(`- ${row.satz}`)
+  lines.push('Sprints')
+  for (const sprint of plan.sprints) {
+    if (!sprint.title && !sprint.ziel) continue
+    lines.push(`- ${sprint.n}. ${sprint.title || sprint.ziel}`)
+  }
+  if (face.length) {
+    lines.push('Oberfläche')
+    for (const row of face) lines.push(`- ${row.satz}`)
+  } else {
+    lines.push('Oberfläche: noch kein Baustein. Liste, Knopf, Feld, Karte, Leiste oder Tab.')
+  }
+  lines.push('Besprich die Idee. Sag Fertig, dann geht der Bildschirm zu.')
+  return lines.join('\n')
+}
+
+async function showPlanning(idea: Idea): Promise<void> {
+  saveSettings({
+    plan_phase: 'live',
+    plan_script_at: Date.now(),
+    plan_idea_id: idea.id,
+    tischplatte_on: true,
+    tischplatte_view: 'psp',
+  })
+}
+
+async function openPlanningSession(work: string): Promise<string> {
+  const text = work.replace(/\s+/g, ' ').trim()
+  let hit = text ? await namedProject(text) : await ideaOnTable()
+  if (!text && !hit) {
+    const cards = (await listPortfolio()).filter((row) => !row.archived)
+    if (cards.length > 1) return `Welches: ${cards.map((row) => row.name).join(', ')}.`
+    if (cards.length === 1) {
+      const ideas = await listIdeas()
+      hit = ideas.find((row) => row.id === cards[0].idea_id && row.status !== 'done')
+    }
+  }
+  if (!hit && !text) return 'Was soll geplant werden?'
+  if (!hit && text) {
+    await writeProject(text)
+    hit = await ideaOnTable()
+  }
+  if (!hit) return 'Was soll geplant werden?'
+  const ready = await ensurePlanningDocs(hit, text || hit.body || hit.title)
+  await showPlanning(ready)
+  return formatSession(ready.plan || emptyPlan(ready.id), ready.title)
+}
+
+function talkWorth(text: string): boolean {
+  const t = text.replace(/\s+/g, ' ').trim()
+  if (t.length < 8) return false
+  if (/^(?:hallo|hi|hey|danke|ok(?:ay)?|ja|nein|stopp)\b/i.test(t) && t.split(/\s+/).length < 4) return false
+  return true
+}
+
+export async function sparPlan(text: string): Promise<string | null> {
+  if (loadSettings().plan_phase !== 'live' || !talkWorth(text)) return null
+  const hit = await ideaOnTable()
+  if (!hit) return 'Was soll geplant werden?'
+  const plan = hit.plan || emptyPlan(hit.id, hit.body || hit.title)
+  const line = text.replace(/\s+/g, ' ').trim().slice(0, 160)
+  const known = plan.anforderungen.some((row) => row.satz.toLowerCase() === line.toLowerCase())
+  if (!known) {
+    const n = plan.anforderungen.filter((row) => row.id.startsWith('A')).length + 1
+    plan.anforderungen.push({ id: `A${n}`, satz: line, abnahme: '', gateway: 'offen' })
+  }
+  const sprint = plan.sprints[0] || blankSprint('1', hit.title.slice(0, 48), line.slice(0, 160))
+  if (!plan.sprints.length) plan.sprints = [sprint]
+  if (!sprint.lieferumfang.some((row) => row.task.toLowerCase() === line.toLowerCase())) {
+    sprint.lieferumfang.push({
+      id: `S1-${sprint.lieferumfang.length + 1}`,
+      task: line.slice(0, 120),
+      anleitung: WEG_ANLEITUNG,
+    })
+  }
+  ensureRoster(plan)
+  addSurface(plan, `${plan.bedingung} ${line}`, true)
+  await putIdea({ ...hit, plan })
+  await showPlanning({ ...hit, plan })
+  const face = plan.anforderungen.filter((row) => row.id.startsWith('O'))
+  const tail = face.length ? ` Oberfläche: ${face.map((row) => row.satz).join(', ')}.` : ''
+  return `Steht im Plan: ${line}.${tail} Der Planungsbildschirm bleibt offen.`
 }
 
 async function layNewProject(work: string): Promise<string> {
@@ -305,14 +475,17 @@ export async function handleIdea(
   }
   const table = parseAblaufIntent(text)
   if (table) {
-    if (table.kind === 'close' && /^\s*fenster\s+zu\b/i.test(text.trim())) await closeDraftRow()
-    const reply = await planOntoTable(table)
+    const reply = await planOntoTable(table, text)
     return pack(reply, 'plan_table')
   }
   const ablauf = await handleAblauf(conversationId, text)
   if (ablauf.handled) return { handled: true, reply: ablauf.reply, tool: ablauf.tool }
   const intent = parseIdeaIntent(text)
-  if (!intent) return { handled: false }
+  if (!intent) {
+    const talked = await sparPlan(text)
+    if (talked) return pack(talked, 'plan_talk')
+    return { handled: false }
+  }
 
   if (intent.kind === 'create') {
     const row = await addIdea(intent.title, intent.body, conversationId)

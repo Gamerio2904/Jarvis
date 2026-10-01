@@ -16,6 +16,7 @@ import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract
 import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
+import { handleIdea } from './idea.ts'
 import { handleRmScene } from './rm-scene.ts'
 import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
@@ -259,6 +260,13 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
   })
 
   if (pick.kind === 'none') {
+    if (loadSettings().plan_phase === 'live') {
+      const talked = await handleIdea(conversationId, text)
+      if (talked.handled && talked.reply) {
+        setLastUserFacts(talked.reply)
+        return { hit: { reply: talked.reply, lastTool: 'idea', tool: talked.tool }, userFacts: talked.reply }
+      }
+    }
     const rescued = await rescueByProposal(conversationId, ctx)
     if (rescued) return rescued
     noteParseMiss(ctx.text)

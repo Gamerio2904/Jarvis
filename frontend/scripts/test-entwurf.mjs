@@ -43,7 +43,7 @@ const {
 const { applyBackup, asBackup, buildBackup, previewBackup, stripSettings } = await import('../src/engine/backup.ts')
 const { listPortfolio } = await import('../src/engine/portfolio.ts')
 
-assert.equal(APP_VERSION, '18.25.1')
+assert.equal(APP_VERSION, '18.25.2')
 
 assert.equal(parseBoardIntent('Simuliere Kalender')?.view, 'sim')
 assert.equal(parseBoardIntent('Plane das: Trag morgen 9 Uhr Zahnarzt ein'), null)
@@ -276,7 +276,8 @@ assert.equal(overPlan.reply, 'Erst den Ablauf.')
 assert.equal(loadSettings().entwurf_id, liveId)
 assert.equal(draftFramesOpen(), false)
 const planZu = await handleIdea(conv.id, 'Plan zu')
-assert.match(planZu.reply, /Planfenster/)
+assert.match(planZu.reply, /Planungsbildschirm ist zu/)
+assert.equal(loadSettings().plan_phase, '')
 assert.equal(loadSettings().entwurf_id, liveId)
 const fensterLive = await handleIdea(conv.id, 'Fenster zu')
 assert.match(fensterLive.reply, /Planfenster/)

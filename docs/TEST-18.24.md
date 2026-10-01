@@ -10,6 +10,16 @@ Tischplatte an. Breite ab 900 px und darunter dieselben Sätze.
 ## 1. Planung bleibt
 
 ```
+Plane das Projekt: Haushaltsbuch, Einnahmen eintragen
+```
+
+Der Planungsbildschirm geht auf. Wer, Anforderungen und Sprints stehen
+aus dem Satz. Eine Fläche kommt dazu, sobald der Satz Liste, Knopf,
+Feld, Karte, Leiste oder Tab nennt. Weitere Sätze überarbeiten den Plan.
+`Fertig` oder `Plan zu` schließt den Bildschirm. Der Plan bleibt. `Go`
+legt die Karte.
+
+```
 Plane das: Tik Tak To, Spielfeld bauen, Sieg prüfen
 ```
 

@@ -4,6 +4,7 @@ import { ablaufWaiting } from './ablauf-state.ts'
 
 export type AblaufIntent =
   | { kind: 'open'; work?: string }
+  | { kind: 'session'; work: string }
   | { kind: 'close' }
   | { kind: 'clear' }
   | { kind: 'accept' }
@@ -36,6 +37,11 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
     return { kind: 'clear' }
   }
 
+  const session = /^\s*plan(?:e)?\s+das\s+projekt\s*:?\s*([\s\S]*)$/i.exec(t)
+  if (session) {
+    return { kind: 'session', work: (session[1] || '').replace(/\s+/g, ' ').trim().slice(0, 2000) }
+  }
+
   const named = new RegExp(String.raw`^\s*plan(?:e)?\s+das\s*:\s*([\s\S]+)$`, 'i').exec(t)
   if (named) {
     const work = named[1].trim().slice(0, 2000)
@@ -44,6 +50,10 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
   if (new RegExp(String.raw`^\s*plan(?:e)?\s+das${END}`, 'i').test(t)) return { kind: 'open' }
 
   if (new RegExp(String.raw`^\s*(?:plan|fenster)\s+zu${END}`, 'i').test(t)) return { kind: 'close' }
+  if (/^\s*(?:planung\s+zu|planung\s+fertig|bin\s+fertig)$/i.test(t.replace(/[.!?]+$/g, '').trim())) {
+    return { kind: 'close' }
+  }
+  if (planScriptOpen() && /^\s*fertig$/i.test(t.replace(/[.!?]+$/g, '').trim())) return { kind: 'close' }
 
   const change = new RegExp(String.raw`^\s*änder(?:e)?\s+(?:den|die|das)?\s*(.+?)\s*:\s*(.+)$`, 'i').exec(t)
   if (change) return { kind: 'revise', via: 'name', name: change[1].trim(), text: change[2].trim() }

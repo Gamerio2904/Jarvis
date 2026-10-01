@@ -10,6 +10,13 @@ function scriptLines(idea: Idea | undefined, phase: string): Line[] {
   if (!idea) return [{ key: 'BEREIT', text: 'Sagen Sie: Plane das: …' }]
   const plan = [...(idea.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
   const out: Line[] = [{ key: 'PROJEKT', text: idea.title }]
+  for (const cut of idea.plan?.entscheidungen || []) {
+    if (cut.schnitt) out.push({ key: 'WER', text: `${cut.schnitt}: ${cut.grund}` })
+  }
+  for (const need of idea.plan?.anforderungen || []) {
+    if (need.id.startsWith('O')) out.push({ key: 'FLÄCHE', text: need.satz })
+    else out.push({ key: 'ANFORDERUNG', text: need.satz })
+  }
   for (const step of plan[0]?.lieferumfang || []) out.push({ key: 'WEG', text: step.task })
   for (const sprint of plan) {
     out.push({ key: `SPRINT ${sprint.n}`, text: sprint.ziel?.trim() || sprint.title })
@@ -251,7 +258,13 @@ export function ScriptStage({
             {jobs[0]} · stoppen
           </button>
         ) : (
-          <p>{locked ? 'Umgesetzt. Export ist bereit.' : 'Sagen Sie Go, Umsetzen oder Leg los.'}</p>
+          <p>
+            {locked
+              ? 'Umgesetzt. Export ist bereit.'
+              : live
+                ? 'Besprich die Idee. Fertig schließt. Go legt die Karte.'
+                : 'Sagen Sie Go, Umsetzen oder Leg los.'}
+          </p>
         )}
         {locked ? <b className="script-stamp">Fest</b> : null}
       </footer>

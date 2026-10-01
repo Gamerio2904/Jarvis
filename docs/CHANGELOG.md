@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.2` — Planungsbildschirm — *CODE + APK*
+
+`Plane das Projekt` öffnet den Planungsbildschirm. Ultron schreibt, wer was tut, die Anforderungen, die Sprints und die Oberfläche aus dem Satz. Weitere Sätze überarbeiten den Plan. `Fertig` oder `Plan zu` schließt den Bildschirm. Der Plan bleibt. `Go` legt die Karte.
+
+App-Code und Sideload **`18.25.2`** (versionCode `182502`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.1` — Projekt anlegen, löschen, Hausstand-Code — *CODE + APK*
 
 `Neues Projekt: …` legt die Karte auf die Tischplatte. `Lösche das Projekt …` legt sie ins Archiv, auch bei einem verschobenen Namen wie `tik Taktik to`. Der Hausstand-Code und der Datei-Code werden gezeichnet.
