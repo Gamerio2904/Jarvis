@@ -13,6 +13,7 @@ import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan
 import { fillPlanWithModel, pickIdea } from './idea.ts'
 import { fileFor, saveProjectJson } from './project-docs.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
+import { applyScan } from './room-scan.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
 
@@ -82,6 +83,10 @@ export async function handleBoard(_conversationId: string, text: string): Promis
 }> {
   const intent = parseBoardIntent(text)
   if (!intent) return { handled: false }
+
+  if (intent.kind === 'scan') {
+    return pack(applyScan(intent), `scan_${intent.op}`, { op: intent.op })
+  }
 
   if (intent.kind === 'download') {
     const rows = await listIdeas()

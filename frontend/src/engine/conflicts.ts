@@ -477,7 +477,8 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
       board.kind === 'theme' ||
       board.kind === 'place' ||
       board.kind === 'stop' ||
-      board.kind === 'download')
+      board.kind === 'download' ||
+      board.kind === 'scan')
   ) {
     out = drop(out, 'hud')
     out = drop(out, 'desk')
@@ -493,7 +494,15 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'desk', 0.24)
   }
 
-  if (has(out, 'board') && (has(out, 'plug') || has(out, 'weather'))) {
+  if (board?.kind === 'scan') {
+    out = drop(out, 'eye')
+    out = drop(out, 'pc')
+    out = drop(out, 'maps')
+    out = drop(out, 'xfer')
+    out = boost(out, 'board', 0.35)
+  }
+
+  if (has(out, 'board') && board?.kind !== 'scan' && (has(out, 'plug') || has(out, 'weather'))) {
     out = drop(out, 'board')
   }
 
@@ -501,6 +510,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     has(out, 'board') &&
     has(out, 'calendar') &&
     board?.kind !== 'place' &&
+    board?.kind !== 'scan' &&
     !/\b(?:simulier|tischplatte|werkbank|projekttafel|features?|docs|geplant)\b/.test(t)
   ) {
     out = drop(out, 'board')
