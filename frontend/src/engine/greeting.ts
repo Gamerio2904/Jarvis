@@ -12,14 +12,27 @@ export function dayPartAt(now = new Date()): DayPart {
   return 'night'
 }
 
+/** Jarvis ist nicht der Name. Kurzer Gruß mit diesem Namen wird korrigiert. */
+export const WRONG_NAME_REPLY = 'Nein. Ich bin Ultron.'
+
+export function wrongNameGreeting(text: string): boolean {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 80) return false
+  if (isBriefAsk(t)) return false
+  return /^\s*(?:hallo|hi|hey|na|naja)\s+jarvis\s*(?:[,:]?\s*(?:wie\s+geht(?:'|\u2019)?s?(?:\s+es)?(?:\s+(?:dir|ihnen))?)?)?\s*[.!?]*$/i.test(
+    t,
+  )
+}
+
 export function parseGreeting(text: string): DayPart | 'echo' | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 80) return null
   if (isBriefAsk(t)) return null
+  if (wrongNameGreeting(t)) return null
   if (/\b(wetter|timer|wecker|termin|fahr|zeig|suche)\b/i.test(t)) return null
   const named = /^\s*(?:guten\s+|gute\s+)(morgen|tag|abend|nacht)\b/i.exec(t)
   if (named) return partFromWord(named[1])
-  if (/^\s*(?:hallo|hi|hey|na|naja)(?:\s+(?:jarvis|ultron))?\s*[.!?]*$/i.test(t)) return 'echo'
+  if (/^\s*(?:hallo|hi|hey|na|naja)(?:\s+ultron)?\s*[.!?]*$/i.test(t)) return 'echo'
   if (/^\s*naja\b.{0,32}\b(?:wie\s+)?geht/i.test(t)) return 'echo'
   if (/^\s*(?:schönen?\s+abend|gute\s+nacht)\s*[.!?]*$/i.test(t)) {
     return /nacht/i.test(t) ? 'night' : 'evening'

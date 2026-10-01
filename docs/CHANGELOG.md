@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.10` — Ich bin Ultron — *CODE + APK*
+
+`Hallo Jarvis` ist kein Gruß. Die Antwort lautet: Nein. Ich bin Ultron. `Hallo`, `Hallo Ultron` und `Guten Morgen` bleiben. Die Erinnerungsfrage hängt nicht an dem Satz.
+
+App-Code und Sideload **`18.25.10`** (versionCode `182510`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.9` — Gewohnheit und Dokument — *CODE + APK*
 
 Sätze dürfen lockerer stehen. „Wie immer“ wiederholt, was zweimal schon da war. „Recherchier das“ nimmt das letzte Thema. Ein Dokument über ein Thema recherchiert mit. „Ohne Recherche“ und „Bei Dokumenten nicht recherchieren“ schalten das aus.
