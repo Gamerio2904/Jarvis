@@ -302,7 +302,7 @@ async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
   return next
 }
 
-function formatSession(plan: IdeaPlan, title: string): string {
+function formatSession(plan: IdeaPlan, title: string, cardName = ''): string {
   const lines = [`Planungsbildschirm ist offen. ${title}.`, 'Wer']
   for (const cut of plan.entscheidungen) lines.push(`- ${cut.schnitt}: ${cut.grund}`)
   const needs = plan.anforderungen.filter((row) => !row.id.startsWith('O'))
@@ -320,6 +320,7 @@ function formatSession(plan: IdeaPlan, title: string): string {
   } else {
     lines.push('Oberfläche: noch kein Baustein. Liste, Knopf, Feld, Karte, Leiste oder Tab.')
   }
+  if (cardName) lines.push(`${cardName} liegt im Portfolio.`)
   lines.push('Besprich die Idee. Sag Fertig, dann geht der Bildschirm zu.')
   return lines.join('\n')
 }
@@ -352,8 +353,10 @@ async function openPlanningSession(work: string): Promise<string> {
   }
   if (!hit) return 'Was soll geplant werden?'
   const ready = await ensurePlanningDocs(hit, text || hit.body || hit.title)
+  const saved = await commitPortfolio(ready)
   await showPlanning(ready)
-  return formatSession(ready.plan || emptyPlan(ready.id), ready.title)
+  const cardName = saved.row && !saved.full ? saved.row.name : ''
+  return formatSession(ready.plan || emptyPlan(ready.id), ready.title, cardName)
 }
 
 function talkWorth(text: string): boolean {

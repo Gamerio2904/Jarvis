@@ -39,7 +39,12 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
 
   const session = /^\s*plan(?:e)?\s+das\s+projekt\s*:?\s*([\s\S]*)$/i.exec(t)
   if (session) {
-    return { kind: 'session', work: (session[1] || '').replace(/\s+/g, ' ').trim().slice(0, 2000) }
+    return { kind: 'session', work: sessionWork(session[1] || '') }
+  }
+  // „Plane eine App …“ ist dieselbe Planung. Der ganze Satz bleibt die Arbeit.
+  // „Plane das“ und „Plane das:“ bleiben das live Skript.
+  if (/^\s*plan(?:e)?\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?(?:eine?\s+app|die\s+app|eine?\s+anwendung|die\s+anwendung|ein\s+projekt)\b/i.test(t)) {
+    return { kind: 'session', work: sessionWork(t) }
   }
 
   const named = new RegExp(String.raw`^\s*plan(?:e)?\s+das\s*:\s*([\s\S]+)$`, 'i').exec(t)
@@ -75,6 +80,10 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
     return { kind: 'accept' }
   }
   return null
+}
+
+function sessionWork(raw: string): string {
+  return raw.replace(/\s+/g, ' ').trim().slice(0, 2000)
 }
 
 function planScriptOpen(): boolean {
