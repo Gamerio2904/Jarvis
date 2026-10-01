@@ -259,7 +259,7 @@ try {
   await step('Sprachmodus öffnet', async () => {
     await page.click('button.menu-btn')
     await waitQuiet(page, 200)
-    await clickText(page, '.sidebar button', 'Jarvis hören')
+    await clickText(page, '.sidebar button', 'Ultron hören')
     await waitQuiet(page, 400)
     if (!(await page.$('[aria-label="Sprachmodus"]'))) throw new Error('kein Sprachmodus')
     await closeSheets(page)
