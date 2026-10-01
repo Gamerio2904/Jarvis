@@ -12,14 +12,14 @@ export async function handleAmazonMusic(
   if (res.ok) {
     return {
       handled: true,
-      reply: 'Amazon Music geöffnet. Pause und Lautstärke dort — in Jarvis bleibt Spotify.',
+      reply: 'Amazon Music geöffnet. Pause und Lautstärke dort — in Ultron bleibt Spotify.',
       tool: { tool_status: 'executed', tool: 'amazon', action: 'open', label: 'Amazon Music' },
       lastTool: 'amazon',
     }
   }
   return {
     handled: true,
-    reply: res.message || 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.',
+    reply: res.message || 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Ultron.',
     tool: { tool_status: 'executed', tool: 'amazon', action: 'missing', label: 'Amazon Music' },
     lastTool: 'amazon',
   }

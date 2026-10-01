@@ -34,11 +34,11 @@ export async function fetchBodySnap(opts: { busy: boolean; conversationId: strin
   const gemini = geminiReady()
   const groq = groqReady()
   const brainLine = gemini
-    ? `Gemini zuerst · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
+    ? `Gemini zuerst · Face Ultron${opts.busy ? ' · denkt' : ''}.`
     : groq
-      ? `Groq-Backup · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
+      ? `Groq-Backup · Face Ultron${opts.busy ? ' · denkt' : ''}.`
       : local
-        ? `Lokal 0,5B · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
+        ? `Lokal 0,5B · Face Ultron${opts.busy ? ' · denkt' : ''}.`
         : 'Hirn nicht bereit. Gemini-Key, Groq oder Modell laden.'
   const eyeLine = s.last_eye_line || (gemini ? 'Kein Foto gelesen.' : 'Auge braucht Gemini oder ein Foto.')
   const write = s.last_step_tool || ''
@@ -54,8 +54,8 @@ export async function fetchBodySnap(opts: { busy: boolean; conversationId: strin
     s.voice_tts === 'system' || s.voice_tts === 'native'
       ? 'Mund: System-TTS.'
       : s.voice_tts === 'gemini'
-        ? `Mund: ${s.face === 'friday' ? 'Kore' : 'Algieba'} (Gemini), Edge wenn Gemini fehlt.`
-        : `Mund: Edge ${s.face === 'friday' ? 'Katja' : 'Conrad'}, Gemini ${s.face === 'friday' ? 'Kore' : 'Algieba'} als Reserve.`
+        ? 'Mund: Algieba (Gemini), Edge wenn Gemini fehlt.'
+        : 'Mund: Edge Conrad, Gemini Algieba als Reserve.'
   const memLine = `${mem.length} gemerkt` + (nextRem ? ` · nächste Erinnerung ${nextRem.title || ''}`.trim() : '.')
   const pcEye = pcOn ? 'PC verbunden. Screenshot auf Nachfrage.' : 'PC nicht verbunden.'
   const pcHand = pcOn ? 'PC-Hand bereit (Klick, FIFA, Ordner).' : 'PC nicht verbunden.'

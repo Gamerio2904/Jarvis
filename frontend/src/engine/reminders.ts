@@ -53,7 +53,7 @@ export async function handleReminders(
     const perm = await requestNotifyPermission()
     const scheduled = await scheduleNotify({
       id: notifyIdOf(row),
-      title: intent.recur ? 'Erinnerung' : 'Jarvis',
+      title: intent.recur ? 'Erinnerung' : 'Ultron',
       body: row.title,
       at: intent.due,
       alarm: true,
@@ -384,7 +384,7 @@ export async function syncReminderAlarms(): Promise<void> {
       }
       await scheduleNotify({
         id: notifyIdOf(r),
-        title: r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
+        title: r.kind === 'alarm' ? 'Wecker' : 'Ultron',
         body: r.title,
         at: new Date(now + 1_500),
         alarm: true,
@@ -404,7 +404,7 @@ export async function syncReminderAlarms(): Promise<void> {
     }
     await scheduleNotify({
       id: notifyIdOf(r),
-      title: r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
+      title: r.kind === 'alarm' ? 'Wecker' : 'Ultron',
       body: r.title,
       at: new Date(r.due_at),
       alarm: true,

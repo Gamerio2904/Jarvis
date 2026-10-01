@@ -313,7 +313,7 @@ export function VoiceMode({
       : phase === 'thinking'
         ? 'Antwort kommt…'
         : phase === 'speaking'
-          ? 'Jarvis spricht — zum Unterbrechen antippen.'
+          ? 'Ultron spricht — zum Unterbrechen antippen.'
           : 'Bereit.'
 
   const sphere = (
@@ -350,7 +350,7 @@ export function VoiceMode({
       <div className="voice-sheet">
         <header className="voice-head">
           <div>
-            <h2>Jarvis hören</h2>
+            <h2>Ultron hören</h2>
             <p>
               {neural
                 ? 'Unterbrechen per Antippen. Der erste Satz kommt, sobald er steht — Edge zuerst.'

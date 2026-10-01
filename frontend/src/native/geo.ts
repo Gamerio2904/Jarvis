@@ -118,7 +118,7 @@ export async function ensureDeviceLocation(opts?: { openSettingsIfDenied?: boole
       granted: false,
       openedSettings: true,
       message:
-        'App-Einstellungen für Jarvis sind offen. Dort Standort erlauben — nur dieses Mal oder bei Nutzung der App, kein Dauerzugriff. Zurückkommen, nochmal sagen.',
+        'App-Einstellungen für Ultron sind offen. Dort Standort erlauben — nur dieses Mal oder bei Nutzung der App, kein Dauerzugriff. Zurückkommen, nochmal sagen.',
     }
   }
   return {
@@ -127,8 +127,8 @@ export async function ensureDeviceLocation(opts?: { openSettingsIfDenied?: boole
     openedSettings: false,
     message:
       Capacitor.isNativePlatform()
-        ? 'Standort ist aus. Sagen Sie „aktivieren“. Android fragt, wie lange: nur jetzt oder bei Nutzung. Jarvis merkt den Fix höchstens 10 Minuten. Ich rate nicht.'
-        : 'Im Browser keine Systemfreigabe. Auf dem Handy: Standort für Jarvis erlauben.',
+        ? 'Standort ist aus. Sagen Sie „aktivieren“. Android fragt, wie lange: nur jetzt oder bei Nutzung. Ultron merkt den Fix höchstens 10 Minuten. Ich rate nicht.'
+        : 'Im Browser keine Systemfreigabe. Auf dem Handy: Standort für Ultron erlauben.',
   }
 }
 

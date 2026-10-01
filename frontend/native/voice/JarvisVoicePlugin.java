@@ -1002,8 +1002,8 @@ public class JarvisVoicePlugin extends Plugin {
         intent.setData(Uri.parse("jarvis://voice"));
         intent.putExtra("jarvis_mode", "voice");
         ShortcutInfo info = new ShortcutInfo.Builder(getContext(), "jarvis_voice")
-                .setShortLabel("Jarvis hören")
-                .setLongLabel("Jarvis hören")
+                .setShortLabel("Ultron hören")
+                .setLongLabel("Ultron hören")
                 .setIcon(Icon.createWithResource(getContext(), getContext().getApplicationInfo().icon))
                 .setIntent(intent)
                 .build();

@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.4` — Nur Ultron — *CODE*
+
+Jarvis und Friday sind als Namen weg. Wake, Stimme, Hilfe und das Fenster heißen Ultron. Freitag und „Was steht am Friday an?“ bleiben Kalender. Die App-ID und `JarvisPC.bat` bleiben, damit das Update auf derselben App landet.
+
+App-Code und Sideload **`18.24.4`** (versionCode `182404`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
+
 ### `18.24.3` — Ultron in der Mitte — *CODE*
 
 Jarvis und Friday sind an der Oberfläche ein Hirn. Die Mitte der Agentenkarte ist Ultron: Chromscheibe, rotes Auge, die Äste bleiben antippbar. Stahl und Rot statt Grün.

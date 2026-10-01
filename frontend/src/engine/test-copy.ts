@@ -102,8 +102,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
     title: "Gesicht & Hausstand",
     items: [
-      { label: "Friday", text: "Friday", expect: {"tool":"face"} },
-      { label: "Jarvis zurück", text: "Jarvis", expect: {"tool":"face"} },
+      { label: "Ultron", text: "Ultron", expect: {"tool":"face"} },
+      { label: "Jarvis kein Gesicht", text: "Jarvis", expect: {"tool":"llm"} },
       { label: "Freitag≠Friday", text: "Was steht am Freitag an?", expect: {"tool":"calendar"} },
       { label: "Friday als Wochentag", text: "Was steht am Friday an?", expect: {"tool":"calendar"} },
       { label: "Hausstand", text: "Hausstand exportieren", expect: {"tool":"backup"} },
@@ -449,7 +449,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Nicht Tisch", text: "Wetter Hotel Stuttgart", expect: {"tool":"weather"} },
       { label: "F5 PC ohne BAT", text: "PC testen", expect: {"tool":"pc"} },
       { label: "PC live", text: "PC live", expect: {"tool":"pc"} },
-      { label: "Friday Gesicht", text: "Friday", expect: {"tool":"face"} },
+      { label: "Ultron Gesicht", text: "Ultron", expect: {"tool":"face"} },
     ],
   },
   {
@@ -896,7 +896,7 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '6 – Tisch aus', text: 'Tisch aus', expect: { tool: 'desk' } },
       { label: '7 – Nicht Tisch', text: 'Wetter Hotel Stuttgart', expect: { tool: 'weather' } },
       { label: '8 – PC ohne BAT', text: 'PC testen', expect: { tool: 'pc' } },
-      { label: '9 – Friday', text: 'Friday', expect: { tool: 'face' } },
+      { label: '9 – Ultron', text: 'Ultron', expect: { tool: 'face' } },
       { label: '10 – Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
     ],
   },

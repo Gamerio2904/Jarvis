@@ -34,7 +34,7 @@ export async function fireHomeTasks(): Promise<string[]> {
     await requestNotifyPermission()
     await scheduleNotify({
       id: notifyIdFromKey(r.id),
-      title: 'Jarvis · Zuhause',
+      title: 'Ultron · Zuhause',
       body: r.title,
       at: new Date(Date.now() + 1_200),
       alarm: true,

@@ -1,6 +1,6 @@
 # TEST ab 18.23.12 — Hausstand-Code und alles danach
 
-Sideload **`18.24.3`** (versionCode `182403`):
+Sideload **`18.24.4`** (versionCode `182404`):
 https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
 
 Darin liegen Hausstand per QR

@@ -186,7 +186,7 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return {
       reply: PERSONA_ASK_TEXT,
       lastTool: 'identity',
-      tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
+      tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Ultron' },
     }
   }
 
@@ -196,7 +196,7 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return {
       reply: greetingReply(greet, new Date(), content, stand),
       lastTool: 'smalltalk',
-      tool: { tool_status: 'executed', tool: 'smalltalk', action: 'greeting', label: 'Jarvis' },
+      tool: { tool_status: 'executed', tool: 'smalltalk', action: 'greeting', label: 'Ultron' },
     }
   }
 

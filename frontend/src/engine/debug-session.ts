@@ -40,7 +40,7 @@ const TURN_TIMEOUT_MS = 90_000
 const PERSIST_KEY_TURNS = 80
 
 export const DEBUG_START_WARN =
-  'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich — danach räumt Jarvis sie weg. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home lässt den Lauf in der Meldung „Jarvis testet…“ weiterlaufen. App schließen oder Stop in der Meldung beendet ihn. Nochmal Start bestätigt.'
+  'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich — danach räumt Ultron sie weg. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home lässt den Lauf in der Meldung „Ultron testet…“ weiterlaufen. App schließen oder Stop in der Meldung beendet ihn. Nochmal Start bestätigt.'
 
 type Persist = {
   phase: DebugPhase

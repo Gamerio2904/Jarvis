@@ -76,7 +76,7 @@ async function runSlot(
     }
     if (slot === 'micro-merge' && input.turn.userFacts.trim()) {
       const prompt = [
-        { role: 'system', content: 'Formuliere 1–2 Sätze Jarvis-Stimme. Nur Fakten aus dem Block. Keine neue Tat, kein Verschieben, kein Speichern.' },
+        { role: 'system', content: 'Formuliere 1–2 Sätze Ultron-Stimme. Nur Fakten aus dem Block. Keine neue Tat, kein Verschieben, kein Speichern.' },
         { role: 'user', content: input.turn.userFacts },
       ]
       const text = await completeGroq(prompt)

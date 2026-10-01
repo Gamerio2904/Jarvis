@@ -140,7 +140,7 @@ export const AGENT_EXECUTORS: Record<string, AgentExecutor> = {
   identity: async () => ({
     reply: PERSONA_ASK_TEXT,
     lastTool: 'identity',
-    tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
+    tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Ultron' },
   }),
   tv: async (ctx) => fromHandler('tv', await handleTv(ctx.text)),
   film: async (ctx) => fromHandler('film', await handleFilm(ctx.conversationId, ctx.text)),

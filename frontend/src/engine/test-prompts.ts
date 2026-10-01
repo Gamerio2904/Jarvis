@@ -144,7 +144,7 @@ export const TEST_PROMPTS = [
   'Kugel an',
   'Wo liegt Berlin',
   'klick das Captcha',
-  'Friday',
+  'Ultron',
   'Was steht am Freitag an?',
   'Darf ich im Park grillen?',
   'Wo ist Speichern',

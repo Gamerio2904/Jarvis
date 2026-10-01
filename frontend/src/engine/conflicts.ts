@@ -406,7 +406,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'calendar', 0.25)
   }
 
-  if (/^(?:(?:hey|hallo|hi)\s+)?friday\b/.test(t) && !/\bfreitag\b/.test(t) && !/\bwas\s+steht\b/.test(t)) {
+  if (/^(?:(?:hey|hallo|hi)\s+)?(?:ultron|ultorn|altron)\b/.test(t) && !/\bwas\s+steht\b/.test(t) && !/\bfreitag\b/.test(t)) {
     out = drop(out, 'calendar')
     out = boost(out, 'face', 0.25)
   }

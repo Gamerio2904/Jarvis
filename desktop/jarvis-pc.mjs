@@ -176,7 +176,7 @@ export function startJarvisPcServer(opts = {}) {
     }
     const path = String(req.url || '/').split('?')[0]
     if (!auth(req)) {
-      send(res, { ok: false, message: 'Token falsch. Den Code aus dem Jarvis-PC-Fenster eintragen.' }, 401)
+      send(res, { ok: false, message: 'Token falsch. Den Code aus dem Ultron-PC-Fenster eintragen.' }, 401)
       return
     }
     const body = req.method === 'POST' ? await readBody(req) : {}
@@ -197,7 +197,7 @@ if (isMain) {
   const stub = process.argv.includes('--stub')
   const host = process.env.JARVIS_PC_HOST || '0.0.0.0'
   const server = await startJarvisPcServer({ port, token, stub, host })
-  console.log(`Jarvis PC ${stub ? 'stub' : 'node'} http://${host}:${port} token=${token}`)
+  console.log(`Ultron PC ${stub ? 'stub' : 'node'} http://${host}:${port} token=${token}`)
   server.on('error', (err) => {
     console.error(err)
     process.exit(1)

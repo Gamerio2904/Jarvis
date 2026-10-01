@@ -105,10 +105,10 @@ export async function openAmazonMusic(): Promise<{ ok: boolean; message?: string
       // der Rückfallweg ins Leere. market:// bietet stattdessen das Installieren an.
       return await withTimeout(native.openApp({ pkg: 'com.amazon.mp3', uri: 'market://details?id=com.amazon.mp3' }), 8_000, {
         ok: false,
-        message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.',
+        message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Ultron.',
       })
     } catch {
-      return { ok: false, message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.' }
+      return { ok: false, message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Ultron.' }
     }
   }
   try {

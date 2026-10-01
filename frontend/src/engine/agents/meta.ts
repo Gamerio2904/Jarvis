@@ -13,7 +13,7 @@ export type AgentMeta = {
 /** Static cluster metadata — parse/execute live in catalog.ts */
 export const AGENT_META: Record<string, AgentMeta> = {
   wont: { label: "Won't-Liste", department: 'system', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
-  identity: { label: 'Jarvis / Friday', department: 'system', organs: ['mouth'], visibility: 'user', autonomy: 'parser' },
+  identity: { label: 'Ultron', department: 'system', organs: ['mouth'], visibility: 'user', autonomy: 'parser' },
   tv: { label: 'Fernseher', department: 'geraete', organs: ['hand', 'mouth'], visibility: 'domain', autonomy: 'parser' },
   fan: { label: 'Ventilator', department: 'geraete', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
   plug: { label: 'Steckdose', department: 'geraete', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
@@ -77,7 +77,7 @@ export const AGENT_META: Record<string, AgentMeta> = {
   desk: { label: 'Tisch / Ground', department: 'werkstatt', organs: ['eye', 'pc_eye'], visibility: 'domain', autonomy: 'parser' },
   board: { label: 'Tischplatte', department: 'werkstatt', organs: ['brain', 'hand'], visibility: 'domain', autonomy: 'parser' },
   backup: { label: 'Hausstand', department: 'system', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
-  face: { label: 'Jarvis / Friday', department: 'system', organs: ['mouth'], visibility: 'domain', autonomy: 'parser' },
+  face: { label: 'Ultron', department: 'system', organs: ['mouth'], visibility: 'domain', autonomy: 'parser' },
 }
 
 export function metaFor(id: string): AgentMeta {

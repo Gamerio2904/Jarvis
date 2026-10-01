@@ -75,7 +75,7 @@ export async function scheduleEventNotifies(row: CalendarEvent, now = Date.now()
     }
     await scheduleNotify({
       id: eventNotifyId(row.id, m),
-      title: 'Jarvis · Termin',
+      title: 'Ultron · Termin',
       body: row.place ? `${row.title} · ${row.place}` : row.title,
       at,
     })

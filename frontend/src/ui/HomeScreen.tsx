@@ -114,7 +114,7 @@ export function HomeScreen({
   seed,
   planPhase,
 }: {
-  face: 'jarvis' | 'friday'
+  face: 'ultron'
   onOpen: (id: HomeAppId) => void
   tischplatteOn: boolean
   view: string

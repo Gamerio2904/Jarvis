@@ -99,7 +99,7 @@ export async function raiseInterrupt(opts: {
   if (ok) {
     await scheduleNotify({
       id: notifyIdFromKey('drive-interrupt'),
-      title: 'Jarvis',
+      title: 'Ultron',
       body: pending.question,
       at: new Date(Date.now() + 400),
       alarm: true,

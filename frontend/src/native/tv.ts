@@ -43,7 +43,7 @@ function b64(text: string): string {
 
 function tizenUrl(host: string, port: number, name: string, token?: string): string {
   const scheme = port === 8002 ? 'wss' : 'ws'
-  const q = new URLSearchParams({ name: b64(name || 'Jarvis') })
+  const q = new URLSearchParams({ name: b64(name || 'Ultron') })
   if (token) q.set('token', token)
   return `${scheme}://${host}:${port}/api/v2/channels/samsung.remote.control?${q.toString()}`
 }
@@ -210,7 +210,7 @@ export async function tvPairNative(opts: {
       message: 'Port 8002 (WSS, selbstsigniert) nur in der Android-App.',
     }
   }
-  return webSocketCall(tizenUrl(opts.host, port, opts.name || 'Jarvis', opts.token), 45_000)
+  return webSocketCall(tizenUrl(opts.host, port, opts.name || 'Ultron', opts.token), 45_000)
 }
 
 export async function tvSendKeyNative(opts: {
@@ -233,7 +233,7 @@ export async function tvSendKeyNative(opts: {
   if (port === 8002) {
     return { ok: false, message: 'Tizen-WSS nur in der Android-App.' }
   }
-  return webSocketCall(tizenUrl(opts.host, port, 'Jarvis', opts.token), Math.min(wait, 20_000), (send) => {
+  return webSocketCall(tizenUrl(opts.host, port, 'Ultron', opts.token), Math.min(wait, 20_000), (send) => {
     send(keyPayload(opts.key))
     for (let i = 1; i < count; i += 1) send(keyPayload(opts.key))
   })
@@ -309,5 +309,5 @@ export async function tvTestNative(opts: {
   if (port === 8002) {
     return { ok: false, message: 'Test über WSS nur in der Android-App.' }
   }
-  return webSocketCall(tizenUrl(opts.host, port, 'Jarvis', opts.token), 12_000)
+  return webSocketCall(tizenUrl(opts.host, port, 'Ultron', opts.token), 12_000)
 }
