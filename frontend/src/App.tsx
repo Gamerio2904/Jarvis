@@ -2007,7 +2007,7 @@ function App() {
         <div className="brand">
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div className="brand-copy">
-            <h1>Jarvis</h1>
+            <h1>Ultron</h1>
             <p>Handy · v{APP_VERSION}</p>
           </div>
           <button
@@ -2328,7 +2328,7 @@ function App() {
                   <i />
                   <i />
                 </div>
-                <h3>{liveHud.face === 'friday' ? 'Friday' : 'Jarvis'}</h3>
+                <h3>Ultron</h3>
                 <p>Ein Feld antippen — oder selbst schreiben. {geminiOn && !(settings?.gemini_banner_dismissed || liveHud.gemini_banner_dismissed) ? 'Gemini (Google), nicht privat.' : geminiOn ? 'Gemini ist an.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}

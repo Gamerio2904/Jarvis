@@ -20,7 +20,7 @@ export const DEPARTMENT_NODES: DepartmentNode[] = [
   { id: 'werkstatt', label: 'Werkstatt', x: -0.88, y: -0.32 },
 ]
 
-export const BRAIN_CENTER = { id: 'brain', label: 'Haus-Gehirn', x: 0, y: 0 }
+export const BRAIN_CENTER = { id: 'brain', label: 'Ultron', x: 0, y: 0 }
 
 export function departmentLabel(id: DepartmentId): string {
   if (id === 'system') return 'Kern'

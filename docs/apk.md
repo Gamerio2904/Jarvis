@@ -1,7 +1,7 @@
-# Android-APK — App-Code `18.24.2`
+# Android-APK — App-Code `18.24.3`
 
-App-Code und Sideload **`18.24.2`** (versionCode `182402`):
-https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
+App-Code und Sideload **`18.24.3`** (versionCode `182403`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
 
 `main` behält die Datei **`18.23.12`**, bis dieser Stand dort liegt.
 

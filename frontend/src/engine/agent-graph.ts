@@ -34,7 +34,7 @@ export function buildAgentGraph(
     {
       id: 'brain',
       kind: 'brain',
-      label: 'Haus-Gehirn',
+      label: 'Ultron',
       line: `${catalog.length} Agenten.`,
       parent: null,
       depth: 0,

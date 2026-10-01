@@ -115,7 +115,7 @@ export function Lage({
     ? (s.last_body_organ as BodyOrgan)
     : 'brain'
   const modules = loadHudModules()
-  const face = s.face === 'friday' ? 'FRIDAY' : 'JARVIS'
+  const face = 'ULTRON'
   const spotifyOn = modules.includes('spotify')
   const reduced = prefersReducedMotion()
   const bodyView = s.body_view === 'classic' ? 'classic' : 'agents'

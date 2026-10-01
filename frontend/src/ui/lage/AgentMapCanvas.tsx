@@ -212,59 +212,48 @@ export function AgentMapCanvas({
       const r = Math.min(surface.clientWidth, surface.clientHeight) * 0.092
       if (!(r > 6)) {
         g.beginPath()
-        g.fillStyle = live ? '#d4a090' : '#6a4a48'
+        g.fillStyle = live ? '#ff2a36' : '#8d939e'
         g.arc(c.x, c.y, 10, 0, Math.PI * 2)
         g.fill()
         return
       }
       g.save()
       g.translate(c.x, c.y)
-      if (live) {
-        g.beginPath()
-        g.fillStyle = `rgba(30, 215, 96, ${0.16 + 0.1 * Math.sin(t * 0.005)})`
-        g.arc(0, 0, r * 1.62, 0, Math.PI * 2)
-        g.fill()
-      }
+      const glow = live ? 0.22 + 0.1 * Math.sin(t * 0.005) : 0.1
       g.beginPath()
-      g.moveTo(0, r * 0.92)
-      g.quadraticCurveTo(r * 0.16, r * 0.72, r * 0.12, r * 0.52)
-      g.lineTo(-r * 0.12, r * 0.52)
-      g.quadraticCurveTo(-r * 0.16, r * 0.72, 0, r * 0.92)
-      g.fillStyle = live ? '#8a5a58' : '#5a4040'
+      g.fillStyle = `rgba(255, 42, 54, ${glow})`
+      g.arc(0, 0, r * 1.72, 0, Math.PI * 2)
       g.fill()
+      const plate = g.createRadialGradient(-r * 0.28, -r * 0.34, r * 0.08, 0, 0, r * 1.05)
+      plate.addColorStop(0, '#f4f6fa')
+      plate.addColorStop(0.28, '#b7c0cc')
+      plate.addColorStop(0.62, '#3e4654')
+      plate.addColorStop(1, '#12151c')
       g.beginPath()
-      g.ellipse(-r * 0.4, -r * 0.08, r * 0.56, r * 0.84, -0.28, 0, Math.PI * 2)
-      g.ellipse(r * 0.4, -r * 0.08, r * 0.56, r * 0.84, 0.28, 0, Math.PI * 2)
-      g.ellipse(0, r * 0.62, r * 0.4, r * 0.26, 0, 0, Math.PI * 2)
-      const fill = g.createRadialGradient(-r * 0.22, -r * 0.38, r * 0.08, 0, r * 0.1, r * 1.15)
-      fill.addColorStop(0, live ? '#f0c8bc' : '#d2b0a4')
-      fill.addColorStop(0.35, live ? '#c98678' : '#a8786c')
-      fill.addColorStop(0.75, live ? '#8e4e48' : '#6e4844')
-      fill.addColorStop(1, live ? '#4a2a28' : '#3a2828')
-      g.fillStyle = fill
+      g.arc(0, 0, r, 0, Math.PI * 2)
+      g.fillStyle = plate
       g.fill()
-      g.strokeStyle = live ? 'rgba(30, 215, 96, 0.75)' : 'rgba(255,220,210,0.3)'
-      g.lineWidth = live ? 2.1 : 1.05
+      g.lineWidth = 1.4
+      g.strokeStyle = 'rgba(255, 255, 255, 0.42)'
       g.stroke()
-      g.strokeStyle = 'rgba(48, 18, 18, 0.72)'
-      g.lineWidth = 2.2
       g.beginPath()
-      g.moveTo(0, -r * 0.78)
-      g.bezierCurveTo(0, -r * 0.12, 0, r * 0.18, 0, r * 0.4)
+      g.arc(0, 0, r * 0.68, 0, Math.PI * 2)
+      g.strokeStyle = live ? 'rgba(255, 70, 78, 0.95)' : 'rgba(198, 204, 214, 0.72)'
+      g.lineWidth = 2.4
       g.stroke()
-      for (const side of [-1, 1]) {
-        for (const fold of [
-          [0.1, -0.58, 0.48, -0.46, 0.56, -0.08, 0.24, 0.2],
-          [0.14, -0.28, 0.44, -0.04, 0.4, 0.22, 0.12, 0.34],
-          [0.08, 0.02, 0.36, 0.18, 0.3, 0.4, 0.06, 0.46],
-          [0.18, -0.7, 0.52, -0.62, 0.58, -0.28, 0.32, -0.1],
-        ] as const) {
-          g.beginPath()
-          g.moveTo(side * r * fold[0], r * fold[1])
-          g.bezierCurveTo(side * r * fold[2], r * fold[3], side * r * fold[4], r * fold[5], side * r * fold[6], r * fold[7])
-          g.stroke()
-        }
-      }
+      const eye = g.createRadialGradient(0, 0, r * 0.02, 0, 0, r * 0.3)
+      eye.addColorStop(0, '#fff6f6')
+      eye.addColorStop(0.32, '#ff2a36')
+      eye.addColorStop(1, '#5c0610')
+      g.beginPath()
+      g.arc(0, 0, r * 0.3, 0, Math.PI * 2)
+      g.fillStyle = eye
+      g.fill()
+      g.fillStyle = 'rgba(236, 238, 244, 0.92)'
+      g.font = '600 12px sans-serif'
+      g.textAlign = 'center'
+      g.textBaseline = 'top'
+      g.fillText('Ultron', 0, r + 8)
       g.restore()
     }
 
@@ -296,19 +285,19 @@ export function AgentMapCanvas({
       const nx = -dir.y / mag
       const ny = dir.x / mag
       g.beginPath()
-      g.strokeStyle = 'rgba(180, 255, 210, 0.85)'
+      g.strokeStyle = 'rgba(255, 170, 174, 0.9)'
       g.lineWidth = 1.4
       g.moveTo(p.x - nx * 5, p.y - ny * 5)
       g.lineTo(p.x + nx * 2.2, p.y + ny * 2.2)
       g.lineTo(p.x - nx * 1.2 + dir.x / mag * 6, p.y - ny * 1.2 + dir.y / mag * 6)
       g.stroke()
       g.beginPath()
-      g.fillStyle = 'rgba(180, 255, 210, 0.28)'
+      g.fillStyle = 'rgba(255, 42, 54, 0.28)'
       g.arc(p.x, p.y, 9, 0, Math.PI * 2)
       g.fill()
       g.beginPath()
-      g.fillStyle = '#f4fff8'
-      g.shadowColor = '#1ed760'
+      g.fillStyle = '#fff4f4'
+      g.shadowColor = '#ff2a36'
       g.shadowBlur = 14
       g.arc(p.x, p.y, 3.5, 0, Math.PI * 2)
       g.fill()
@@ -336,7 +325,7 @@ export function AgentMapCanvas({
         if (!a || !b) continue
         const hot = path.includes(e.from) && path.includes(e.to)
         g.beginPath()
-        g.strokeStyle = hot ? 'rgba(30, 215, 96, 0.55)' : 'rgba(120, 170, 140, 0.18)'
+        g.strokeStyle = hot ? 'rgba(255, 42, 54, 0.72)' : 'rgba(176, 184, 196, 0.22)'
         g.lineWidth = hot ? 1.8 : 0.85
         g.moveTo(a.x, a.y)
         g.lineTo(b.x, b.y)
@@ -402,7 +391,7 @@ export function AgentMapCanvas({
         const live = Boolean(s.busy && departmentLive(d.id))
         const glow = live ? 1 + 0.08 * (0.5 + 0.5 * Math.sin(pulseT * 0.006)) : 1
         g.beginPath()
-        g.fillStyle = live ? 'rgba(30, 215, 96, 0.92)' : 'rgba(90, 110, 100, 0.55)'
+        g.fillStyle = live ? 'rgba(255, 42, 54, 0.95)' : 'rgba(154, 162, 174, 0.72)'
         g.strokeStyle = s.selDept === d.id ? '#fff' : 'rgba(255,255,255,0.2)'
         g.lineWidth = s.selDept === d.id ? 2 : 1
         g.arc(p.x, p.y, 7.5 * glow * mag, 0, Math.PI * 2)
@@ -422,12 +411,12 @@ export function AgentMapCanvas({
         const r = (live ? 5.6 : 3.5) * mag
         if (live) {
           g.beginPath()
-          g.fillStyle = `rgba(30, 215, 96, ${0.24 + 0.14 * Math.sin(pulseT * 0.008)})`
+          g.fillStyle = `rgba(255, 42, 54, ${0.24 + 0.14 * Math.sin(pulseT * 0.008)})`
           g.arc(p.x, p.y, r + 8 * mag, 0, Math.PI * 2)
           g.fill()
         }
         g.beginPath()
-        g.fillStyle = live ? '#7dffb0' : hot ? '#d8f0e0' : 'rgba(190, 210, 200, 0.58)'
+        g.fillStyle = live ? '#ff8a90' : hot ? '#f4f6fa' : 'rgba(198, 204, 214, 0.7)'
         g.arc(p.x, p.y, r, 0, Math.PI * 2)
         g.fill()
         if (live || hot || inDept || near) {

@@ -36,7 +36,7 @@ export function MiniChat({
       {open ? (
         <div className="mini-chat-panel" role="dialog" aria-label="Kleiner Chat">
           <header className="mini-chat-bar">
-            <p>{face === 'friday' ? 'Friday' : 'Jarvis'}</p>
+            <p>Ultron</p>
             <div className="mini-chat-actions">
               <button type="button" className="ghost-btn" onClick={onExpand}>
                 Groß
