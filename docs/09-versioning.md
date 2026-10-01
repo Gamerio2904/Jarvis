@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.25.0`**, versionCode `182500`. Sideload-Datei noch **`18.24.7`**. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code und Sideload **`18.25.0`**, versionCode `182500`: https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -948,7 +948,7 @@ Katalog-Stand bleibt `18.20.0`.
 
 ### `18.24` — Portfolio, Ultron, Raum-Scan [`96-next.md`](./96-next.md) **CODE**
 
-**`18.24.8`** (App-Code, versionCode `182408`). Zu jedem Sprint schreibt das Modell einen Prompt, eine Anleitung zum Kopieren. Die Sideload-Datei ist noch **`18.24.7`** (versionCode `182407`). `Go` legt das
+**`18.24.8`** (App-Code, versionCode `182408`). Zu jedem Sprint schreibt das Modell einen Prompt, eine Anleitung zum Kopieren. Die laufende Sideload ist **`18.25.0`** (versionCode `182500`). `Go` legt das
 Skript ins Portfolio. Die Fläche ist Ultron. Das Launcher-Bild ist das rote
 Auge. Das Schachbrett im Chat hält seine Größe. `Scanne den Raum`,
 `den Raum scannen` und `Scanne den Apfel` öffnen die Kamera.
@@ -959,7 +959,7 @@ Test: [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md)
 
 ### `18.25` — Entwurf [`97-next.md`](./97-next.md) **CODE**
 
-**`18.25.0`** (App-Code, versionCode `182500`). `Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel. `Die zweite` merkt die Wahl. Inspiration zeigt drei feste Muster. Die Sideload-Datei ist noch **`18.24.7`**.
+**`18.25.0`** (App-Code und Sideload, versionCode `182500`). `Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel. `Die zweite` merkt die Wahl. Inspiration zeigt drei feste Muster.
 Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 
 | Version | Bedeutung | Sprint |

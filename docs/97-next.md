@@ -1,16 +1,17 @@
-# 97 — Entwurf auf der Tafel **CODE** (`18.25.0`)
+# 97 — Entwurf auf der Tafel **CODE + APK** (`18.25.0`)
 
 **Dieses Dokument ist CODE.** Die Rahmen liegen in der App.
-App-Code ist **`18.25.0`** (versionCode `182500`). Die Sideload-Datei bleibt **`18.24.7`**.
-Die Datei `releases/Jarvis.apk` auf `main` ist dieser Stand: Portfolio,
-Ultron-Fläche, Raum- und Objekt-Scan, Schachbrett, rotes Auge.
+App-Code und Sideload sind **`18.25.0`** (versionCode `182500`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Die Datei `releases/Jarvis.apk` auf `main` ist dieser Stand: Entwurf,
+Portfolio, Ultron-Fläche, Raum- und Objekt-Scan, Schachbrett, rotes Auge.
 
-`18.24.0` bis `18.24.8` sind gebaut. Die Sideload-Datei ist `18.24.7`. Sprints **417–423** gehören zum
+`18.24.0` bis `18.24.8` sind gebaut. Sprints **417–423** gehören zum
 Portfolio in [`96-next.md`](./96-next.md). Der Scan liegt in
 [`roomar-openscan-plan.md`](./roomar-openscan-plan.md), Test
-[`TEST-18.24.6.md`](./TEST-18.24.6.md). Diese Schiene hebt die Sideload-Datei nicht an.
+[`TEST-18.24.6.md`](./TEST-18.24.6.md). Die Sideload dieser Schiene ist `18.25.0`.
 
-Der Entwurf ist **`18.25.0`** (versionCode `182500`). Sprint 430 ist im Code.
+Der Entwurf ist **`18.25.0`** (versionCode `182500`). Sprint 430 ist im Code und in der Sideload.
 
 Sprints **424–430**.
 Die Fläche bleibt die Tafel aus [`94-next.md`](./94-next.md) und die

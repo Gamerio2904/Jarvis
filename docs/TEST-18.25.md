@@ -3,7 +3,9 @@
 In der App, Spur Heute, Gruppe `18.25 Entwurf`. Plan [`97-next.md`](./97-next.md), Sprints 424–430.
 Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat.
 
-App-Code **`18.25.0`**. Die Sideload-Datei bleibt **`18.24.7`**. Portfolio:
+App-Code und Sideload **`18.25.0`** (versionCode `182500`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Portfolio:
 [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 
 Tablet quer, Breite ab 900 px, Tischplatte an. Drei Rahmen in einer Reihe.
