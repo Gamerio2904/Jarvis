@@ -4,6 +4,8 @@
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
+Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./plan-vorlage.md). Sie gehört zur Planung. Sie ist kein CODE-Sprint.
+
 ## Lesereihenfolge
 
 | Nr. | Dokument | Zweck |
