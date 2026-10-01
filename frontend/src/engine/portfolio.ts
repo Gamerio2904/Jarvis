@@ -61,6 +61,7 @@ export function portfolioPathOk(path: string): boolean {
 }
 
 export function shortName(title: string): string {
+  if (/ein-?\s*und\s+ausgaben/i.test(title || '')) return 'Ein- und Ausgaben'
   const head = (title || '').split(',')[0].replace(/\s+/g, ' ').trim()
   const words = head
     .split(' ')
@@ -520,7 +521,13 @@ export function previewFile(file: PortfolioFile): string[] {
     for (const gap of data.fehlt || []) lines.push(`${gap.name || ''}: ${gap.warum || ''}`.trim())
     const rows = (data.sprints || data.psp || []) as Array<{ n?: string; title?: string; ziel?: string; offen?: string }>
     for (const sprint of rows) {
-      lines.push(`${sprint.n || ''}. ${sprint.title || ''} ${sprint.ziel || ''} ${sprint.offen || ''}`.trim())
+      const title = String(sprint.title || '').trim()
+      const ziel = String(sprint.ziel || '').trim()
+      const offen = String(sprint.offen || '').trim()
+      const head = `${sprint.n || ''}. ${title || ziel}`.trim()
+      if (head) lines.push(head)
+      if (ziel && ziel !== title) lines.push(ziel)
+      if (offen && offen !== 'Der Satz ist die Quelle.' && offen !== 'Noch leer') lines.push(offen)
     }
     return lines.filter(Boolean).slice(0, 12)
   } catch {

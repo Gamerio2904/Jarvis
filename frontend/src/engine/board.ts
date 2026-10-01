@@ -98,11 +98,11 @@ export async function handleBoard(conversationId: string, text: string): Promise
   }
 
   if (intent.kind === 'download') {
-    const rows = await listIdeas()
-    const hit = pickIdea(
-      rows.filter((r) => r.status !== 'done'),
-      intent.query,
-    )
+    const rows = (await listIdeas()).filter((r) => r.status !== 'done')
+    const pinned = loadSettings().plan_idea_id
+    const hit = intent.query
+      ? pickIdea(rows, intent.query)
+      : rows.find((r) => r.id === pinned) || pickIdea(rows)
     if (!hit) return pack('Das Projekt finde ich nicht.', 'download')
     const file = fileFor(hit, intent.which)
     const saved = await saveProjectJson(file.name, file.data)

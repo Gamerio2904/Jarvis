@@ -47,7 +47,7 @@ function pspRow(s: IdeaSprint) {
     title: s.title,
     ziel: s.ziel || '',
     pakete: s.lieferumfang.map((t) => ({ id: t.id, arbeit: t.task })),
-    offen: s.lieferumfang.length ? 'Quelle fehlt' : 'Noch leer',
+    offen: s.lieferumfang.length ? 'Der Satz ist die Quelle.' : 'Noch leer',
   }
 }
 
@@ -69,7 +69,7 @@ export function wegeDocument(idea: Idea) {
       weg: `Prüfen, ob der Satz „${t.task}“ trägt.`,
       quelle: '',
     })),
-    hinweis: 'Eine Quelle fehlt, bis Sie Such sagen.',
+    hinweis: 'Der Satz ist die Quelle.',
   }
 }
 

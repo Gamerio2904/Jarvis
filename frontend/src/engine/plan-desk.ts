@@ -9,6 +9,13 @@ const CANNED = new Set([
   'durchspielen',
 ])
 
+const ROSTER = new Set([
+  'anforderungen, sprints und planungsdateien aus dem satz.',
+  'stumme oberfläche, sobald der satz einen baustein nennt.',
+  'idee: anforderungen, sprints und planungsdateien aus dem satz.',
+  'tischplatte: stumme oberfläche, sobald der satz einen baustein nennt.',
+])
+
 function norm(value: string): string {
   return value.replace(/\s+/g, ' ').trim().toLowerCase()
 }
@@ -16,6 +23,11 @@ function norm(value: string): string {
 /** Erfundene Folge-Sprints. Die stehen nicht noch einmal auf der Fläche. */
 export function cannedPlanLine(text: string): boolean {
   return CANNED.has(norm(text))
+}
+
+/** Feste Prozess-Sätze. Das sind keine Personen. */
+export function cannedRosterLine(text: string): boolean {
+  return ROSTER.has(norm(text))
 }
 
 export function planDeskLines(
@@ -35,7 +47,10 @@ export function planDeskLines(
   }
   if (idea.title) seen.add(norm(idea.title))
   for (const cut of idea.plan?.entscheidungen || []) {
-    if (cut.schnitt) add('WER', `${cut.schnitt}: ${cut.grund}`)
+    const line = `${cut.schnitt}: ${cut.grund}`.trim()
+    if (!cut.grund || cannedRosterLine(cut.grund) || cannedRosterLine(line)) continue
+    const key = (cut.schnitt || 'Schnitt').replace(/\s+/g, ' ').trim().slice(0, 18).toUpperCase()
+    add(key === 'WER' ? 'SCHNITT' : key, cut.grund)
   }
   for (const need of idea.plan?.anforderungen || []) {
     add(need.id.startsWith('O') ? 'FLÄCHE' : 'ANFORDERUNG', need.satz)
@@ -46,7 +61,7 @@ export function planDeskLines(
     phase === 'go'
       ? 'Umgesetzt. Export ist bereit.'
       : cardName
-        ? `Die Karte ${cardName} liegt. Fertig schließt.`
+        ? 'Die Karte liegt. Sag Fertig, dann geht der Bildschirm zu.'
         : 'Die Karte fehlt. Sag Go.'
   out.push({ key: 'STATUS', text: status })
   return out

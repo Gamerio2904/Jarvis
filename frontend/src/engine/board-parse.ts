@@ -68,7 +68,7 @@ const FEATURES = new RegExp(String.raw`^\s*welche\s+features?\s+hat\s+(?:der|die
 const DOCS = new RegExp(String.raw`^\s*lies(?:e)?(?:\s+die)?\s+docs\s+zu\s+(.+?)\s*` + END, 'i')
 
 const DOWNLOAD = new RegExp(
-  String.raw`^\s*lade(?:\s+mir)?\s+(?:den\s+|die\s+|das\s+)?(psp|sprints?|projektdateien|alles)(?:\s+runter|\s+herunter)?(?:\s+(?:zu|für|fuer|von)\s+projekt\s+(.+?))?(?:\s+runter|\s+herunter)?\s*` +
+  String.raw`^\s*lade(?:\s+mir)?\s+(?:alle\s+|den\s+|die\s+|das\s+)?(psp|sprints?|projektdateien|dateien|datein|alles)(?:\s+runter|\s+herunter)?(?:\s+(?:zu|für|fuer|von)\s+projekt\s+(.+?))?(?:\s+zur?\s+\S+)?(?:\s+runter|\s+herunter)?\s*` +
     END,
   'i',
 )

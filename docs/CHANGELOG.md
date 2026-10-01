@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.8` — Planung aus Glas — *CODE + APK*
+
+Der Planungsbildschirm nennt keine Person mehr. Der Titel heißt Ein- und Ausgaben, der Auftrag bleibt der ganze Satz. Ein Sprint, kein erfundener Weg. `Lade alle Dateien zur App runter` speichert die Projektdateien. Die Karte ist Glas mit einer stehenden Kante. Sag Fertig, dann geht der Bildschirm zu.
+
+App-Code und Sideload **`18.25.8`** (versionCode `182508`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.7` — Hallo bleibt ein Gruß — *CODE + APK*
 
 `Hallo Jarvis` und `Hallo Ultron` bleiben ein Gruß zur Uhrzeit. Die offene Erinnerungsfrage hängt nicht mehr daran. `Guten Morgen` bleibt die Tageslage und löst die Frage ab. Die Uhr springt mit der Minute. In der Leiste steht Kalender ganz.

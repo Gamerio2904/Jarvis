@@ -16,7 +16,8 @@ import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { commitPortfolio, currentIdeaForTable, handlePortfolio, listPortfolio } from './portfolio.ts'
 import { artLabel } from './entwurf-muster.ts'
-import { cannedPlanLine } from './plan-desk.ts'
+import { cannedPlanLine, cannedRosterLine } from './plan-desk.ts'
+import { parseBoardIntent } from './board-parse.ts'
 import { fallbackFromWork } from './entwurf-fill.ts'
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
@@ -122,44 +123,34 @@ export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
 }
 
 function fillFromClauses(plan: IdeaPlan, parts: string[], title: string) {
-  const ziel = (parts.join(', ') || title).slice(0, 160)
-  const first = blankSprint('1', (parts[0] || title).slice(0, 48), ziel)
-  first.lieferumfang = parts.map((task, i) => ({
+  const body = parts.filter((part) => part.toLowerCase() !== title.toLowerCase())
+  const ziel = (body.join('. ') || parts.join('. ') || title).slice(0, 220)
+  const first = blankSprint('1', title.slice(0, 48), ziel)
+  const tasks = parts.length ? parts : [title]
+  first.lieferumfang = tasks.map((task, i) => ({
     id: `S1-${i + 1}`,
-    task: task.slice(0, 120),
+    task: task.slice(0, 160),
     anleitung: WEG_ANLEITUNG,
   }))
-  const second = blankSprint('2')
-  const third = blankSprint('3')
-  if (parts.length >= 2) {
-    second.title = 'Wege'
-    second.ziel = 'Die Wege gegeneinander halten.'
-    second.lieferumfang = [
-      {
-        id: 'S2-1',
-        task: 'Wege vergleichen',
-        anleitung: 'Jeden Weg aus dem Satz gegen die anderen halten.',
-      },
-    ]
-    third.title = 'Durchspielen'
-    third.ziel = 'Einen Weg einmal durchspielen.'
-    third.lieferumfang = [
-      {
-        id: 'S3-1',
-        task: 'Einen Weg durchspielen',
-        anleitung: 'Einen Weg aus dem Satz einmal prüfen.',
-      },
-    ]
-  }
-  plan.sprints = [first, second, third]
+  plan.sprints = [first]
 }
 
+/** Komma trennt Aufträge. „ein und Ausgaben“ bleibt ein Satz. */
 function clausesOf(work: string): string[] {
   return work
-    .split(/,|\s+und\s+/i)
+    .split(/[,;]/)
     .map((s) => s.replace(/\s+/g, ' ').trim())
-    .filter((s) => s.length >= 3)
+    .filter((s) => s.length >= 3 && !/^plane\s+(?:mir\s+)?(?:eine\s+)?app$/i.test(s))
     .slice(0, 6)
+}
+
+function planTitle(work: string): string {
+  const text = work.replace(/\s+/g, ' ').trim()
+  if (/ein-?\s*und\s+ausgaben|einnahmen\s+und\s+ausgaben/i.test(text)) return 'Ein- und Ausgaben'
+  const head = (text.split(/[,;]/)[0] || text).replace(/\s+/g, ' ').trim()
+  if (/\bhaushaltsbuch\b/i.test(head)) return 'Haushaltsbuch'
+  const stripped = head.replace(/^(?:plane|plan)\s+(?:mir\s+)?(?:eine\s+)?app\s+/i, '').trim()
+  return (stripped || head || text).slice(0, 72)
 }
 
 function clearShownPlan(): string {
@@ -265,22 +256,12 @@ function addSurface(plan: IdeaPlan, source: string, refresh = false): void {
   })
 }
 
-function ensureRoster(plan: IdeaPlan): void {
-  if (plan.entscheidungen.length) return
-  plan.entscheidungen = [
-    {
-      id: 'W1',
-      schnitt: 'Idee',
-      grund: 'Anforderungen, Sprints und Planungsdateien aus dem Satz.',
-      gateway: 'offen',
-    },
-    {
-      id: 'W2',
-      schnitt: 'Tischplatte',
-      grund: 'Stumme Oberfläche, sobald der Satz einen Baustein nennt.',
-      gateway: 'offen',
-    },
-  ]
+function dropCannedRoster(plan: IdeaPlan): void {
+  plan.entscheidungen = plan.entscheidungen.filter((cut) => {
+    const line = `${cut.schnitt}: ${cut.grund}`
+    return !cannedRosterLine(cut.grund) && !cannedRosterLine(line)
+  })
+  plan.sprints = plan.sprints.filter((sprint) => !cannedPlanLine(sprint.ziel || '') && !cannedPlanLine(sprint.title || ''))
 }
 
 async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
@@ -295,8 +276,8 @@ async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
       gateway: 'offen' as const,
     }))
   }
-  if (!plan.sprints.length) fillFromClauses(plan, parts.length ? parts : [idea.title], idea.title)
-  ensureRoster(plan)
+  if (!plan.sprints.length) fillFromClauses(plan, parts.length ? parts : [idea.title], planTitle(source || idea.title))
+  dropCannedRoster(plan)
   addSurface(plan, source)
   const next = { ...idea, body: idea.body || source, plan }
   await putIdea(next)
@@ -304,35 +285,29 @@ async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
 }
 
 function formatSession(plan: IdeaPlan, title: string, cardName = ''): string {
-  const lines = [`Planungsbildschirm ist offen. ${title}.`, 'Wer']
-  for (const cut of plan.entscheidungen) lines.push(`- ${cut.schnitt}: ${cut.grund}`)
-  const needs = plan.anforderungen.filter((row) => !row.id.startsWith('O'))
-  const face = plan.anforderungen.filter((row) => row.id.startsWith('O'))
-  lines.push(needs.length ? 'Anforderungen' : 'Anforderungen: noch keine.')
   const said = new Set<string>()
-  for (const row of needs) {
-    lines.push(`- ${row.satz}`)
-    said.add(row.satz.replace(/\s+/g, ' ').trim().toLowerCase())
-  }
-  const sprints = plan.sprints.filter((sprint) => {
-    const line = (sprint.ziel || sprint.title || '').replace(/\s+/g, ' ').trim().toLowerCase()
-    if (!line || said.has(line) || cannedPlanLine(line)) return false
-    said.add(line)
+  const mark = (value: string) => {
+    const key = value.replace(/\s+/g, ' ').trim().toLowerCase()
+    if (!key || said.has(key)) return false
+    said.add(key)
     return true
+  }
+  mark(title)
+  const bits = [`Planungsbildschirm ist offen. ${title}.`]
+  const needs = plan.anforderungen.filter((row) => !row.id.startsWith('O') && !cannedPlanLine(row.satz))
+  const fresh = needs.filter((row) => mark(row.satz))
+  if (fresh.length === 1) bits.push(`Auftrag: ${fresh[0].satz}.`)
+  else if (fresh.length) bits.push(`Auftrag: ${fresh.map((row) => row.satz).join('. ')}.`)
+  const sprint = plan.sprints.find((row) => {
+    const line = (row.ziel || row.title || '').replace(/\s+/g, ' ').trim()
+    return line && !cannedPlanLine(line) && mark(line)
   })
-  if (sprints.length) {
-    lines.push('Sprints')
-    for (const sprint of sprints) lines.push(`- ${sprint.n}. ${sprint.title || sprint.ziel}`)
-  }
-  if (face.length) {
-    lines.push('Oberfläche')
-    for (const row of face) lines.push(`- ${row.satz}`)
-  } else {
-    lines.push('Oberfläche: noch kein Baustein. Liste, Knopf, Feld, Karte, Leiste oder Tab.')
-  }
-  if (cardName) lines.push(`${cardName} liegt im Portfolio.`)
-  lines.push('Besprich die Idee. Sag Fertig, dann geht der Bildschirm zu.')
-  return lines.join('\n')
+  if (sprint) bits.push(`Sprint: ${sprint.ziel || sprint.title}.`)
+  const face = plan.anforderungen.filter((row) => row.id.startsWith('O') && mark(row.satz))
+  if (face.length) bits.push(`Oberfläche: ${face.map((row) => row.satz).join(', ')}.`)
+  if (cardName) bits.push(`Die Karte ${cardName} liegt im Portfolio.`)
+  bits.push('Sag Fertig, dann geht der Bildschirm zu.')
+  return bits.join(' ')
 }
 
 async function showPlanning(idea: Idea): Promise<void> {
@@ -378,6 +353,8 @@ function talkWorth(text: string): boolean {
 
 export async function sparPlan(text: string): Promise<string | null> {
   if (loadSettings().plan_phase !== 'live' || !talkWorth(text)) return null
+  if (parseBoardIntent(text) || parseAblaufIntent(text)) return null
+  if (/^\s*lade\b/i.test(text)) return null
   const hit = await ideaOnTable()
   if (!hit) return 'Was soll geplant werden?'
   const plan = hit.plan || emptyPlan(hit.id, hit.body || hit.title)
@@ -396,7 +373,7 @@ export async function sparPlan(text: string): Promise<string | null> {
       anleitung: WEG_ANLEITUNG,
     })
   }
-  ensureRoster(plan)
+  dropCannedRoster(plan)
   addSurface(plan, `${plan.bedingung} ${line}`, true)
   await putIdea({ ...hit, plan })
   await showPlanning({ ...hit, plan })
@@ -413,7 +390,7 @@ async function layNewProject(work: string): Promise<string> {
 
 async function writeProject(work: string): Promise<string> {
   const parts = clausesOf(work)
-  const title = (parts[0] || work).slice(0, 72)
+  const title = planTitle(work)
   const rows = await listIdeas()
   let hit = rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
   if (!hit) hit = await addIdea(title, work)

@@ -188,6 +188,16 @@ body,
   text-transform: uppercase;
 }
 
+.app.has-nav-dock .nav-dock .nav-island-label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.56rem;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .nav-island-side .nav-island-label {
   letter-spacing: 0;
   text-transform: none;
@@ -435,7 +445,6 @@ body,
 
 .agent-status-bar,
 .pc-dashboard,
-.script-desk,
 .portfolio-files {
   border-radius: 6px;
   border-color: rgba(197, 206, 216, 0.2);

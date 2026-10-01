@@ -274,8 +274,8 @@ export function ScriptStage({
               ? 'Umgesetzt. Export ist bereit.'
               : live
                 ? cardName
-                  ? 'Besprich die Idee. Fertig schließt.'
-                  : 'Besprich die Idee. Fertig schließt. Go legt die Karte.'
+                  ? 'Sag Fertig, dann geht der Bildschirm zu.'
+                  : 'Sag Fertig, wenn der Satz steht. Go legt die Karte.'
                 : 'Sagen Sie Go, Umsetzen oder Leg los.'}
           </p>
         )}

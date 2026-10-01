@@ -8819,32 +8819,44 @@ html.theme-wipe-dark::before {
   flex-direction: column;
   overflow: hidden;
   border-radius: 28px;
-  border: 1px solid rgba(255, 176, 180, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   background:
-    radial-gradient(720px 280px at 18% 0%, rgba(255, 176, 180, 0.16), transparent 58%),
-    radial-gradient(900px 420px at 88% -8%, rgba(255, 90, 98, 0.12), transparent 52%),
-    linear-gradient(165deg, rgba(16, 32, 44, 0.92) 0%, rgba(5, 10, 16, 0.96) 100%);
-  color: #e7f7ff;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 16%, transparent 34%),
+    linear-gradient(165deg, rgba(22, 32, 48, 0.62) 0%, rgba(6, 10, 18, 0.78) 100%);
+  color: #f4f7fb;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 0 0 1px rgba(255, 90, 98, 0.08),
-    0 24px 60px rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(18px);
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -28px 48px rgba(255, 42, 54, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 28px 50px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(16px) saturate(1.25);
+}
+
+.script-desk::before {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 8px;
+  height: 46%;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0));
+  transform: perspective(720px) rotateX(22deg);
+  transform-origin: center top;
+  pointer-events: none;
 }
 
 .script-rings {
   position: absolute;
-  right: -80px;
-  top: -90px;
-  width: min(520px, 70%);
+  right: -40px;
+  top: -36px;
+  width: min(280px, 52%);
   height: auto;
-  opacity: 0.45;
+  opacity: 0.28;
   pointer-events: none;
-  stroke: #ff9aa0;
+  stroke: rgba(255, 255, 255, 0.7);
   fill: none;
-  stroke-width: 1.2;
-  transform-origin: 200px 200px;
-  animation: scriptSpin 72s linear infinite;
+  stroke-width: 1.1;
 }
 
 .script-bar,
@@ -8882,8 +8894,11 @@ html.theme-wipe-dark::before {
 
 .script-title h2 {
   margin: 2px 0 0;
-  font-size: 1.15rem;
+  font-size: clamp(1.15rem, 4.6vw, 1.55rem);
   font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 .script-phase {
@@ -8960,10 +8975,9 @@ html.theme-wipe-dark::before {
   padding: 14px 16px;
   overflow: auto;
   border-radius: 20px;
-  background: rgba(4, 12, 20, 0.55);
-  border: 1px solid rgba(255, 176, 180, 0.16);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
+  background: rgba(8, 14, 24, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .script-lines li {
@@ -8998,10 +9012,11 @@ html.theme-wipe-dark::before {
   overflow: auto;
   padding: 14px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 176, 180, 0.16);
-  background: rgba(8, 18, 28, 0.5);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 14, 24, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 12px 24px rgba(0, 0, 0, 0.18);
 }
 
 .script-wege,
@@ -9189,10 +9204,19 @@ html.theme-wipe-dark::before {
 
   .script-bar {
     grid-template-columns: 1fr auto;
+    align-items: start;
   }
 
   .script-clock {
     display: none;
+  }
+
+  .script-lines li {
+    grid-template-columns: minmax(76px, 32%) 1fr;
+  }
+
+  .script-foot {
+    padding-right: 92px;
   }
 }
 

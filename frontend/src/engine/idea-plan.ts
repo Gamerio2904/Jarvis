@@ -95,7 +95,7 @@ function asTasks(v: unknown): IdeaTask[] {
     out.push({
       id: asText(o.id) || `S${out.length + 1}`,
       task,
-      anleitung: anleitung && anleitung !== task ? anleitung : 'Satz prüfen. Quelle fehlt.',
+      anleitung: anleitung && anleitung !== task ? anleitung : 'Der Satz ist die Quelle.',
     })
   }
   return out
@@ -276,14 +276,14 @@ export function planFromSources(ideaId: string, title: string, lines: string[]):
   const plan = emptyPlan(ideaId, title)
   plan.sprints = tasks.map((task, i) => {
     const sprint = blankSprint(String(i + 1), task.slice(0, 48), task.slice(0, 160))
-    sprint.lieferumfang = [{ id: `S${i + 1}-1`, task: task.slice(0, 80), anleitung: 'Satz prüfen. Quelle fehlt.' }]
+    sprint.lieferumfang = [{ id: `S${i + 1}-1`, task: task.slice(0, 80), anleitung: 'Der Satz ist die Quelle.' }]
     return sprint
   })
   plan.luecken = [{ id: 'L1', name: 'Gateway', satz: 'Go ist offen. Die Treffer sind noch keine Abnahme.' }]
   return plan
 }
 
-export const WEG_ANLEITUNG = 'Weg prüfen. Was er löst, steht im Satz. Eine Quelle fehlt noch.'
+export const WEG_ANLEITUNG = 'Der Satz ist die Quelle. Prüfen, was er verlangt.'
 
 export function formatPlan(plan: IdeaPlan, ideaTitle = ''): string {
   const head = ideaTitle ? `${ideaTitle} — PLAN` : 'Sprintplan'
@@ -294,10 +294,9 @@ export function formatPlan(plan: IdeaPlan, ideaTitle = ''): string {
   const wege = plan.sprints[0]?.lieferumfang || []
   if (wege.length) {
     parts.push('')
-    parts.push('Wege — aus dem Satz')
+    parts.push('Aus dem Satz')
     for (let i = 0; i < wege.length; i += 1) parts.push(`- W${i + 1}: ${wege[i].task}`)
-    parts.push('Quelle fehlt, bis Sie Such sagen.')
-    parts.push('Fehlt noch: Recherche, Abnahme, Risiken, Schnittstellen.')
+    parts.push('Der Satz ist die Quelle.')
   }
   for (const s of plan.sprints) {
     parts.push('')
