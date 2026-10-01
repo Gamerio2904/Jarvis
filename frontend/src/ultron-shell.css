@@ -448,6 +448,26 @@ body,
   object-fit: cover;
 }
 
+.scan-live .scan-live-line {
+  bottom: 84px;
+  right: 16px;
+}
+
+.scan-end {
+  position: absolute;
+  right: 16px;
+  bottom: 24px;
+  z-index: 2;
+  appearance: none;
+  border: 1px solid rgba(255, 42, 54, 0.8);
+  background: #14080c;
+  color: #f4f7fb;
+  font-family: Outfit, system-ui, sans-serif;
+  font-size: 1rem;
+  padding: 12px 16px;
+  border-radius: 6px;
+}
+
 .scan-live-line,
 .scan-model-line {
   position: absolute;

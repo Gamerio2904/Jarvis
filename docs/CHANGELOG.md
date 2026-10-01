@@ -9,7 +9,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Noch nicht gebaut. `Entwirf eine App` soll bis zu drei stumme Bildschirme
 auf die Tischplatte legen. `Die zweite` merkt die Wahl. App-Code bleibt
-**`18.24.6`**. Plan: [`97-next.md`](./97-next.md), Sprints 424–430.
+**`18.24.7`**. Plan: [`97-next.md`](./97-next.md), Sprints 424–430.
+
+### `18.24.7` — Brett, Icon, Scan — *CODE*
+
+Das Schachbrett im Chat ist ein Brett mit Figuren, kein Karo in Briefmarkengröße. Das Launcher-Bild ist das rote Auge, kein J. „Beende den Scan“, „Bennede den Scan“ und „Scan beenden“ beenden den Scan, und auf der Kamera liegt derselbe Knopf. „Den Raum scannen“ startet ihn.
+
+App-Code und Sideload **`18.24.7`** (versionCode `182407`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.24.6` — Raum- und Objekt-Scan — *CODE*
 

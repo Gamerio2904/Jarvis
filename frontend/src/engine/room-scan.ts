@@ -45,7 +45,19 @@ const START = new RegExp(
     END,
   'iu',
 )
-const STOP = new RegExp(String.raw`^\s*beende(?:\s+den)?\s+scan\s*` + END, 'i')
+const STOP = new RegExp(
+  String.raw`^\s*(?:(?:beende|bennede|beenden|beenende|stoppe|stopp)(?:\s+bitte)?(?:\s+den|\s+die|\s+das)?\s+scan|(?:den\s+)?scan(?:\s+bitte)?\s+(?:beenden|beende|stoppen|stopp))\s*` +
+    END,
+  'i',
+)
+const ROOM_TAIL = new RegExp(
+  String.raw`^\s*(?:den\s+raum|das\s+zimmer)\s+(?:scanner|scanne|scannen|scann)\s*` + END,
+  'i',
+)
+const TAIL = new RegExp(
+  String.raw`^\s*(?:das\s+|den\s+|die\s+)?(\p{L}[\p{L}\s-]{0,40}?)\s+(?:scanner|scanne|scannen|scann)\s*` + END,
+  'iu',
+)
 const CLEAR = new RegExp(String.raw`^\s*entfern(?:e)?\s+alles\s+aus\s+dem\s+raum\s*` + END, 'i')
 const SWAP = new RegExp(String.raw`^\s*tausch(?:e)?\s+(.{1,32}?)\s+mit\s+(.{1,32}?)\s*` + END, 'i')
 const BLOCKED = /\b(?:qr|qe|code|kontakte|telefonbuch|adressbuch|hausstand|pc|rechner)\b/i
@@ -154,11 +166,12 @@ export function parseScanCommand(text: string): ScanCommand | null {
   if (!t || t.length > 80) return null
   if (BLOCKED.test(t)) return null
   if (STOP.test(t)) return { kind: 'scan', op: 'end' }
+  if (ROOM_TAIL.test(t)) return { kind: 'scan', op: 'start', target: 'room', name: 'Raum' }
   if (CLEAR.test(t)) return { kind: 'scan', op: 'clear' }
   const swap = SWAP.exec(t)
   if (swap) return { kind: 'scan', op: 'swap', a: titleName(swap[1] || ''), b: titleName(swap[2] || '') }
   if (ROOM.test(t)) return { kind: 'scan', op: 'start', target: 'room', name: 'Raum' }
-  const start = START.exec(t)
+  const start = START.exec(t) || TAIL.exec(t)
   if (!start) return null
   const name = (start[1] || '').trim()
   if (/^(?:raum|zimmer)$/i.test(name)) return { kind: 'scan', op: 'start', target: 'room', name: 'Raum' }

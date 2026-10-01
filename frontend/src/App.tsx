@@ -1910,6 +1910,18 @@ function App() {
     showTischplatte()
   }, [liveHud.tischplatte_on])
 
+  useEffect(() => {
+    let phase = ''
+    try {
+      const raw = liveHud.scan_json || ''
+      if (raw) phase = String((JSON.parse(raw) as { phase?: string }).phase || '')
+    } catch {
+      phase = ''
+    }
+    if (phase !== 'live' && phase !== 'model') return
+    showTischplatte()
+  }, [liveHud.scan_json])
+
   return (
     <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>

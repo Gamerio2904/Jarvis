@@ -4,7 +4,7 @@ Noch nicht in der App. Plan [`97-next.md`](./97-next.md), Sprints 424–430.
 Die Karten kommen mit Sprint 430 in Spur Heute, Gruppe `18.25 Entwurf`.
 Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat.
 
-Gebaut und unverändert bleibt Sideload **`18.24.6`**. Portfolio:
+Gebaut und unverändert bleibt Sideload **`18.24.7`**. Portfolio:
 [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 
 Tablet quer, Breite ab 900 px, Tischplatte an. Drei Rahmen in einer Reihe.
@@ -88,8 +88,16 @@ Antwort auf `Entwirf eine App: Einkauf`, während der Ablauf wartet:
 Scanne den Raum
 ```
 
-Die Kamera des Scans. Offene Rahmen gehen zu. Antwort auf `Entwirf eine App: Einkauf`,
+Die Kamera des Scans. `den Raum scannen` startet denselben Scan.
+Offene Rahmen gehen zu. Antwort auf `Entwirf eine App: Einkauf`,
 solange der Scan `live` oder `model` ist: `Erst den Scan.`
+
+```
+Scan beenden
+```
+
+Dieselbe Wirkung wie `Beende den Scan` und der Knopf auf der Kamera.
+Der Entwurf zeichnet erst danach wieder.
 
 ```
 Zeig Projekt Einkauf

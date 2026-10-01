@@ -1,14 +1,14 @@
 # 97 — Entwurf auf der Tafel **PLAN** (`18.25`)
 
 **Dieses Dokument ist PLAN.** Nichts davon liegt im App-Code.
-App-Code und Sideload bleiben **`18.24.6`** (versionCode `182406`).
+App-Code und Sideload bleiben **`18.24.7`** (versionCode `182407`).
 Die Datei `releases/Jarvis.apk` auf `main` ist dieser Stand: Portfolio,
-Ultron-Fläche, Raum- und Objekt-Scan.
+Ultron-Fläche, Raum- und Objekt-Scan, Schachbrett, rotes Auge.
 
-`18.24.0` bis `18.24.6` sind gebaut. Sprints **417–423** gehören zum
+`18.24.0` bis `18.24.7` sind gebaut. Sprints **417–423** gehören zum
 Portfolio in [`96-next.md`](./96-next.md). Der Scan liegt in
 [`roomar-openscan-plan.md`](./roomar-openscan-plan.md), Test
-[`TEST-18.24.6.md`](./TEST-18.24.6.md). Diese Schiene hebt `18.24.6` nicht an.
+[`TEST-18.24.6.md`](./TEST-18.24.6.md). Diese Schiene hebt `18.24.7` nicht an.
 
 Fertig gebaut ist der Entwurf erst als **`18.25.0`** (versionCode `182500`),
 und erst wenn Sprint 430 grün ist.
@@ -149,7 +149,8 @@ Ist ein Ablauf `schreibt`, `warten`, `überarbeitet` oder `läuft`, bleiben
 die Rahmen zu. Antwort: `Erst den Ablauf.`
 
 Ist der Scan `live` oder `model`, bleiben die Rahmen zu. Antwort:
-`Erst den Scan.` `Beende den Scan` bleibt der Scan. Danach darf `Entwirf`
+`Erst den Scan.` `Beende den Scan`, `Scan beenden`, `Bennede den Scan`
+und der Knopf `Beende den Scan` bleiben der Scan. Danach darf `Entwirf`
 wieder zeichnen.
 
 Ab **900 px**: eine Reihe, Abstand 16 px, jeder Rahmen
@@ -173,9 +174,9 @@ auf Deckkraft 0,45. Chat: `Entwurf 2. Einkaufsliste.`
 
 `Entwurf zu` und `Fenster zu` schließen die Rahmen. Die Zeile bleibt,
 Status `zu`. Die Stücke nehmen den Finger wieder an. `Zeig Sprints`,
-`Zeig PSP`, `Simuliere Kalender`, `Scanne den Raum` und `Scanne den Apfel`
-schließen die Rahmen ebenfalls und lassen die Zeile auf `offen`, wenn
-noch nichts gewählt ist.
+`Zeig PSP`, `Simuliere Kalender`, `Scanne den Raum`, `den Raum scannen`
+und `Scanne den Apfel` schließen die Rahmen ebenfalls und lassen die Zeile
+auf `offen`, wenn noch nichts gewählt ist.
 
 Ein Tipp auf den Rahmen wählt ihn. Ein Tipp auf Leiste, Liste, Karte,
 Knopf, Feld oder Tab ändert nichts und öffnet nichts.
@@ -255,9 +256,10 @@ oder `Kein Termin im Store.` `Plane das` bleibt der Ablauf.
 `Go` bleibt das Portfolio. `Zeig Projekt …` bleibt die Dateiliste.
 `Mach einen Sprintplan` bleibt die Vorlage. `Hintergrund blau schwarz`
 bleibt das Thema. `nächster Lidl` bleibt `poi`. `Zeig mir London` bleibt
-die Kugel. `Scanne den Raum`, `Scanne den Apfel`, `Beende den Scan`,
+die Kugel. `Scanne den Raum`, `den Raum scannen`, `Scanne den Apfel`,
+`Beende den Scan`, `Scan beenden`, `Bennede den Scan`,
 `Entferne alles aus dem Raum` und `Tausche Bett mit Schreibtisch` bleiben
-der Scan.
+der Scan. Der Knopf `Beende den Scan` auf der Kamera bleibt derselbe Weg.
 
 Chat, sobald die Rahmen `offen` sind:
 
@@ -301,7 +303,7 @@ Felder füllen. Kommt nichts Gültiges zurück, gilt der Satz aus §1.
 - Die Rahmen ziehen, werfen oder als zehntes Tafelstück speichern
 - Eine App-Datei, eine Sprint-Datei, eine Version oder eine APK aus dem Gerät
 - versionCode außer `182500`, und den erst in Sprint 430
-- Die Sideload `18.24.6` anheben, bevor Sprint 430 grün ist
+- Die Sideload `18.24.7` anheben, bevor Sprint 430 grün ist
 - Testkarten in der App, bevor Sprint 430 ausgeführt ist
 
 ---

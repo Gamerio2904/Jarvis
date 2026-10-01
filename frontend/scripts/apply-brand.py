@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BRAND = ROOT / "native" / "brand"
 ANDROID_RES = ROOT / "android" / "app" / "src" / "main" / "res"
 PUBLIC = ROOT / "public"
-BG = (10, 12, 11, 255)
+BG = (7, 9, 14, 255)
 
 LAUNCHER = {
     "mdpi": 48,
@@ -42,11 +42,27 @@ SPLASH = {
 }
 
 
+def draw_ultron(size: int) -> Image.Image:
+    """Rotes Auge auf einer dunklen Scheibe. Kein Buchstabe."""
+    im = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.ellipse((1, 1, size - 2, size - 2), fill=(7, 9, 14, 255))
+    ring = int(size * 0.08)
+    d.ellipse((ring, ring, size - 1 - ring, size - 1 - ring), fill=(22, 28, 40, 255))
+    iris = int(size * 0.22)
+    c = size / 2
+    d.ellipse((c - iris, c - iris, c + iris, c + iris), fill=(255, 42, 54, 255))
+    pupil = max(2, int(size * 0.07))
+    d.ellipse((c - pupil, c - pupil, c + pupil, c + pupil), fill=(255, 255, 255, 255))
+    return im
+
+
 def load(name: str) -> Image.Image:
     path = BRAND / name
-    if not path.exists():
-        raise SystemExit(f"[apply-brand] fehlt: {path}")
-    return Image.open(path).convert("RGBA")
+    if path.exists():
+        return Image.open(path).convert("RGBA")
+    print(f"[apply-brand] {path.name} fehlt, Ultron-Auge wird gezeichnet.")
+    return draw_ultron(512)
 
 
 def cover_fit(im: Image.Image, size: tuple[int, int]) -> Image.Image:
@@ -87,7 +103,7 @@ def write_background_color() -> None:
     values.write_text(
         '<?xml version="1.0" encoding="utf-8"?>\n'
         "<resources>\n"
-        '    <color name="ic_launcher_background">#0A0C0B</color>\n'
+        '    <color name="ic_launcher_background">#07090E</color>\n'
         "</resources>\n",
         encoding="utf-8",
     )
@@ -128,21 +144,51 @@ def apply_web(icon: Image.Image) -> None:
     favicon_svg = PUBLIC / "favicon.svg"
     favicon_svg.write_text(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">\n'
-        '  <rect width="64" height="64" rx="14" fill="#0A0C0B"/>\n'
-        '  <text x="32" y="46" text-anchor="middle" font-size="42" '
-        'font-family="Georgia, serif" fill="#F4F1EA">J</text>\n'
+        '  <rect width="64" height="64" rx="14" fill="#07090E"/>\n'
+        '  <circle cx="32" cy="32" r="22" fill="#161c28"/>\n'
+        '  <circle cx="32" cy="32" r="10" fill="#ff2a36"/>\n'
+        '  <circle cx="32" cy="32" r="3.5" fill="#ffffff"/>\n'
         "</svg>\n",
         encoding="utf-8",
     )
 
 
+def draw_splash(size: tuple[int, int]) -> Image.Image:
+    canvas = Image.new("RGBA", size, BG)
+    mark = max(96, int(min(size) * 0.28))
+    emblem = draw_ultron(mark)
+    x = (size[0] - mark) // 2
+    y = (size[1] - mark) // 2 - int(size[1] * 0.04)
+    canvas.alpha_composite(emblem, (x, y))
+    draw = ImageDraw.Draw(canvas)
+    try:
+        from PIL import ImageFont
+
+        font = ImageFont.truetype(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            max(18, int(min(size) * 0.045)),
+        )
+    except Exception:
+        font = None
+    text = "ULTRON"
+    if font:
+        box = draw.textbbox((0, 0), text, font=font)
+        tw = box[2] - box[0]
+        draw.text(((size[0] - tw) / 2, y + mark + int(size[1] * 0.03)), text, fill=(231, 237, 245, 255), font=font)
+    return canvas
+
+
 def main() -> None:
-    icon = load("icon.png")
-    splash = load("splash.png")
-    cover = load("cover.png")
+    icon = draw_ultron(1024)
+    splash = draw_splash((1080, 1920))
+    cover = draw_splash((1920, 1080))
+    BRAND.mkdir(parents=True, exist_ok=True)
+    save_png(icon, BRAND / "icon.png")
+    save_png(splash, BRAND / "splash.png")
+    save_png(cover, BRAND / "cover.png")
     apply_android(icon, splash, cover)
     apply_web(icon)
-    print("[apply-brand] Icon, Splash, Web-Favicon geschrieben.")
+    print("[apply-brand] Ultron-Auge, Splash, Web-Favicon geschrieben.")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.24.6`**, versionCode `182406`. Sideload **`18.24.6`**. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.24.7`**, versionCode `182407`. Sideload **`18.24.7`**. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -948,15 +948,18 @@ Katalog-Stand bleibt `18.20.0`.
 
 ### `18.24` — Portfolio, Ultron, Raum-Scan [`96-next.md`](./96-next.md) **CODE**
 
-**`18.24.6`** (App-Code und Sideload, versionCode `182406`). `Go` legt das
-Skript ins Portfolio. Die Fläche ist Ultron. `Scanne den Raum` und
-`Scanne den Apfel` öffnen die Kamera auf der Tischplatte. Sprints 417–423
-sind das Portfolio. Der Scan liegt im Code ohne neue Sprintnummer.
+**`18.24.7`** (App-Code und Sideload, versionCode `182407`). `Go` legt das
+Skript ins Portfolio. Die Fläche ist Ultron. Das Launcher-Bild ist das rote
+Auge. Das Schachbrett im Chat hält seine Größe. `Scanne den Raum`,
+`den Raum scannen` und `Scanne den Apfel` öffnen die Kamera.
+`Beende den Scan`, `Scan beenden`, `Bennede den Scan` und der Knopf
+beenden ihn. Sprints 417–423 sind das Portfolio. Der Scan liegt im Code
+ohne neue Sprintnummer.
 Test: [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 
 ### `18.25` — Entwurf [`97-next.md`](./97-next.md) **PLAN**
 
-Noch nicht gebaut. App-Code bleibt **`18.24.6`**. Fertig ist die Schiene
+Noch nicht gebaut. App-Code bleibt **`18.24.7`**. Fertig ist die Schiene
 erst **`18.25.0`** (versionCode `182500`), wenn Sprint 430 grün ist.
 `Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel.
 Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
