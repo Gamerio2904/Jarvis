@@ -18,6 +18,13 @@ export function projectSlug(title: string): string {
   return slug || 'projekt'
 }
 
+export const PLAN_GAPS = [
+  { name: 'Recherche', warum: 'Keine Quelle. Sag Such, dann wird sie festgehalten.' },
+  { name: 'Abnahme', warum: 'Kein Kriterium im Satz.' },
+  { name: 'Risiken', warum: 'Nicht benannt.' },
+  { name: 'Schnittstellen', warum: 'Nicht benannt.' },
+] as const
+
 function sprintRow(s: IdeaSprint) {
   return {
     n: s.n,
@@ -29,8 +36,44 @@ function sprintRow(s: IdeaSprint) {
   }
 }
 
+function pspRow(s: IdeaSprint) {
+  return {
+    n: s.n,
+    title: s.title,
+    ziel: s.ziel || '',
+    pakete: s.lieferumfang.map((t) => ({ id: t.id, arbeit: t.task })),
+    offen: s.lieferumfang.length ? 'Quelle fehlt' : 'Noch leer',
+  }
+}
+
 export function projectPlan(idea: Idea): IdeaPlan {
   return idea.plan && idea.plan.sprints?.length ? idea.plan : emptyPlan(idea.id)
+}
+
+export function wegeDocument(idea: Idea) {
+  const plan = projectPlan(idea)
+  const tasks = plan.sprints[0]?.lieferumfang || []
+  return {
+    projekt: idea.title,
+    art: 'wege',
+    schritt: 1,
+    herkunft: 'aus dem Satz',
+    wege: tasks.map((t, i) => ({
+      id: `W${i + 1}`,
+      satz: t.task,
+      weg: `Prüfen, ob der Satz „${t.task}“ trägt.`,
+      quelle: '',
+    })),
+    hinweis: 'Eine Quelle fehlt, bis Sie Such sagen.',
+  }
+}
+
+export function lueckenDocument(idea: Idea) {
+  return {
+    projekt: idea.title,
+    art: 'luecken',
+    fehlt: PLAN_GAPS.map((gap) => ({ name: gap.name, warum: gap.warum })),
+  }
 }
 
 export function pspDocument(idea: Idea) {
@@ -38,7 +81,7 @@ export function pspDocument(idea: Idea) {
   return {
     projekt: idea.title,
     art: 'psp',
-    psp: plan.sprints.map(sprintRow),
+    psp: plan.sprints.map(pspRow),
   }
 }
 
@@ -52,10 +95,14 @@ export function sprintsDocument(idea: Idea) {
 }
 
 export function projectDocument(idea: Idea) {
+  const plan = projectPlan(idea)
   return {
     projekt: idea.title,
     art: 'projekt',
     notiz: idea.body || '',
+    ziel: plan.sprints[0]?.ziel || '',
+    wege: wegeDocument(idea).wege,
+    fehlt: lueckenDocument(idea).fehlt,
     sprints: sprintsDocument(idea).sprints,
     psp: pspDocument(idea).psp,
   }

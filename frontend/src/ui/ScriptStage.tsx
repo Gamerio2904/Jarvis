@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CATALOG_STAND } from '../engine/feature-catalog.ts'
-import { fileFor, saveProjectJson, type ProjectFileKind } from '../engine/project-docs.ts'
+import { fileFor, PLAN_GAPS, saveProjectJson, type ProjectFileKind } from '../engine/project-docs.ts'
 import { saveSettings, type Idea, type MemoryProposal } from '../engine/store.ts'
 import type { IdeaSprint } from '../engine/idea-plan.ts'
 
@@ -10,9 +10,12 @@ function scriptLines(idea: Idea | undefined, phase: string): Line[] {
   if (!idea) return [{ key: 'BEREIT', text: 'Sagen Sie: Plane das: …' }]
   const plan = [...(idea.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
   const out: Line[] = [{ key: 'PROJEKT', text: idea.title }]
-  for (const step of plan[0]?.lieferumfang || []) out.push({ key: 'SCHRITT', text: step.task })
+  for (const step of plan[0]?.lieferumfang || []) out.push({ key: 'WEG', text: step.task })
   for (const sprint of plan) {
     out.push({ key: `SPRINT ${sprint.n}`, text: sprint.ziel?.trim() || sprint.title })
+  }
+  if (plan[0]?.lieferumfang?.length) {
+    out.push({ key: 'FEHLT', text: PLAN_GAPS.map((gap) => gap.name).join(', ') })
   }
   out.push({
     key: 'STATUS',
@@ -84,6 +87,7 @@ export function ScriptStage({
   }, [lines, scriptAt, locked])
 
   const sprints: IdeaSprint[] = [...(idea?.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
+  const wege = sprints[0]?.lieferumfang || []
   const clock = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
   const visible = lines.slice(0, shown)
   const typing = live && shown < lines.length
@@ -138,7 +142,11 @@ export function ScriptStage({
           </div>
           {view === 'research' ? (
             <ul>
-              {sources.length ? sources.map((s) => <li key={s}>{s}</li>) : <li>Keine Quellen im Store.</li>}
+              {sources.length ? (
+                sources.map((s) => <li key={s}>{s}</li>)
+              ) : (
+                <li>Keine Quelle im Store. Die Wege stehen im Satz. Sag Such, dann kommt eine Quelle dazu.</li>
+              )}
             </ul>
           ) : view === 'sim' ? (
             <ul>
@@ -153,7 +161,21 @@ export function ScriptStage({
               ))}
             </ul>
           ) : (
-            <ol className="script-psp">
+            <>
+              {wege.length ? (
+                <ol className="script-wege">
+                  {wege.map((weg, i) => (
+                    <li key={weg.id}>
+                      <span>W{i + 1}</span>
+                      <strong>{weg.task}</strong>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+              {wege.length ? (
+                <p className="script-gap">Fehlt noch: {PLAN_GAPS.map((gap) => gap.name).join(', ')}.</p>
+              ) : null}
+              <ol className="script-psp">
               {sprints.length ? (
                 sprints.map((s) => (
                   <li key={s.n}>
@@ -170,6 +192,7 @@ export function ScriptStage({
                 </li>
               )}
             </ol>
+            </>
           )}
           <div className="script-export">
             <button type="button" disabled={!locked || !idea} onClick={() => void exportFile('psp')}>

@@ -136,10 +136,17 @@ assert.equal(
 )
 const einkauf = await handleIdea('c-einkauf', 'Plane das: Einkauf, Liste schreiben und Route prüfen')
 assert.match(einkauf.reply || '', /Liste schreiben/)
+assert.match(einkauf.reply || '', /Wege — aus dem Satz/)
+assert.match(einkauf.reply || '', /Quelle fehlt/)
 assert.doesNotMatch(einkauf.reply || '', /nicht als Befehl/)
 const einkaufRow = (await listIdeas()).find((r) => r.title === 'Einkauf')
-assert.equal(einkaufRow?.plan?.sprints[1].ziel, 'Liste schreiben')
-assert.equal(einkaufRow?.plan?.sprints[2].ziel, 'Route prüfen')
+assert.equal(einkaufRow?.plan?.sprints[0].ziel.includes('Liste schreiben'), true)
+assert.equal(einkaufRow?.plan?.sprints[1].ziel, 'Die Wege gegeneinander halten.')
+assert.equal(einkaufRow?.plan?.sprints[2].ziel, 'Einen Weg einmal durchspielen.')
+assert.notEqual(
+  einkaufRow?.plan?.sprints[0].lieferumfang[0].task,
+  einkaufRow?.plan?.sprints[0].lieferumfang[0].anleitung,
+)
 assert.equal(loadSettings().plan_phase, 'live')
 const weg = await handleIdea('c-einkauf', 'Lösche den aktuellen Plan angezeigt wird')
 assert.match(weg.reply || '', /von der Tischplatte weg/)

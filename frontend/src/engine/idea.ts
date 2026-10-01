@@ -17,7 +17,16 @@ import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { commitPortfolio, currentIdeaForTable, handlePortfolio } from './portfolio.ts'
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
-import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
+import {
+  emptyPlan,
+  findSprint,
+  formatPlan,
+  nextCustomN,
+  parsePlan,
+  planHasBody,
+  WEG_ANLEITUNG,
+  type IdeaPlan,
+} from './idea-plan.ts'
 import { parseBoardJobs, serializeBoardJobs, stopJobs } from './board-jobs.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
@@ -105,6 +114,32 @@ export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
   return null
 }
 
+function fillFromClauses(plan: IdeaPlan, parts: string[], title: string) {
+  plan.sprints[0].ziel = (parts.join(', ') || title).slice(0, 160)
+  plan.sprints[0].lieferumfang = parts.map((task, i) => ({
+    id: `S1-${i + 1}`,
+    task: task.slice(0, 120),
+    anleitung: WEG_ANLEITUNG,
+  }))
+  if (parts.length < 2) return
+  plan.sprints[1].ziel = 'Die Wege gegeneinander halten.'
+  plan.sprints[1].lieferumfang = [
+    {
+      id: 'S2-1',
+      task: 'Wege vergleichen',
+      anleitung: 'Jeden Weg aus dem Satz gegen die anderen halten.',
+    },
+  ]
+  plan.sprints[2].ziel = 'Einen Weg einmal durchspielen.'
+  plan.sprints[2].lieferumfang = [
+    {
+      id: 'S3-1',
+      task: 'Einen Weg durchspielen',
+      anleitung: 'Einen Weg aus dem Satz einmal prüfen.',
+    },
+  ]
+}
+
 function clausesOf(work: string): string[] {
   return work
     .split(/,|\s+und\s+/i)
@@ -183,14 +218,7 @@ async function writeProject(work: string): Promise<string> {
   let hit = rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
   if (!hit) hit = await addIdea(title, work)
   const plan = emptyPlan(hit.id)
-  plan.sprints[0].ziel = (parts[0] || title).slice(0, 160)
-  plan.sprints[0].lieferumfang = parts.map((task, i) => ({
-    id: `S1-${i + 1}`,
-    task: task.slice(0, 120),
-    anleitung: task.slice(0, 160),
-  }))
-  if (parts[1]) plan.sprints[1].ziel = parts[1].slice(0, 160)
-  if (parts[2]) plan.sprints[2].ziel = parts[2].slice(0, 160)
+  fillFromClauses(plan, parts, title)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
   saveSettings({
@@ -213,7 +241,7 @@ async function reviseProject(text: string): Promise<string> {
   const sprint = findSprint(plan, '1')
   if (!sprint) return 'Diesen Kern-Sprint gibt es nicht.'
   const k = sprint.lieferumfang.length + 1
-  sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: line.slice(0, 160) })
+  sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: WEG_ANLEITUNG })
   await putIdea({ ...hit, plan })
   saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), plan_idea_id: hit.id, tischplatte_on: true })
   return formatPlan(plan, hit.title)

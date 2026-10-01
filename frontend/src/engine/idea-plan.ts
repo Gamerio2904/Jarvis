@@ -148,9 +148,19 @@ export function planFromSources(ideaId: string, title: string, lines: string[]):
   return plan
 }
 
+export const WEG_ANLEITUNG = 'Weg prüfen. Was er löst, steht im Satz. Eine Quelle fehlt noch.'
+
 export function formatPlan(plan: IdeaPlan, ideaTitle = ''): string {
   const head = ideaTitle ? `${ideaTitle} — PLAN` : 'Sprintplan'
   const parts = [head]
+  const wege = plan.sprints[0]?.lieferumfang || []
+  if (wege.length) {
+    parts.push('')
+    parts.push('Wege — aus dem Satz')
+    for (let i = 0; i < wege.length; i += 1) parts.push(`- W${i + 1}: ${wege[i].task}`)
+    parts.push('Quelle fehlt, bis Sie Such sagen.')
+    parts.push('Fehlt noch: Recherche, Abnahme, Risiken, Schnittstellen.')
+  }
   for (const s of plan.sprints) {
     const label = s.kind === 'core' ? `Sprint ${s.n} — ${s.title}` : `Custom ${s.n} — ${s.title}`
     parts.push('')

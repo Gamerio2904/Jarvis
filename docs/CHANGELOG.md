@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.2` — Wege vor den Sprints — *CODE*
+
+`Plane das` schreibt zuerst die Lösungswege aus dem Satz, dann Kern, Härten und Probe. Die Anleitung kopiert den Satz nicht mehr. `wege.json` und `luecken.json` nennen Recherche, Abnahme, Risiken und Schnittstellen als offen, solange keine Quelle da ist. Die Dateiliste ist deckend. Das Cover hat einen Ring. Die Tafel ist Glas.
+
+App-Code und Sideload **`18.24.2`** (versionCode `182402`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
+
 ### `18.24.1` — Hausstand kommt an — *CODE*
 
 Eine Hausstand-Datei mit Terminen wurde beim Hochladen als leerer Kalender gelesen. Die Vorschau zeigte `0 Keys`. Jetzt bleibt sie der Hausstand: Keys, Nummern, Erinnerungen, Termine und Ideen.

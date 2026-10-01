@@ -1,6 +1,6 @@
 # TEST 18.24 — Portfolio
 
-In der APK **`18.24.0`** (versionCode `182400`).
+In der APK **`18.24.2`** (versionCode `182402`).
 Plan [`96-next.md`](./96-next.md), Sprints 417–423.
 Dieselben Sätze in Spur Heute, Gruppe `18.24 Portfolio`. Jede Box ist
 ein Satz. Einmal tippen, kopieren, in den Chat.
@@ -13,8 +13,9 @@ Tischplatte an. Breite ab 900 px und darunter dieselben Sätze.
 Plane das: Tik Tak To, Spielfeld bauen, Sieg prüfen
 ```
 
-Die Mitte ist das live Skript. Es liegt noch keine Portfolio-Karte.
-Chat nennt das Skript und wartet auf `Go`.
+Die Mitte ist das live Skript. Zuerst die Wege aus dem Satz, dann die
+Sprints. Chat sagt, dass eine Quelle fehlt. Es liegt noch keine
+Portfolio-Karte. Chat wartet auf `Go`.
 
 ## 2. Fest
 
@@ -24,7 +25,8 @@ Go
 
 Antwort `Fest. Tik Tak To liegt im Portfolio.` Die Mitte zeigt eine
 Karte, kurzer Name `Tik Tak To`, ein gezeichnetes Bild. Im Store eine
-Zeile. Dateien `projekt.json`, `sprints.json`, `psp.json`.
+Zeile. Dateien `projekt.json`, `wege.json`, `sprints.json`, `psp.json`,
+`luecken.json`.
 
 ```
 Go
@@ -58,7 +60,7 @@ Die Liste geht zu. Die Karte steht wieder auf der Mitte.
 Die Karte in den Schlitz ziehen.
 
 Antwort `Tik Tak To liegt im Archiv.` Die Mitte ist leer von dieser
-Karte. Die Zeile ist noch im Store, `archived` true, die drei Dateien
+Karte. Die Zeile ist noch im Store, `archived` true, die Dateien
 sind noch da.
 
 ```

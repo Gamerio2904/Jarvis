@@ -4,7 +4,7 @@ import { readLastEyeImage } from './agent-session.ts'
 import { parseChatBlocks } from './chat-blocks.ts'
 import { handleImage } from './image-fetch.ts'
 import { parseImageAsk, safeImageSrc } from './image-parse.ts'
-import { projectDocument, projectSlug, pspDocument, sprintsDocument } from './project-docs.ts'
+import { lueckenDocument, projectDocument, projectSlug, pspDocument, sprintsDocument, wegeDocument } from './project-docs.ts'
 import type { PortfolioIntent } from './portfolio-parse.ts'
 import { saveTreeFile } from '../native/device.ts'
 import {
@@ -22,7 +22,7 @@ export type CoverKind = 'drawn' | 'photo' | 'research'
 export type PortfolioFile = {
   id: string
   name: string
-  kind: 'projekt' | 'sprints' | 'psp' | 'beispiel'
+  kind: 'projekt' | 'wege' | 'sprints' | 'psp' | 'luecken' | 'beispiel'
   mime: string
   text: string
   src: string
@@ -54,7 +54,7 @@ const MAX_EXAMPLES = 6
 const MAX_EXAMPLE = 400 * 1024
 
 const PATH_OK =
-  /^portfolio\/[a-z0-9-]{1,40}\/(cover\.jpg|projekt\.json|sprints\.json|psp\.json|beispiele\/[a-z0-9-]{1,40}\.(jpg|png|webp))$/
+  /^portfolio\/[a-z0-9-]{1,40}\/(cover\.jpg|projekt\.json|wege\.json|sprints\.json|psp\.json|luecken\.json|beispiele\/[a-z0-9-]{1,40}\.(jpg|png|webp))$/
 
 export function portfolioPathOk(path: string): boolean {
   return PATH_OK.test(path) && !path.includes('..')
@@ -102,10 +102,16 @@ function monogram(name: string): string {
   return (letters || 'PR').slice(0, 2).toUpperCase()
 }
 
+function xmlText(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
 function svgCover(name: string, title: string): string {
   const hue = hueOf(title)
-  const mono = monogram(name)
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" rx="48" fill="hsl(${hue} 42% 28%)"/><text x="256" y="300" text-anchor="middle" font-size="148" fill="white" font-family="sans-serif">${mono}</text></svg>`
+  const mono = xmlText(monogram(name))
+  const label = xmlText(name.slice(0, 18))
+  const alt = (hue + 36) % 360
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue} 46% 24%)"/><stop offset="1" stop-color="hsl(${alt} 32% 10%)"/></linearGradient></defs><rect width="512" height="512" fill="url(#g)"/><circle cx="256" cy="228" r="132" fill="none" stroke="hsl(${hue} 70% 74%)" stroke-opacity="0.85" stroke-width="3"/><circle cx="256" cy="228" r="158" fill="none" stroke="hsl(${hue} 70% 74%)" stroke-opacity="0.28" stroke-width="1"/><text x="256" y="244" text-anchor="middle" font-size="112" fill="#f4f7f8" font-family="sans-serif">${mono}</text><text x="256" y="400" text-anchor="middle" font-size="28" fill="#f4f7f8" fill-opacity="0.78" font-family="sans-serif">${label}</text></svg>`
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
 
@@ -117,13 +123,30 @@ export function drawCover(name: string, title: string): string {
   const ctx = canvas.getContext('2d')
   if (!ctx) return svgCover(name, title)
   const hue = hueOf(title)
-  ctx.fillStyle = `hsl(${hue} 42% 28%)`
+  const alt = (hue + 36) % 360
+  const wash = ctx.createLinearGradient(0, 0, 512, 512)
+  wash.addColorStop(0, `hsl(${hue} 46% 24%)`)
+  wash.addColorStop(1, `hsl(${alt} 32% 10%)`)
+  ctx.fillStyle = wash
   ctx.fillRect(0, 0, 512, 512)
+  ctx.strokeStyle = `hsla(${hue}, 70%, 74%, 0.85)`
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.arc(256, 228, 132, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.strokeStyle = `hsla(${hue}, 70%, 74%, 0.28)`
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.arc(256, 228, 158, 0, Math.PI * 2)
+  ctx.stroke()
   ctx.fillStyle = '#f4f7f8'
-  ctx.font = '600 148px sans-serif'
+  ctx.font = '600 112px sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(monogram(name), 256, 270)
+  ctx.fillText(monogram(name), 256, 236)
+  ctx.font = '500 28px sans-serif'
+  ctx.fillStyle = 'rgba(244, 247, 248, 0.78)'
+  ctx.fillText(name.slice(0, 18), 256, 400)
   let url = canvas.toDataURL('image/jpeg', 0.7)
   if (url.length > 160_000) url = canvas.toDataURL('image/jpeg', 0.5)
   return url.startsWith('data:image/jpeg') ? url : svgCover(name, title)
@@ -225,8 +248,10 @@ export async function commitPortfolio(idea: Idea): Promise<{
   const examples = (prev?.files || []).filter((f) => f.kind === 'beispiel')
   const files: PortfolioFile[] = [
     jsonFile('projekt', 'projekt.json', 'projekt', projectDocument(idea)),
+    jsonFile('wege', 'wege.json', 'wege', wegeDocument(idea)),
     jsonFile('sprints', 'sprints.json', 'sprints', sprintsDocument(idea)),
     jsonFile('psp', 'psp.json', 'psp', pspDocument(idea)),
+    jsonFile('luecken', 'luecken.json', 'luecken', lueckenDocument(idea)),
     ...examples,
   ]
   const row: PortfolioRow = {
@@ -444,10 +469,21 @@ export async function archiveWall(id: string, fileId = ''): Promise<string> {
 export function previewFile(file: PortfolioFile): string[] {
   if (file.kind === 'beispiel') return [file.source || file.name]
   try {
-    const data = JSON.parse(file.text) as { projekt?: string; sprints?: Array<{ n?: string; title?: string; ziel?: string }>; psp?: Array<{ n?: string; title?: string; ziel?: string }> }
+    const data = JSON.parse(file.text) as {
+      projekt?: string
+      hinweis?: string
+      wege?: Array<{ id?: string; satz?: string }>
+      fehlt?: Array<{ name?: string; warum?: string }>
+      sprints?: Array<{ n?: string; title?: string; ziel?: string }>
+      psp?: Array<{ n?: string; title?: string; ziel?: string; offen?: string }>
+    }
     const lines = [String(data.projekt || file.name)]
-    for (const sprint of data.sprints || data.psp || []) {
-      lines.push(`${sprint.n || ''}. ${sprint.title || ''} ${sprint.ziel || ''}`.trim())
+    for (const weg of data.wege || []) lines.push(`${weg.id || ''} ${weg.satz || ''}`.trim())
+    if (data.hinweis) lines.push(data.hinweis)
+    for (const gap of data.fehlt || []) lines.push(`${gap.name || ''}: ${gap.warum || ''}`.trim())
+    const rows = (data.sprints || data.psp || []) as Array<{ n?: string; title?: string; ziel?: string; offen?: string }>
+    for (const sprint of rows) {
+      lines.push(`${sprint.n || ''}. ${sprint.title || ''} ${sprint.ziel || ''} ${sprint.offen || ''}`.trim())
     }
     return lines.filter(Boolean).slice(0, 12)
   } catch {

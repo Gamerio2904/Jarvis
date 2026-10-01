@@ -47,7 +47,14 @@ function wallItems(rows: PortfolioRow[]): WallItem[] {
 }
 
 function orderedFiles(row: PortfolioRow): PortfolioFile[] {
-  const rank = { projekt: 0, sprints: 1, psp: 2, beispiel: 3 }
+  const rank: Record<PortfolioFile['kind'], number> = {
+    projekt: 0,
+    wege: 1,
+    sprints: 2,
+    psp: 3,
+    luecken: 4,
+    beispiel: 5,
+  }
   const files = Array.isArray(row.files) ? row.files : []
   return files.filter((f) => !f.archived).sort((a, b) => rank[a.kind] - rank[b.kind])
 }

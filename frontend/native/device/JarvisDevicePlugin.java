@@ -683,7 +683,7 @@ public class JarvisDevicePlugin extends Plugin {
 
     private boolean treePathOk(String path) {
         if (path == null || path.contains("..") || path.startsWith("/")) return false;
-        return path.matches("portfolio/[a-z0-9-]{1,40}/(cover\\.jpg|projekt\\.json|sprints\\.json|psp\\.json|beispiele/[a-z0-9-]{1,40}\\.(jpg|png|webp))");
+        return path.matches("portfolio/[a-z0-9-]{1,40}/(cover\\.jpg|projekt\\.json|wege\\.json|sprints\\.json|psp\\.json|luecken\\.json|beispiele/[a-z0-9-]{1,40}\\.(jpg|png|webp))");
     }
 
     private String safeFileName(String raw) {
