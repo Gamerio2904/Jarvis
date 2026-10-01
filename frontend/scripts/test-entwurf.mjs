@@ -19,7 +19,7 @@ globalThis.localStorage = {
 const { parseBoardIntent } = await import('../src/engine/board-parse.ts')
 const { parseAblaufIntent } = await import('../src/engine/ablauf-parse.ts')
 const { parsePortfolioIntent } = await import('../src/engine/portfolio-parse.ts')
-const { parseScanCommand } = await import('../src/engine/room-scan.ts')
+const { parseScanCommand, loadScan } = await import('../src/engine/room-scan.ts')
 const { handleBoard } = await import('../src/engine/board.ts')
 const { handleAblauf } = await import('../src/engine/ablauf.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
@@ -199,6 +199,35 @@ const scanning = await handleBoard(conv.id, 'Entwirf eine App: Einkauf')
 assert.equal(scanning.reply, 'Erst den Scan.')
 saveSettings({ scan_json: '' })
 
+await handleBoard(conv.id, 'Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig')
+const scanDraft = loadSettings().entwurf_id
+const scanStart = await handleBoard(conv.id, 'Scanne den Raum')
+assert.match(scanStart.reply, /Scan läuft/)
+assert.equal(loadSettings().entwurf_id, '')
+assert.equal((await getAll('drafts')).find((r) => r.id === scanDraft).status, 'offen')
+const during = await handleBoard(conv.id, 'Entwirf eine App: Einkauf')
+assert.equal(during.reply, 'Erst den Scan.')
+const scanEnd = await handleBoard(conv.id, 'Scan beenden')
+assert.match(scanEnd.reply, /Keine Tiefenwerte/)
+assert.equal(loadScan().phase, 'off')
+assert.equal(loadSettings().entwurf_id, scanDraft)
+assert.equal(draftFramesOpen(), true)
+saveSettings({
+  scan_json: JSON.stringify({
+    phase: 'model',
+    target: 'room',
+    name: 'Raum',
+    depth: true,
+    note: '',
+    positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+    indices: [0, 1, 2],
+    objects: [],
+  }),
+})
+const onModel = await handleBoard(conv.id, 'Entwirf eine App: Einkauf')
+assert.equal(onModel.reply, 'Erst den Scan.')
+saveSettings({ scan_json: '' })
+
 const inspire = await handleBoard(conv.id, 'Zeig mir Inspiration zum Knopf')
 assert.match(inspire.reply, /1\. sofort/)
 assert.match(inspire.reply, /Weiter|sofort/)
@@ -235,6 +264,25 @@ const fenster = await handleAblauf(conv.id, 'Fenster zu')
 assert.match(fenster.reply, /kein Ablauf offen|Ablauf zu/)
 assert.equal(loadSettings().entwurf_id, '')
 assert.equal((await getAll('drafts')).find((r) => r.id === beforeFenster).status, 'zu')
+
+const { handleIdea } = await import('../src/engine/idea.ts')
+await handleBoard(conv.id, 'Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig')
+const liveId = loadSettings().entwurf_id
+const planned = await handleIdea(conv.id, 'Plane das: Trag morgen 9 Uhr Zahnarzt ein')
+assert.match(planned.reply, /PLAN|Skript/)
+assert.equal(loadSettings().plan_phase, 'live')
+const overPlan = await handleBoard(conv.id, 'Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig')
+assert.equal(overPlan.reply, 'Erst den Ablauf.')
+assert.equal(loadSettings().entwurf_id, liveId)
+assert.equal(draftFramesOpen(), false)
+const planZu = await handleIdea(conv.id, 'Plan zu')
+assert.match(planZu.reply, /Planfenster/)
+assert.equal(loadSettings().entwurf_id, liveId)
+const fensterLive = await handleIdea(conv.id, 'Fenster zu')
+assert.match(fensterLive.reply, /Planfenster/)
+assert.equal(loadSettings().entwurf_id, '')
+assert.equal((await getAll('drafts')).find((r) => r.id === liveId).status, 'zu')
+saveSettings({ plan_phase: '', plan_idea_id: '', plan_script_at: 0 })
 
 await addMessage(conv.id, 'user', 'Notizen mit drei Karten')
 const fromPrev = await handleBoard(conv.id, 'Entwirf das')

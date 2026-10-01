@@ -80,15 +80,17 @@ export function EntwurfStage() {
 
   useEffect(() => {
     let stop = false
+    let ticket = 0
     const load = async () => {
+      const mine = ++ticket
       if (!draftFramesOpen()) {
-        if (!stop) setRow(null)
+        if (!stop && mine === ticket) setRow(null)
         return
       }
       const id = loadSettings().entwurf_id
       const next = id ? await get<Draft>('drafts', id) : undefined
-      if (stop) return
-      if (!next || next.status === 'zu') {
+      if (stop || mine !== ticket) return
+      if (!next || next.status === 'zu' || loadSettings().entwurf_id !== id) {
         setRow(null)
         return
       }
@@ -99,6 +101,7 @@ export function EntwurfStage() {
     window.addEventListener('jarvis-settings', on)
     return () => {
       stop = true
+      ticket += 1
       window.removeEventListener('jarvis-settings', on)
     }
   }, [])
@@ -148,6 +151,7 @@ export function EntwurfStage() {
               aria-label={`Entwurf ${i + 1}. ${variant.name}`}
               onClick={() => void pickDraft(i as 0 | 1 | 2)}
             >
+              {row.kind === 'muster' ? <small className="entwurf-name">{variant.name}</small> : null}
               {variant.blocks.slice(0, 6).map((block, b) =>
                 shown(row, i, b, step) ? (
                   <div

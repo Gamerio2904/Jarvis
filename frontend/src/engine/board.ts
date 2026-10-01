@@ -13,8 +13,7 @@ import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan
 import { fillPlanWithModel, pickIdea } from './idea.ts'
 import { fileFor, saveProjectJson } from './project-docs.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
-import { applyScan } from './room-scan.ts'
-import { handleEntwurf, hideDraftFrames } from './entwurf.ts'
+import { handleEntwurf, finishScan, hideDraftFrames } from './entwurf.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
 
@@ -95,8 +94,7 @@ export async function handleBoard(conversationId: string, text: string): Promise
   }
 
   if (intent.kind === 'scan') {
-    if (intent.op === 'start' || intent.op === 'end') hideDraftFrames()
-    return pack(applyScan(intent), `scan_${intent.op}`, { op: intent.op })
+    return pack(await finishScan(intent), `scan_${intent.op}`, { op: intent.op })
   }
 
   if (intent.kind === 'download') {

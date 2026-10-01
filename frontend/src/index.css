@@ -9496,6 +9496,13 @@ html.theme-wipe-dark::before {
   transform-origin: top center;
 }
 
+.entwurf-name {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--text-muted);
+}
+
 .entwurf-frame.is-pick {
   border-color: var(--board-accent, var(--accent));
   box-shadow: inset 3px 0 0 var(--board-accent, var(--accent));

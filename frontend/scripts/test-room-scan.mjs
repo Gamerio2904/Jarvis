@@ -68,6 +68,7 @@ assert.equal(loadScan().phase, 'live')
 const early = applyScan({ kind: 'scan', op: 'end' })
 assert.match(early, /Keine Tiefenwerte/)
 assert.equal(loadScan().positions.length, 0)
+assert.equal(loadScan().phase, 'off')
 
 const plane = []
 for (let i = 0; i < 80; i++) plane.push({ x: (i % 10) * 0.1 - 0.5, y: 0, z: -1.4 - (i % 5) * 0.1 })

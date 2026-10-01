@@ -17,6 +17,7 @@ import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { commitPortfolio, currentIdeaForTable, handlePortfolio } from './portfolio.ts'
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
+import { closeDraftRow } from './entwurf.ts'
 import {
   blankSprint,
   emptyPlan,
@@ -278,6 +279,7 @@ export async function handleIdea(
   }
   const table = parseAblaufIntent(text)
   if (table) {
+    if (table.kind === 'close' && /^\s*fenster\s+zu\b/i.test(text.trim())) await closeDraftRow()
     const reply = await planOntoTable(table)
     return pack(reply, 'plan_table')
   }

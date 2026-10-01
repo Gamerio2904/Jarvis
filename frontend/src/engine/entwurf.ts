@@ -6,6 +6,7 @@ import {
   scanBlocksDraft,
   type EntwurfIntent,
 } from './entwurf-parse.ts'
+import { applyScan, loadScan, type ScanCommand } from './room-scan.ts'
 import {
   artLabel,
   musterVariants,
@@ -56,6 +57,28 @@ async function show(row: Draft): Promise<void> {
 export function hideDraftFrames(): void {
   if (!loadSettings().entwurf_id) return
   saveSettings({ entwurf_id: '' })
+}
+
+/** Nach einem Scan ohne Modell die offene Zeile wieder zeigen. */
+export async function restoreOpenDraft(): Promise<void> {
+  if (loadSettings().entwurf_id) return
+  if (scanBlocksDraft() || ablaufBlocksDraft()) return
+  const rows = await getAll<Draft>('drafts')
+  const row = [...rows].reverse().find((r) => r.status === 'offen' || r.status === 'gewählt')
+  if (!row) return
+  saveSettings({ entwurf_id: row.id, entwurf_status: row.status, tischplatte_on: true })
+}
+
+/** Start verdeckt die Rahmen. Ende ohne Modell zeichnet sie wieder. */
+export async function finishScan(cmd: ScanCommand): Promise<string> {
+  const before = loadScan().phase
+  if (cmd.op === 'start') hideDraftFrames()
+  const reply = applyScan(cmd)
+  if (cmd.op === 'end') {
+    if (before === 'live' && loadScan().phase === 'off') await restoreOpenDraft()
+    else hideDraftFrames()
+  }
+  return reply
 }
 
 export async function closeDraftRow(): Promise<string> {

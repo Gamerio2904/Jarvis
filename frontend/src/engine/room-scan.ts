@@ -351,13 +351,12 @@ export function applyScan(cmd: ScanCommand): string {
     const raw = takeDepth()
     const pts = cur.target === 'object' ? keepForeground(raw) : raw
     if (raw.length < 30) {
-      writeScan({ ...emptyScan(), phase: 'model', target: cur.target, name: cur.name, note: 'Keine Tiefenwerte.' })
+      writeScan({ ...emptyScan(), target: cur.target, name: cur.name, note: 'Keine Tiefenwerte.' })
       return 'Keine Tiefenwerte auf diesem Gerät. Kein Modell.'
     }
     if (pts.length < 16) {
       writeScan({
         ...emptyScan(),
-        phase: 'model',
         target: cur.target,
         name: cur.name,
         depth: true,
@@ -367,7 +366,7 @@ export function applyScan(cmd: ScanCommand): string {
     }
     const mesh = meshFromPoints(pts)
     if (!mesh) {
-      writeScan({ ...emptyScan(), phase: 'model', target: cur.target, name: cur.name, depth: true, note: 'Zu wenig Tiefe.' })
+      writeScan({ ...emptyScan(), target: cur.target, name: cur.name, depth: true, note: 'Zu wenig Tiefe.' })
       return 'Zu wenig Tiefe für ein Netz. Kein Modell.'
     }
     writeScan({

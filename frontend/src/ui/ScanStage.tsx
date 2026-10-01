@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react'
 import {
-  applyScan,
   emptyPose,
   loadScan,
   noteDepth,
@@ -12,6 +11,7 @@ import {
   type ScanState,
   type ViewPose,
 } from '../engine/room-scan.ts'
+import { finishScan } from '../engine/entwurf.ts'
 import { loadSettings } from '../engine/store.ts'
 
 type DepthInfo = {
@@ -219,7 +219,7 @@ export function ScanStage({ phase }: { phase: ScanState['phase'] }) {
       <div className="scan-live" aria-label="Scan">
         <video ref={videoRef} playsInline muted autoPlay />
         <p className="scan-live-line">{cam || `${scan.name || 'Scan'}. Sag Beende den Scan.`}</p>
-        <button type="button" className="scan-end" onClick={() => applyScan({ kind: 'scan', op: 'end' })}>
+        <button type="button" className="scan-end" onClick={() => void finishScan({ kind: 'scan', op: 'end' })}>
           Beende den Scan
         </button>
       </div>

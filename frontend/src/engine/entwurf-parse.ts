@@ -13,7 +13,8 @@ export type EntwurfIntent =
 const BLOCK = new Set(['schreibt', 'warten', 'überarbeitet', 'läuft'])
 
 export function ablaufBlocksDraft(status = loadSettings().ablauf_status): boolean {
-  return BLOCK.has(status)
+  if (BLOCK.has(status)) return true
+  return loadSettings().plan_phase === 'live'
 }
 
 export function scanBlocksDraft(): boolean {
