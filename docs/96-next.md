@@ -3,7 +3,7 @@
 **Dieses Dokument ist CODE.** App-Code **`18.24.0`** (versionCode `182400`).
 Sprints **417–423**. Katalog-Stand bleibt `18.20.0`.
 Die Sideload-Datei dieses Stands ist `18.24.0`, versionCode `182400`.
-Die laufende Sideload-Datei ist **`18.25.2`** (versionCode `182502`). Der Prompt je Sprint liegt seit App-Code `18.24.8`. Der laufende App-Code ist **`18.25.2`**.
+Die laufende Sideload-Datei ist **`18.25.3`** (versionCode `182503`). Der Prompt je Sprint liegt seit App-Code `18.24.8`. Der laufende App-Code ist **`18.25.3`**.
 
 Der jetzige Tischplatten-Modus ist die Planung. `Plane das` zeigt das
 Skript live. `Go`, `Umsetzen`, `Leg los`, `So` oder `Übernehmen` setzen

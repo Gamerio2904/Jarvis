@@ -10,14 +10,22 @@ Tischplatte an. Breite ab 900 px und darunter dieselben Sätze.
 ## 1. Planung bleibt
 
 ```
+Plane eine App mit der ich meine ein und Ausgaben strukturierter aufschreiben kann
+```
+
+Der Planungsbildschirm geht auf. Die Karte liegt im Portfolio. Anforderungen
+und Sprints stehen aus dem Satz, darunter der Teil mit den Ausgaben.
+`Fertig` schließt den Bildschirm. Der Plan und die Karte bleiben.
+
+```
 Plane das Projekt: Haushaltsbuch, Einnahmen eintragen
 ```
 
 Der Planungsbildschirm geht auf. Wer, Anforderungen und Sprints stehen
 aus dem Satz. Eine Fläche kommt dazu, sobald der Satz Liste, Knopf,
 Feld, Karte, Leiste oder Tab nennt. Weitere Sätze überarbeiten den Plan.
-`Fertig` oder `Plan zu` schließt den Bildschirm. Der Plan bleibt. `Go`
-legt die Karte.
+`Fertig` oder `Plan zu` schließt den Bildschirm. Der Plan bleibt. Die Karte
+liegt. `Plane das:` bleibt das live Skript und wartet auf `Go`.
 
 ```
 Plane das: Tik Tak To, Spielfeld bauen, Sieg prüfen

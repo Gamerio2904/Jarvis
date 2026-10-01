@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.3` — Plane eine App öffnet die Planung — *CODE + APK*
+
+`Plane eine App mit der ich meine ein und Ausgaben strukturierter aufschreiben kann` öffnet den Planungsbildschirm und legt die Karte. Anforderungen und Sprints kommen aus diesem Satz. `Plane das` und `Plane das:` bleiben das live Skript.
+
+App-Code und Sideload **`18.25.3`** (versionCode `182503`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.2` — Planungsbildschirm — *CODE + APK*
 
 `Plane das Projekt` öffnet den Planungsbildschirm. Ultron schreibt, wer was tut, die Anforderungen, die Sprints und die Oberfläche aus dem Satz. Weitere Sätze überarbeiten den Plan. `Fertig` oder `Plan zu` schließt den Bildschirm. Der Plan bleibt. `Go` legt die Karte.

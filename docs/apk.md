@@ -1,9 +1,9 @@
-# Android-APK — App-Code `18.25.2`
+# Android-APK — App-Code `18.25.3`
 
-App-Code und Sideload **`18.25.2`** (versionCode `182502`):
+App-Code und Sideload **`18.25.3`** (versionCode `182503`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-`Plane das Projekt` öffnet den Planungsbildschirm. `Fertig` schließt ihn. `Neues Projekt` zeigt die Karte. `Lösche das Projekt` legt sie ins Archiv. Der Hausstand-Code wird gezeichnet. Diese Datei ersetzt `18.25.1`, weil der versionCode steigt.
+`Plane eine App …` öffnet den Planungsbildschirm und legt die Karte. `Plane das Projekt` tut dasselbe. `Fertig` schließt den Bildschirm. `Plane das:` bleibt das live Skript. `Neues Projekt` zeigt die Karte. `Lösche das Projekt` legt sie ins Archiv. Der Hausstand-Code wird gezeichnet. Diese Datei ersetzt `18.25.2`, weil der versionCode steigt.
 
 Entwurf: [`TEST-18.25.md`](./TEST-18.25.md). Testsätze ab Hausstand-Code: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md). Portfolio: [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 
