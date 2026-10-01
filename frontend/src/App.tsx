@@ -53,6 +53,7 @@ import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds.ts'
 import { CalendarView } from './ui/Calendar.tsx'
 import { HomeScreen } from './ui/HomeScreen.tsx'
+import { UltronIntro } from './ui/UltronIntro.tsx'
 import { GlanceRail } from './ui/GlanceRail.tsx'
 import { MiniChat } from './ui/MiniChat.tsx'
 import { VoiceSphere } from './ui/VoiceSphere.tsx'
@@ -1987,6 +1988,7 @@ function App() {
 
   return (
     <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}`} ref={appRef}>
+      <UltronIntro />
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />

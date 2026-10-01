@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.11` — Intro — *CODE + APK*
+
+Beim Öffnen liegt eine Sekunde Chrom, rotes Auge und ein Glasglanz über der Fläche. Danach ist die Einblendung weg. Kommt die App wieder nach vorn, spielt sie noch einmal.
+
+App-Code und Sideload **`18.25.11`** (versionCode `182511`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.10` — Ich bin Ultron — *CODE + APK*
 
 `Hallo Jarvis` ist kein Gruß. Die Antwort lautet: Nein. Ich bin Ultron. `Hallo`, `Hallo Ultron` und `Guten Morgen` bleiben. Die Erinnerungsfrage hängt nicht an dem Satz.

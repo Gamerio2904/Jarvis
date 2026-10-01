@@ -1,9 +1,9 @@
-# Android-APK — App-Code `18.25.10`
+# Android-APK — App-Code `18.25.11`
 
-App-Code und Sideload **`18.25.10`** (versionCode `182510`):
+App-Code und Sideload **`18.25.11`** (versionCode `182511`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-`Hallo Jarvis` ist kein Gruß. Die Antwort lautet: Nein. Ich bin Ultron. Diese Datei ersetzt `18.25.9`, weil der versionCode steigt.
+Beim Öffnen eine Sekunde Chrom und rotes Auge, danach ist die Fläche frei. Diese Datei ersetzt `18.25.10`, weil der versionCode steigt.
 
 Entwurf: [`TEST-18.25.md`](./TEST-18.25.md). Testsätze ab Hausstand-Code: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md). Portfolio: [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 

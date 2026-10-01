@@ -535,3 +535,195 @@ body,
     animation: none;
   }
 }
+
+/* Öffnen, eine Sekunde. Chrom wie ein Uhrwerk, rotes Auge, ein Glanz. Danach aus. */
+.ultron-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(420px 280px at 50% 46%, rgba(255, 42, 54, 0.16), transparent 68%),
+    #05060a;
+  pointer-events: auto;
+  animation: ultronIntroVeil 1s linear forwards;
+}
+
+.ultron-intro-stage {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  animation: ultronIntroRise 1s cubic-bezier(0.16, 0.84, 0.32, 1) forwards;
+}
+
+.ultron-intro-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 200deg,
+    #5c6572 0%,
+    #f7f9fc 11%,
+    #2c3340 27%,
+    #d5dbe3 44%,
+    #161b24 61%,
+    #eef2f6 76%,
+    #3c4553 100%
+  );
+  -webkit-mask: radial-gradient(circle, transparent 57%, #000 58.2% 70%, transparent 71.4%);
+  mask: radial-gradient(circle, transparent 57%, #000 58.2% 70%, transparent 71.4%);
+  animation: ultronIntroIris 1s cubic-bezier(0.16, 0.84, 0.32, 1) forwards;
+}
+
+.ultron-intro-glass {
+  position: absolute;
+  inset: 23%;
+  border-radius: 50%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.16), transparent 42%),
+    radial-gradient(circle at 50% 58%, #241016 0 34%, #0c1018 62%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -14px 18px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(197, 206, 216, 0.28);
+}
+
+.ultron-intro-glass::before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background: linear-gradient(108deg, transparent 36%, rgba(255, 255, 255, 0.62) 48%, transparent 58%);
+  transform: translateX(-90%);
+  animation: ultronIntroSheen 1s ease-out forwards;
+}
+
+.ultron-intro-eye {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #fff8f6 0 9%,
+    #ff2a36 10% 48%,
+    #e7eef8 49% 57%,
+    #14080c 58%
+  );
+  box-shadow: 0 0 16px rgba(255, 42, 54, 0.72);
+  animation: ultronIntroEye 1s ease-out forwards;
+}
+
+.ultron-intro-name {
+  position: absolute;
+  top: calc(50% + 112px);
+  margin: 0;
+  color: #e7edf5;
+  font-family: Outfit, "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-transform: uppercase;
+  animation: ultronIntroName 1s ease-out forwards;
+}
+
+@keyframes ultronIntroVeil {
+  0%,
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes ultronIntroRise {
+  0% {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  18%,
+  78% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes ultronIntroIris {
+  0% {
+    opacity: 0;
+    transform: scale(0.42) rotate(-16deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(8deg);
+  }
+}
+
+@keyframes ultronIntroSheen {
+  0%,
+  30% {
+    transform: translateX(-90%);
+  }
+  62%,
+  100% {
+    transform: translateX(90%);
+  }
+}
+
+@keyframes ultronIntroEye {
+  0%,
+  16% {
+    opacity: 0;
+    transform: scale(0.25);
+  }
+  46%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ultronIntroName {
+  0%,
+  34% {
+    opacity: 0;
+    letter-spacing: 0.62em;
+  }
+  56%,
+  80% {
+    opacity: 1;
+    letter-spacing: 0.34em;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ultron-intro,
+  .ultron-intro-stage,
+  .ultron-intro-ring,
+  .ultron-intro-glass::before,
+  .ultron-intro-eye,
+  .ultron-intro-name {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    letter-spacing: 0.34em;
+  }
+}

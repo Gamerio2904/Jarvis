@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code und Sideload **`18.25.10`**, versionCode `182510`: https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code und Sideload **`18.25.11`**, versionCode `182511`: https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -948,7 +948,7 @@ Katalog-Stand bleibt `18.20.0`.
 
 ### `18.24` — Portfolio, Ultron, Raum-Scan [`96-next.md`](./96-next.md) **CODE**
 
-**`18.24.8`** (App-Code, versionCode `182408`). Zu jedem Sprint schreibt das Modell einen Prompt, eine Anleitung zum Kopieren. Die laufende Sideload ist **`18.25.10`** (versionCode `182510`). `Go` legt das
+**`18.24.8`** (App-Code, versionCode `182408`). Zu jedem Sprint schreibt das Modell einen Prompt, eine Anleitung zum Kopieren. Die laufende Sideload ist **`18.25.11`** (versionCode `182511`). `Go` legt das
 Skript ins Portfolio. Die Fläche ist Ultron. Das Launcher-Bild ist das rote
 Auge. Das Schachbrett im Chat hält seine Größe. `Scanne den Raum`,
 `den Raum scannen` und `Scanne den Apfel` öffnen die Kamera.
@@ -981,6 +981,8 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 **`18.25.9`** (App-Code und Sideload, versionCode `182509`). Lose Sätze bleiben verständlich. Zweimal dasselbe wird zur Gewohnheit. Ein Dokument über ein Thema recherchiert mit, außer der Satz oder die Gewohnheit sagt ohne.
 
 **`18.25.10`** (App-Code und Sideload, versionCode `182510`). `Hallo Jarvis` ist kein Gruß. Die Antwort lautet: Nein. Ich bin Ultron. `Hallo` und `Hallo Ultron` grüßen weiter. `Guten Morgen` bleibt die Tageslage.
+
+**`18.25.11`** (App-Code und Sideload, versionCode `182511`). Beim Öffnen eine Sekunde: Chromring, rotes Auge, ein Glasglanz. Danach ist die Einblendung weg. Kommt die App wieder nach vorn, spielt sie noch einmal.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
