@@ -1,14 +1,14 @@
 # 97 — Entwurf auf der Tafel **PLAN** (`18.25`)
 
 **Dieses Dokument ist PLAN.** Nichts davon liegt im App-Code.
-App-Code und Sideload bleiben **`18.24.7`** (versionCode `182407`).
+App-Code ist **`18.24.8`** (versionCode `182408`). Die Sideload-Datei bleibt **`18.24.7`**.
 Die Datei `releases/Jarvis.apk` auf `main` ist dieser Stand: Portfolio,
 Ultron-Fläche, Raum- und Objekt-Scan, Schachbrett, rotes Auge.
 
-`18.24.0` bis `18.24.7` sind gebaut. Sprints **417–423** gehören zum
+`18.24.0` bis `18.24.8` sind gebaut. Die Sideload-Datei ist `18.24.7`. Sprints **417–423** gehören zum
 Portfolio in [`96-next.md`](./96-next.md). Der Scan liegt in
 [`roomar-openscan-plan.md`](./roomar-openscan-plan.md), Test
-[`TEST-18.24.6.md`](./TEST-18.24.6.md). Diese Schiene hebt `18.24.7` nicht an.
+[`TEST-18.24.6.md`](./TEST-18.24.6.md). Diese Schiene hebt die Sideload-Datei nicht an.
 
 Fertig gebaut ist der Entwurf erst als **`18.25.0`** (versionCode `182500`),
 und erst wenn Sprint 430 grün ist.

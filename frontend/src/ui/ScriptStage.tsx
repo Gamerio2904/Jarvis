@@ -68,6 +68,7 @@ export function ScriptStage({
   const lines = useMemo(() => scriptLines(idea, phase), [idea, phase])
   const [shown, setShown] = useState(lines.length)
   const [exportNote, setExportNote] = useState('')
+  const [copied, setCopied] = useState('')
   const locked = phase === 'go'
   const live = phase === 'live'
 
@@ -91,6 +92,17 @@ export function ScriptStage({
   const clock = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
   const visible = lines.slice(0, shown)
   const typing = live && shown < lines.length
+
+  async function copyPrompt(n: string, prompt: string) {
+    if (!prompt) return
+    try {
+      await navigator.clipboard.writeText(prompt)
+      setCopied(n)
+      window.setTimeout(() => setCopied((cur) => (cur === n ? '' : cur)), 1600)
+    } catch {
+      setCopied('')
+    }
+  }
 
   async function exportFile(kind: ProjectFileKind) {
     if (!idea || !locked) return
@@ -182,6 +194,14 @@ export function ScriptStage({
                     <span>{s.n}</span>
                     <strong>{s.title}</strong>
                     <em>{s.ziel?.trim() || 'Noch leer.'}</em>
+                    {s.prompt ? (
+                      <div className="script-prompt">
+                        <p>{s.prompt}</p>
+                        <button type="button" onClick={() => void copyPrompt(s.n, s.prompt)}>
+                          {copied === s.n ? 'Kopiert' : 'Prompt kopieren'}
+                        </button>
+                      </div>
+                    ) : null}
                   </li>
                 ))
               ) : (

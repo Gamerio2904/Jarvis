@@ -37,9 +37,10 @@ import type { ToolMeta } from './tools.ts'
 
 const FILL_SYSTEM = `${PLAN_BEDINGUNG}
 Rahmen: ${PLAN_RAHMEN.join(' ')}
-Antwort NUR als JSON-Objekt mit bedingung, anforderungen [{id, satz, abnahme, gateway}], entscheidungen [{id, schnitt, grund, gateway}], sprints [{n, title, ziel, anforderungen, lieferumfang:[{id, task, anleitung}], gateway, go_wenn, nogo_wenn, abbruch, haengt_an}], luecken [{id, name, satz}], gateway, go_wenn, nogo_wenn.
+Antwort NUR als JSON-Objekt mit bedingung, anforderungen [{id, satz, abnahme, gateway}], entscheidungen [{id, schnitt, grund, gateway}], sprints [{n, title, ziel, anforderungen, lieferumfang:[{id, task, anleitung}], prompt, gateway, go_wenn, nogo_wenn, abbruch, haengt_an}], luecken [{id, name, satz}], gateway, go_wenn, nogo_wenn.
 n ist 1, 2, 3, … ohne Lücke und ohne Obergrenze. title nennst du. Eine Hülle, kein zweites Muster.
 gateway go nur mit Anforderung, go_wenn und abbruch. Sonst offen.
+Jeder Sprint hat genau ein Feld prompt. Das ist eine Anleitung, die ein Mensch einem Programmier-Agenten gibt, damit der diesen einen Sprint umsetzt. Ein Absatz, höchstens 480 Zeichen. Er nennt das Ziel, die Arbeiten aus dem Lieferumfang, den Abbruch und was nicht gebaut wird. Kein Quelltext, keine Versionsnummer, keine Datei, die der Lieferumfang nicht nennt. Ohne Arbeit bleibt prompt leer.
 Keine RICE, keine App-Version, keine Titel Kern, Härten oder Probe, keine erfundenen Quellen.`
 
 function pack(
@@ -100,9 +101,9 @@ export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
     },
   ]
   const runs: Array<() => Promise<string>> = []
-  if (groqReady()) runs.push(() => completeGroq(messages))
+  if (groqReady()) runs.push(() => completeGroq(messages, undefined, 1600))
   if (geminiReady()) {
-    runs.push(async () => (await completeGemini(messages, undefined, { thinking: false, maxOutputTokens: 700, timeoutMs: 20_000 })).text)
+    runs.push(async () => (await completeGemini(messages, undefined, { thinking: false, maxOutputTokens: 2000, timeoutMs: 25_000 })).text)
   }
   for (const run of runs) {
     try {

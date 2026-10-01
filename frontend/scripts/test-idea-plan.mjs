@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
 import { parseIdeaIntent, dueFromRel } from '../src/engine/idea-parse.ts'
-import { blankSprint, emptyPlan, parsePlan, formatPlan, nextSprintN, planFromSources, planHasBody } from '../src/engine/idea-plan.ts'
+import { blankSprint, emptyPlan, parsePlan, formatPlan, nextSprintN, planFromSources, planHasBody, sprintPrompt } from '../src/engine/idea-plan.ts'
 import { addIdea, listIdeas } from '../src/engine/store.ts'
 import { handleIdea } from '../src/engine/idea.ts'
 import { parseReminderIntent } from '../src/engine/remind-parse.ts'
@@ -130,6 +130,30 @@ assert.ok(parseReminderIntent('in 2 Wochen Milch') || parseReminderIntent('Erinn
   assert.equal(fromHits.sprints.length, 1)
   assert.match(fromHits.sprints[0].ziel, /Top 23/)
   assert.equal(planHasBody(emptyPlan('idea-x')), false)
+  assert.equal(fromHits.sprints[0].prompt, '')
+}
+
+{
+  const text = 'Setze Sprint 1 um. Ziel: der Parser erkennt Entwirf. Arbeite nur den Parser. Baue keine Fläche. Abbruch: Simuliere Kalender öffnet drei Rahmen.'
+  assert.equal(sprintPrompt('kurz'), '')
+  assert.equal(sprintPrompt(text), text)
+  assert.ok(sprintPrompt(`${text} ${'Wort '.repeat(200)}`).length <= 480)
+  const withPrompt = parsePlan({
+    sprints: [
+      {
+        n: '1',
+        title: 'Parser',
+        ziel: 'Entwirf erkennt der Parser',
+        lieferumfang: [{ id: 'S1-1', task: 'Parser', anleitung: 'Die Formen aus dem Plan.' }],
+        prompt: text,
+        abbruch: 'Simuliere Kalender öffnet drei Rahmen.',
+      },
+    ],
+  })
+  assert.equal(withPrompt?.sprints[0].prompt, text)
+  assert.match(formatPlan(withPrompt, 'Entwurf'), /Prompt:\nSetze Sprint 1 um/)
+  const bare = blankSprint('1')
+  assert.equal(bare.prompt, '')
 }
 
 console.log('test-idea-plan ok')

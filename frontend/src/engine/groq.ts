@@ -59,6 +59,7 @@ function deltaFrom(json: Record<string, unknown>): string {
 export async function completeGroq(
   messages: Array<{ role: string; content: string }>,
   onToken?: (piece: string, full: string) => void,
+  maxTokens = 420,
 ): Promise<string> {
   const key = groqKey()
   if (!key) throw new Error('Kein Groq-Schlüssel.')
@@ -69,7 +70,7 @@ export async function completeGroq(
   const body = {
     messages: mapped,
     temperature: 0.68,
-    max_tokens: 420,
+    max_tokens: maxTokens,
   }
   let last = 'Groq antwortet nicht.'
   for (const model of groqModelOrder(loadSettings().groq_skip_until)) {

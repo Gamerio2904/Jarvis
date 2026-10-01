@@ -33,6 +33,8 @@ export type IdeaSprint = {
   nogo_wenn: string
   abbruch: string
   haengt_an: string[]
+  /** Eine Anleitung für einen Programmier-Agenten. Schreibt das Modell, sonst leer. */
+  prompt: string
   manuell?: string
 }
 
@@ -108,6 +110,18 @@ function spoken(s: string): boolean {
   return s.replace(/[—–-]/g, '').replace(/\s+/g, ' ').trim().length >= 3
 }
 
+const PROMPT_MAX = 480
+
+/** Ein Absatz vom Modell. Kürzer als eine Anleitung fällt weg. Länger wird am Wort geschnitten. */
+export function sprintPrompt(raw: unknown): string {
+  const text = asText(raw).replace(/\s+/g, ' ').trim()
+  if (text.length < 40) return ''
+  if (text.length <= PROMPT_MAX) return text
+  const cut = text.slice(0, PROMPT_MAX)
+  const space = cut.lastIndexOf(' ')
+  return (space > 200 ? cut.slice(0, space) : cut).trim()
+}
+
 export function blankSprint(n: string, title = '', ziel = ''): IdeaSprint {
   return {
     n,
@@ -121,6 +135,7 @@ export function blankSprint(n: string, title = '', ziel = ''): IdeaSprint {
     nogo_wenn: '',
     abbruch: '—',
     haengt_an: [],
+    prompt: '',
   }
 }
 
@@ -220,6 +235,7 @@ export function parsePlan(raw: unknown, ideaId = ''): IdeaPlan | null {
       nogo_wenn: asText(s.nogo_wenn),
       abbruch: asText(s.abbruch) || '—',
       haengt_an: asList(s.haengt_an || s['hängt_an']),
+      prompt: sprintPrompt(s.prompt),
       manuell: asText(s.manuell) || undefined,
     }
     draft.gateway = sprintGate(asText(s.gateway), draft)
@@ -294,6 +310,10 @@ export function formatPlan(plan: IdeaPlan, ideaTitle = ''): string {
       parts.push('- (noch leer)')
     }
     parts.push(`Abbruch: ${s.abbruch}`)
+    if (s.prompt) {
+      parts.push('Prompt:')
+      parts.push(s.prompt)
+    }
   }
   if (plan.luecken.length) {
     parts.push('')

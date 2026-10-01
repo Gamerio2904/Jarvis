@@ -1,6 +1,6 @@
 # Raum auf der Tischplatte
 
-Die Hülle ist [`plan-vorlage.md`](./plan-vorlage.md). Eine Vorlage, so viele Sprints wie Tore. Der Ablauf liegt im Code **`18.24.7`**. Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Seit `18.24.7` startet auch `den Raum scannen`. `Scan beenden`, `Bennede den Scan` und der Knopf `Beende den Scan` beenden ihn, wie `Beende den Scan`.
+Die Hülle ist [`plan-vorlage.md`](./plan-vorlage.md). Eine Vorlage, so viele Sprints wie Tore. Der Ablauf liegt im Code **`18.24.8`**. Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Seit `18.24.7` startet auch `den Raum scannen`. `Scan beenden`, `Bennede den Scan` und der Knopf `Beende den Scan` beenden ihn, wie `Beende den Scan`.
 
 Gelesen am 1. Oktober 2026. Eine Adresse unten ist eine Fundstelle. Was dort nicht steht, bleibt eine Lücke.
 

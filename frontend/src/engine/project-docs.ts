@@ -37,6 +37,7 @@ function sprintRow(s: IdeaSprint) {
     nogo_wenn: s.nogo_wenn,
     abbruch: s.abbruch,
     haengt_an: s.haengt_an,
+    prompt: s.prompt || '',
   }
 }
 

@@ -9043,6 +9043,29 @@ html.theme-wipe-dark::before {
   color: #ff9aa0;
 }
 
+.script-prompt {
+  grid-column: 1 / -1;
+  margin: 4px 0 8px;
+}
+
+.script-prompt p {
+  margin: 0;
+  color: rgba(231, 247, 255, 0.86);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.script-prompt button {
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 176, 180, 0.35);
+  background: transparent;
+  color: #ffb0b4;
+  font: inherit;
+  font-size: 12px;
+}
+
 .script-psp em {
   grid-column: 2;
   font-style: normal;

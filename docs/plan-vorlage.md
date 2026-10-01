@@ -90,7 +90,8 @@ Dieselbe Hülle für Sprint 1 und für Sprint 12. Er setzt `n` und `titel`. Der 
   "go_wenn": "",
   "nogo_wenn": "",
   "abbruch": "",
-  "hängt_an": []
+  "hängt_an": [],
+  "prompt": ""
 }
 ```
 
@@ -108,6 +109,7 @@ Dieselbe Hülle für Sprint 1 und für Sprint 12. Er setzt `n` und `titel`. Der 
 | `nogo_wenn` | Der Satz, an dem er No-Go erkennt |
 | `abbruch` | Der Fall, in dem die Arbeit liegen bleibt |
 | `hängt_an` | `A1`, `S1` oder leer |
+| `prompt` | Ein Absatz, höchstens 480 Zeichen. Eine Anleitung, die ein Mensch einem Programmier-Agenten für genau diesen Sprint gibt. Das Modell schreibt ihn. Er nennt Ziel, Arbeiten, Abbruch und was nicht gebaut wird. Kein Quelltext, keine Version. Ohne Arbeit bleibt er leer |
 
 ## PSP
 
