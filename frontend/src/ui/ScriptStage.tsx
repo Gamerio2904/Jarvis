@@ -9,7 +9,7 @@ import type { IdeaSprint } from '../engine/idea-plan.ts'
 function useClock(): Date {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
-    const id = window.setInterval(() => setNow(new Date()), 1000)
+    const id = window.setInterval(() => setNow(new Date()), 30_000)
     return () => window.clearInterval(id)
   }, [])
   return now
@@ -85,12 +85,14 @@ export function ScriptStage({
       setShown(lines.length)
       return
     }
+    let id = 0
     const tick = () => {
-      const n = Math.min(lines.length, Math.floor((Date.now() - scriptAt) / 420) + 1)
-      setShown(Math.max(1, n))
+      const n = Math.max(1, Math.min(lines.length, Math.floor((Date.now() - scriptAt) / 420) + 1))
+      setShown((cur) => (cur === n ? cur : n))
+      if (n >= lines.length) window.clearInterval(id)
     }
+    id = window.setInterval(tick, 420)
     tick()
-    const id = window.setInterval(tick, 420)
     return () => window.clearInterval(id)
   }, [lines, scriptAt, locked])
 

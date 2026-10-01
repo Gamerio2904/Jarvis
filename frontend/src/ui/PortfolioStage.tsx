@@ -98,7 +98,10 @@ export function PortfolioStage() {
     }
     load()
     window.addEventListener('jarvis-settings', load)
-    const id = window.setInterval(load, 2_000)
+    const id = window.setInterval(() => {
+      if (document.hidden) return
+      load()
+    }, 8_000)
     return () => {
       dead = true
       window.removeEventListener('jarvis-settings', load)

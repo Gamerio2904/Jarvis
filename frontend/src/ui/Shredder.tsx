@@ -1081,7 +1081,9 @@ const Shredder = <T extends ShredderItem>({
 
   useLayoutEffect(() => {
     settle(null, null);
-  });
+    // Nur wenn die Karten sich ändern. Jeder Tastendruck im Chat soll die Wand nicht neu vermessen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, order]);
 
   useEffect(() => {
     const s = sim.current;
@@ -1089,7 +1091,7 @@ const Shredder = <T extends ShredderItem>({
     const canvas = canvasRef.current;
     if (!root || !canvas) return undefined;
     const fit = () => {
-      const dpr = Math.min(3, window.devicePixelRatio || 1);
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
       const cw = root.offsetWidth + OVER * 2;
       const ch = cfg.current.fallHeight;
       if (cw === s.cw && ch === s.ch && dpr === s.dpr) return;

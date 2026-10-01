@@ -1801,6 +1801,8 @@ textarea {
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 84px;
 }
 
 .row.enter-user {

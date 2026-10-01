@@ -6,7 +6,7 @@ import { PortfolioStage } from './PortfolioStage.tsx'
 import { scanPhase, ScanStage } from './ScanStage.tsx'
 import { EntwurfStage } from './EntwurfStage.tsx'
 import { Workbench } from './Workbench.tsx'
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 
 function AppGlyph({ id }: { id: HomeAppId }) {
   if (id === 'chat') {
@@ -107,7 +107,7 @@ function AppGlyph({ id }: { id: HomeAppId }) {
   )
 }
 
-export function HomeScreen({
+export const HomeScreen = memo(function HomeScreen({
   face,
   onOpen,
   tischplatteOn,
@@ -192,4 +192,4 @@ export function HomeScreen({
       </div>
     </section>
   )
-}
+})

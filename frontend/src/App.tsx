@@ -359,6 +359,10 @@ function App() {
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const launchHomeRef = useRef<(id: HomeAppId) => void>(() => {})
+  const onHomeOpen = useCallback((id: HomeAppId) => {
+    launchHomeRef.current(id)
+  }, [])
   const eyeFileRef = useRef<HTMLInputElement | null>(null)
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
@@ -1958,6 +1962,7 @@ function App() {
     }
     openSettings('keys')
   }
+  launchHomeRef.current = launchHomeApp
 
   useEffect(() => {
     const on = Boolean(liveHud.tischplatte_on)
@@ -2269,7 +2274,7 @@ function App() {
         {homeOpen && !driveOpen && !chessOpen ? (
           <HomeScreen
             face="ultron"
-            onOpen={launchHomeApp}
+            onOpen={onHomeOpen}
             tischplatteOn={Boolean(liveHud.tischplatte_on)}
             view={liveHud.tischplatte_view || 'sprints'}
             focus={liveHud.tischplatte_focus || ''}

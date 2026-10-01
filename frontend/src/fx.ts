@@ -6,16 +6,22 @@ const MAGNET_SEL =
 
 export function bindChromeFx(root: HTMLElement): () => void {
   if (prefersReducedMotion()) return () => {}
+  // Der Lichtfleck über der ganzen Fläche und das Mitziehen der Knöpfe
+  // zeichnen bei jedem Fingerzug neu. Auf dem Tablet bleibt nur der Tipp-Ring.
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  if (!fine) {
+    const onDown = (e: PointerEvent) => {
+      const t = (e.target as HTMLElement | null)?.closest<HTMLElement>(MAGNET_SEL)
+      if (!t || isDisabled(t)) return
+      spawnRipple(t, e.clientX, e.clientY)
+    }
+    root.addEventListener('pointerdown', onDown)
+    return () => root.removeEventListener('pointerdown', onDown)
+  }
 
   let hot: HTMLElement | null = null
 
   const onPointerMove = (e: PointerEvent) => {
-    const r = root.getBoundingClientRect()
-    const x = ((e.clientX - r.left) / Math.max(r.width, 1)) * 100
-    const y = ((e.clientY - r.top) / Math.max(r.height, 1)) * 100
-    root.style.setProperty('--lux-x', `${x.toFixed(2)}%`)
-    root.style.setProperty('--lux-y', `${y.toFixed(2)}%`)
-
     const t = (e.target as HTMLElement | null)?.closest<HTMLElement>(MAGNET_SEL)
     if (hot && hot !== t) {
       cool(hot)

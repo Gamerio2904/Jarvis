@@ -91,7 +91,10 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
     load()
     const on = () => load()
     window.addEventListener('jarvis-settings', on)
-    const id = window.setInterval(load, 2_000)
+    const id = window.setInterval(() => {
+      if (document.hidden) return
+      load()
+    }, 8_000)
     return () => {
       dead = true
       window.removeEventListener('jarvis-settings', on)

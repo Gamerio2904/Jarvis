@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.6` — Flüssiger — *CODE + APK*
+
+Der Lichtfleck folgt dem Finger nicht mehr, die unscharfen Kugeln stehen still, die Milchglasflächen sind zu. Die Kartenwand misst sich nicht bei jedem Tastendruck neu. Die Uhr auf dem Plan springt nur noch alle dreißig Sekunden.
+
+App-Code und Sideload **`18.25.6`** (versionCode `182506`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.5` — Bild aus der Zwischenablage — *CODE + APK*
 
 Ein Bild aus der Zwischenablage hängt an der Nachricht. Einfügen zeigt es über dem Feld. Senden legt es an den Satz. Ohne Satz bleibt es als Bild liegen. `Weg` nimmt es vor dem Senden ab.
