@@ -30,7 +30,7 @@ const { APP_VERSION, loadSettings, saveSettings } = await import('../src/engine/
 
 const GOLD = 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ'
 
-assert.equal(APP_VERSION, '18.25.6')
+assert.equal(APP_VERSION, '18.25.7')
 assert.equal(routeForEval(GOLD), 'clip')
 assert.equal(routeForEval('Clip-Status'), 'clip')
 assert.equal(routeForEval('YouTube auf dem Fernseher Rick and Morty'), 'tv')

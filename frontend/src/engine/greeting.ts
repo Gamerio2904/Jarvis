@@ -1,7 +1,6 @@
 import { normalizeUtterance } from './utterance.ts'
 import { isBriefAsk } from './brief-parse.ts'
 import { listReminders } from './store.ts'
-import { loadWorkingMemory } from './working-memory.ts'
 
 export type DayPart = 'morning' | 'day' | 'evening' | 'night'
 
@@ -20,7 +19,7 @@ export function parseGreeting(text: string): DayPart | 'echo' | null {
   if (/\b(wetter|timer|wecker|termin|fahr|zeig|suche)\b/i.test(t)) return null
   const named = /^\s*(?:guten\s+|gute\s+)(morgen|tag|abend|nacht)\b/i.exec(t)
   if (named) return partFromWord(named[1])
-  if (/^\s*(?:hallo|hi|hey|na|naja)(?:\s+jarvis)?\s*[.!?]*$/i.test(t)) return 'echo'
+  if (/^\s*(?:hallo|hi|hey|na|naja)(?:\s+(?:jarvis|ultron))?\s*[.!?]*$/i.test(t)) return 'echo'
   if (/^\s*naja\b.{0,32}\b(?:wie\s+)?geht/i.test(t)) return 'echo'
   if (/^\s*(?:schönen?\s+abend|gute\s+nacht)\s*[.!?]*$/i.test(t)) {
     return /nacht/i.test(t) ? 'night' : 'evening'
@@ -62,9 +61,18 @@ export function greetingReply(part: DayPart | 'echo', now = new Date(), asked = 
     }
   }
   if (/wie\s+geht/i.test(asked)) return `${line} Gut, danke. Und Ihnen?`
-  const fact = (stand || '').replace(/\s+/g, ' ').trim()
-  if (fact && !/geschlafen|laune|freut/i.test(fact)) return `${line} ${fact}`
+  const fact = usableStand(stand)
+  if (fact) return `${line} ${fact}`
   return `${line} Ich höre.`
+}
+
+/** Nur ein echter Stand. Keine offene Frage, kein Erinnerungs-Nachsatz. */
+function usableStand(stand: string): string {
+  const fact = (stand || '').replace(/\s+/g, ' ').trim()
+  if (!fact || /[?]/.test(fact)) return ''
+  if (/wann soll ich|zum beispiel|\berinnern\b/i.test(fact)) return ''
+  if (/geschlafen|laune|freut/i.test(fact)) return ''
+  return fact
 }
 
 export async function greetingStandFact(): Promise<string> {
@@ -82,7 +90,5 @@ export async function greetingStandFact(): Promise<string> {
     .sort((a, b) => a.due_at.localeCompare(b.due_at))
   const next = open[0]
   if (next?.title) return `Nächste Erinnerung: ${next.title.replace(/\s+/g, ' ').trim().slice(0, 80)}.`
-  const work = loadWorkingMemory().find((r) => r.line.trim().length >= 8 && !/gefunden:/i.test(r.line))
-  if (work) return work.line.replace(/\s+/g, ' ').trim().slice(0, 80)
   return ''
 }

@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.7` — Hallo bleibt ein Gruß — *CODE + APK*
+
+`Hallo Jarvis` und `Hallo Ultron` bleiben ein Gruß zur Uhrzeit. Die offene Erinnerungsfrage hängt nicht mehr daran. `Guten Morgen` bleibt die Tageslage und löst die Frage ab. Die Uhr springt mit der Minute. In der Leiste steht Kalender ganz.
+
+App-Code und Sideload **`18.25.7`** (versionCode `182507`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.6` — Flüssiger — *CODE + APK*
 
 Der Lichtfleck folgt dem Finger nicht mehr, die unscharfen Kugeln stehen still, die Milchglasflächen sind zu. Die Kartenwand misst sich nicht bei jedem Tastendruck neu. Die Uhr auf dem Plan springt nur noch alle dreißig Sekunden.

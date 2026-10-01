@@ -21,6 +21,8 @@ import {
 import type { ToolMeta } from './tools.ts'
 import { defaultEndIso, expandEvents, firstOverlap, recurLabel } from './calendar-occur.ts'
 import { shareOrDownloadIcs } from './calendar-ics.ts'
+import { parseGreeting } from './greeting.ts'
+import { isBriefAsk } from './brief-parse.ts'
 
 export { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets, normalizeCalendarSpeech } from './calendar-parse.ts'
 
@@ -324,6 +326,7 @@ export async function handleCalendar(
 function releasesRemindHold(text: string): boolean {
   const t = text.trim()
   if (!t || t.length > 400) return false
+  if (parseGreeting(t) || isBriefAsk(t)) return true
   if (/^\s*plan(?:e)?\s+das\b/i.test(t)) return true
   if (/\b(?:tischplatte|werkbank|projekttafel)\b/i.test(t)) return true
   if (/^\s*(?:lösch(?:e)?|streich(?:e)?|entfern(?:e)?|nimm\s+weg)\b/i.test(t)) return true

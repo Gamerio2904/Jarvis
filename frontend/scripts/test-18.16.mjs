@@ -35,7 +35,7 @@ const { aliasQueries, extractEntities, memberInBlob } = await import('../src/eng
 const { parseRecallIntent } = await import('../src/engine/recall-parse.ts')
 const { parseBirthdayIntent } = await import('../src/engine/birthday-parse.ts')
 const { personClusterReply, rememberPersonPin, formatBirthdayValue } = await import('../src/engine/person-cluster.ts')
-const { greetingReply } = await import('../src/engine/greeting.ts')
+const { greetingReply, parseGreeting } = await import('../src/engine/greeting.ts')
 const { expectedAgentFromCorrection, noteParseMiss, peekLastReplay, resetParseMisses } = await import(
   '../src/engine/parse-miss.ts'
 )
@@ -104,6 +104,15 @@ assert.notEqual(pickRoute('Hallo Jarvis.'), 'recall')
 assert.match(greetingReply('echo', new Date('2026-09-03T12:00:00'), 'Hallo'), /Ich höre/)
 assert.match(greetingReply('echo', new Date('2026-09-03T12:00:00'), 'Hallo', 'Timer Nudeln läuft.'), /Timer Nudeln/)
 assert.doesNotMatch(greetingReply('echo', new Date('2026-09-03T12:00:00'), 'Hallo', 'sicher gut geschlafen'), /geschlafen/)
+assert.equal(parseGreeting('Hallo Jarvis'), 'echo')
+assert.equal(parseGreeting('Hallo Ultron'), 'echo')
+const evening = new Date('2026-10-01T19:18:00')
+const stuck = 'Wann soll ich Sie erinnern? Zum Beispiel 24 Stunden davor und 2 Stunden davor —'
+const hi = greetingReply('echo', evening, 'Hallo Jarvis', stuck)
+assert.match(hi, /^Guten Abend\./)
+assert.match(hi, /Ich höre/)
+assert.doesNotMatch(hi, /erinnern/)
+assert.match(greetingReply('echo', evening, 'Hallo Jarvis', 'Nächste Erinnerung: Zahnarzt.'), /Zahnarzt/)
 
 resetParseMisses()
 noteParseMiss('acht minuten nudeln')

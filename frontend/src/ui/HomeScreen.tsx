@@ -130,8 +130,24 @@ export const HomeScreen = memo(function HomeScreen({
   const [scan, setScan] = useState(() => scanPhase())
   const [frames, setFrames] = useState(() => draftFramesOpen())
   useEffect(() => {
-    const id = window.setInterval(() => setNow(new Date()), 15_000)
-    return () => window.clearInterval(id)
+    let timer = 0
+    const tick = () => {
+      const now = new Date()
+      setNow(now)
+      const wait = 60_000 - (now.getSeconds() * 1000 + now.getMilliseconds())
+      timer = window.setTimeout(tick, Math.max(250, wait))
+    }
+    const onVis = () => {
+      if (document.hidden) return
+      window.clearTimeout(timer)
+      tick()
+    }
+    tick()
+    document.addEventListener('visibilitychange', onVis)
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener('visibilitychange', onVis)
+    }
   }, [])
   useEffect(() => {
     const on = () => {
