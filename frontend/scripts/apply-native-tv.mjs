@@ -217,7 +217,7 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
         <receiver
             android:name="app.jarvis.notify.JarvisGlanceWidget"
             android:exported="true"
-            android:label="Jarvis">
+            android:label="Ultron">
             <!--
               TOGGLE_VOICE stand hier mit im Filter. Der Empfänger muss für
               APPWIDGET_UPDATE exportiert sein, damit war die eigene Schaltaktion
@@ -283,7 +283,7 @@ if (!manifest.includes('app.jarvis.notify.JarvisInboxService')) {
     `        <service
             android:name="app.jarvis.notify.JarvisInboxService"
             android:exported="true"
-            android:label="Jarvis Meldungen"
+            android:label="Ultron Meldungen"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />

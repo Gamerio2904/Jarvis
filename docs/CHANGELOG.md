@@ -5,6 +5,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.7` — Brett, Icon, Scan — *CODE*
+
+Das Schachbrett im Chat ist ein Brett mit Figuren, kein Karo in Briefmarkengröße. Das Launcher-Bild ist das rote Auge, kein J. „Beende den Scan“, „Bennede den Scan“ und „Scan beenden“ beenden den Scan, und auf der Kamera liegt derselbe Knopf. „Den Raum scannen“ startet ihn.
+
 ### `18.24.6` — Raum- und Objekt-Scan — *CODE*
 
 „Scanne den Raum“ und „Scanne den Apfel“ öffnen die Kamera auf der Tischplatte. „Beende den Scan“ legt ein Tiefennetz auf den Tisch, wenn das Gerät Tiefenwerte liefert. Ein Finger dreht, zwei schieben, Ziehen zoomt. Ohne Tiefe bleibt das Modell aus. „Entferne alles aus dem Raum“ und „Tausche Bett mit Schreibtisch“ greifen nur, wenn die Klassen wirklich da sind.

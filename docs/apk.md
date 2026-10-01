@@ -1,6 +1,6 @@
-# Android-APK — App-Code `18.24.6`
+# Android-APK — App-Code `18.24.7`
 
-App-Code und Sideload **`18.24.6`** (versionCode `182406`):
+App-Code und Sideload **`18.24.7`** (versionCode `182407`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Testsätze ab Hausstand-Code: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md). Portfolio: [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).

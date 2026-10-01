@@ -1,10 +1,24 @@
-const GLYPH: Record<string, string> = {
-  k: '♚',
-  q: '♛',
-  r: '♜',
-  b: '♝',
-  n: '♞',
-  p: '♟',
+/** Eigene Silhouetten. Die Systemschrift auf dem Tablet hat die Schachzeichen oft nicht, dann bleibt nur das Karo. */
+function Piece({ code }: { code: string }) {
+  const white = code === code.toUpperCase()
+  const fill = white ? '#f4f1ea' : '#12160f'
+  const stroke = white ? '#12160f' : '#f4f1ea'
+  const kind = code.toLowerCase()
+  return (
+    <svg className="chess-glyph" viewBox="0 0 40 40" aria-hidden>
+      <g fill={fill} stroke={stroke} strokeWidth="1.4" strokeLinejoin="round">
+        {kind === 'p' ? <circle cx="20" cy="16" r="6" /> : null}
+        {kind === 'r' ? <path d="M10 12h4v4h3v-4h6v4h3v-4h4v16H10z" /> : null}
+        {kind === 'n' ? <path d="M12 28c2-10 4-14 10-16 2 4 1 6-1 8 4 0 8 2 8 6H14c0-2 2-4 4-4-3 1-5 3-6 6z" /> : null}
+        {kind === 'b' ? <path d="M20 8c5 6 7 10 7 14a7 7 0 0 1-14 0c0-4 2-8 7-14z" /> : null}
+        {kind === 'q' ? <path d="M8 28l3-14 5 8 4-12 4 12 5-8 3 14z" /> : null}
+        {kind === 'k' ? (
+          <path d="M18 8h4v4h4v4h-4v4h-4v-4h-4v-4h4zM12 24h16l-2 6H14z" />
+        ) : null}
+        <path d="M11 32h18v3H11z" />
+      </g>
+    </svg>
+  )
 }
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -50,7 +64,7 @@ export function ChessBoard({
           ]
             .filter(Boolean)
             .join(' ')
-          const inner = p ? GLYPH[p.toLowerCase()] || p : ''
+          const inner = p ? <Piece code={p} /> : null
           if (onSquare) {
             return (
               <button

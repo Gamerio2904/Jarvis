@@ -1,6 +1,6 @@
 # TEST 18.24.6 — Raum- und Objekt-Scan
 
-Sideload **`18.24.6`** (versionCode `182406`):
+Sideload **`18.24.7`** (versionCode `182407`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat. Tischplatte an.
@@ -28,6 +28,13 @@ Beende den Scan
 
 Mit Tiefenwerten: `Raum liegt auf dem Tisch. Ein Finger dreht, zwei schieben, Ziehen zoomt.`
 Ohne Tiefenwerte: `Keine Tiefenwerte auf diesem Gerät. Kein Modell.`
+Dieselbe Wirkung hat der Knopf `Beende den Scan` auf der Kamera, und die Sätze `Bennede den Scan` und `Scan beenden`.
+
+```
+den Raum scannen
+```
+
+Derselbe Start wie `Scanne den Raum`.
 
 ## 2. Objekt
 

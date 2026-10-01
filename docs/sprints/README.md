@@ -406,7 +406,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 422 | [`sprint-422.md`](./sprint-422.md) | `18.24.0` | Portfolio im Hausstand | **CODE** Must |
 | 423 | [`sprint-423.md`](./sprint-423.md) | `18.24.0` | Gold, Testkarten | **CODE** Must |
 
-**Aktuell:** App-Code **`18.24.6`**, versionCode `182406`. Sideload **`18.24.6`**. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). 398–403 **CODE** ([`93-next.md`](../93-next.md)), 404–409 **CODE** ([`94-next.md`](../94-next.md)). 410–416 **CODE** ([`95-next.md`](../95-next.md)). 417–423 **CODE** ([`96-next.md`](../96-next.md)). Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
+**Aktuell:** App-Code **`18.24.7`**, versionCode `182407`. Sideload **`18.24.7`**. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). 398–403 **CODE** ([`93-next.md`](../93-next.md)), 404–409 **CODE** ([`94-next.md`](../94-next.md)). 410–416 **CODE** ([`95-next.md`](../95-next.md)). 417–423 **CODE** ([`96-next.md`](../96-next.md)). Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

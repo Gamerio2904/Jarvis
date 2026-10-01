@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent } from 'react'
 import {
+  applyScan,
   emptyPose,
   loadScan,
   noteDepth,
@@ -84,10 +85,12 @@ export function ScanStage({ phase }: { phase: ScanState['phase'] }) {
         return
       }
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: { facingMode: { ideal: 'environment' } },
-        })
+        const videoConstraints = { facingMode: { ideal: 'environment' } }
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraints })
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+        }
         if (dead) {
           stream.getTracks().forEach((t) => t.stop())
           return
@@ -216,6 +219,9 @@ export function ScanStage({ phase }: { phase: ScanState['phase'] }) {
       <div className="scan-live" aria-label="Scan">
         <video ref={videoRef} playsInline muted autoPlay />
         <p className="scan-live-line">{cam || `${scan.name || 'Scan'}. Sag Beende den Scan.`}</p>
+        <button type="button" className="scan-end" onClick={() => applyScan({ kind: 'scan', op: 'end' })}>
+          Beende den Scan
+        </button>
       </div>
     )
   }
