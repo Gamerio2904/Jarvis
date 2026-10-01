@@ -161,6 +161,16 @@ const icsOnly = asBackup({
 assert.ok(icsOnly?.events.some((e) => e.title === 'Hausstand-Zahnarzt'))
 const choice = parseImportPayload(eventsToIcs([ev]), 'kalender.ics')
 assert.equal(choice?.kind, 'ics')
+const hausFile = JSON.stringify(snap)
+assert.ok(looksLikeIcs(hausFile), 'der Kalender steckt als Text in der Hausstand-Datei')
+const hausChoice = parseImportPayload(hausFile, 'jarvis-haus-20261001.json')
+assert.equal(hausChoice?.kind, 'haus')
+if (hausChoice?.kind === 'haus') {
+  const view = previewBackup(hausChoice.data)
+  assert.ok(view.keys >= 1, 'Keys aus der Datei')
+  assert.ok(view.events >= 1, 'Termine aus der Datei')
+  assert.ok(hausChoice.data.settings.groq_api_key === 'g-test')
+}
 
 await deleteEvent(ev.id)
 await applyBackup({

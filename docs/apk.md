@@ -1,6 +1,6 @@
-# Android-APK — App-Code `18.24.0`
+# Android-APK — App-Code `18.24.1`
 
-App-Code und Sideload **`18.24.0`** (versionCode `182400`):
+App-Code und Sideload **`18.24.1`** (versionCode `182401`):
 https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
 
 `main` behält die Datei **`18.23.12`**, bis dieser Stand dort liegt.

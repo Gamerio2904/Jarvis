@@ -362,7 +362,17 @@ export async function applyBackup(data: HausBackup): Promise<string> {
 export type ImportChoice = { kind: 'haus'; data: HausBackup } | { kind: 'ics'; events: CalendarEvent[] }
 
 export function parseImportPayload(raw: string, filename = ''): ImportChoice | null {
-  const text = String(raw || '')
+  const text = String(raw || '').trim()
+  if (!text) return null
+  const namedJson = /\.json$/i.test(filename) || text.startsWith('{')
+  if (namedJson) {
+    try {
+      const data = asBackup(JSON.parse(text) as unknown)
+      if (data) return { kind: 'haus', data }
+    } catch {
+      /* keine JSON-Datei, dann ICS */
+    }
+  }
   if (looksLikeIcs(text) || /\.ics$/i.test(filename)) {
     return { kind: 'ics', events: icsToEvents(text) }
   }

@@ -16,6 +16,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     title: '18.23 Ablauf',
     items: [
       { label: 'Ablauf', text: 'Plane das: Trag morgen 9 Uhr Zahnarzt ein, stell einen Wecker auf 8 und such Open Source zu Tic-Tac-Toe', expect: { tool: 'idea' } },
+      { label: 'Zahnarzt ein', text: 'Plane das: Trag morgen 9 Uhr Zahnarzt ein', expect: { tool: 'idea' } },
       { label: 'Plane das', text: 'Plane das', expect: { tool: 'idea' } },
       { label: 'Wecker ändern', text: 'Ändere den Wecker: 7:30', expect: { tool: 'idea' } },
       { label: 'Rest so', text: 'Wecker auf 7:30, Rest so', expect: { tool: 'idea' } },

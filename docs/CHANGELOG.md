@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.1` — Hausstand kommt an — *CODE*
+
+Eine Hausstand-Datei mit Terminen wurde beim Hochladen als leerer Kalender gelesen. Die Vorschau zeigte `0 Keys`. Jetzt bleibt sie der Hausstand: Keys, Nummern, Erinnerungen, Termine und Ideen.
+
+App-Code und Sideload **`18.24.1`** (versionCode `182401`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/portfolio-plan-cbd1/releases/Jarvis.apk
+
 ### `18.24.0` — Portfolio auf dem Hauptbildschirm — *CODE*
 
 `Go` legt das live Skript ins Portfolio, und zwar die Idee auf der Tafel, nicht die neueste. Der Hauptbildschirm zeigt die Karten mit Shredder. Ein Tipp oder `Zeig Projekt …` öffnet die Dateien. Ziehen in den Schlitz sagt, dass die Karte im Archiv liegt. `Beispiel zu …` legt ein Bild unter `portfolio/<slug>/beispiele/`. Ein https-Bild bleibt, wenn es nicht verkleinert werden kann. Leere Sprintziele bleiben leer. Der Hausstand enthält die Zeilen. Kein neues Bildmodell.

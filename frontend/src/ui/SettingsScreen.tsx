@@ -2530,7 +2530,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               {backupPreview?.ok ? (
                 <p className="settings-hint">
                   Vorschau: {backupPreview.keys} Keys, {backupPreview.contacts} Nummern, {backupPreview.reminders}{' '}
-                  Erinnerungen, {backupPreview.events} Termine
+                  Erinnerungen, {backupPreview.events} Termine, {backupPreview.ideas} Ideen
                   {backupPreview.chats ? `, ${backupPreview.chats} Chats` : ''}.
                 </p>
               ) : null}
