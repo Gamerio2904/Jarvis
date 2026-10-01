@@ -45,7 +45,7 @@ export async function handleDigest(
       lastTool: 'digest',
     }
   }
-  const blob = [work && `Arbeitsgedächtnis:\n${work}`, slice.map((m) => `${m.role === 'assistant' ? 'Jarvis' : 'Sie'}: ${m.content}`).join('\n')]
+  const blob = [work && `Arbeitsgedächtnis:\n${work}`, slice.map((m) => `${m.role === 'assistant' ? 'Ultron' : 'Sie'}: ${m.content}`).join('\n')]
     .filter(Boolean)
     .join('\n\n')
   let line = ''

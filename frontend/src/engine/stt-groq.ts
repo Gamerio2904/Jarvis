@@ -6,7 +6,7 @@ import { turnLooksComplete } from './turn-detect.ts'
 export const GROQ_STT_MODEL = 'whisper-large-v3-turbo'
 export const GROQ_STT_TIMEOUT_MS = 1500
 export const WHISPER_VOCAB =
-  'Fernseher Watchliste Körper Lage Timer Kalender Wetter Steckdose Taschenlampe Overlay Jarvis Friday Fahrmodus'
+  'Fernseher Watchliste Körper Lage Timer Kalender Wetter Steckdose Taschenlampe Overlay Ultron Freitag Fahrmodus'
 
 export type GroqSttNeed = {
   groqReady: boolean

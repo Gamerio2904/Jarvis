@@ -16,7 +16,7 @@ const SCOPES = [
 
 const VERIFIER_KEY = 'jarvis_spotify_verifier'
 const SDK_SRC = 'https://sdk.scdn.co/spotify-player.js'
-const PLAYER_NAME = 'Jarvis'
+const PLAYER_NAME = 'Ultron'
 
 export type SpotifyTrack = {
   uri: string
@@ -279,7 +279,7 @@ function playPreview(url: string, name: string, artist: string, art?: string): s
   preview.play().catch(() => undefined)
   lastNow = { name, artist, playing: true, source: 'preview', art }
   emit()
-  return `Vorschau: ${name} — ${artist}. Volle Titel in Jarvis brauchen Spotify Premium.`
+  return `Vorschau: ${name} — ${artist}. Volle Titel in Ultron brauchen Spotify Premium.`
 }
 
 function loadSdk(): Promise<boolean> {

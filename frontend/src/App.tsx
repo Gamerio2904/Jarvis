@@ -776,8 +776,8 @@ function App() {
       const s = Math.max(1, Math.round((Date.now() - started) / 1000))
       setStatusNote(
         cloud
-          ? `Jarvis denkt… ${s}s`
-          : `Jarvis denkt… ${s}s — erstes Wort kann auf dem Handy dauern.`,
+          ? `Ultron denkt… ${s}s`
+          : `Ultron denkt… ${s}s — erstes Wort kann auf dem Handy dauern.`,
       )
     }, 1000)
     return () => window.clearInterval(id)
@@ -1169,7 +1169,7 @@ function App() {
 
   async function onClearMemory() {
     if (memoryBusy) return
-    const ok = window.confirm('Alles löschen, was Jarvis über Sie weiß?')
+    const ok = window.confirm('Alles löschen, was Ultron über Sie weiß?')
     if (!ok) return
     setMemoryBusy(true)
     try {
@@ -1242,7 +1242,7 @@ function App() {
     const body = [
       title,
       '',
-      ...rows.map((m) => `${m.role === 'user' ? 'Sie' : 'Jarvis'}: ${m.content}`),
+      ...rows.map((m) => `${m.role === 'user' ? 'Sie' : 'Ultron'}: ${m.content}`),
     ].join('\n')
     const slug = title
       .toLowerCase()
@@ -1292,7 +1292,7 @@ function App() {
     }
     setError(null)
     setLastFailed(null)
-    if (source !== 'debug' || conversationHint === activeIdRef.current) setStatusNote('Jarvis denkt…')
+    if (source !== 'debug' || conversationHint === activeIdRef.current) setStatusNote('Ultron denkt…')
     setStreamingText('')
     setStreamResearch(null)
     stickToBottomRef.current = true
@@ -1709,7 +1709,7 @@ function App() {
   }
 
   const activeTitle =
-    conversations.find((c) => c.id === activeId)?.title ?? 'Jarvis'
+    conversations.find((c) => c.id === activeId)?.title ?? 'Ultron'
 
   const healthOk = Boolean(health?.ok)
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
@@ -2007,7 +2007,7 @@ function App() {
         <div className="brand">
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div className="brand-copy">
-            <h1>Jarvis</h1>
+            <h1>Ultron</h1>
             <p>Handy · v{APP_VERSION}</p>
           </div>
           <button
@@ -2198,7 +2198,7 @@ function App() {
         ) : null}
         {homeOpen && !driveOpen && !chessOpen ? (
           <HomeScreen
-            face={liveHud.face === 'friday' ? 'friday' : 'jarvis'}
+            face="ultron"
             onOpen={launchHomeApp}
             tischplatteOn={Boolean(liveHud.tischplatte_on)}
             view={liveHud.tischplatte_view || 'sprints'}
@@ -2328,7 +2328,7 @@ function App() {
                   <i />
                   <i />
                 </div>
-                <h3>{liveHud.face === 'friday' ? 'Friday' : 'Jarvis'}</h3>
+                <h3>Ultron</h3>
                 <p>Ein Feld antippen — oder selbst schreiben. {geminiOn && !(settings?.gemini_banner_dismissed || liveHud.gemini_banner_dismissed) ? 'Gemini (Google), nicht privat.' : geminiOn ? 'Gemini ist an.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
@@ -2342,8 +2342,8 @@ function App() {
               return (
                 <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
                   {m.role === 'assistant' ? (
-                    <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
-                      {liveHud.face === 'friday' ? 'F' : 'J'}
+                    <div className="avatar jarvis">
+                      U
                     </div>
                   ) : null}
                   <div className="bubble">
@@ -2372,8 +2372,8 @@ function App() {
 
             {streamingText !== null ? (
               <div className="row assistant streaming">
-                <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
-                  {liveHud.face === 'friday' ? 'F' : 'J'}
+                <div className="avatar jarvis">
+                  U
                 </div>
                 <div className="bubble">
                   {streamingText ? (
@@ -2437,7 +2437,7 @@ function App() {
               onKeyDown={onKeyDown}
               onFocus={() => setComposerFocused(true)}
               onBlur={() => setComposerFocused(false)}
-              placeholder="Nachricht an Jarvis…"
+              placeholder="Nachricht an Ultron…"
               rows={1}
               disabled={busy}
               lang="de"
@@ -2638,7 +2638,7 @@ function App() {
               draft={draft}
               setDraft={setDraft}
               onSend={() => void onSend()}
-              face={liveHud.face === 'friday' ? 'friday' : 'jarvis'}
+              face="ultron"
             />
           ) : null}
           {homeOpen && !voiceOpen ? (

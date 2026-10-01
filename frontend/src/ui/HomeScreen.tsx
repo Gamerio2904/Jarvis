@@ -114,7 +114,7 @@ export function HomeScreen({
   seed,
   planPhase,
 }: {
-  face: 'jarvis' | 'friday'
+  face: 'ultron'
   onOpen: (id: HomeAppId) => void
   tischplatteOn: boolean
   view: string
@@ -134,6 +134,7 @@ export function HomeScreen({
       className={`home-screen${tischplatteOn ? ' is-tischplatte' : ''}`}
       aria-label="Homescreen"
       data-home-wall={tischplatteOn ? 'board' : 'launcher'}
+      data-voice={face}
       data-motif={theme.motif}
       style={{
         ['--board-accent' as string]: theme.accent,
@@ -150,7 +151,7 @@ export function HomeScreen({
       <header className="home-clock">
         <p className="home-clock-time">{clockLabel(now)}</p>
         <p className="home-clock-day">{weekdayLabel(now)}</p>
-        <p className="home-clock-face">{face === 'friday' ? 'Friday' : 'Jarvis'}</p>
+        <p className="home-clock-face">Ultron</p>
       </header>
       {tischplatteOn && planPhase === 'live' ? <Workbench view={view} focus={focus} /> : null}
       {tischplatteOn && planPhase !== 'live' ? <PortfolioStage /> : null}

@@ -156,7 +156,7 @@ export async function getSettings(): Promise<Settings> {
     ...s,
     owner_token_set: false,
     easter_eggs: [
-      { command: '/hilfe', description: 'Kurz was Jarvis kann', example: '/hilfe' },
+      { command: '/hilfe', description: 'Kurz was Ultron kann', example: '/hilfe' },
     ],
     tv_status: tvStatusFromSettings(),
   }

@@ -262,7 +262,7 @@ public class JarvisHomePlugin extends Plugin {
             for (int i = 0x04; i < 0x14; i++) payload[i] = 0x31;
             payload[0x1e] = 0x01;
             payload[0x2d] = 0x01;
-            byte[] name = "Jarvis".getBytes(StandardCharsets.US_ASCII);
+            byte[] name = "Ultron".getBytes(StandardCharsets.US_ASCII);
             System.arraycopy(name, 0, payload, 0x30, name.length);
             byte[] resp = sendPacket(0x65, payload);
             if (resp == null || resp.length < 0x38 + 16) return false;

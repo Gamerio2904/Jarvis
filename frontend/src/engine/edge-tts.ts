@@ -30,9 +30,8 @@ const nativeEdge = Capacitor.isNativePlatform() ? registerPlugin<NativeEdge>('Ja
 
 /** Groq speech is English/Arabic PlayAI — not wired as German mouth. */
 
-export function edgeVoiceName(face?: string): string {
-  const who = (face || loadSettings().face || 'jarvis').toLowerCase()
-  return who === 'friday' ? EDGE_VOICE_FRIDAY : EDGE_VOICE_JARVIS
+export function edgeVoiceName(_face?: string): string {
+  return EDGE_VOICE_JARVIS
 }
 
 export function edgeFirstTimeoutMs(inDrive = loadSettings().drive_mode): number {

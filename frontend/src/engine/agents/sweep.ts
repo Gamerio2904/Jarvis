@@ -67,6 +67,6 @@ export const AGENT_SWEEP: Record<string, string> = {
   outlook: 'Was ist die Weltlage?',
   taxi: 'bestell ein Taxi',
   backup: 'Hausstand exportieren',
-  face: 'Friday',
+  face: 'Ultron',
   app: 'Zeig Chat',
 }

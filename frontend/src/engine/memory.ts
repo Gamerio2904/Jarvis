@@ -273,11 +273,11 @@ export async function handleMemory(conversationId: string, text: string): Promis
     const items = await listMemory()
     const name = items.find((m) => m.key === 'name')
     if (name) {
-      return { handled: true, reply: `Jarvis. Sie heißen ${name.value}. Für Sie, jederzeit.`, lastTool: 'memory' }
+      return { handled: true, reply: `Ultron. Sie heißen ${name.value}. Für Sie, jederzeit.`, lastTool: 'memory' }
     }
     return {
       handled: true,
-      reply: 'Jarvis. Immer da. Einen Namen von Ihnen habe ich noch nicht.',
+      reply: 'Ultron. Immer da. Einen Namen von Ihnen habe ich noch nicht.',
       lastTool: 'memory',
     }
   }

@@ -47,7 +47,7 @@ function alarmBlock(minutes: number[]): string[] {
   const out: string[] = []
   for (const m of minutes) {
     const trig = m <= 0 ? 'PT0S' : `-PT${m}M`
-    out.push('BEGIN:VALARM', `TRIGGER:${trig}`, 'ACTION:DISPLAY', 'DESCRIPTION:Jarvis · Termin', 'END:VALARM')
+    out.push('BEGIN:VALARM', `TRIGGER:${trig}`, 'ACTION:DISPLAY', 'DESCRIPTION:Ultron · Termin', 'END:VALARM')
   }
   return out
 }

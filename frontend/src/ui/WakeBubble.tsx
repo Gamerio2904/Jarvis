@@ -10,10 +10,10 @@ export function WakeBubble({
       type="button"
       className={`wake-bubble ${listening ? 'listening' : ''}`}
       onClick={onTap}
-      aria-label={listening ? 'Auf den Namen. Antippen zum Sprechen.' : 'Jarvis hören'}
+      aria-label={listening ? 'Auf den Namen. Antippen zum Sprechen.' : 'Ultron hören'}
     >
       <span className="wake-orb" />
-      <span className="wake-label">{listening ? 'Auf den Namen' : 'Jarvis'}</span>
+      <span className="wake-label">{listening ? 'Auf den Namen' : 'Ultron'}</span>
     </button>
   )
 }

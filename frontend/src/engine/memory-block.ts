@@ -138,5 +138,5 @@ export function memoryBlock(
   if (!use.length) {
     return `Langzeitgedächtnis (lokal und Cloud gleich):\n${nameRule}\nKeine weiteren Einträge passen zur aktuellen Frage. Nichts erfinden.`
   }
-  return `Langzeitgedächtnis (lokal und Cloud gleich):\n${use.join('\n')}\n${nameRule}\nNutzen Sie nur Fakten aus dieser Liste. Recherche- und Wissen-Zeilen nur mit Quelle. Widerspruch („kein … mehr“) heißt: der Wert ist weg — nicht wieder einstreuen. Keinen Extra-Befehl abwarten. Nichts erfinden, das nicht in der Liste steht. Ton bleibt Jarvis: ruhig, Understatement.`
+  return `Langzeitgedächtnis (lokal und Cloud gleich):\n${use.join('\n')}\n${nameRule}\nNutzen Sie nur Fakten aus dieser Liste. Recherche- und Wissen-Zeilen nur mit Quelle. Widerspruch („kein … mehr“) heißt: der Wert ist weg — nicht wieder einstreuen. Keinen Extra-Befehl abwarten. Nichts erfinden, das nicht in der Liste steht. Ton bleibt Ultron: ruhig, Understatement.`
 }

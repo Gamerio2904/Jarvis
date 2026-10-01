@@ -996,7 +996,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Auto: Microsoft Edge Neural (Conrad/Katja, frei, kein Extra-Key) rennt gegen Gemini Algieba. Wer zuerst
+                Auto: Microsoft Edge Neural (Conrad, frei, kein Extra-Key) rennt gegen Gemini Algieba. Wer zuerst
                 fertig ist, bleibt die ganze Antwort — kein Mix. Groq-TTS spricht kein Deutsch, Groq bleibt Hirn-Backup.
                 System-TTS nur wenn beide Neural-Wege fehlen. Navi-Ansagen bleiben Native. Kein ElevenLabs, kein Stimmklon.
               </p>
@@ -1013,25 +1013,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </select>
               </label>
               <label className="settings-field">
-                <span>Jarvis-Stimme</span>
+                <span>Ultron-Stimme</span>
                 <select
                   value={s?.gemini_tts_voice || s?.tts_voice_jarvis || 'Algieba'}
                   disabled={busy}
                   onChange={(e) => void p.patchSetting({ gemini_tts_voice: e.target.value, tts_voice_jarvis: e.target.value })}
-                >
-                  {TTS_VOICES.map((v) => (
-                    <option key={v} value={v}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="settings-field">
-                <span>Friday-Stimme</span>
-                <select
-                  value={s?.tts_voice_friday || 'Kore'}
-                  disabled={busy}
-                  onChange={(e) => void p.patchSetting({ tts_voice_friday: e.target.value })}
                 >
                   {TTS_VOICES.map((v) => (
                     <option key={v} value={v}>
@@ -1055,10 +1041,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => p.onWakeWord(e.target.checked)}
                 />
-                <span>Auf „Jarvis“ oder „Friday“ hören</span>
+                <span>Auf „Ultron“ hören</span>
               </label>
               <p className="settings-hint">
-                Sagen Sie laut „Jarvis“. Es muss eine Meldung „Jarvis hört auf den Namen“ oben
+                Sagen Sie laut „Ultron“. Es muss eine Meldung „Ultron hört auf den Namen“ oben
                 stehen. Bildschirm aus und andere Apps: nur der Name. Beenden: Schalter oder die
                 Meldung. Akku: nicht optimieren.
               </p>
@@ -1146,24 +1132,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 />
               </label>
               <p className="settings-hint">
-                Jarvis ruft sich nicht selbst an. Zweite Nummer nur wenn sie sich von diesem Handy unterscheidet.
+                Ultron ruft sich nicht selbst an. Zweite Nummer nur wenn sie sich von diesem Handy unterscheidet.
               </p>
               {p.shortcutMsg ? <p className="settings-hint">{p.shortcutMsg}</p> : null}
-              <label className="settings-field">
-                <span>Gesicht</span>
-                <select
-                  value={s?.face || 'jarvis'}
-                  disabled={busy}
-                  onChange={(e) => void p.patchSetting({ face: e.target.value })}
-                >
-                  <option value="jarvis">Jarvis — männlich, Default</option>
-                  <option value="friday">Friday — weiblich, auf Zuruf</option>
-                </select>
-              </label>
-              <p className="settings-hint">
-                Ein Hirn, zwei Gesichter. Friday übernimmt nur nach Name oder diesem Schalter. Wake „Friday“, nicht
-                „Freitag“. Native-Fallback: eine de-DE-Stimme, wenn das Gerät kein Gender hat.
-              </p>
               <label className="settings-field">
                 <span>Am Steuer vorlesen</span>
                 <select
@@ -1286,7 +1257,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </select>
               </label>
               <p className="settings-hint">
-                Jarvis bestellt und bezahlt nicht. Default ist Anruf. Deep-Link nur öffnen.
+                Ultron bestellt und bezahlt nicht. Default ist Anruf. Deep-Link nur öffnen.
               </p>
               <div className="settings-actions">
                 <button
@@ -1327,7 +1298,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </div>
               {locMsg ? <p className="settings-hint">{locMsg}</p> : null}
               <p className="settings-hint">
-                Jarvis öffnet die Android-Abfrage oder die App-Einstellungen. Den Schalter legt er nicht selbst um.
+                Ultron öffnet die Android-Abfrage oder die App-Einstellungen. Den Schalter legt er nicht selbst um.
               </p>
             </section>
           ) : null}
@@ -1496,7 +1467,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Der Erlauben-Dialog am Fire TV kommt nur, wenn ADB per WLAN (Port 5555) wirklich offen ist.
                 2. Generation (Box, nicht Stick): oft nur USB hinten — dann erscheint nichts. IP unter Info →
                 Netzwerk. Entwickleroptionen: ADB-Debugging, falls vorhanden „ADB über Netzwerk“. Ohne WLAN-ADB
-                schaltet Jarvis weiter HDMI am Samsung (Standard 3) und Lautstärke.
+                schaltet Ultron weiter HDMI am Samsung (Standard 3) und Lautstärke.
               </p>
               <label className="settings-field">
                 <span>HDMI des Sticks</span>
@@ -1595,7 +1566,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <strong>192.168</strong> oder <strong>10.</strong> eintippen (nicht 172/WSL).
               </p>
               <p className="settings-hint">
-                Gleiches WLAN, kein Gäste-Netz, kein VPN. QR nur aus dem grauen Jarvis-PC-Fenster. Firewall im
+                Gleiches WLAN, kein Gäste-Netz, kein VPN. QR nur aus dem grauen Ultron-PC-Fenster. Firewall im
                 PC-Fenster erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja. „PC live“ zeigt
                 LAN-Einzelbilder — WebRTC nur wenn ein Peer steht.
               </p>
@@ -1817,7 +1788,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-lead">
                 Lokal im Hausnetz. IP wie 192.168.178.40 — nicht die Internet-Adresse 89.… Shelly und Tasmota
                 brauchen nur die IP. Smart Life / Tuya: Device-ID und Local Key, dann LAN — keine Tuya-Cloud in
-                Jarvis. Tapo (TP-Link) noch nicht.
+                Ultron. Tapo (TP-Link) noch nicht.
               </p>
               <label className="settings-toggle">
                 <span>Steckdosen an</span>
@@ -2079,7 +2050,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Über eine Broadlink-Brücke (RM4 Pro) im WLAN. Original-Fernbedienung lernen. Kein Amazon-Konto.
               </p>
               <p className="settings-hint">
-                Der Ventilator selbst spricht oft nur Funk. Jarvis sendet die gelernten Tasten lokal. Ohne Brücke
+                Der Ventilator selbst spricht oft nur Funk. Ultron sendet die gelernten Tasten lokal. Ohne Brücke
                 keine Stufen.
               </p>
               <label className="settings-toggle">
@@ -2206,7 +2177,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Spotify im Fahrmodus</h3>
               <p className="settings-lead">
-                Interner Player in Jarvis (Web Playback). Client-ID liegt unter API-Keys.
+                Interner Player in Ultron (Web Playback). Client-ID liegt unter API-Keys.
               </p>
               <p className="settings-hint">
                 developer.spotify.com → App anlegen → Redirect URI exakt:{' '}
@@ -2215,8 +2186,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </p>
               <p className="settings-hint">
                 {spotifyLoggedIn(s || undefined)
-                  ? 'Angemeldet. Im Fahrmodus spielt Jarvis selbst (Premium). „Spiel …“, Pause, weiter.'
-                  : 'Anmelden. Premium = volle Titel in Jarvis. Ohne Premium nur 30s-Vorschau.'}
+                  ? 'Angemeldet. Im Fahrmodus spielt Ultron selbst (Premium). „Spiel …“, Pause, weiter.'
+                  : 'Anmelden. Premium = volle Titel in Ultron. Ohne Premium nur 30s-Vorschau.'}
               </p>
               <div className="settings-actions">
                 <button type="button" className="ghost-btn" onClick={() => p.onTopic('keys')}>
@@ -2285,7 +2256,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     disabled={busy}
                     onChange={(e) => void p.patchSetting({ delight_moments: e.target.checked })}
                   />
-                  <span>Jarvis-Momente</span>
+                  <span>Ultron-Momente</span>
                 </label>
                 <label className="settings-toggle">
                   <input
@@ -2341,7 +2312,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <span>Websuche (braucht Gemini)</span>
               </label>
               <p className="settings-hint">
-                Mit Gemini sucht Jarvis von selbst nach aktuellen Zahlen, auch ohne das Wort suche. Fehlt eine
+                Mit Gemini sucht Ultron von selbst nach aktuellen Zahlen, auch ohne das Wort suche. Fehlt eine
                 Antwort, geht er nochmal ins Netz. Aus zählt vor allem ohne Gemini.
               </p>
               <label className="settings-toggle">
@@ -2398,7 +2369,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <h3>Weltlage</h3>
               <p className="settings-hint">
                 Ausblick aus öffentlichen Meldungen und Serien. Kein Insider, kein Orakel, kein Kauf-Rat. Ohne
-                FRED-Key keine Rohöl-Zahl — Jarvis erfindet keine.
+                FRED-Key keine Rohöl-Zahl — Ultron erfindet keine.
               </p>
               <label className="settings-toggle">
                 <input
@@ -2423,7 +2394,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <span>Unterbrechen bei neuer Lage</span>
               </label>
               <p className="settings-hint">Nur wenn Watch an. Nur bei neuer Meldung gegenüber dem letzten Stand.</p>
-              <p className="settings-hint">Rohöl-Zahl braucht den FRED-Key unter API-Keys. Ohne Key erfindet Jarvis keinen Preis.</p>
+              <p className="settings-hint">Rohöl-Zahl braucht den FRED-Key unter API-Keys. Ohne Key erfindet Ultron keinen Preis.</p>
               <div className="settings-actions">
                 <button type="button" className="ghost-btn" onClick={() => p.onTopic('keys')}>
                   Zum FRED-Key
@@ -2495,7 +2466,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                         .then((text) => {
                           const choice = parseImportPayload(text, file.name)
                           if (!choice) {
-                            setBackupMsg('Keine Jarvis-Hausstand- oder ICS-Datei.')
+                            setBackupMsg('Keine Hausstand- oder ICS-Datei.')
                             return
                           }
                           setBackupPending(choice)
@@ -2569,7 +2540,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
           {tab === 'daten' ? (
             <section className="settings-card">
-              <h3>Was Jarvis über Sie weiß</h3>
+              <h3>Was Ultron über Sie weiß</h3>
               <div className="memory-filters" role="tablist" aria-label="Memory-Kategorien">
                 {MEM_FILTERS.map((f) => (
                   <button

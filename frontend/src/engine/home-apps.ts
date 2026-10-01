@@ -27,7 +27,7 @@ export const HOME_APPS: HomeApp[] = [
   { id: 'globe', label: 'Kugel', tint: '#6ea8ff' },
   { id: 'lage', label: 'Lage', tint: '#7d9b88' },
   { id: 'overlay', label: 'Overlay', tint: '#ff8a4c' },
-  { id: 'hirn', label: 'Gehirn', tint: '#c9a0ff' },
+  { id: 'hirn', label: 'Gehirn', tint: '#ff2a36' },
   { id: 'settings', label: 'Einstellungen', tint: '#9aa7a0' },
   { id: 'watchlist', label: 'Filme', tint: '#f15e6c' },
 ]

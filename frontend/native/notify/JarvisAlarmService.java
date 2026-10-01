@@ -102,7 +102,7 @@ public class JarvisAlarmService extends Service {
         String tone = intent.getStringExtra("tone");
         String mode = intent.getStringExtra("mode");
         String say = intent.getStringExtra("say");
-        if (title == null || title.isEmpty()) title = "Jarvis";
+        if (title == null || title.isEmpty()) title = "Ultron";
         if (body == null) body = "";
         boolean speak = JarvisNotifyPlugin.isTimerSpeak(mode, title);
         if (speak) {
@@ -229,7 +229,7 @@ public class JarvisAlarmService extends Service {
                 "Timer",
                 NotificationManager.IMPORTANCE_HIGH
         );
-        timer.setDescription("Jarvis sagt die Zeit an, ohne Klingeln");
+        timer.setDescription("Ultron sagt die Zeit an, ohne Klingeln");
         timer.setBypassDnd(true);
         timer.enableVibration(false);
         timer.enableLights(true);

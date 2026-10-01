@@ -257,7 +257,7 @@ export async function ensureModel(
       await withTimeout(
         wllama.createCompletion({
           prompt:
-            '<|im_start|>system\nDu bist Jarvis.<|im_end|>\n<|im_start|>user\nping<|im_end|>\n<|im_start|>assistant\n',
+            '<|im_start|>system\nDu bist Ultron.<|im_end|>\n<|im_start|>user\nping<|im_end|>\n<|im_start|>assistant\n',
           max_tokens: 1,
           temperature: 0,
           cache_prompt: true,

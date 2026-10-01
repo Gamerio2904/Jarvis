@@ -195,7 +195,7 @@ export function previewBackup(raw: unknown): BackupPreview {
   if (!data) {
     return {
       ok: false,
-      message: 'Keine Jarvis-Hausstand-Datei.',
+      message: 'Keine Hausstand-Datei.',
       keys: 0,
       contacts: 0,
       reminders: 0,

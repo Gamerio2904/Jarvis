@@ -6,9 +6,9 @@ import { resolveUiTheme } from '../fx/theme-transition.ts'
 export type ReplyOrbState = 'composing' | 'searching' | 'solving'
 
 const LABELS: Record<ReplyOrbState, string> = {
-  composing: 'Jarvis antwortet',
-  searching: 'Jarvis sucht',
-  solving: 'Jarvis arbeitet',
+  composing: 'Ultron antwortet',
+  searching: 'Ultron sucht',
+  solving: 'Ultron arbeitet',
 }
 
 export function ReplyOrb({

@@ -11,7 +11,7 @@ export function PcDashboard({ busy }: { busy?: boolean }) {
   const s = loadSettings()
   const [dept, setDept] = useState('werkstatt')
   if (!pcDashboardEnabled(s)) return null
-  const face = s.face === 'friday' ? 'FRIDAY' : 'JARVIS'
+  const face = 'ULTRON'
   const live = readRtcLive()
 
   return (

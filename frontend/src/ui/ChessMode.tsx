@@ -75,7 +75,7 @@ export function ChessMode({
       <header className="chess-mode-bar">
         <div>
           <h2 id="chess-title">Schach</h2>
-          <p>{turnLabel(fen)} Du Weiß, Jarvis Schwarz.</p>
+          <p>{turnLabel(fen)} Du Weiß, Ultron Schwarz.</p>
         </div>
         <div className="drive-bar-actions">
           <button type="button" className="settings-close" onClick={onClose}>
@@ -87,7 +87,7 @@ export function ChessMode({
         <ChessBoard fen={fen} selected={selected} targets={targets} onSquare={pick} />
       </div>
       <p className="chess-mode-hint">
-        Weiße Figur antippen — erlaubte Felder leuchten. Jarvis zieht danach Schwarz.
+        Weiße Figur antippen — erlaubte Felder leuchten. Ultron zieht danach Schwarz.
       </p>
       <form
         className="chess-mode-form"

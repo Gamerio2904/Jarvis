@@ -1,20 +1,20 @@
 # Jarvis PC — was Sie am Rechner tun
 
-Das Handy denkt. Der PC ist nur ein Werkzeug **oder ein Fenster**. **Das Fenster `JarvisPC.bat` muss offen bleiben**, solange Jarvis den Rechner steuern soll.
+Das Handy denkt. Der PC ist nur ein Werkzeug **oder ein Fenster**. **Die Datei `JarvisPC.bat` muss offen bleiben**, solange Ultron den Rechner steuern soll. Das Fenster heißt „Ultron PC“.
 
 | Schicht | Port | Rolle |
 |---------|------|--------|
 | **Werkzeug** | `:18790` | Screenshot, Klick, Launch. Unverändert. |
-| **Fenster** | Handy `:18791` | Verlauf lesen, Zeile senden. Knopf **Jarvis-Fenster** öffnet `jarvis-window.html`. |
+| **Fenster** | Handy `:18791` | Verlauf lesen, Zeile senden. Knopf **Ultron-Fenster** öffnet `jarvis-window.html`. |
 
 Ohne laufendes Handy-Hirn: „Handy nicht im WLAN / Presence aus“ — kein Fake-Chat. Kein zweites Gedächtnis auf Disk.
 
 ## Einmal einrichten — QR
 
-1. Im Jarvis-Ordner `desktop\JarvisPC.bat` **doppelklicken**. Ein Fenster „Jarvis PC“ bleibt stehen. Die schwarze Konsole darf zu, das **graue Fenster** nicht.
+1. Im Ordner `desktop\JarvisPC.bat` **doppelklicken**. Ein Fenster „Ultron PC“ bleibt stehen. Die schwarze Konsole darf zu, das **graue Fenster** nicht.
 2. Im grauen Fenster **QR-Code öffnen**. Es geht ein weißes Quadrat im Browser auf.
-3. Handy: Jarvis → Einstellungen → **Geräte** → **QR scannen**. Kamera auf den Code. Fertig wenn das Handy „PC-App erreicht“ sagt **und** im PC-Fenster kurz „Handy …“ / „Anfrage von …“ steht.
-4. Windows: WLAN-Profil **Privat**. Beim gelben Firewall-Hinweis **Zulassen**, oder im Jarvis-PC-Fenster **Firewall erlauben**.
+3. Handy: Ultron → Einstellungen → **Geräte** → **QR scannen**. Kamera auf den Code. Fertig wenn das Handy „PC-App erreicht“ sagt **und** im PC-Fenster kurz „Handy …“ / „Anfrage von …“ steht.
+4. Windows: WLAN-Profil **Privat**. Beim gelben Firewall-Hinweis **Zulassen**, oder im Ultron-PC-Fenster **Firewall erlauben**.
 5. Handy und PC im **gleichen WLAN**, nicht Gäste-WLAN, nicht Mobilfunk.
 
 Ohne Kamera: IP (192.168… oder 10…), Port `18790` und Token aus dem grauen Fenster von Hand eintragen, dann **PC testen**.
@@ -49,7 +49,7 @@ Dann kommt das Handy nicht durch — nicht weil die BAT „falsch ausgefüllt“
 | Gleiches Netz | PC-WLAN = Handy-WLAN, kein VPN auf einem der beiden |
 | Firewall | „Firewall erlauben“ im Fenster, oder Windows-Abfrage zulassen |
 | Port | 18790, nicht in die IP-Zeile (`192.168.0.10:18790` gehört nicht ins IP-Feld) |
-| Fenster | „Jarvis PC“ nicht minimiert-beendet; nach Ruhezustand BAT neu starten |
+| Fenster | „Ultron PC“ nicht minimiert-beendet; nach Ruhezustand BAT neu starten |
 
 Im PC-Fenster: bei einem Test muss **„Anfrage von …“** erscheinen. Bleibt dort „Warte auf das Handy“, ist IP oder Firewall falsch — Token dann egal.
 

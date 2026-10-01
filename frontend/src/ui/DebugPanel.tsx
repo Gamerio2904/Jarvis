@@ -89,7 +89,7 @@ export function DebugPanel({
       <h3>Automatischer Debug-Lauf</h3>
       <p className="settings-lead">
         Kategorien wählen, Start öffnet ein neues Gespräch und schließt die Einstellungen. Der Lauf bleibt als
-        Dock über Chat, CarPlay und Overlays sichtbar. Home: Meldung „Jarvis testet…“ hält den Lauf. App
+        Dock über Chat, CarPlay und Overlays sichtbar. Home: Meldung „Ultron testet…“ hält den Lauf. App
         schließen oder Stop in der Meldung beendet ihn. Zurück zu Tests und Download. Stop bricht zwischen den
         Turns ab. Ein einzelner Timeout zerstört nicht den Rest. Einzelne Prompts: Spur Probe.
       </p>
@@ -166,7 +166,7 @@ export function DebugPanel({
         <pre className="debug-log">
           {snap.turns
             .slice(-8)
-            .map((t) => `${t.verdict.toUpperCase()} · ${t.group} · ${t.label}\nSie: ${t.prompt}\nJarvis: ${t.reply}`)
+            .map((t) => `${t.verdict.toUpperCase()} · ${t.group} · ${t.label}\nSie: ${t.prompt}\nUltron: ${t.reply}`)
             .join('\n\n')}
         </pre>
       ) : null}

@@ -5,6 +5,27 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.24.5` — Ultron-Fläche — *CODE*
+
+Die Fläche ist neu: Chromplatten, scharfe Kanten, eine Schrift, das rote Auge nur als Licht. Start, Chat, Lage und Einstellungen sitzen auf derselben Platte. Der Senden-Knopf ist rot.
+
+App-Code und Sideload **`18.24.5`** (versionCode `182405`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
+
+### `18.24.4` — Nur Ultron — *CODE*
+
+Jarvis und Friday sind als Namen weg. Wake, Stimme, Hilfe und das Fenster heißen Ultron. Freitag und „Was steht am Friday an?“ bleiben Kalender. Die App-ID und `JarvisPC.bat` bleiben, damit das Update auf derselben App landet.
+
+App-Code und Sideload **`18.24.4`** (versionCode `182404`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
+
+### `18.24.3` — Ultron in der Mitte — *CODE*
+
+Jarvis und Friday sind an der Oberfläche ein Hirn. Die Mitte der Agentenkarte ist Ultron: Chromscheibe, rotes Auge, die Äste bleiben antippbar. Stahl und Rot statt Grün.
+
+App-Code und Sideload **`18.24.3`** (versionCode `182403`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/ultron-gui-cbd1/releases/Jarvis.apk
+
 ### `18.24.2` — Wege vor den Sprints — *CODE*
 
 `Plane das` schreibt zuerst die Lösungswege aus dem Satz, dann Kern, Härten und Probe. Die Anleitung kopiert den Satz nicht mehr. `wege.json` und `luecken.json` nennen Recherche, Abnahme, Risiken und Schnittstellen als offen, solange keine Quelle da ist. Die Dateiliste ist deckend. Das Cover hat einen Ring. Die Tafel ist Glas.
