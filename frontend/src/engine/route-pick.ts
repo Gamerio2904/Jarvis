@@ -3,7 +3,7 @@ import { applyConflicts } from './conflicts.ts'
 import { isFollowish, pickPolicy, withCost, withPrior, type PolicyPick } from './policy.ts'
 import type { Candidate, RouteCtx } from './route-types.ts'
 import { promoteSplitPart, splitIntents } from './split-intents.ts'
-import { frontVerb } from './verb-front.ts'
+import { looseAsk } from './work-flex.ts'
 
 export function propose(ctx: RouteCtx): Candidate[] {
   const raw: Candidate[] = []
@@ -64,9 +64,9 @@ export function decideRoute(ctx: RouteCtx): PolicyPick {
 export function decideTurn(ctx: RouteCtx): RouteDecision & { ctx: RouteCtx } {
   const first = decideRouteFromCtx(ctx)
   if (leadOf(first.pick)) return { ...first, ctx }
-  const fronted = frontVerb(ctx.text)
-  if (!fronted || fronted === ctx.text) return { ...first, ctx }
-  const next = { ...ctx, text: fronted }
+  const rewritten = looseAsk(ctx.text)
+  if (!rewritten) return { ...first, ctx }
+  const next = { ...ctx, text: rewritten }
   const retry = decideRouteFromCtx(next)
   return leadOf(retry.pick) ? { ...retry, ctx: next } : { ...first, ctx }
 }

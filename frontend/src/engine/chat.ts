@@ -9,6 +9,7 @@ import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeAllowedForRoute, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
+import { dressDocument, looseAsk, noteSequence } from './work-flex.ts'
 import { contradictionSearchAsk, rewriteFollowUp } from './last-step.ts'
 import { applyDurationCorrection } from './duration-correct.ts'
 import { parseBotAskIntent } from './bot-ask.ts'
@@ -592,6 +593,7 @@ export async function streamChat(
   openHistoryTurn(content)
 
   noteTurn('user', content)
+  noteSequence(loadSettings().last_step_tool, content)
   const userMessage = await addMessage(
     conversationId,
     'user',
@@ -639,7 +641,10 @@ export async function streamChat(
         settingsNow.last_taxi_json ||
         settingsNow.last_interrupt_json,
     )
-    const texts = queue.map((p) => rewriteFollowUp(p, settingsNow) ?? p)
+    const texts = queue.map((p) => {
+      const followed = rewriteFollowUp(p, settingsNow) ?? p
+      return looseAsk(followed) ?? followed
+    })
     const rewritten = texts[0] || content
     const botAsk = Boolean(parseBotAskIntent(content))
     const accepted = !deviceBusy && !botAsk ? acceptResearchPending(content, researchPending) : null
@@ -770,6 +775,7 @@ export async function streamChat(
           reply += teachOfferLine(ask)
           reply += await offerPendingLine()
         }
+        reply = dressDocument(content, reply)
         emitToken(handlers, reply)
         handlers.onReplace?.(reply)
         const assistant = await sayAssistant(conversationId, reply, { research })
@@ -1008,6 +1014,7 @@ export async function streamChat(
       if (offer && !/Vorschlag:/.test(final)) final = `${final.replace(/\s+$/, '')}${offer}`
       handlers.onReplace?.(final)
     }
+    final = dressDocument(content, final)
     const assistant = await sayAssistant(conversationId, final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || convAfterUser
     finishLatency()

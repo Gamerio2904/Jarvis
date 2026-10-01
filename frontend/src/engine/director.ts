@@ -18,6 +18,8 @@ import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
 import { handleIdea } from './idea.ts'
 import { missedPlanSentence } from './ablauf-parse.ts'
+import { isDeepResearch } from './research-parse.ts'
+import { documentAsk, documentWithoutResearch, replyForHabit } from './work-flex.ts'
 import { handleRmScene } from './rm-scene.ts'
 import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
@@ -250,6 +252,18 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     }
   }
 
+  const habitReply = replyForHabit(text)
+  if (habitReply) {
+    setLastUserFacts(habitReply)
+    return { hit: { reply: habitReply, lastTool: 'habit' }, userFacts: habitReply }
+  }
+  const plainDoc = documentWithoutResearch(text)
+  if (plainDoc) {
+    setLastUserFacts(plainDoc)
+    return { hit: { reply: plainDoc, lastTool: 'habit' }, userFacts: plainDoc }
+  }
+  if (documentAsk(text)?.research) return { hit: null }
+
   const t0 = performance.now()
   const { pick, candidates: raw, ctx } = decideTurn(makeDirectorCtx(conversationId, text))
   pushAgentTrace({
@@ -261,6 +275,7 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
   })
 
   if (pick.kind === 'none') {
+    if (isDeepResearch(ctx.text)) return { hit: null }
     if (missedPlanSentence(ctx.text)) {
       const reply = 'Der Satz ist nicht angekommen. Die Tischplatte ist unverändert.'
       setLastUserFacts(reply)

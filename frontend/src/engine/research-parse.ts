@@ -1,5 +1,6 @@
 import { normalizeUtterance } from './utterance.ts'
 import { decodeHtml } from './html-text.ts'
+import { documentAsk } from './work-flex.ts'
 
 export type ResearchSource = {
   title: string
@@ -30,6 +31,7 @@ const DEEP_PREFIX =
 export function isDeepResearch(text: string): boolean {
   const t = text.trim()
   if (!t || t.length > 600) return false
+  if (documentAsk(t)?.research) return true
   if (/\bdeep\s*resear+ch[e]?\b/i.test(t)) return true
   if (/\bdeep[- ]?recherche\b/i.test(t)) return true
   if (/\brecherchier(?:e|en)?\s+tief\b/i.test(t)) return true
@@ -41,6 +43,8 @@ export function isDeepResearch(text: string): boolean {
 }
 
 export function deepResearchTopic(text: string): string {
+  const doc = documentAsk(text)
+  if (doc?.topic) return doc.topic.slice(0, 160)
   let t = text.trim().replace(/[.!?]+$/g, '')
   t = t.replace(DEEP_PREFIX, '').trim()
   t = t.replace(/^tief:?\s+/i, '').trim()
@@ -279,6 +283,8 @@ export function parseEuroPrices(text: string): string[] {
 }
 
 export function researchQuery(text: string): string {
+  const doc = documentAsk(text)
+  if (doc?.topic) return doc.topic.slice(0, 160)
   const t = text.trim().replace(/[.!?]+$/g, '')
   const m =
     /^\s*(?:suche(?:\s+(?:im\s+)?(?:internet|netz|web))?(?:\s+nach)?|recherchier(?:e|en)?(?:\s+nach)?|google(?:n)?(?:\s+nach)?|schau(?:e)?\s+nach)\s+(.+?)\s*$/i.exec(

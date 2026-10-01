@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.9` — Gewohnheit und Dokument — *CODE + APK*
+
+Sätze dürfen lockerer stehen. „Wie immer“ wiederholt, was zweimal schon da war. „Recherchier das“ nimmt das letzte Thema. Ein Dokument über ein Thema recherchiert mit. „Ohne Recherche“ und „Bei Dokumenten nicht recherchieren“ schalten das aus.
+
+App-Code und Sideload **`18.25.9`** (versionCode `182509`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.8` — Planung aus Glas — *CODE + APK*
 
 Der Planungsbildschirm nennt keine Person mehr. Der Titel heißt Ein- und Ausgaben, der Auftrag bleibt der ganze Satz. Ein Sprint, kein erfundener Weg. `Lade alle Dateien zur App runter` speichert die Projektdateien. Die Karte ist Glas mit einer stehenden Kante. Sag Fertig, dann geht der Bildschirm zu.

@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.25.8'
+export const APP_VERSION = '18.25.9'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -349,6 +349,8 @@ export type Settings = {
   price_watch_on: boolean
   last_price_watch_at: string
   working_memory_json: string
+  /** Gelernte Abläufe. Zweimal dasselbe bleibt. */
+  habits_json: string
   last_debug_json: string
   last_recall_json: string
   last_research_json: string
@@ -567,6 +569,7 @@ export const DEFAULT_SETTINGS: Settings = {
   price_watch_on: false,
   last_price_watch_at: '',
   working_memory_json: '',
+  habits_json: '',
   last_debug_json: '',
   last_recall_json: '',
   last_research_json: '',
