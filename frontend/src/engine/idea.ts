@@ -15,18 +15,28 @@ import { handleAblauf } from './ablauf.ts'
 import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
-import { emptyPlan, findSprint, formatPlan, nextCustomN, parsePlan, planHasBody, type IdeaPlan } from './idea-plan.ts'
+import {
+  blankSprint,
+  emptyPlan,
+  findSprint,
+  formatPlan,
+  nextSprintN,
+  parsePlan,
+  planHasBody,
+  PLAN_BEDINGUNG,
+  PLAN_RAHMEN,
+  type IdeaPlan,
+} from './idea-plan.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { completeGemini, geminiReady } from './gemini.ts'
 import type { ToolMeta } from './tools.ts'
 
-const FILL_SYSTEM = `Du füllst eine feste Sprint-Vorlage auf Deutsch.
-Antwort NUR als JSON-Objekt { "sprints": [ ... ] }.
-Genau drei Kern-Sprints: n "1" title "Kern", n "2" title "Härten", n "3" title "Probe", kind "core".
-Du darfst lieferumfang-Zeilen {id, task, anleitung} ergänzen.
-Custom-Sprints kind "custom" n "C1" nur mit Grund im ziel (Gerät, Sideload, Parser-Konflikt, Risiko).
-Keine RICE, keine App-Version, keine englischen Kapitel, keine anderen Agenten, keine docs/sprints.
-Keine Daten erfinden.`
+const FILL_SYSTEM = `${PLAN_BEDINGUNG}
+Rahmen: ${PLAN_RAHMEN.join(' ')}
+Antwort NUR als JSON-Objekt mit bedingung, anforderungen [{id, satz, abnahme, gateway}], entscheidungen [{id, schnitt, grund, gateway}], sprints [{n, title, ziel, anforderungen, lieferumfang:[{id, task, anleitung}], gateway, go_wenn, nogo_wenn, abbruch, haengt_an}], luecken [{id, name, satz}], gateway, go_wenn, nogo_wenn.
+n ist 1, 2, 3, … ohne Lücke und ohne Obergrenze. title nennst du. Eine Hülle, kein zweites Muster.
+gateway go nur mit Anforderung, go_wenn und abbruch. Sonst offen.
+Keine RICE, keine App-Version, keine Titel Kern, Härten oder Probe, keine erfundenen Quellen.`
 
 function pack(
   reply: string,
@@ -77,12 +87,12 @@ function extractJson(text: string): unknown {
 
 export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
   if (!groqReady() && !geminiReady()) return null
-  const skeleton = emptyPlan(idea.id)
+  const skeleton = emptyPlan(idea.id, idea.body || idea.title)
   const messages = [
     { role: 'system', content: FILL_SYSTEM },
     {
       role: 'user',
-      content: `Idee: ${idea.title}\n${idea.body || ''}\nVorlage: ${JSON.stringify(skeleton)}`,
+      content: `Bedingung: ${skeleton.bedingung}\nRahmen: ${skeleton.rahmen.join(' | ')}\nHülle: ${JSON.stringify(blankSprint('1'))}`,
     },
   ]
   const runs: Array<() => Promise<string>> = []
@@ -141,21 +151,36 @@ async function planOntoTable(intent: AblaufIntent): Promise<string> {
   return 'Planen schreibt Sprints und PSP auf der Tischplatte.'
 }
 
+function sprintsFromClauses(ideaId: string, work: string): IdeaPlan {
+  const parts = clausesOf(work)
+  const plan = emptyPlan(ideaId, work)
+  const rows = parts.length ? parts : [work]
+  plan.sprints = rows.map((clause, i) => {
+    const sprint = blankSprint(String(i + 1), clause.slice(0, 48), clause.slice(0, 160))
+    sprint.anforderungen = [`A${i + 1}`]
+    sprint.lieferumfang = [{ id: `S${i + 1}-1`, task: clause.slice(0, 120), anleitung: 'Satz prüfen. Quelle fehlt.' }]
+    sprint.abbruch = 'Die Bedingung nennt dieses Tor nicht.'
+    return sprint
+  })
+  plan.anforderungen = rows.map((clause, i) => ({
+    id: `A${i + 1}`,
+    satz: clause.slice(0, 160),
+    abnahme: '',
+    gateway: 'offen' as const,
+  }))
+  plan.luecken = [{ id: 'L1', name: 'Gateway', satz: 'Go ist offen. Abnahme und Quelle fehlen.' }]
+  return plan
+}
+
 async function writeProject(work: string): Promise<string> {
   const parts = clausesOf(work)
   const title = (parts[0] || work).slice(0, 72)
   const rows = await listIdeas()
   let hit = rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
   if (!hit) hit = await addIdea(title, work)
-  const plan = emptyPlan(hit.id)
-  plan.sprints[0].ziel = (parts[0] || title).slice(0, 160)
-  plan.sprints[0].lieferumfang = parts.map((task, i) => ({
-    id: `S1-${i + 1}`,
-    task: task.slice(0, 120),
-    anleitung: task.slice(0, 160),
-  }))
-  plan.sprints[1].ziel = (parts[1] || 'Grenzen und Tests festhalten').slice(0, 160)
-  plan.sprints[2].ziel = (parts[2] || 'Einen Durchlauf prüfen').slice(0, 160)
+  const drafted = { ...hit, body: work }
+  const filled = await fillPlanWithModel(drafted)
+  const plan = filled && planHasBody(filled) ? { ...filled, bedingung: filled.bedingung || work } : sprintsFromClauses(hit.id, work)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
   saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), tischplatte_on: true, tischplatte_view: 'psp' })
@@ -168,9 +193,9 @@ async function reviseProject(text: string): Promise<string> {
   const rows = await listIdeas()
   const hit = rows.find((r) => r.status === 'open') || rows[0]
   if (!hit) return 'Noch kein Projekt auf der Tischplatte.'
-  const plan = hit.plan || emptyPlan(hit.id)
+  const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
   const sprint = findSprint(plan, '1')
-  if (!sprint) return 'Diesen Kern-Sprint gibt es nicht.'
+  if (!sprint) return 'Sprint 1 gibt es noch nicht.'
   const k = sprint.lieferumfang.length + 1
   sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: line.slice(0, 160) })
   await putIdea({ ...hit, plan })
@@ -194,9 +219,7 @@ export async function handleIdea(
 
   if (intent.kind === 'create') {
     const row = await addIdea(intent.title, intent.body, conversationId)
-    const plan = emptyPlan(row.id)
-    const kern = plan.sprints.find((s) => s.n === '1')
-    if (kern) kern.ziel = row.title
+    const plan = emptyPlan(row.id, row.body || row.title)
     await putIdea({ ...row, plan })
     persistLastList('idea', titlesOf(await listIdeas('open')))
     return pack(`Idee liegt: ${row.title}.`, 'create', row.title)
@@ -252,10 +275,10 @@ export async function handleIdea(
     const rows = await listIdeas()
     const hit = pickIdea(rows, intent.query, intent.index)
     if (!hit) return pack('Die Idee finde ich nicht.', 'miss')
-    const plan = hit.plan || emptyPlan(hit.id)
+    const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
     const n = String(intent.sprint || 1)
     const sprint = findSprint(plan, n)
-    if (!sprint || sprint.kind !== 'core') return pack('Diesen Kern-Sprint gibt es nicht.', 'plan_fail')
+    if (!sprint) return pack('Den Sprint finde ich nicht.', 'plan_fail')
     const k = sprint.lieferumfang.length + 1
     sprint.lieferumfang.push({ id: `S${n}-${k}`, task: intent.line, anleitung: intent.line })
     await putIdea({ ...hit, plan })
@@ -267,17 +290,10 @@ export async function handleIdea(
     const rows = await listIdeas()
     const hit = pickIdea(rows, intent.query, intent.index)
     if (!hit) return pack('Die Idee finde ich nicht.', 'miss')
-    const plan = hit.plan || emptyPlan(hit.id)
-    const n = nextCustomN(plan)
-    plan.sprints.push({
-      n,
-      kind: 'custom',
-      title: intent.title.slice(0, 80),
-      ziel: intent.ziel,
-      lieferumfang: [],
-      wont: ['—'],
-      abbruch: '—',
-    })
+    const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
+    const n = nextSprintN(plan)
+    const sprint = blankSprint(n, intent.title.slice(0, 80), intent.ziel)
+    plan.sprints.push(sprint)
     await putIdea({ ...hit, plan })
     persistLastList('idea', [hit.title])
     return pack(formatPlan(plan, hit.title), 'plan_custom', hit.title)
@@ -287,15 +303,12 @@ export async function handleIdea(
     const rows = await listIdeas()
     const hit = pickIdea(rows, intent.query, intent.index)
     if (!hit) return pack('Die Idee finde ich nicht.', 'miss')
-    const plan = hit.plan || emptyPlan(hit.id)
+    const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
     const sprint = findSprint(plan, intent.n)
     if (!sprint) return pack('Den Sprint finde ich nicht.', 'miss')
-    if (sprint.kind === 'core') {
-      sprint.ziel = 'entfällt: auf Zuruf'
-      sprint.lieferumfang = []
-    } else {
-      plan.sprints = plan.sprints.filter((s) => s !== sprint)
-    }
+    sprint.gateway = 'nogo'
+    sprint.nogo_wenn = 'auf Zuruf'
+    sprint.abbruch = 'auf Zuruf'
     await putIdea({ ...hit, plan })
     persistLastList('idea', [hit.title])
     return pack(formatPlan(plan, hit.title), 'plan_strike', hit.title)

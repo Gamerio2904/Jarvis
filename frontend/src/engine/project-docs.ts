@@ -25,7 +25,11 @@ function sprintRow(s: IdeaSprint) {
     ziel: s.ziel || '',
     lieferumfang: s.lieferumfang.map((t) => ({ id: t.id, task: t.task, anleitung: t.anleitung })),
     wont: s.wont,
+    gateway: s.gateway,
+    go_wenn: s.go_wenn,
+    nogo_wenn: s.nogo_wenn,
     abbruch: s.abbruch,
+    haengt_an: s.haengt_an,
   }
 }
 

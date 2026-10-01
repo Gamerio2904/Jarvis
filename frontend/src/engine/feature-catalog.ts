@@ -28,7 +28,7 @@ export const FEATURE_CATALOG: FeatureRow[] = [
   { id: 'gate', version: '10.60.0', area: 'memory', title: 'Memory-Gate', can: 'writeMemory mit STORE MERGE IGNORE REVISE.', wont: 'Stiller Web-Dump ins Cap-80.', prompt: 'Merk dir ich mag Mate' },
   { id: 'research', version: '11.60.0', area: 'research', title: 'Deep Research', can: 'Mehrere Queries, Quellen mit URL, Gemini-Grounding.', wont: '12-Stunden-Crawl, Multi-Agent.', prompt: 'Recherchiere tief: Anzugs-Energiequelle ehrlich, ohne Marvel-Magie' },
   { id: 'oss', version: '18.19.0', area: 'research', title: 'Open Source Suche', can: 'GitHub REST nur mit Token, sonst DDG site:github.com ehrlich unvollständig.', wont: 'Login-Scraping.', prompt: 'Recherchiere tief: Open-Source Kalender ICS Parser' },
-  { id: 'idea', version: '18.2.0', area: 'idea', title: 'Ideen + Sprintplan', can: 'Idee merken, Vorlage Kern Härten Probe füllen.', wont: 'RICE, Dateien nach docs/sprints.', prompt: 'Idee: Körper und Chat gleichzeitig' },
+  { id: 'idea', version: '18.2.0', area: 'idea', title: 'Ideen + Sprintplan', can: 'Idee merken. Eine Sprint-Hülle, so viele Sprints wie der Satz Tore braucht.', wont: 'Drei feste Titel, RICE, Dateien nach docs/sprints.', prompt: 'Idee: Körper und Chat gleichzeitig' },
   { id: 'lage', version: '18.14.0', area: 'lage', title: 'Lage-Kugel', can: 'Stecknadel, Flugzeug, Satellit aus Feldern.', wont: 'iframe, CCTV.', prompt: 'Zeig Lage' },
   { id: 'globe', version: '18.0.0', area: 'globe', title: 'Kugel', can: 'Weltkugel, Schichten auf Zuruf.', wont: 'globe.gl ohne Messung.', prompt: 'Zeig die Kugel' },
   { id: 'overlay', version: '18.7.0', area: 'overlay', title: 'Overlay / Folie', can: 'Fahrmodus-Folie.', wont: 'Computer-Use.', prompt: '' },
