@@ -50,9 +50,9 @@ Zeile. Dateien `projekt.json`, `wege.json`, `sprints.json`, `psp.json`,
 Neues Projekt: Haushaltsbuch
 ```
 
-Dieselbe Karte, ohne `Go`. Die Mitte bleibt das Portfolio, nicht das
-live Skript. Leeres `Neues Projekt` fragt `Was soll geplant werden?`
-und legt nichts an.
+Dieselbe Karte, und der Planungsbildschirm geht auf. Wer und die
+Anforderung stehen je einmal. Die Statuszeile sagt, dass die Karte liegt.
+Leeres `Neues Projekt` fragt `Was soll geplant werden?` und legt nichts an.
 
 ```
 Go

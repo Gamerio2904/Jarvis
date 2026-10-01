@@ -1,35 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CATALOG_STAND } from '../engine/feature-catalog.ts'
-import { fileFor, PLAN_GAPS, saveProjectJson, type ProjectFileKind } from '../engine/project-docs.ts'
+import { fileFor, saveProjectJson, type ProjectFileKind } from '../engine/project-docs.ts'
+import { cannedPlanLine, planDeskLines } from '../engine/plan-desk.ts'
+import { listPortfolio } from '../engine/portfolio.ts'
 import { saveSettings, type Idea, type MemoryProposal } from '../engine/store.ts'
 import type { IdeaSprint } from '../engine/idea-plan.ts'
-
-type Line = { key: string; text: string }
-
-function scriptLines(idea: Idea | undefined, phase: string): Line[] {
-  if (!idea) return [{ key: 'BEREIT', text: 'Sagen Sie: Plane das: …' }]
-  const plan = [...(idea.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
-  const out: Line[] = [{ key: 'PROJEKT', text: idea.title }]
-  for (const cut of idea.plan?.entscheidungen || []) {
-    if (cut.schnitt) out.push({ key: 'WER', text: `${cut.schnitt}: ${cut.grund}` })
-  }
-  for (const need of idea.plan?.anforderungen || []) {
-    if (need.id.startsWith('O')) out.push({ key: 'FLÄCHE', text: need.satz })
-    else out.push({ key: 'ANFORDERUNG', text: need.satz })
-  }
-  for (const step of plan[0]?.lieferumfang || []) out.push({ key: 'WEG', text: step.task })
-  for (const sprint of plan) {
-    out.push({ key: `SPRINT ${sprint.n}`, text: sprint.ziel?.trim() || sprint.title })
-  }
-  if (plan[0]?.lieferumfang?.length) {
-    out.push({ key: 'FEHLT', text: PLAN_GAPS.map((gap) => gap.name).join(', ') })
-  }
-  out.push({
-    key: 'STATUS',
-    text: phase === 'go' ? 'Umgesetzt. Export ist bereit.' : 'Live. Wartet auf Go.',
-  })
-  return out
-}
 
 function useClock(): Date {
   const [now, setNow] = useState(() => new Date())
@@ -72,7 +47,32 @@ export function ScriptStage({
   onNo: (id: string) => void
 }) {
   const now = useClock()
-  const lines = useMemo(() => scriptLines(idea, phase), [idea, phase])
+  const [cardName, setCardName] = useState('')
+  useEffect(() => {
+    let live = true
+    const load = () => {
+      if (!idea?.id) {
+        setCardName('')
+        return
+      }
+      void listPortfolio()
+        .then((rows) => {
+          if (!live) return
+          const row = rows.find((item) => (item.idea_id === idea.id || item.id === idea.id) && !item.archived)
+          setCardName(row?.name || '')
+        })
+        .catch(() => {
+          if (live) setCardName('')
+        })
+    }
+    load()
+    window.addEventListener('jarvis-settings', load)
+    return () => {
+      live = false
+      window.removeEventListener('jarvis-settings', load)
+    }
+  }, [idea?.id])
+  const lines = useMemo(() => planDeskLines(idea, phase, cardName), [idea, phase, cardName])
   const [shown, setShown] = useState(lines.length)
   const [exportNote, setExportNote] = useState('')
   const [copied, setCopied] = useState('')
@@ -94,8 +94,18 @@ export function ScriptStage({
     return () => window.clearInterval(id)
   }, [lines, scriptAt, locked])
 
-  const sprints: IdeaSprint[] = [...(idea?.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
-  const wege = sprints[0]?.lieferumfang || []
+  const said = new Set(
+    (idea?.plan?.anforderungen || []).map((row) => row.satz.replace(/\s+/g, ' ').trim().toLowerCase()),
+  )
+  if (idea?.title) said.add(idea.title.replace(/\s+/g, ' ').trim().toLowerCase())
+  const sprints: IdeaSprint[] = [...(idea?.plan?.sprints || [])]
+    .sort((a, b) => Number(a.n) - Number(b.n))
+    .filter((sprint) => {
+      const line = (sprint.ziel || sprint.title || '').replace(/\s+/g, ' ').trim()
+      if (!line || cannedPlanLine(line) || said.has(line.toLowerCase())) return false
+      return true
+    })
+  const wege = (sprints[0]?.lieferumfang || []).filter((step) => !said.has(step.task.replace(/\s+/g, ' ').trim().toLowerCase()))
   const clock = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
   const visible = lines.slice(0, shown)
   const typing = live && shown < lines.length
@@ -191,9 +201,6 @@ export function ScriptStage({
                   ))}
                 </ol>
               ) : null}
-              {wege.length ? (
-                <p className="script-gap">Fehlt noch: {PLAN_GAPS.map((gap) => gap.name).join(', ')}.</p>
-              ) : null}
               <ol className="script-psp">
               {sprints.length ? (
                 sprints.map((s) => (
@@ -211,7 +218,7 @@ export function ScriptStage({
                     ) : null}
                   </li>
                 ))
-              ) : (
+              ) : idea?.plan?.sprints?.length ? null : (
                 <li>
                   <span>—</span>
                   <strong>Leer</strong>
@@ -232,7 +239,9 @@ export function ScriptStage({
               Alles
             </button>
           </div>
-          <p className="script-export-note">{exportNote || (locked ? 'Export ist bereit.' : 'Export nach Go.')}</p>
+          <p className="script-export-note">
+            {exportNote || (locked ? 'Export ist bereit.' : cardName ? 'Die Karte liegt.' : 'Export nach Go.')}
+          </p>
         </aside>
       </div>
       {proposals.length ? (
@@ -262,7 +271,9 @@ export function ScriptStage({
             {locked
               ? 'Umgesetzt. Export ist bereit.'
               : live
-                ? 'Besprich die Idee. Fertig schließt. Go legt die Karte.'
+                ? cardName
+                  ? 'Besprich die Idee. Fertig schließt.'
+                  : 'Besprich die Idee. Fertig schließt. Go legt die Karte.'
                 : 'Sagen Sie Go, Umsetzen oder Leg los.'}
           </p>
         )}

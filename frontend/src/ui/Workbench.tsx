@@ -37,6 +37,7 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
   const [wire, setWire] = useState<WireFrame | null>(null)
   const [termin, setTermin] = useState('Kein Termin.')
   const [phase, setPhase] = useState('')
+  const [planId, setPlanId] = useState('')
   const [scriptAt, setScriptAt] = useState(0)
   const [sprintSide, setSprintSide] = useState<'left' | 'right'>('left')
 
@@ -82,6 +83,7 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
         setJobs(parseBoardJobs(settings.board_jobs_json))
         setSources(lastResearch())
         setPhase(settings.plan_phase || '')
+        setPlanId(settings.plan_idea_id || '')
         setScriptAt(settings.plan_script_at || 0)
         setSprintSide(settings.script_sprint_side === 'right' ? 'right' : 'left')
       }
@@ -109,7 +111,9 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
   }, [vis, focus])
 
   const active =
-    phase === 'live' || phase === 'go' ? ideas.find((i) => i.status === 'open') || ideas[0] : undefined
+    phase === 'live' || phase === 'go'
+      ? ideas.find((i) => i.id === planId) || ideas.find((i) => i.status === 'open') || ideas[0]
+      : undefined
 
   function stop() {
     const next = stopJobs(jobs)

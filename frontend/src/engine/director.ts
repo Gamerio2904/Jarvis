@@ -17,6 +17,7 @@ import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
 import { handleIdea } from './idea.ts'
+import { missedPlanSentence } from './ablauf-parse.ts'
 import { handleRmScene } from './rm-scene.ts'
 import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
@@ -260,6 +261,11 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
   })
 
   if (pick.kind === 'none') {
+    if (missedPlanSentence(ctx.text)) {
+      const reply = 'Der Satz ist nicht angekommen. Die Tischplatte ist unverändert.'
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: 'idea' }, userFacts: reply }
+    }
     if (loadSettings().plan_phase === 'live') {
       const talked = await handleIdea(conversationId, text)
       if (talked.handled && talked.reply) {

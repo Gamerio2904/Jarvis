@@ -1908,6 +1908,7 @@ function App() {
     tischWasRef.current = on
     if (prev === null || prev === on || !on) return
     showTischplatte()
+    if (loadSettings().plan_phase === 'live') setMiniChatOpen(true)
   }, [liveHud.tischplatte_on])
 
   useEffect(() => {

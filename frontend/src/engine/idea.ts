@@ -16,6 +16,7 @@ import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { commitPortfolio, currentIdeaForTable, handlePortfolio, listPortfolio } from './portfolio.ts'
 import { artLabel } from './entwurf-muster.ts'
+import { cannedPlanLine } from './plan-desk.ts'
 import { fallbackFromWork } from './entwurf-fill.ts'
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
@@ -308,11 +309,20 @@ function formatSession(plan: IdeaPlan, title: string, cardName = ''): string {
   const needs = plan.anforderungen.filter((row) => !row.id.startsWith('O'))
   const face = plan.anforderungen.filter((row) => row.id.startsWith('O'))
   lines.push(needs.length ? 'Anforderungen' : 'Anforderungen: noch keine.')
-  for (const row of needs) lines.push(`- ${row.satz}`)
-  lines.push('Sprints')
-  for (const sprint of plan.sprints) {
-    if (!sprint.title && !sprint.ziel) continue
-    lines.push(`- ${sprint.n}. ${sprint.title || sprint.ziel}`)
+  const said = new Set<string>()
+  for (const row of needs) {
+    lines.push(`- ${row.satz}`)
+    said.add(row.satz.replace(/\s+/g, ' ').trim().toLowerCase())
+  }
+  const sprints = plan.sprints.filter((sprint) => {
+    const line = (sprint.ziel || sprint.title || '').replace(/\s+/g, ' ').trim().toLowerCase()
+    if (!line || said.has(line) || cannedPlanLine(line)) return false
+    said.add(line)
+    return true
+  })
+  if (sprints.length) {
+    lines.push('Sprints')
+    for (const sprint of sprints) lines.push(`- ${sprint.n}. ${sprint.title || sprint.ziel}`)
   }
   if (face.length) {
     lines.push('Oberfläche')
@@ -398,26 +408,7 @@ export async function sparPlan(text: string): Promise<string | null> {
 async function layNewProject(work: string): Promise<string> {
   const text = work.replace(/\s+/g, ' ').trim()
   if (text.length < 3) return 'Was soll geplant werden?'
-  await writeProject(text)
-  const hit = await ideaOnTable()
-  if (!hit) return 'Was soll geplant werden?'
-  const saved = await commitPortfolio(hit)
-  saveSettings({
-    tischplatte_on: true,
-    ablauf_status: '',
-    ablauf_id: '',
-    bot_ask_json: '',
-    plan_phase: '',
-    plan_script_at: 0,
-    portfolio_focus: '',
-    portfolio_file: '',
-  })
-  if (saved.full) return 'Das Portfolio ist voll.'
-  if (saved.folder === 'fail') return 'Im Haus gespeichert. Der Ordner fehlt.'
-  if (saved.revived && saved.row) return `${saved.row.name} liegt wieder im Portfolio.`
-  if (saved.created && saved.row) return `Fest. ${saved.row.name} liegt im Portfolio.`
-  if (saved.row) return `${saved.row.name} liegt schon im Portfolio.`
-  return 'Was soll geplant werden?'
+  return openPlanningSession(text)
 }
 
 async function writeProject(work: string): Promise<string> {

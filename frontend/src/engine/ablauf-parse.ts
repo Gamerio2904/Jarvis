@@ -1,6 +1,7 @@
 import { normalizeUtterance } from './utterance.ts'
 import { loadSettings } from './store.ts'
 import { ablaufWaiting } from './ablauf-state.ts'
+import { parsePortfolioIntent } from './portfolio-parse.ts'
 
 export type AblaufIntent =
   | { kind: 'open'; work?: string }
@@ -84,6 +85,17 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
 
 function sessionWork(raw: string): string {
   return raw.replace(/\s+/g, ' ').trim().slice(0, 2000)
+}
+
+/** Ein Plansatz, den kein Parser angenommen hat. Das Modell darf ihn nicht als Projekt erzählen. */
+export function missedPlanSentence(text: string): boolean {
+  const t = normalizeUtterance((text || '').trim())
+  if (!t || t.length > 2000) return false
+  if (/^\s*(?:was|wie|wer|wen|wann|wo|wohin|woher|warum|wieso|weshalb|welche)\b/i.test(t)) return false
+  if (parseAblaufIntent(t) || parsePortfolioIntent(t)) return false
+  if (/^\s*plan(?:e)?\b/i.test(t)) return true
+  if (/\b(?:neues?\s+projekt|projekt\s+(?:anlegen|erstellen)|leg(?:e)?\s+(?:mir\s+)?(?:ein\s+)?projekt\s+an)\b/i.test(t)) return true
+  return false
 }
 
 function planScriptOpen(): boolean {
