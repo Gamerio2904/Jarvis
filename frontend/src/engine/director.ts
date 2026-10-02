@@ -20,6 +20,8 @@ import { handleIdea } from './idea.ts'
 import { missedPlanSentence } from './ablauf-parse.ts'
 import { isDeepResearch } from './research-parse.ts'
 import { documentAsk, documentWithoutResearch, replyForHabit } from './work-flex.ts'
+import { handleFensterCommand, ownFensterKind } from './fenster.ts'
+import { fensterTransport } from './fenster-net.ts'
 import { handleRmScene } from './rm-scene.ts'
 import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
@@ -250,6 +252,12 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
         return { hit, userFacts: hit.reply }
       }
     }
+  }
+
+  const fensterReply = await handleFensterCommand(text, fensterTransport(), ownFensterKind())
+  if (fensterReply) {
+    setLastUserFacts(fensterReply)
+    return { hit: { reply: fensterReply, lastTool: 'fenster' }, userFacts: fensterReply }
   }
 
   const habitReply = replyForHabit(text)

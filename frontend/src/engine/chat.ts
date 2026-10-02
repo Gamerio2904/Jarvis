@@ -5,6 +5,8 @@ import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain.ts'
 import { userFacingCloudError } from './cloud-errors.ts'
 import { groundMicroMerge, HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
 import { greetingReply, greetingStandFact, parseGreeting, WRONG_NAME_REPLY, wrongNameGreeting } from './greeting.ts'
+import { handleFensterCommand, ownFensterKind } from './fenster.ts'
+import { fensterTransport } from './fenster-net.ts'
 import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeAllowedForRoute, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
@@ -208,6 +210,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: greetingReply(greet, new Date(), content, stand),
       lastTool: 'smalltalk',
       tool: { tool_status: 'executed', tool: 'smalltalk', action: 'greeting', label: 'Ultron' },
+    }
+  }
+
+  const fensterReply =
+    (await handleFensterCommand(content, fensterTransport(), ownFensterKind()))
+    ?? (await handleFensterCommand(normalizeUtterance(content), fensterTransport(), ownFensterKind()))
+  if (fensterReply) {
+    return {
+      reply: fensterReply,
+      lastTool: 'fenster',
+      tool: { tool_status: 'executed', tool: 'fenster', action: 'fenster', label: 'Fenster' },
     }
   }
 

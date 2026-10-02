@@ -63,6 +63,11 @@ const hausDest = join(android, 'app/src/main/java/app/jarvis/haus')
 mkdirSync(hausDest, { recursive: true })
 copyFileSync(join(hausSrc, 'JarvisHausPlugin.java'), join(hausDest, 'JarvisHausPlugin.java'))
 
+const fensterSrc = join(root, 'native', 'fenster')
+const fensterDest = join(android, 'app/src/main/java/app/jarvis/fenster')
+mkdirSync(fensterDest, { recursive: true })
+copyFileSync(join(fensterSrc, 'JarvisFensterPlugin.java'), join(fensterDest, 'JarvisFensterPlugin.java'))
+
 const deviceSrc = join(root, 'native', 'device')
 const deviceDest = join(android, 'app/src/main/java/app/jarvis/device')
 mkdirSync(deviceDest, { recursive: true })

@@ -460,7 +460,8 @@ public class JarvisNotifyPlugin extends Plugin {
         return title != null && "Timer".equalsIgnoreCase(title.trim());
     }
 
-    static void showQuiet(Context ctx, int id, String title, String body) {
+    public static void showQuiet(Context ctx, int id, String title, String body) {
+        ensureChannel(ctx);
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null) return;
         Intent launch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());

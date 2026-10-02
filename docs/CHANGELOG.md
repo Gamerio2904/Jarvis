@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.12` — Zwei Fenster — *CODE + APK*
+
+`Verbinde das Handy` schickt eine Kopplungsanfrage im selben WLAN. Auf dem zweiten Gerät liegt ein kleines Blatt darüber, ein Tipp bestätigt. Sonst kommt eine Benachrichtigung, die die App auf diesem Blatt öffnet. Danach zeigt ein Satz eine vorhandene Fläche auf dem Handy oder dem Tablet. Kein Bildstrom, keine Tischlage.
+
+App-Code und Sideload **`18.25.12`** (versionCode `182512`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.11` — Intro — *CODE + APK*
 
 Beim Öffnen liegt eine Sekunde Chrom, rotes Auge und ein Glasglanz über der Fläche. Danach ist die Einblendung weg. Kommt die App wieder nach vorn, spielt sie noch einmal.

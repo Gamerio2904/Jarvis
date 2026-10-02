@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.25.11'
+export const APP_VERSION = '18.25.12'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
@@ -351,6 +351,12 @@ export type Settings = {
   working_memory_json: string
   /** Gelernte Abläufe. Zweimal dasselbe bleibt. */
   habits_json: string
+  /** Hauptgerät: Schlüssel zum zweiten Fenster. */
+  fenster_pair_json: string
+  /** Zweites Fenster: nur der Hash des Schlüssels. */
+  fenster_grant_json: string
+  /** Offene Kopplungsanfrage auf dem zweiten Gerät. */
+  fenster_request_json: string
   last_debug_json: string
   last_recall_json: string
   last_research_json: string
@@ -570,6 +576,9 @@ export const DEFAULT_SETTINGS: Settings = {
   last_price_watch_at: '',
   working_memory_json: '',
   habits_json: '',
+  fenster_pair_json: '',
+  fenster_grant_json: '',
+  fenster_request_json: '',
   last_debug_json: '',
   last_recall_json: '',
   last_research_json: '',
