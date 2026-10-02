@@ -2,7 +2,7 @@
 
 **Jetzt:** Code und Sideload **`18.25.0`**, versionCode `182500`: https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk. Schiene **YouTube-Highlights `18.20`** [`92-next.md`](./92-next.md) (392–397) liegt im Code; die Datei schreibt der PC. Tablet-Layout und Testprompts: [`TEST-18.20.md`](./TEST-18.20.md). Schiene **Tischplatte `18.19` CODE + APK** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE + APK** [`90-next.md`](./90-next.md) (382–384) in derselben Sideload. Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Ultron zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
 
-Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
+Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md). Handy per Satz verbinden, nur der Plan: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -103,6 +103,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 95 | [Ablauf 18.23](./95-next.md) | **CODE** `18.23.0` — Fenster über der Tafel, Ablauf welcher Agent was tut, nach `So` gleichzeitig, jede Planungsdatei im Hausstand; Sprints 410–416 |
 | 96 | [Portfolio 18.24](./96-next.md) | **CODE** `18.24.0` — `Go` speichert das Projekt, Karten mit Shredder auf dem Hauptbildschirm; Sprints 417–423. Laufende Sideload `18.25.0` |
 | 97 | [Entwurf 18.25](./97-next.md) | **CODE + APK** `18.25.0` — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; Sprints 424–430 |
+| — | [Zwei Fenster](./handy-flaeche-plan.md) | **PLAN** — Kopplungsanfrage per Satz, Blatt oder Benachrichtigung, danach zwei Fenster. Kein Bildstrom, noch kein Code |
 | — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
 | — | [Test 18.22](./TEST-18.22.md) | Tafel-Sätze, in der App ab `18.22.0` |
 | — | [Test 18.23](./TEST-18.23.md) | Ablauf-Sätze, noch nicht in der App |
