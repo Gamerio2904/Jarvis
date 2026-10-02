@@ -100,6 +100,7 @@ Reboot → Stack wieder da; Chat im Browser gegen NAS-IP.
 - TTS-Anbindung an bestehende Antworten
 - Stimmwahl / Natürlichkeit
 - Optional später: Spracheingabe (eigener Schnitt, nicht automatisch inkl.)
+- Q34: Alexa-artige Station (Tablet + Stimme) erst nach diesem PO-Go; nicht Amazon
 
 **Exit-Kriterium**  
 Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
