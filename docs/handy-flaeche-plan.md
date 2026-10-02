@@ -1,6 +1,6 @@
 # Zwei Fenster
 
-Plan nach [`plan-vorlage.md`](./plan-vorlage.md). S1, S2 und S3 sind in App-Code `18.25.12` gebaut. Ab `18.25.13` hört die Kopplung weiter, wenn die Fläche nicht vorn liegt.
+Plan nach [`plan-vorlage.md`](./plan-vorlage.md). S1, S2 und S3 sind in App-Code `18.25.12` gebaut. Ab `18.25.13` hört die Kopplung weiter, wenn die Fläche nicht vorn liegt. Der Vergleich der Hausstände nach dem Koppeln steht in [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) und ist noch nicht gebaut.
 
 ## Bedingung
 

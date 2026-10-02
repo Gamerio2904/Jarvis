@@ -5,7 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Der Stand auf `main` ist `18.25.13`.
+Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Der Stand auf `main` ist `18.25.13`.
 
 ### `18.25.13` — Kopplung im Hintergrund — *CODE + APK*
 

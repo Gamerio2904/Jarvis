@@ -1011,6 +1011,7 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.25.12` | Zwei Fenster, Plan S1–S3 | keine Nummer, CODE |
 | `18.25.13` | Kopplung im Hintergrund | keine Nummer, CODE |
 | nach `18.25.13` | Tischplatte lesbar | PLAN S1–S4, [`tischplatte-plan.md`](./tischplatte-plan.md) |
+| nach `18.25.13` | Hausstand nach dem Koppeln | PLAN S1–S3, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
