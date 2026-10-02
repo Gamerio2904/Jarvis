@@ -103,7 +103,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 95 | [Ablauf 18.23](./95-next.md) | **CODE** `18.23.0` — Fenster über der Tafel, Ablauf welcher Agent was tut, nach `So` gleichzeitig, jede Planungsdatei im Hausstand; Sprints 410–416 |
 | 96 | [Portfolio 18.24](./96-next.md) | **CODE** `18.24.0` — `Go` speichert das Projekt, Karten mit Shredder auf dem Hauptbildschirm; Sprints 417–423. Laufende Sideload `18.25.0` |
 | 97 | [Entwurf 18.25](./97-next.md) | **CODE + APK** `18.25.0` — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; Sprints 424–430 |
-| — | [Handy-Fläche](./handy-flaeche-plan.md) | **PLAN** — Handy per Satz verbinden, danach Tischplatte, Lage oder Tischlage. Kein Bildstrom, noch kein Code |
+| — | [Zwei Fenster](./handy-flaeche-plan.md) | **PLAN** — Kopplungsanfrage per Satz, Blatt oder Benachrichtigung, danach zwei Fenster. Kein Bildstrom, noch kein Code |
 | — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
 | — | [Test 18.22](./TEST-18.22.md) | Tafel-Sätze, in der App ab `18.22.0` |
 | — | [Test 18.23](./TEST-18.23.md) | Ablauf-Sätze, noch nicht in der App |
