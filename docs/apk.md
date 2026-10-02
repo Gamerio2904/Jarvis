@@ -3,11 +3,13 @@
 App-Code und Sideload **`18.25.13`** (versionCode `182513`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-Die Kopplung hört weiter, wenn die Fläche nicht vorn liegt, und meldet sich per Benachrichtigung. `öffne den Planungsbildschirm` öffnet die Planung. Diese Datei ersetzt `18.25.12`, weil der versionCode steigt.
+Die Kopplung hört weiter, wenn die Fläche nicht vorn liegt, und meldet sich per Benachrichtigung. `öffne den Planungsbildschirm` öffnet die Planung. Diese Datei auf `main` ist `18.25.13` und ersetzt `18.25.12`.
+
+Dieselbe Datei enthält die Reihe davor, ohne neue Sprintnummer nach 430: `18.25.1` Projekt, `18.25.2` Planungsbildschirm, `18.25.3` Plane eine App, `18.25.4` ein Plan, `18.25.5` Zwischenablage, `18.25.6` Leerlauf, `18.25.7` Gruß, `18.25.8` Glaskarte, `18.25.9` Gewohnheit, `18.25.10` Ich bin Ultron, `18.25.11` Intro, `18.25.12` zwei Fenster. Offen danach: [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4.
 
 Entwurf: [`TEST-18.25.md`](./TEST-18.25.md). Testsätze ab Hausstand-Code: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md). Portfolio: [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 
-Ablauf: [`TEST-18.23.md`](./TEST-18.23.md). Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md). Nach dem Merge gilt dieselbe Datei auf `main`.
+Ablauf: [`TEST-18.23.md`](./TEST-18.23.md). Tafel und Datei-QR: [`TEST-18.22.md`](./TEST-18.22.md), [`TEST-18.21.md`](./TEST-18.21.md).
 
 Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). YouTube-Schnitt schreibt die Datei erst auf einem Windows-PC mit JarvisPC.
 

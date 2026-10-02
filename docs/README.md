@@ -2,7 +2,7 @@
 
 **Jetzt:** Code und Sideload **`18.25.13`**, versionCode `182513`: https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk. Schiene **YouTube-Highlights `18.20`** [`92-next.md`](./92-next.md) (392–397) liegt im Code; die Datei schreibt der PC. Tablet-Layout und Testprompts: [`TEST-18.20.md`](./TEST-18.20.md). Schiene **Tischplatte `18.19` CODE + APK** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE + APK** [`90-next.md`](./90-next.md) (382–384) in derselben Sideload. Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Ultron zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
 
-Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Zwei Fenster, Handy per Satz: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md), gebaut in `18.25.13`. Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
+Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Zwei Fenster, Handy per Satz: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md), gebaut in `18.25.12`, Kopplung im Hintergrund in `18.25.13`. Tischplatte lesbar, geplant danach, noch nicht gebaut: [`tischplatte-plan.md`](./tischplatte-plan.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -102,14 +102,16 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 94 | [Tafel 18.22](./94-next.md) | **CODE** `18.22.0` — Tischplatte als Tafel: Sprintliste, PSP, Uhr, Quellen, Termin, Jobs. Finger und Jarvis schieben jedes Stück, auch aus dem Bild; Sprints 404–409 |
 | 95 | [Ablauf 18.23](./95-next.md) | **CODE** `18.23.0` — Fenster über der Tafel, Ablauf welcher Agent was tut, nach `So` gleichzeitig, jede Planungsdatei im Hausstand; Sprints 410–416 |
 | 96 | [Portfolio 18.24](./96-next.md) | **CODE** `18.24.0` — `Go` speichert das Projekt, Karten mit Shredder auf dem Hauptbildschirm; Sprints 417–423. Laufende Sideload `18.25.13` |
-| 97 | [Entwurf 18.25](./97-next.md) | **CODE + APK** `18.25.13` — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; Sprints 424–430 |
+| 97 | [Entwurf 18.25](./97-next.md) | **CODE + APK** `18.25.0` — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; Sprints 424–430. Das ist der letzte nummerierte Sprint |
+| — | [Stände 18.25.1–18.25.13](./09-versioning.md) | **CODE + APK**, keine Sprintnummer nach 430. Reihe: Projekt, Planungsbildschirm, Plane eine App, ein Plan, Zwischenablage, Leerlauf, Gruß, Glaskarte, Gewohnheit, Ich bin Ultron, Intro, zwei Fenster, Kopplung im Hintergrund |
+| — | [Tischplatte lesbar](./tischplatte-plan.md) | **PLAN** nach `18.25.13`. S1 Karten, S2 Grenze, S3 eine Frage, S4 zwei Sichten. Noch nicht gebaut |
 | — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
 | — | [Test 18.22](./TEST-18.22.md) | Tafel-Sätze, in der App ab `18.22.0` |
-| — | [Test 18.23](./TEST-18.23.md) | Ablauf-Sätze, noch nicht in der App |
+| — | [Test 18.23](./TEST-18.23.md) | Ablauf-Sätze, in der App ab `18.23.0` |
 | — | [Test 18.24](./TEST-18.24.md) | Portfolio-Sätze, in der App ab `18.24.0` |
 | — | [Test 18.24.6](./TEST-18.24.6.md) | Raum- und Objekt-Scan, Sideload `18.24.7` |
-| — | [Test 18.25](./TEST-18.25.md) | Entwurf-Sätze, noch nicht in der App |
-| — | [APK](./apk.md) | Sideload `18.20.0`; Test: [`TEST-18.20.md`](./TEST-18.20.md) |
+| — | [Test 18.25](./TEST-18.25.md) | Entwurf-Sätze, in der App ab `18.25.0` |
+| — | [APK](./apk.md) | Sideload `18.25.13`; Test: [`TEST-18.25.md`](./TEST-18.25.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -342,10 +344,25 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 377–381 | `18.17.0` | **CODE + APK** (Kalender Alltag, [`89-next.md`](./89-next.md)) |
 | 382–384 | `18.18.0` | **CODE + APK** (Homescreen, [`90-next.md`](./90-next.md)) |
 | 385–391 | `18.19.0` | **CODE + APK** (Tischplatte, [`91-next.md`](./91-next.md)) |
+| 392–397 | `18.20.0` | **CODE + APK** (YouTube-Highlights, [`92-next.md`](./92-next.md)) |
 | 398–403 | `18.21.0` | **CODE** in `18.22.0` (Datei-QR, [`93-next.md`](./93-next.md)) |
 | 404–409 | `18.22.0` | **CODE** (Tafel, [`94-next.md`](./94-next.md)) |
 | 410–416 | `18.23.0` | **CODE** (Ablauf, [`95-next.md`](./95-next.md)) |
-| 417–423 | `18.24.0` | **CODE** (Portfolio, [`96-next.md`](./96-next.md)). Sideload **`18.24.7`** |
-| 424–430 | `18.25.0` | **CODE + APK** (Entwurf, [`97-next.md`](./97-next.md)) |
+| 417–423 | `18.24.0` | **CODE** (Portfolio, [`96-next.md`](./96-next.md)). Sideload damals **`18.24.7`** |
+| 424–430 | `18.25.0` | **CODE + APK** (Entwurf, [`97-next.md`](./97-next.md)). Letzte Sprintnummer |
+| — | `18.25.1` | **CODE + APK** Projekt anlegen, löschen, Hausstand-QR |
+| — | `18.25.2` | **CODE + APK** Planungsbildschirm für `Plane das Projekt` |
+| — | `18.25.3` | **CODE + APK** `Plane eine App` öffnet denselben Bildschirm |
+| — | `18.25.4` | **CODE + APK** Ein Plan auf der Tischplatte |
+| — | `18.25.5` | **CODE + APK** Bild aus der Zwischenablage |
+| — | `18.25.6` | **CODE + APK** Leerlauf zeichnet die Fläche nicht ständig neu |
+| — | `18.25.7` | **CODE + APK** Hallo bleibt ein Gruß |
+| — | `18.25.8` | **CODE + APK** Planungskarte aus Glas, ganzer Satz |
+| — | `18.25.9` | **CODE + APK** Gewohnheit und Dokument |
+| — | `18.25.10` | **CODE + APK** Hallo Jarvis: Nein. Ich bin Ultron |
+| — | `18.25.11` | **CODE + APK** Intro, eine Sekunde |
+| — | `18.25.12` | **CODE + APK** Zwei Fenster, [`handy-flaeche-plan.md`](./handy-flaeche-plan.md) S1–S3 |
+| — | `18.25.13` | **CODE + APK** Kopplung im Hintergrund, Planungsbildschirm |
+| — | nach `18.25.13` | **PLAN** Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md) S1–S4 |
 
-**Aktuell:** App-Code und Sideload **`18.25.13`**, versionCode `182513`. 392–397 **CODE + APK**. 398–403 **CODE** ([`93-next.md`](./93-next.md)), 404–409 **CODE** ([`94-next.md`](./94-next.md)). 410–416 **CODE** ([`95-next.md`](./95-next.md)). 417–423 **CODE** ([`96-next.md`](./96-next.md)). 424–430 **CODE + APK** ([`97-next.md`](./97-next.md)). Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.25.md`](./TEST-18.25.md), [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code und Sideload **`18.25.13`**, versionCode `182513`. Sprint **430** ist die letzte Nummer. `18.25.1` bis `18.25.13` sind gebaut und haben keine neue Nummer. Offen ist nur [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. 392–397 **CODE + APK**. 398–403 **CODE** ([`93-next.md`](./93-next.md)), 404–409 **CODE** ([`94-next.md`](./94-next.md)). 410–416 **CODE** ([`95-next.md`](./95-next.md)). 417–423 **CODE** ([`96-next.md`](./96-next.md)). 424–430 **CODE + APK** ([`97-next.md`](./97-next.md)). Die Highlight-Datei schreibt der PC. 385–391 **CODE + APK**. Test: [`TEST-18.25.md`](./TEST-18.25.md), [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md). Index: [`42-planned.md`](./42-planned.md).

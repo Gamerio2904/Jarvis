@@ -997,6 +997,20 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.25.0` | Wahl, Schließen, Ablauf und Scan gewinnen | 428 CODE |
 | `18.25.0` | Entwürfe im Hausstand | 429 CODE |
 | `18.25.0` | Gold, Testkarten, versionCode `182500` | 430 CODE |
+| `18.25.1` | Projekt anlegen, löschen, Hausstand-QR | keine Nummer nach 430, CODE |
+| `18.25.2` | Planungsbildschirm | keine Nummer, CODE |
+| `18.25.3` | Plane eine App öffnet denselben Bildschirm | keine Nummer, CODE |
+| `18.25.4` | Ein Plan auf der Tischplatte | keine Nummer, CODE |
+| `18.25.5` | Bild aus der Zwischenablage | keine Nummer, CODE |
+| `18.25.6` | Leerlauf zeichnet nicht ständig neu | keine Nummer, CODE |
+| `18.25.7` | Hallo bleibt ein Gruß | keine Nummer, CODE |
+| `18.25.8` | Planungskarte aus Glas | keine Nummer, CODE |
+| `18.25.9` | Gewohnheit und Dokument | keine Nummer, CODE |
+| `18.25.10` | Hallo Jarvis: Nein. Ich bin Ultron | keine Nummer, CODE |
+| `18.25.11` | Intro, eine Sekunde | keine Nummer, CODE |
+| `18.25.12` | Zwei Fenster, Plan S1–S3 | keine Nummer, CODE |
+| `18.25.13` | Kopplung im Hintergrund | keine Nummer, CODE |
+| nach `18.25.13` | Tischplatte lesbar | PLAN S1–S4, [`tischplatte-plan.md`](./tischplatte-plan.md) |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

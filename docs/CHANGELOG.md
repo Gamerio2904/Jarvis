@@ -5,6 +5,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Der Stand auf `main` ist `18.25.13`.
+
 ### `18.25.13` — Kopplung im Hintergrund — *CODE + APK*
 
 `Verbinde das Handy` findet das andere Gerät auch, wenn die Fläche dort nicht vorn liegt. Dann kommt eine Benachrichtigung. Beide Geräte müssen das Netz in der Nähe erlauben. `öffne den Planungsbildschirm` öffnet die Planung. `Lass uns eine App entwickeln` und `Lass uns eine neue App planen` legen den Auftrag auf diese Fläche.
@@ -105,7 +107,7 @@ https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.24.8` — Prompt je Sprint — *CODE*
 
-`Plane das` lässt das Modell zu jedem Sprint einen Prompt schreiben. Der Prompt ist eine Anleitung für einen Programmier-Agenten: Ziel, Arbeiten, Abbruch, was nicht gebaut wird. Auf der Tafel steht er unter dem Sprint, `Prompt kopieren` legt ihn in die Zwischenablage. Die Sprint-Datei enthält dasselbe Feld. Ohne Modell bleibt der Prompt leer. Die Sideload-Datei auf `main` ist **`18.25.0`**.
+`Plane das` lässt das Modell zu jedem Sprint einen Prompt schreiben. Der Prompt ist eine Anleitung für einen Programmier-Agenten: Ziel, Arbeiten, Abbruch, was nicht gebaut wird. Auf der Tafel steht er unter dem Sprint, `Prompt kopieren` legt ihn in die Zwischenablage. Die Sprint-Datei enthält dasselbe Feld. Ohne Modell bleibt der Prompt leer. Eine eigene Datei für `18.24.8` gibt es nicht. Die Datei auf `main` ist **`18.25.13`**.
 
 ### `18.24.7` — Brett, Icon, Scan — *CODE*
 
