@@ -62,6 +62,8 @@ const INFINITIVE = new RegExp(
 export function frontVerb(text: string): string | null {
   let rest = text.trim()
   if (!rest || rest.length > 160) return null
+  if (/\bplanungsbildschirm\b/i.test(rest)) return null
+  if (/\b(?:app|anwendung)\b/i.test(rest) && /\b(?:planen|entwickeln|entwerfen|bauen)\s*[.!?]*$/i.test(rest)) return null
   if (/\?\s*$/.test(rest) && !LEAD.test(rest)) return null
   const lead = LEAD.exec(rest)
   if (lead) rest = rest.slice(lead[0].length)

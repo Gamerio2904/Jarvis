@@ -16,7 +16,7 @@ import {
 
 type NativeFenster = {
   listen(opts: { kind: string; name: string }): Promise<{ ok: boolean; message?: string }>
-  seek(): Promise<{ ok: boolean; peers?: string }>
+  seek(): Promise<{ ok: boolean; peers?: string; blocked?: boolean }>
   post(opts: { host: string; port: number; json: string }): Promise<{ ok: boolean }>
   pending(): Promise<{ ok: boolean; json?: string; fromHost?: string }>
   clearPending(): Promise<{ ok: boolean }>
@@ -37,14 +37,15 @@ export function fensterTransport(): FensterTransport {
   }
 }
 
-export async function seekFenster(): Promise<FensterPeer[]> {
-  if (!native) return []
+export async function seekFenster(): Promise<{ peers: FensterPeer[]; blocked: boolean }> {
+  if (!native) return { peers: [], blocked: false }
   try {
     const res = await native.seek()
     const rows = JSON.parse(res.peers || '[]') as FensterPeer[]
-    return Array.isArray(rows) ? rows.filter((p) => p && isAllowedPcHost(p.host)) : []
+    const peers = Array.isArray(rows) ? rows.filter((p) => p && isAllowedPcHost(p.host)) : []
+    return { peers, blocked: Boolean(res.blocked) }
   } catch {
-    return []
+    return { peers: [], blocked: false }
   }
 }
 

@@ -1,6 +1,6 @@
 # TEST 18.24.6 — Raum- und Objekt-Scan
 
-Sideload **`18.25.12`** (versionCode `182512`):
+Sideload **`18.25.13`** (versionCode `182513`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Jede Box ist ein Satz. Einmal tippen, kopieren, in den Chat. Tischplatte an.

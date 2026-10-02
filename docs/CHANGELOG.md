@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.25.13` — Kopplung im Hintergrund — *CODE + APK*
+
+`Verbinde das Handy` findet das andere Gerät auch, wenn die Fläche dort nicht vorn liegt. Dann kommt eine Benachrichtigung. Beide Geräte müssen das Netz in der Nähe erlauben. `öffne den Planungsbildschirm` öffnet die Planung. `Lass uns eine App entwickeln` und `Lass uns eine neue App planen` legen den Auftrag auf diese Fläche.
+
+App-Code und Sideload **`18.25.13`** (versionCode `182513`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.12` — Zwei Fenster — *CODE + APK*
 
 `Verbinde das Handy` schickt eine Kopplungsanfrage im selben WLAN. Auf dem zweiten Gerät liegt ein kleines Blatt darüber, ein Tipp bestätigt. Sonst kommt eine Benachrichtigung, die die App auf diesem Blatt öffnet. Danach zeigt ein Satz eine vorhandene Fläche auf dem Handy oder dem Tablet. Kein Bildstrom, keine Tischlage.

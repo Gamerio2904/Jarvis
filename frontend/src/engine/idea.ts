@@ -167,6 +167,7 @@ function clearShownPlan(): string {
 }
 
 async function planOntoTable(intent: AblaufIntent, raw = ''): Promise<string> {
+  if (intent.kind === 'screen') return revealPlanningScreen()
   if (intent.kind === 'clear') return clearShownPlan()
   if (intent.kind === 'accept') {
     const phase = loadSettings().plan_phase
@@ -215,6 +216,25 @@ async function planOntoTable(intent: AblaufIntent, raw = ''): Promise<string> {
   if (intent.kind === 'revise') return reviseProject(intent.text)
   if (intent.kind === 'open' && intent.work) return writeProject(intent.work)
   return 'Planen schreibt Sprints und PSP auf der Tischplatte.'
+}
+
+async function revealPlanningScreen(): Promise<string> {
+  let hit = await ideaOnTable()
+  if (!hit) {
+    const ideas = await listIdeas()
+    hit = ideas.find((row) => row.status !== 'done') || ideas[0]
+  }
+  if (hit) {
+    await showPlanning(hit)
+    return 'Der Planungsbildschirm ist offen.'
+  }
+  saveSettings({
+    plan_phase: 'live',
+    plan_script_at: Date.now(),
+    tischplatte_on: true,
+    tischplatte_view: 'psp',
+  })
+  return 'Der Planungsbildschirm ist offen.'
 }
 
 async function closePlanningScreen(raw: string): Promise<string> {

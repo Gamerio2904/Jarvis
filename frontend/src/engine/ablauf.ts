@@ -492,7 +492,7 @@ export async function handleAblauf(
   const intent = parseAblaufIntent(text)
   if (!intent) return { handled: false }
 
-  if (intent.kind === 'session') return { handled: false }
+  if (intent.kind === 'session' || intent.kind === 'screen') return { handled: false }
   if (intent.kind === 'open') return openWork(conversationId, intent.work)
   if (intent.kind === 'clear') return { handled: false }
 

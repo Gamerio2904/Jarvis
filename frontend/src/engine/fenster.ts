@@ -31,8 +31,10 @@ export type FensterPair = {
 
 export type FensterGrant = { tokenHash: string; peerName: string; peerKind: FensterKind }
 
+export type FensterSeek = FensterPeer[] | { peers?: FensterPeer[]; blocked?: boolean }
+
 export type FensterTransport = {
-  seek(): Promise<FensterPeer[]>
+  seek(): Promise<FensterSeek>
   post(peer: Pick<FensterPeer, 'host' | 'port'>, body: unknown): Promise<boolean>
 }
 
@@ -50,7 +52,16 @@ export function fensterPort(): number {
 }
 
 export function noPeerReply(kind: FensterKind): string {
-  return `Kein ${fensterKindLabel(kind)} antwortet. Die App muss dort offen sein.`
+  return `Kein ${fensterKindLabel(kind)} antwortet. Ultron muss dort im Hintergrund hören.`
+}
+
+export function needLanReply(): string {
+  return 'Das Netz in der Nähe ist nicht erlaubt. Erlaube es auf beiden Geräten, dann noch einmal.'
+}
+
+export function otherKindReply(found: FensterKind): string {
+  const label = fensterKindLabel(found)
+  return `Es antwortet ein ${label}. Sag Verbinde das ${label}.`
 }
 
 export function sentReply(kind: FensterKind): string {
@@ -200,9 +211,21 @@ export async function handleFensterCommand(text: string, transport: FensterTrans
   return shownReply(show.kind, show.surface)
 }
 
+function readSeek(found: FensterSeek): { peers: FensterPeer[]; blocked: boolean } {
+  if (Array.isArray(found)) return { peers: found, blocked: false }
+  return { peers: found?.peers || [], blocked: Boolean(found?.blocked) }
+}
+
 async function sendRequest(kind: FensterKind, transport: FensterTransport, ownKind: FensterKind): Promise<string> {
-  const peers = (await transport.seek()).filter((p) => p.kind === kind && isAllowedPcHost(p.host))
-  if (!peers.length) return noPeerReply(kind)
+  const found = readSeek(await transport.seek())
+  const allowed = found.peers.filter((p) => isAllowedPcHost(p.host))
+  const peers = allowed.filter((p) => p.kind === kind)
+  if (!peers.length) {
+    if (found.blocked) return needLanReply()
+    const other = allowed.find((p) => p.kind !== kind)
+    if (other) return otherKindReply(other.kind)
+    return noPeerReply(kind)
+  }
   const nonce = newPresenceToken()
   outgoing = { nonce, kind }
   let sent = 0

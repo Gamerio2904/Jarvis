@@ -1,21 +1,29 @@
 package app.jarvis.fenster;
 
-import android.app.Activity;
+import android.Manifest;
 import android.app.NotificationManager;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.getcapacitor.JSObject;
+import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
 
 import app.jarvis.notify.JarvisNotifyPlugin;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -23,6 +31,7 @@ import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,21 +46,56 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Kopplung im selben WLAN. Bind nur an LAN-Adressen. Port 18792.
  * Kein Bildstrom. Eine Anfrage, ein Tipp, dann eine vorhandene Fläche.
  */
-@CapacitorPlugin(name = "JarvisFenster")
+@CapacitorPlugin(
+        name = "JarvisFenster",
+        permissions = {
+            @Permission(alias = "nearby", strings = {Manifest.permission.NEARBY_WIFI_DEVICES}),
+            @Permission(alias = "local", strings = {"android.permission.ACCESS_LOCAL_NETWORK"}),
+            @Permission(alias = "notify", strings = {Manifest.permission.POST_NOTIFICATIONS})
+        }
+)
 public class JarvisFensterPlugin extends Plugin {
 
     private static final int PORT = 18792;
+    private static final int UDP_PORT = 18793;
     private static final int NOTE_ID = 1879201;
     private static final int BACKLOG = 8;
     private static final int BODY_MAX = 8000;
+    private static final String LOCAL_PERM = "android.permission.ACCESS_LOCAL_NETWORK";
 
-    private final List<ServerSocket> sockets = new ArrayList<>();
-    private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Handler main = new Handler(Looper.getMainLooper());
-    private volatile String kind = "handy";
-    private volatile String deviceName = "Ultron";
-    private volatile String lastJson = "";
-    private volatile String lastHost = "";
+    private static final List<ServerSocket> sockets = new ArrayList<>();
+    private static final List<DatagramSocket> udpSockets = new ArrayList<>();
+    private static final AtomicBoolean running = new AtomicBoolean(false);
+    private static final AtomicBoolean front = new AtomicBoolean(false);
+    private static final Handler main = new Handler(Looper.getMainLooper());
+    private static volatile String kind = "handy";
+    private static volatile String deviceName = "Ultron";
+    private static volatile String lastJson = "";
+    private static volatile String lastHost = "";
+    private static volatile Context appCtx;
+    private static JarvisFensterPlugin live;
+
+    public static void setFront(boolean on) {
+        front.set(on);
+    }
+
+    public static void hold(Context ctx) {
+        if (ctx != null) appCtx = ctx.getApplicationContext();
+        if (appCtx == null || running.get()) return;
+        startLocked();
+    }
+
+    public static void reopen(Context ctx) {
+        if (ctx != null) appCtx = ctx.getApplicationContext();
+        stopLocked();
+        startLocked();
+    }
+
+    @Override
+    public void load() {
+        live = this;
+        super.load();
+    }
 
     @PluginMethod
     public void listen(PluginCall call) {
@@ -59,18 +103,63 @@ public class JarvisFensterPlugin extends Plugin {
         kind = "tablet".equals(nextKind) ? "tablet" : "handy";
         String nextName = call.getString("name", "Ultron");
         deviceName = nextName == null || nextName.isEmpty() ? "Ultron" : nextName;
-        if (!running.get()) startLocked();
+        if (getContext() != null) appCtx = getContext().getApplicationContext();
+        if (needsNearby() && getPermissionState("nearby") != PermissionState.GRANTED) {
+            requestPermissionForAlias("nearby", call, "afterNearby");
+            return;
+        }
+        afterNearby(call);
+    }
+
+    @PermissionCallback
+    private void afterNearby(PluginCall call) {
+        if (needsLocal() && !granted(LOCAL_PERM)) {
+            try {
+                requestPermissionForAlias("local", call, "afterLocal");
+                return;
+            } catch (Exception ignored) {
+                /* Älteres System kennt das Recht nicht. */
+            }
+        }
+        afterLocal(call);
+    }
+
+    @PermissionCallback
+    private void afterLocal(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= 33 && getPermissionState("notify") != PermissionState.GRANTED) {
+            try {
+                requestPermissionForAlias("notify", call, "afterNotify");
+                return;
+            } catch (Exception ignored) {
+                /* */
+            }
+        }
+        afterNotify(call);
+    }
+
+    @PermissionCallback
+    private void afterNotify(PluginCall call) {
+        Context ctx = getContext();
+        boolean blocked = lanBlocked(ctx);
+        if (!blocked) {
+            reopen(ctx);
+            if (ctx != null) JarvisFensterService.start(ctx);
+        }
         JSObject r = new JSObject();
         r.put("ok", running.get());
-        if (!running.get()) r.put("message", "Kein LAN. Die Kopplung bleibt zu.");
+        r.put("blocked", blocked);
+        if (blocked) r.put("message", "lan");
+        else if (!running.get()) r.put("message", "Kein LAN. Die Kopplung bleibt zu.");
         call.resolve(r);
     }
 
     @PluginMethod
     public void seek(PluginCall call) {
-        List<String> peers = scanSubnet();
+        boolean blocked = lanBlocked(getContext());
+        List<String> peers = blocked ? new ArrayList<>() : scanSubnet();
         JSObject r = new JSObject();
         r.put("ok", true);
+        r.put("blocked", blocked);
         r.put("peers", joinPeers(peers));
         call.resolve(r);
     }
@@ -113,11 +202,11 @@ public class JarvisFensterPlugin extends Plugin {
 
     @Override
     public void handleOnDestroy() {
-        stopLocked();
+        if (live == this) live = null;
         super.handleOnDestroy();
     }
 
-    private void startLocked() {
+    private static void startLocked() {
         stopLocked();
         List<InetAddress> addrs = lanAddresses();
         running.set(true);
@@ -137,10 +226,26 @@ public class JarvisFensterPlugin extends Plugin {
                 /* diese Adresse nicht */
             }
         }
+        if (any) {
+            for (InetAddress addr : addrs) {
+                if (!isLan(addr) || addr.isLoopbackAddress()) continue;
+                try {
+                    DatagramSocket udp = new DatagramSocket(null);
+                    udp.setReuseAddress(true);
+                    udp.bind(new InetSocketAddress(addr, UDP_PORT));
+                    udpSockets.add(udp);
+                    Thread u = new Thread(() -> udpLoop(udp), "jarvis-fenster-udp-" + addr.getHostAddress());
+                    u.setDaemon(true);
+                    u.start();
+                } catch (Exception ignored) {
+                    /* diese Adresse hört kein UDP */
+                }
+            }
+        }
         if (!any) running.set(false);
     }
 
-    private void stopLocked() {
+    private static void stopLocked() {
         running.set(false);
         for (ServerSocket ss : sockets) {
             try {
@@ -150,9 +255,17 @@ public class JarvisFensterPlugin extends Plugin {
             }
         }
         sockets.clear();
+        for (DatagramSocket udp : udpSockets) {
+            try {
+                udp.close();
+            } catch (Exception ignored) {
+                /* */
+            }
+        }
+        udpSockets.clear();
     }
 
-    private void acceptLoop(ServerSocket ss) {
+    private static void acceptLoop(ServerSocket ss) {
         while (running.get() && !ss.isClosed()) {
             try {
                 Socket sock = ss.accept();
@@ -176,7 +289,7 @@ public class JarvisFensterPlugin extends Plugin {
         }
     }
 
-    private void handleConn(Socket sock, InetAddress remote) {
+    private static void handleConn(Socket sock, InetAddress remote) {
         try {
             sock.setSoTimeout(4_000);
             BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream(), StandardCharsets.UTF_8));
@@ -229,20 +342,18 @@ public class JarvisFensterPlugin extends Plugin {
                 lastHost = host;
                 boolean pairing = payload.contains("\"op\":\"anfrage\"");
                 main.post(() -> {
-                    JSObject ev = new JSObject();
-                    ev.put("json", payload);
-                    ev.put("fromHost", host);
-                    notifyListeners("anfrage", ev);
-                    if (!pairing) return;
-                    Activity act = getActivity();
-                    boolean front = act != null && act.hasWindowFocus();
-                    if (!front && getContext() != null) {
-                        JarvisNotifyPlugin.showQuiet(
-                                getContext(),
-                                NOTE_ID,
-                                "Ultron",
-                                "Kopplungsanfrage. Antippen zum Bestätigen.");
+                    if (live != null) {
+                        JSObject ev = new JSObject();
+                        ev.put("json", payload);
+                        ev.put("fromHost", host);
+                        live.notifyListeners("anfrage", ev);
                     }
+                    if (!pairing || front.get() || appCtx == null) return;
+                    JarvisNotifyPlugin.showQuiet(
+                            appCtx,
+                            NOTE_ID,
+                            "Ultron",
+                            "Kopplungsanfrage. Antippen zum Bestätigen.");
                 });
                 writeHttp(sock, 200, "{\"ok\":true}");
                 return;
@@ -263,7 +374,25 @@ public class JarvisFensterPlugin extends Plugin {
         }
     }
 
-    private List<String> scanSubnet() {
+    private static void udpLoop(DatagramSocket sock) {
+        byte[] buf = new byte[240];
+        while (running.get() && !sock.isClosed()) {
+            try {
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                sock.receive(packet);
+                String text = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
+                if (!text.startsWith("ULTRON-FENSTER")) continue;
+                if (!isLan(packet.getAddress())) continue;
+                String hello = "ULTRON-JA {\"ok\":true,\"kind\":\"" + kind + "\"}";
+                byte[] out = hello.getBytes(StandardCharsets.UTF_8);
+                sock.send(new DatagramPacket(out, out.length, packet.getAddress(), packet.getPort()));
+            } catch (Exception ignored) {
+                if (!running.get() || sock.isClosed()) return;
+            }
+        }
+    }
+
+    private static List<String> scanSubnet() {
         List<String> own = new ArrayList<>();
         List<String> bases = new ArrayList<>();
         for (InetAddress addr : lanAddresses()) {
@@ -275,6 +404,8 @@ public class JarvisFensterPlugin extends Plugin {
             if (cut > 0) bases.add(ip.substring(0, cut));
         }
         List<String> found = Collections.synchronizedList(new ArrayList<>());
+        List<String> heard = udpSeek(own, bases);
+        if (!heard.isEmpty()) return heard;
         if (bases.isEmpty()) return found;
         ExecutorService pool = Executors.newFixedThreadPool(32);
         for (String base : bases) {
@@ -297,10 +428,92 @@ public class JarvisFensterPlugin extends Plugin {
         return found;
     }
 
-    private String hello(String host) {
+    private static List<String> udpSeek(List<String> own, List<String> bases) {
+        List<String> found = new ArrayList<>();
+        if (bases.isEmpty()) return found;
+        DatagramSocket sock = null;
+        try {
+            sock = new DatagramSocket();
+            sock.setBroadcast(true);
+            sock.setSoTimeout(180);
+            byte[] msg = "ULTRON-FENSTER".getBytes(StandardCharsets.UTF_8);
+            for (String base : bases) sendUdp(sock, base + ".255", msg);
+            sendUdp(sock, "255.255.255.255", msg);
+            long end = System.currentTimeMillis() + 700;
+            byte[] buf = new byte[400];
+            while (System.currentTimeMillis() < end) {
+                try {
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                    sock.receive(packet);
+                    String text = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8);
+                    if (!text.startsWith("ULTRON-JA")) continue;
+                    String host = packet.getAddress() == null ? "" : packet.getAddress().getHostAddress();
+                    if (host == null || own.contains(host) || !isLanHost(host)) continue;
+                    String peerKind = text.contains("\"tablet\"") ? "tablet" : "handy";
+                    String row = "{\"host\":\"" + host + "\",\"port\":" + PORT + ",\"name\":\"Ultron\",\"kind\":\"" + peerKind + "\"}";
+                    if (!found.contains(row)) found.add(row);
+                } catch (SocketTimeoutException ignored) {
+                    /* weiter warten */
+                }
+            }
+        } catch (Exception ignored) {
+            /* kein Broadcast */
+        } finally {
+            if (sock != null) {
+                try {
+                    sock.close();
+                } catch (Exception ignored) {
+                    /* */
+                }
+            }
+        }
+        return found;
+    }
+
+    private static void sendUdp(DatagramSocket sock, String host, byte[] msg) {
+        try {
+            sock.send(new DatagramPacket(msg, msg.length, InetAddress.getByName(host), UDP_PORT));
+        } catch (Exception ignored) {
+            /* diese Adresse nicht */
+        }
+    }
+
+    private static boolean needsNearby() {
+        return Build.VERSION.SDK_INT >= 33;
+    }
+
+    private static boolean needsLocal() {
+        return Build.VERSION.SDK_INT >= 36 && permissionKnown(appCtx, LOCAL_PERM);
+    }
+
+    private boolean granted(String perm) {
+        Context ctx = getContext();
+        if (ctx == null) return false;
+        return ctx.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private static boolean permissionKnown(Context ctx, String perm) {
+        try {
+            if (ctx == null) return false;
+            ctx.getPackageManager().getPermissionInfo(perm, 0);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    static boolean lanBlocked(Context ctx) {
+        if (ctx == null || Build.VERSION.SDK_INT < 36) return false;
+        if (permissionKnown(ctx, LOCAL_PERM)) {
+            return ctx.checkSelfPermission(LOCAL_PERM) != PackageManager.PERMISSION_GRANTED;
+        }
+        return ctx.checkSelfPermission(Manifest.permission.NEARBY_WIFI_DEVICES) != PackageManager.PERMISSION_GRANTED;
+    }
+
+    private static String hello(String host) {
         Socket sock = new Socket();
         try {
-            sock.connect(new InetSocketAddress(host, PORT), 120);
+            sock.connect(new InetSocketAddress(host, PORT), 80);
             sock.setSoTimeout(400);
             String req = "GET /fenster HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
             OutputStream out = sock.getOutputStream();
@@ -331,7 +544,7 @@ public class JarvisFensterPlugin extends Plugin {
         }
     }
 
-    private boolean sendPost(String host, int port, String json) {
+    private static boolean sendPost(String host, int port, String json) {
         if (port < 1 || port > 65535) port = PORT;
         Socket sock = new Socket();
         try {
@@ -409,7 +622,7 @@ public class JarvisFensterPlugin extends Plugin {
         return false;
     }
 
-    private List<InetAddress> lanAddresses() {
+    private static List<InetAddress> lanAddresses() {
         List<InetAddress> out = new ArrayList<>();
         try {
             Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();

@@ -10,6 +10,7 @@ import com.getcapacitor.BridgeActivity;
 
 import app.jarvis.device.JarvisDevicePlugin;
 import app.jarvis.fenster.JarvisFensterPlugin;
+import app.jarvis.fenster.JarvisFensterService;
 import app.jarvis.haus.JarvisHausPlugin;
 import app.jarvis.geo.JarvisGeoPlugin;
 import app.jarvis.home.JarvisHomePlugin;
@@ -47,7 +48,15 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        JarvisFensterPlugin.setFront(true);
+        JarvisFensterService.start(this);
+    }
+
+    @Override
     public void onPause() {
+        JarvisFensterPlugin.setFront(false);
         super.onPause();
         keepWebViewIfDebug();
     }

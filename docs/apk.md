@@ -1,9 +1,9 @@
-# Android-APK — App-Code `18.25.12`
+# Android-APK — App-Code `18.25.13`
 
-App-Code und Sideload **`18.25.12`** (versionCode `182512`):
+App-Code und Sideload **`18.25.13`** (versionCode `182513`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-`Verbinde das Handy` schickt die Kopplung im selben WLAN. Ein Tipp auf dem zweiten Gerät bestätigt. Danach öffnet ein Satz dort eine vorhandene Fläche. Diese Datei ersetzt `18.25.11`, weil der versionCode steigt.
+Die Kopplung hört weiter, wenn die Fläche nicht vorn liegt, und meldet sich per Benachrichtigung. `öffne den Planungsbildschirm` öffnet die Planung. Diese Datei ersetzt `18.25.12`, weil der versionCode steigt.
 
 Entwurf: [`TEST-18.25.md`](./TEST-18.25.md). Testsätze ab Hausstand-Code: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md). Portfolio: [`TEST-18.24.md`](./TEST-18.24.md). Raum-Scan: [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 

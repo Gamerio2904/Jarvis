@@ -327,6 +327,7 @@ function App() {
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
   const overlayHistRef = useRef(false)
   const tischWasRef = useRef<boolean | null>(null)
+  const planAtRef = useRef<number | null>(null)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
   const [chessOpen, setChessOpen] = useState(false)
@@ -1983,6 +1984,16 @@ function App() {
     showTischplatte()
     if (loadSettings().plan_phase === 'live') setMiniChatOpen(true)
   }, [liveHud.tischplatte_on])
+
+  useEffect(() => {
+    const at = Number(liveHud.plan_script_at || 0)
+    const prev = planAtRef.current
+    planAtRef.current = at
+    if (prev === null || prev === at || !at) return
+    const phase = loadSettings().plan_phase
+    if (phase !== 'live' && phase !== 'go') return
+    showTischplatte()
+  }, [liveHud.plan_script_at])
 
   useEffect(() => {
     let phase = ''

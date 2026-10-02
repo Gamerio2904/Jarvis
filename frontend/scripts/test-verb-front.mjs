@@ -32,6 +32,7 @@ assert.equal(frontVerb('Ich möchte einen Timer für fünf Minuten stellen'), 's
 assert.equal(frontVerb('Bitte die Musik leiser machen'), 'mach die Musik leiser')
 
 /** Kein verbletzter Satz, keine Umstellung. */
+assert.equal(frontVerb('Lass uns eine neue App planen'), null)
 assert.equal(frontVerb('stell einen Timer für zehn Minuten'), null)
 assert.equal(frontVerb('Wie spät ist es'), null)
 assert.equal(frontVerb(''), null)

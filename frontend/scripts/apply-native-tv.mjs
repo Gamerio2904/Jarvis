@@ -67,6 +67,7 @@ const fensterSrc = join(root, 'native', 'fenster')
 const fensterDest = join(android, 'app/src/main/java/app/jarvis/fenster')
 mkdirSync(fensterDest, { recursive: true })
 copyFileSync(join(fensterSrc, 'JarvisFensterPlugin.java'), join(fensterDest, 'JarvisFensterPlugin.java'))
+copyFileSync(join(fensterSrc, 'JarvisFensterService.java'), join(fensterDest, 'JarvisFensterService.java'))
 
 const deviceSrc = join(root, 'native', 'device')
 const deviceDest = join(android, 'app/src/main/java/app/jarvis/device')
@@ -155,6 +156,7 @@ const perms = [
   'android.permission.READ_CONTACTS',
   'android.permission.BLUETOOTH',
   'android.permission.BLUETOOTH_CONNECT',
+  'android.permission.ACCESS_LOCAL_NETWORK',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -168,6 +170,26 @@ if (!manifest.includes('android.hardware.camera')) {
   manifest = manifest.replace(
     '</manifest>',
     '    <uses-feature android:name="android.hardware.camera" android:required="false" />\n</manifest>',
+  )
+}
+if (!manifest.includes('android.permission.NEARBY_WIFI_DEVICES')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    '    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" />\n</manifest>',
+  )
+}
+if (!manifest.includes('app.jarvis.fenster.JarvisFensterService')) {
+  manifest = manifest.replace(
+    '</application>',
+    `        <service
+            android:name="app.jarvis.fenster.JarvisFensterService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Kopplung im WLAN" />
+        </service>
+</application>`,
   )
 }
 if (!manifest.includes('android:usesCleartextTraffic')) {

@@ -27,8 +27,10 @@ const {
   commitFensterGrant,
   grantFromConfirm,
   handleFensterCommand,
+  needLanReply,
   needPairReply,
   noPeerReply,
+  otherKindReply,
   readFensterGrant,
   requestFromBody,
   resetFensterOut,
@@ -62,6 +64,18 @@ const post = async (peer, body) => {
   posted.push({ peer, body })
   return true
 }
+resetFensterOut()
+const blocked = await handleFensterCommand('Verbinde das Handy', {
+  seek: async () => ({ peers: [], blocked: true }),
+  post: async () => false,
+})
+assert.equal(blocked, needLanReply())
+resetFensterOut()
+const tabletOnly = await handleFensterCommand('Verbinde das Handy', {
+  seek: async () => [{ host: '10.0.0.8', port: 18792, name: 'Ultron', kind: 'tablet' }],
+  post: async () => true,
+})
+assert.equal(tabletOnly, otherKindReply('tablet'))
 resetFensterOut()
 const sent = await handleFensterCommand('Verbinde das Handy', { seek, post })
 assert.equal(sent, sentReply('handy'))
@@ -132,6 +146,10 @@ assert.match(apply, /JarvisFensterPlugin\.java/)
 assert.match(java, /ServerSocket/)
 assert.doesNotMatch(java, /0\.0\.0\.0/)
 assert.match(java, /18792/)
+assert.match(java, /ACCESS_LOCAL_NETWORK/)
+assert.match(src('native/fenster/JarvisFensterService.java'), /JarvisFensterService/)
+assert.match(apply, /JarvisFensterService\.java/)
+assert.match(main, /setFront/)
 assert.match(app, /FensterSheet/)
 assert.match(sheet, /Bestätigen/)
 assert.match(sheet, /Ablehnen/)

@@ -6,6 +6,7 @@ import { parsePortfolioIntent } from './portfolio-parse.ts'
 export type AblaufIntent =
   | { kind: 'open'; work?: string }
   | { kind: 'session'; work: string }
+  | { kind: 'screen' }
   | { kind: 'close' }
   | { kind: 'clear' }
   | { kind: 'accept' }
@@ -30,6 +31,9 @@ function otherWish(): boolean {
 export function parseAblaufIntent(text: string): AblaufIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t) return null
+  if (isPlanningScreenAsk(t)) return { kind: 'screen' }
+  const invite = planningInvite(t)
+  if (invite) return { kind: 'session', work: invite }
   if (
     /^\s*(?:lösch(?:e)?|entfern(?:e)?|streich(?:e)?|nimm\s+weg)\s+(?:bitte\s+)?(?:mir\s+)?(?:den\s+)?(?:aktuellen\s+|angezeigten\s+)?plan\b/i.test(
       t,
@@ -85,6 +89,24 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
 
 function sessionWork(raw: string): string {
   return raw.replace(/\s+/g, ' ').trim().slice(0, 2000)
+}
+
+function isPlanningScreenAsk(t: string): boolean {
+  return (
+    /^\s*(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+)?planungsbildschirm\s*[.!?]*$/i.test(t) ||
+    /^\s*planungsbildschirm\s*(?:auf|öffnen|oeffnen)?\s*[.!?]*$/i.test(t)
+  )
+}
+
+function planningInvite(t: string): string | null {
+  if (
+    !/^\s*(?:lass(?:\s+uns)?|wir\s+wollen|ich\s+will|ich\s+möchte|ich\s+moechte)\s+(?:mal\s+)?(?:zusammen\s+)?(?:eine\s+neue|eine|die|neue)?\s*(?:app|anwendung)\s+(?:planen|entwickeln|bauen|entwerfen)\s*[.!?]*$/i.test(
+      t,
+    )
+  ) {
+    return null
+  }
+  return 'eine neue App'
 }
 
 /** Ein Plansatz, den kein Parser angenommen hat. Das Modell darf ihn nicht als Projekt erzählen. */
