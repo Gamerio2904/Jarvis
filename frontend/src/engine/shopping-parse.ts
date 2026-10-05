@@ -1,12 +1,15 @@
 export type ShopIntent =
-  | { kind: 'add'; item: string }
-  | { kind: 'list' }
+  | { kind: 'add'; item: string; listHint?: string }
+  | { kind: 'list'; listHint?: string }
   | { kind: 'got'; item: string }
   | { kind: 'clear' }
 
 const ADD =
   /^\s*(?:einkauf(?:sliste)?\s*[:-]\s*|auf\s+die\s+einkaufsliste\s+|pack(?:e)?\s+(?:auf\s+die\s+liste\s+)?|auch\s+)(.+?)\s*$/i
 const ADD_TAIL = /^\s*(.+?)\s+auf\s+die\s+(?:einkaufs)?liste\s*$/i
+const ADD_NAMED =
+  /^\s*(.+?)\s+(?:zur|zur\s+|auf\s+(?:die\s+)?|in\s+(?:die\s+)?)(.+?)(?:-|\s)?liste\s*$/i
+const ADD_ON_AMAZON = /^\s*(.+?)\s+(?:auf|zur)\s+amazon\s*$/i
 const ADD_BUY =
   /^\s*(?:bitte\s+)?(.{2,40}?)\s+(kaufen|holen|besorgen)\s*[.!]?\s*$/i
 const LIST =
@@ -25,6 +28,22 @@ export function parseShopIntent(text: string): ShopIntent | null {
   if (missing) {
     const item = clean(missing[1])
     if (item && !/\b(was|nichts|wenig)\b/i.test(item)) return { kind: 'add', item }
+  }
+  const onAmazon = ADD_ON_AMAZON.exec(t)
+  if (onAmazon) {
+    const item = clean(onAmazon[1])
+    if (item) return { kind: 'add', item, listHint: 'Amazon' }
+  }
+  const named = ADD_NAMED.exec(t)
+  if (named) {
+    const item = clean(named[1])
+    const listHint = clean(named[2])
+    if (item && listHint && !/^(einkaufs?|haupt)$/i.test(listHint)) {
+      return { kind: 'add', item, listHint }
+    }
+    if (item && listHint && /^(einkaufs?|haupt)$/i.test(listHint)) {
+      return { kind: 'add', item }
+    }
   }
   const add = ADD.exec(t)
   if (add) return { kind: 'add', item: clean(add[1]) }

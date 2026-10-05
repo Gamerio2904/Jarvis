@@ -14,6 +14,7 @@ import {
   listPriceWatches,
   listReminders,
   listShopping,
+  listShoppingLists,
   listTodos,
   listIdeas,
   listWatchMovies,
@@ -30,6 +31,7 @@ import {
   type Reminder,
   type Settings,
   type ShoppingItem,
+  type ShoppingList,
   type Todo,
   type Idea,
   type MemoryProposal,
@@ -153,6 +155,7 @@ export type HausBackup = {
   watch_movies?: WatchMovie[]
   watched_movies?: WatchedMovie[]
   shopping: ShoppingItem[]
+  shopping_lists?: ShoppingList[]
   price_watches?: PriceWatch[]
   knowledge_packs?: KnowledgePack[]
   memory_proposals?: MemoryProposal[]
@@ -261,6 +264,9 @@ export function asBackup(raw: unknown): HausBackup | null {
     watch_movies: arr(o.watch_movies),
     watched_movies: arr(o.watched_movies),
     shopping: arr(o.shopping),
+    shopping_lists: Object.prototype.hasOwnProperty.call(o, 'shopping_lists')
+      ? arr(o.shopping_lists)
+      : undefined,
     price_watches: o.price_watches ? arr(o.price_watches) : undefined,
     knowledge_packs: o.knowledge_packs ? arr(o.knowledge_packs) : undefined,
     conversations: o.conversations ? arr(o.conversations) : undefined,
@@ -301,6 +307,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     watch_movies: await listWatchMovies(),
     watched_movies: await listWatchedMovies(),
     shopping: await listShopping(),
+    shopping_lists: await listShoppingLists(),
     price_watches: await listPriceWatches(),
     knowledge_packs: await listKnowledgePacks(),
     memory_proposals: await getAll<MemoryProposal>('memory_proposals').catch(() => []),
@@ -349,6 +356,12 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   await replaceStore('watch_movies', data.watch_movies || [])
   await replaceStore('watched_movies', data.watched_movies || [])
   await replaceStore('shopping', data.shopping || [])
+  if (data.shopping_lists?.length) {
+    await replaceStore('shopping_lists', data.shopping_lists)
+  } else {
+    await replaceStore('shopping_lists', [])
+  }
+  await listShoppingLists()
   if (data.price_watches) await replaceStore('price_watches', data.price_watches)
   if (data.knowledge_packs) await replaceStore('knowledge_packs', data.knowledge_packs)
   await replaceStore('memory_proposals', data.memory_proposals || [])

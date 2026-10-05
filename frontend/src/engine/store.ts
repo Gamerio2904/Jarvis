@@ -7,12 +7,18 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.25.13'
+export const APP_VERSION = '18.25.14'
 
-/** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
-export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
+/** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
+export function emitHouse(
+  name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings' | 'jarvis-shopping',
+): void {
   if (typeof window === 'undefined') return
   window.dispatchEvent(new Event(name))
+}
+
+function emitShopping(): void {
+  emitHouse('jarvis-shopping')
 }
 
 export const DEFAULT_MODEL = {
@@ -168,10 +174,26 @@ export type CalendarEvent = {
   updated_at: string
 }
 
+export type ShoppingList = {
+  id: string
+  name: string
+  slug: string
+  is_default: boolean
+  created_at: string
+  updated_at: string
+}
+
 export type ShoppingItem = {
   id: string
+  list_id?: string
   title: string
   status: 'open' | 'got' | string
+  image_url?: string
+  price_text?: string
+  price_source?: string
+  product_ref?: string
+  sort_open?: number
+  sort_done?: number
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -807,7 +829,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 15)
+    const req = indexedDB.open('jarvis-ondevice', 16)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -824,6 +846,7 @@ function openDb(): Promise<IDBDatabase> {
         'reminders',
         'events',
         'shopping',
+        'shopping_lists',
         'price_watches',
         'docs',
         'xfer',
@@ -1385,25 +1408,223 @@ export async function putEvent(row: CalendarEvent): Promise<void> {
   emitHouse('jarvis-events')
 }
 
-export async function listShopping(): Promise<ShoppingItem[]> {
-  const rows = await getAll<ShoppingItem>('shopping')
-  return rows.sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+const DEFAULT_LIST_NAME = 'Hauptliste'
+const DEFAULT_LIST_SLUG = 'hauptliste'
+
+export function slugShoppingList(name: string): string {
+  const raw = name
+    .trim()
+    .toLowerCase()
+    .replace(/(?:\s|-)*liste$/i, '')
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return raw || DEFAULT_LIST_SLUG
 }
 
-export async function addShopping(title: string, conversationId?: string): Promise<ShoppingItem> {
-  const open = (await listShopping()).filter((s) => s.status === 'open')
-  const dup = open.find((s) => s.title.toLowerCase() === title.toLowerCase())
-  if (dup) return dup
-  const row: ShoppingItem = {
+async function rawListShoppingLists(): Promise<ShoppingList[]> {
+  try {
+    return await getAll<ShoppingList>('shopping_lists')
+  } catch {
+    return []
+  }
+}
+
+async function ensureDefaultShoppingList(): Promise<ShoppingList> {
+  let lists = await rawListShoppingLists()
+  if (!lists.length) {
+    const row: ShoppingList = {
+      id: newId(),
+      name: DEFAULT_LIST_NAME,
+      slug: DEFAULT_LIST_SLUG,
+      is_default: true,
+      created_at: nowIso(),
+      updated_at: nowIso(),
+    }
+    await put('shopping_lists', row)
+    lists = [row]
+  }
+  let def = lists.find((l) => l.is_default) || lists[0]
+  if (!def.is_default) {
+    def = { ...def, is_default: true, updated_at: nowIso() }
+    await put('shopping_lists', def)
+  }
+  const items = await getAll<ShoppingItem>('shopping')
+  let touched = false
+  for (const item of items) {
+    if (item.list_id) continue
+    touched = true
+    await put('shopping', { ...item, list_id: def.id })
+  }
+  if (touched) emitShopping()
+  return def
+}
+
+export async function listShoppingLists(): Promise<ShoppingList[]> {
+  await ensureDefaultShoppingList()
+  const rows = await rawListShoppingLists()
+  return rows.sort((a, b) => {
+    if (a.is_default !== b.is_default) return a.is_default ? -1 : 1
+    return a.name.localeCompare(b.name, 'de')
+  })
+}
+
+export async function getDefaultShoppingList(): Promise<ShoppingList> {
+  return ensureDefaultShoppingList()
+}
+
+export async function resolveShoppingList(hint?: string | null): Promise<ShoppingList> {
+  await ensureDefaultShoppingList()
+  const lists = await rawListShoppingLists()
+  const def = lists.find((l) => l.is_default) || lists[0]
+  const h = (hint || '').trim()
+  if (!h) return def
+  const slug = slugShoppingList(h)
+  if (!slug || slug.length > 48) return def
+  const hit = lists.find((l) => l.slug === slug || l.name.toLowerCase() === h.toLowerCase())
+  if (hit) return hit
+  if (slug === DEFAULT_LIST_SLUG) return def
+  const row: ShoppingList = {
     id: newId(),
-    title,
-    status: 'open',
-    source_conversation_id: conversationId || null,
+    name: h.replace(/(?:\s|-)*liste$/i, '').trim() || h,
+    slug,
+    is_default: false,
     created_at: nowIso(),
     updated_at: nowIso(),
   }
-  await put('shopping', row)
+  await put('shopping_lists', row)
+  emitShopping()
   return row
+}
+
+export async function createShoppingList(name: string): Promise<ShoppingList | null> {
+  const clean = name.trim().replace(/\s+/g, ' ')
+  if (!clean || clean.length > 64) return null
+  await ensureDefaultShoppingList()
+  const slug = slugShoppingList(clean)
+  if (!slug) return null
+  const lists = await rawListShoppingLists()
+  const dup = lists.find((l) => l.slug === slug)
+  if (dup) return dup
+  const row: ShoppingList = {
+    id: newId(),
+    name: clean.replace(/(?:\s|-)*liste$/i, '').trim() || clean,
+    slug,
+    is_default: false,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('shopping_lists', row)
+  emitShopping()
+  return row
+}
+
+export async function renameShoppingList(id: string, name: string): Promise<ShoppingList | null> {
+  const clean = name.trim()
+  if (!clean || clean.length > 64) return null
+  const lists = await listShoppingLists()
+  const row = lists.find((l) => l.id === id)
+  if (!row) return null
+  const next: ShoppingList = {
+    ...row,
+    name: clean,
+    slug: row.is_default ? DEFAULT_LIST_SLUG : slugShoppingList(clean),
+    updated_at: nowIso(),
+  }
+  await put('shopping_lists', next)
+  emitShopping()
+  return next
+}
+
+export async function deleteShoppingList(id: string): Promise<boolean> {
+  const lists = await listShoppingLists()
+  const row = lists.find((l) => l.id === id)
+  if (!row || row.is_default) return false
+  const def = lists.find((l) => l.is_default)!
+  const items = await getAll<ShoppingItem>('shopping')
+  for (const item of items) {
+    if (item.list_id === id) await put('shopping', { ...item, list_id: def.id, updated_at: nowIso() })
+  }
+  await del('shopping_lists', id)
+  emitShopping()
+  return true
+}
+
+function sortShoppingItems(rows: ShoppingItem[]): ShoppingItem[] {
+  const open = rows
+    .filter((s) => s.status === 'open')
+    .sort((a, b) => (a.sort_open ?? 0) - (b.sort_open ?? 0) || (a.created_at < b.created_at ? -1 : 1))
+  const got = rows
+    .filter((s) => s.status !== 'open')
+    .sort((a, b) => (a.sort_done ?? 0) - (b.sort_done ?? 0) || (a.updated_at < b.updated_at ? 1 : -1))
+  return [...open, ...got]
+}
+
+export async function listShopping(listId?: string): Promise<ShoppingItem[]> {
+  await ensureDefaultShoppingList()
+  const rows = await getAll<ShoppingItem>('shopping')
+  const filtered = listId ? rows.filter((s) => s.list_id === listId) : rows
+  return sortShoppingItems(filtered)
+}
+
+export async function listShoppingForList(listId: string): Promise<ShoppingItem[]> {
+  return listShopping(listId)
+}
+
+export type AddShoppingOpts = {
+  conversationId?: string
+  listId?: string
+  listHint?: string
+  image_url?: string
+  price_text?: string
+  price_source?: string
+  product_ref?: string
+}
+
+export async function addShopping(title: string, opts?: AddShoppingOpts | string): Promise<ShoppingItem> {
+  const o: AddShoppingOpts =
+    typeof opts === 'string' ? { conversationId: opts } : opts || {}
+  const list = o.listId
+    ? (await listShoppingLists()).find((l) => l.id === o.listId) || (await getDefaultShoppingList())
+    : await resolveShoppingList(o.listHint)
+  const open = (await listShopping(list.id)).filter((s) => s.status === 'open')
+  const dup = open.find((s) => s.title.toLowerCase() === title.toLowerCase())
+  if (dup) return dup
+  const sort_open = open.length ? Math.max(...open.map((s) => s.sort_open ?? 0)) + 1 : 0
+  const row: ShoppingItem = {
+    id: newId(),
+    list_id: list.id,
+    title,
+    status: 'open',
+    sort_open,
+    sort_done: 0,
+    source_conversation_id: o.conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  if (o.image_url) row.image_url = o.image_url
+  if (o.price_text) row.price_text = o.price_text
+  if (o.price_source) row.price_source = o.price_source
+  if (o.product_ref) row.product_ref = o.product_ref
+  await put('shopping', row)
+  emitShopping()
+  return row
+}
+
+export async function markShoppingGotById(id: string): Promise<ShoppingItem | undefined> {
+  const rows = await getAll<ShoppingItem>('shopping')
+  const hit = rows.find((s) => s.id === id && s.status === 'open')
+  if (!hit) return undefined
+  const listId = hit.list_id || (await getDefaultShoppingList()).id
+  const done = (await listShopping(listId)).filter((s) => s.status !== 'open')
+  const sort_done = done.length ? Math.max(...done.map((s) => s.sort_done ?? 0)) + 1 : 0
+  const next: ShoppingItem = { ...hit, status: 'got', sort_done, updated_at: nowIso() }
+  await put('shopping', next)
+  emitShopping()
+  return next
 }
 
 export async function markShoppingGot(query: string): Promise<ShoppingItem | undefined> {
@@ -1411,8 +1632,27 @@ export async function markShoppingGot(query: string): Promise<ShoppingItem | und
   const rows = (await listShopping()).filter((s) => s.status === 'open')
   const hit = rows.find((s) => s.title.toLowerCase().includes(q) || q.includes(s.title.toLowerCase()))
   if (!hit) return undefined
-  const next = { ...hit, status: 'got', updated_at: nowIso() }
+  return markShoppingGotById(hit.id)
+}
+
+export async function deleteShoppingItem(id: string): Promise<boolean> {
+  const rows = await getAll<ShoppingItem>('shopping')
+  if (!rows.some((s) => s.id === id)) return false
+  await del('shopping', id)
+  emitShopping()
+  return true
+}
+
+export async function reopenShoppingItem(id: string): Promise<ShoppingItem | undefined> {
+  const rows = await getAll<ShoppingItem>('shopping')
+  const hit = rows.find((s) => s.id === id)
+  if (!hit || hit.status === 'open') return hit
+  const listId = hit.list_id || (await getDefaultShoppingList()).id
+  const open = (await listShopping(listId)).filter((s) => s.status === 'open')
+  const sort_open = open.length ? Math.max(...open.map((s) => s.sort_open ?? 0)) + 1 : 0
+  const next: ShoppingItem = { ...hit, status: 'open', sort_open, updated_at: nowIso() }
   await put('shopping', next)
+  emitShopping()
   return next
 }
 
@@ -1420,6 +1660,7 @@ export async function clearGotShopping(): Promise<number> {
   const rows = await listShopping()
   const got = rows.filter((s) => s.status === 'got')
   for (const s of got) await del('shopping', s.id)
+  if (got.length) emitShopping()
   return got.length
 }
 

@@ -9914,3 +9914,166 @@ html.theme-wipe-dark::before {
     animation: entwurf-fade 120ms linear;
   }
 }
+
+.shop-overlay .shop-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 8px;
+}
+
+.shop-list-card {
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.shop-new-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.shop-new-list input {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-back {
+  margin-bottom: 6px;
+  padding-left: 0;
+}
+
+.shop-items-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 72px;
+}
+
+.shop-card {
+  touch-action: pan-y;
+  transition: opacity 280ms var(--ease-out);
+}
+
+.shop-card.is-got {
+  opacity: 0.45;
+}
+
+.shop-card-main {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.shop-card-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.shop-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shop-card-thumb-empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(94, 207, 138, 0.25), rgba(255, 255, 255, 0.04));
+}
+
+.shop-card-body h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text);
+}
+
+.shop-card-price {
+  margin: 0;
+  font-size: 0.88rem;
+  opacity: 0.85;
+}
+
+.shop-card-hint,
+.shop-card-actions {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  opacity: 0.65;
+}
+
+.shop-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.shop-fab {
+  position: absolute;
+  right: calc(18px + env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+}
+
+.shop-add-sheet {
+  position: absolute;
+  inset: auto 0 0 0;
+  max-height: 62%;
+  z-index: 20;
+  background: rgba(8, 12, 10, 0.98);
+  border-top: 1px solid var(--border);
+  padding: 12px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-add-input {
+  width: 100%;
+}
+
+.shop-suggest {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.shop-suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.shop-suggest-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.shop-suggest-row img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}

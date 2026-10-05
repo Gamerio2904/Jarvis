@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3. Der Stand auf `main` ist `18.25.13`.
+Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3.
+
+### `18.25.14` — Einkaufslisten-GUI + Flächen-Fixes — *CODE + APK*
+
+Mehrere Einkaufslisten (Homescreen **Einkauf**, zwei Overlays, Wischen, FAB + Open-Food-Facts-Vorschläge), Parser mit Listennamen. Kopplung/Kalender/Planungsmodus/Tokio/Watchliste/Flächen per Satz wie in [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md). Test: [`TEST-18.25.14.md`](./TEST-18.25.14.md).
+
+App-Code und Sideload **`18.25.14`** (versionCode `182514`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.25.13` — Kopplung im Hintergrund — *CODE + APK*
 

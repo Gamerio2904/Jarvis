@@ -93,6 +93,22 @@ function AppGlyph({ id }: { id: HomeAppId }) {
       </svg>
     )
   }
+  if (id === 'shopping') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+          d="M6 7h15l-1.4 8H7.4L6 7Z"
+        />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" d="M6 7 5 3H2" />
+        <circle cx="9" cy="19.5" r="1.2" fill="currentColor" />
+        <circle cx="17" cy="19.5" r="1.2" fill="currentColor" />
+      </svg>
+    )
+  }
   return (
     <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
       <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.8" />

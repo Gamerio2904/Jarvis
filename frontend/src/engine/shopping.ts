@@ -35,7 +35,10 @@ export async function handleShopping(
   if (!intent) return { handled: false }
 
   if (intent.kind === 'add') {
-    const row = await addShopping(intent.item, conversationId)
+    const row = await addShopping(intent.item, {
+      conversationId,
+      listHint: intent.listHint,
+    })
     const open = (await listShopping()).filter((s) => s.status === 'open')
     rememberList(open.map((s) => s.title))
     await syncGlance()

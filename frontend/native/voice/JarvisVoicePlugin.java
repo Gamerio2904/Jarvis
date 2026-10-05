@@ -100,7 +100,9 @@ public class JarvisVoicePlugin extends Plugin {
     /** Nachhall im Raum, nachdem der Lautsprecher verstummt ist. */
     private volatile long bargeIgnoreUntil = 0;
     private volatile int bargeMuteSeq = 0;
-    private Intent listenIntent;
+    private Intent cachedListenIntent;
+    private boolean holdOpen = false;
+    private final Runnable restartListenRunnable = this::restartListen;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
     private final OkHttpClient http = new OkHttpClient.Builder()
@@ -144,7 +146,7 @@ public class JarvisVoicePlugin extends Plugin {
         self = null;
         main.post(() -> {
             holdOpen = false;
-            main.removeCallbacks(restartListen);
+            main.removeCallbacks(restartListenRunnable);
             JarvisListenAudio.release(getContext());
             dropRecognizer();
             if (tts != null) {
@@ -251,8 +253,9 @@ public class JarvisVoicePlugin extends Plugin {
                 return;
             }
             ensureRecognizer();
-            Intent intent = listenIntent();
-            listenIntent = intent;
+            final int gen = ++listenGen;
+            Intent intent = buildListenIntent();
+            cachedListenIntent = intent;
             int delay = 80;
             try {
                 main.postDelayed(() -> {
@@ -279,7 +282,7 @@ public class JarvisVoicePlugin extends Plugin {
         });
     }
 
-    private Intent listenIntent() {
+    private Intent buildListenIntent() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "de-DE");
@@ -317,6 +320,15 @@ public class JarvisVoicePlugin extends Plugin {
             }
         }
         return SpeechRecognizer.createSpeechRecognizer(getContext());
+    }
+
+    private void dropRecognizer() {
+        try {
+            if (recognizer != null) {
+                recognizer.destroy();
+                recognizer = null;
+            }
+        } catch (Exception ignored) {}
     }
 
     private void ensureRecognizer() {
@@ -369,8 +381,8 @@ public class JarvisVoicePlugin extends Plugin {
                             if (listenCall == null) return;
                             try {
                                 ensureRecognizer();
-                                if (recognizer != null && listenIntent != null) {
-                                    recognizer.startListening(listenIntent);
+                                if (recognizer != null && cachedListenIntent != null) {
+                                    recognizer.startListening(cachedListenIntent);
                                 }
                             } catch (Exception e) {
                                 finishListen(joinHold(lastPartial), false, "Zuhören unterbrochen.", null);
@@ -443,7 +455,7 @@ public class JarvisVoicePlugin extends Plugin {
     }
 
     private void restartListen() {
-        final Intent intent = listenIntent;
+        final Intent intent = cachedListenIntent;
         final PluginCall call = listenCall;
         final int gen = listenGen;
         if (intent == null || call == null) return;
@@ -510,7 +522,7 @@ public class JarvisVoicePlugin extends Plugin {
     public void stopListen(PluginCall call) {
         main.post(() -> {
             holdOpen = false;
-            main.removeCallbacks(restartListen);
+            main.removeCallbacks(restartListenRunnable);
             dropRecognizer();
             finishListen("", true, "", null);
         });

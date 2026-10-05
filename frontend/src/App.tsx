@@ -64,6 +64,7 @@ import { hausStop, watchHausIncoming } from './native/haus.ts'
 import { applyBackup, parseImportPayload } from './engine/backup.ts'
 import { type HomeAppId } from './engine/home-apps.ts'
 import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
+import { ShoppingListsOverlay } from './ui/ShoppingListsOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
 import { PcDashboard } from './ui/PcDashboard.tsx'
 import { VoiceMode } from './ui/VoiceMode.tsx'
@@ -340,6 +341,7 @@ function App() {
   const [voiceCompact, setVoiceCompact] = useState(false)
   const [watchlistOpen, setWatchlistOpen] = useState(false)
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
+  const [shoppingOpen, setShoppingOpen] = useState(false)
   const overlayHistRef = useRef(false)
   const tischWasRef = useRef<boolean | null>(null)
   const planAtRef = useRef<number | null>(null)
@@ -458,6 +460,22 @@ function App() {
     setWatchlistOpen(false)
     closeSheet('watchlist')
     dropOverlayHistory()
+  }
+
+  function closeShopping() {
+    setShoppingOpen(false)
+    dropOverlayHistory()
+  }
+
+  function openShoppingSheet() {
+    setShoppingOpen(true)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    setSettingsPanelOpen(false)
+    setSidebarOpen(false)
+    closeVoice()
+    closeSheet('calendar')
+    closeSheet('watchlist')
   }
 
   /**
@@ -699,7 +717,8 @@ function App() {
   }, [debugRunning])
 
   useEffect(() => {
-    const overlayOpen = settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen
+    const overlayOpen =
+      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen
     if (!overlayOpen) return
     if (!overlayHistRef.current) {
       window.history.pushState({ jarvisOverlay: true }, '')
@@ -710,6 +729,10 @@ function App() {
       if (settingsPanelOpen) {
         setSettingsPanelOpen(false)
         closeSheet('settings')
+        return
+      }
+      if (shoppingOpen) {
+        setShoppingOpen(false)
         return
       }
       if (watchlistOpen) {
@@ -739,7 +762,7 @@ function App() {
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen])
+  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen, shoppingOpen])
 
   useEffect(() => {
     const el = appRef.current
@@ -1864,6 +1887,7 @@ function App() {
   const settingsLayer = useOverlay(settingsPanelOpen)
   const calendarLayer = useOverlay(calendarOpen)
   const watchlistLayer = useOverlay(watchlistOpen)
+  const shoppingLayer = useOverlay(shoppingOpen)
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
   const lageOn = !homeOpen && (lageWide
@@ -1876,9 +1900,11 @@ function App() {
   const leisteZu = Boolean(liveHud.leiste_zu)
   const dockId = settingsPanelOpen
     ? 'settings'
-    : watchlistOpen
-      ? 'watchlist'
-      : calendarOpen
+    : shoppingOpen
+      ? 'shopping'
+      : watchlistOpen
+        ? 'watchlist'
+        : calendarOpen
         ? 'calendar'
         : voiceOpen && !voiceCompact
           ? 'voice'
@@ -2045,6 +2071,10 @@ function App() {
     }
     if (id === 'watchlist') {
       openWatchlistSheet()
+      return
+    }
+    if (id === 'shopping') {
+      openShoppingSheet()
       return
     }
     openSettings('keys')
@@ -2409,6 +2439,9 @@ function App() {
             onClose={closeWatchlist}
           />
         ) : null}
+        {shoppingLayer.shown ? (
+          <ShoppingListsOverlay leaving={shoppingLayer.leaving} onClose={closeShopping} />
+        ) : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {
@@ -2486,7 +2519,7 @@ function App() {
           </div>
         ) : null}
 
-        {lageOn && !voiceOpen && !calendarOpen && !watchlistOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
+        {lageOn && !voiceOpen && !calendarOpen && !watchlistOpen && !shoppingOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
           <Lage
             onSend={(text) => void sendMessage(text)}
             draft={draft}
@@ -2587,7 +2620,7 @@ function App() {
           </div>
         </div>
 
-        {!calendarOpen && !watchlistOpen && !settingsLayer.shown && !voiceOpen ? (
+        {!calendarOpen && !watchlistOpen && !shoppingOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
           <TimerChip />
           <PcDashboard busy={busy} />
@@ -2841,7 +2874,15 @@ function App() {
       ) : null}
 
       <DebugChatDock
-        overlayOpen={driveOpen || chessOpen || voiceOpen || calendarOpen || watchlistOpen || settingsPanelOpen}
+        overlayOpen={
+          driveOpen ||
+          chessOpen ||
+          voiceOpen ||
+          calendarOpen ||
+          watchlistOpen ||
+          shoppingOpen ||
+          settingsPanelOpen
+        }
         messages={messages}
         streaming={streamingText}
         activeConversationId={activeId}

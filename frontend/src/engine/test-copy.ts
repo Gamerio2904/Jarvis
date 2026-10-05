@@ -1137,6 +1137,19 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: 'Tafel aus', text: 'Tischplatte aus', expect: { tool: 'board' } },
     ],
   },
+  {
+    title: '18.25.14 Einkauf & Flächen',
+    items: [
+      { label: 'Milch Hauptliste', text: 'Milch auf die Einkaufsliste', expect: { tool: 'shopping' } },
+      { label: 'Amazon-Liste', text: 'Airpods zur Amazon-Liste', expect: { tool: 'shopping' } },
+      { label: 'was fehlt', text: 'was fehlt?', expect: { tool: 'shopping' } },
+      { label: 'Kalender zu', text: 'Kalender zu', expect: { tool: 'calendar' } },
+      { label: 'Watchliste zu', text: 'Watchliste zu', expect: { tool: 'watchlist' } },
+      { label: 'Tokio Kugel', text: 'Zeig mir Tokio', expect: { tool: 'hud' } },
+      { label: 'Tisch an', text: 'Tischplatte an', expect: { tool: 'app' } },
+      { label: 'Tisch aus', text: 'Tischplatte aus', expect: { tool: 'app' } },
+    ],
+  },
 ]
 
 /** Spur Probe: 13 Packs, Memory-10 zuerst. Namen sind Alltag, nicht V1–V9. */

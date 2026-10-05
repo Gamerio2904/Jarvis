@@ -17,6 +17,7 @@ const STORES = [
   'reminders',
   'events',
   'shopping',
+  'shopping_lists',
   'todos',
   'notes',
   'memory',
