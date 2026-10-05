@@ -1,4 +1,4 @@
-import { loadSettings, saveSettings } from './store'
+import { loadSettings, saveSettings } from './store.ts'
 import { packVerified } from './action-fsm.ts'
 import {
   tvDiscoverNative,

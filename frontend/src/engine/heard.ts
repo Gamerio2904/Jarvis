@@ -17,7 +17,8 @@ function commandScore(text: string): number {
   let n = 0
   if (parseTvWatch(t)) n += 6
   if (parseFilmIntent(t)) n += 6
-  if (parseTvIntent(t)) n += 5
+  const tv = parseTvIntent(t)
+  if (tv) n += tv.action === 'on' || tv.action === 'off' ? 10 : 8
   if (parseSpotifyIntent(t)) n += 5
   if (parseHereIntent(t)) n += 6
   if (parseFuelIntent(t)) n += 6

@@ -3,17 +3,33 @@ import { completeGroq, groqReady } from './groq.ts'
 import { completeChat, isModelReady } from './llm.ts'
 import { DEFAULT_MODEL, loadSettings } from './store.ts'
 import { pickBrain, type BrainKind } from './brain-pick.ts'
+import { primaryChatModel } from './brain-tasks.ts'
 
 export type { BrainKind }
 export { pickBrain }
 
 export function brainKind(): BrainKind {
+  const s = loadSettings()
+  if (s.brain_v2) {
+    const model = primaryChatModel({
+      brain_v2: s.brain_v2,
+      brain_primary: s.brain_primary,
+      gemini_enabled: s.gemini_enabled,
+      gemini_api_key: s.gemini_api_key,
+      groq_api_key: s.groq_api_key,
+    })
+    if (model === 'gemini' && geminiReady()) return 'gemini'
+    if (model === 'groq' && groqReady()) return 'groq'
+    if (model === 'local' && isModelReady()) return 'local'
+    return 'none'
+  }
   return pickBrain({ gemini: geminiReady(), groq: groqReady(), local: isModelReady() })
 }
 
 export function brainLabel(kind = brainKind()): string {
-  if (kind === 'gemini') return GEMINI_LABEL
-  if (kind === 'groq') return 'Groq (Backup)'
+  const s = loadSettings()
+  if (kind === 'gemini') return s.brain_v2 ? `${GEMINI_LABEL} (Spezialist)` : GEMINI_LABEL
+  if (kind === 'groq') return s.brain_v2 ? 'Groq (primär)' : 'Groq (Backup)'
   if (kind === 'local') return DEFAULT_MODEL.label
   return 'kein Hirn'
 }

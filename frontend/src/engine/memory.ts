@@ -6,7 +6,7 @@ import {
   memoryForgetVerified,
   memoryWriteVerified,
 } from './memory-layer.ts'
-import { writeMemory } from './memory-gate.ts'
+import { brainProposeWrite } from './agents/brain-api.ts'
 import { isUtilityCorrection, markLastRecallNotUseful } from './memory-experience.ts'
 import {
   RECALL_DRINK,
@@ -210,15 +210,18 @@ export async function handleMemory(conversationId: string, text: string): Promis
       const saved: MemoryItem[] = []
       let stored = true
       for (const f of facts) {
-        const w = await writeMemory({
-          key: f.key,
-          value: f.value,
-          category: f.category,
-          conversationId,
-          origin: 'user',
-          confidence: confidenceFor('user', f.category),
-          spoken: text,
-        })
+        const w = await brainProposeWrite(
+          {
+            key: f.key,
+            value: f.value,
+            category: f.category,
+            conversationId,
+            origin: 'user',
+            confidence: confidenceFor('user', f.category),
+            spoken: text,
+          },
+          { agentId: 'memory' },
+        )
         if (w.item && w.stored) saved.push(w.item)
         else stored = false
       }

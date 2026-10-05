@@ -55,7 +55,7 @@ export function personaPack(face = 'jarvis'): { local: string; gemini: string } 
 }
 
 export const VOICE_HINT =
-  'Sprachmodus: 1–2 ganze Sätze mit Verb, ruhig und fertig wie ein Haus-AI, Punkt am Ende. Kein Telegramm, kein Stichwortstaccato. Understatement, kein Hetzen, kein Helpdesk, keine Listen. Sir höchstens einmal. Kein Markdown, keine Sternchen, kein Vorlauf.'
+  'Sprachmodus: 1–2 ganze Sätze mit Verb, ruhig und fertig wie ein Haus-AI, Punkt am Ende. Tool-Ergebnis zuerst, kein Essay. Kein Telegramm, kein Stichwortstaccato. Understatement, kein Hetzen, kein Helpdesk, keine Listen. Sir höchstens einmal. Kein Markdown, keine Sternchen, keine Unterstriche, kein Vorlauf.'
 
 export const SEARCH_ON_HINT = `Suche ist AN (Google plus Links). Antworten nur aus Treffern und dem Digest darunter.
 Verboten: „Leider kann ich keine Live-Suche“, „keine verifizierten Zahlen“ trotz Treffer, Browser-Verweis, Zahlen oder Stückzahlen, die nicht wörtlich in den Treffern stehen. Keine Umrechnung (Jahr→Tag, „umgerechnet entspricht das“), außer die Quelle nennt genau diese Einheit.

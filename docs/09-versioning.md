@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`.
+> **Jetzt:** Code **`15.1.0`**. Sideload **`15.1.0`**. Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE**. Dual Brain [`63-next.md`](./63-next.md) **CODE** 236–237, Sprint 238 **PLAN**. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -519,6 +519,37 @@ Organ = Eingang. Skill-Knoten = Register. Wissen = Pack/Pin/Termin. Token-Cluste
 | `13.31.3` | Browser-Suche ohne CORS-Leere; Spiele Musik ohne Hirn-Banner | Patch |
 | `13.31.4` | Hausstand-Import schaltet Gemini; Recall Fachwissen; Law-Wiki | Patch |
 | `13.31.5` | PC-QR koppelt Handy; Token 401 | Patch |
+| `13.31.6` | Navigation-Island, gleitender Tab-Kreis | Patch |
+| `13.31.7` | Download-Button Liquid-Fill (Hausstand/Debug) | Patch |
+
+### `13.40` — Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`
+
+Hören, TV-Stimme, Antworten, Mund. Kein Whisper, kein Piper-ONNX.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `13.40.0` | Leit + Won’t | 221 CODE in `13.44.0` |
+| `13.41.0` | TV-Stimme: Fernseher an | 222 CODE in `13.44.0` |
+| `13.42.0` | Hören + Autokorrektur | 223 CODE in `13.44.0` |
+| `13.43.0` | Antworten + Tempo | 224 CODE in `13.44.0` |
+| `13.44.0` | Mund flüssig + Gold + Sideload | 225 CODE |
+
+### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN**
+
+Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `14.0.0` | Leit + Katalog | 226 PLAN |
+| `14.1.0` | Unified Catalog | 227 PLAN |
+| `14.2.0` | AgentBus | 228 PLAN |
+| `14.3.0` | Director | 229 PLAN |
+| `14.4.0` | Curator | 230 PLAN |
+| `14.5.0` | Domänen Geräte/Medien | 231 PLAN |
+| `14.6.0` | Domänen Alltag/Nav | 232 PLAN |
+| `14.7.0` | Domänen Rest | 233 PLAN |
+| `14.8.0` | Agenten-Karte UI | 234 PLAN |
+| `14.9.0` | Gold Parity + Sideload | 235 PLAN |
 
 ### Weitere Beispiele
 

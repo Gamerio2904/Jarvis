@@ -9,7 +9,7 @@ const FOREIGN_WAKE = /^(?:ok(?:ay)?\s+google|hey\s+siri|alexa)\s*[,:\-–]?\s+/i
 const FILLER =
   /^(?:ähm+|also|ja\s+)?(?:bitte\s+)?(?:kannst\s+du(?:\s+mal)?|könntest\s+du|könnten\s+sie|würdest\s+du|ich\s+(?:möchte|will|würde\s+gerne)|mach(?:e)?(?:\s+mal)?)\s+/i
 const COMMAND_START =
-  /^(?:ruf|anruf|fahr|bring|navigier|route|spiel|pause|weiter|wecker|timer|termin|kalender|wetter|merk|zeig|öffne[n]?|such|lies|aktivier|deaktivier|laut|fernseh|\btv\b|einkauf|erinner|todo|notiz|wo\s+|lauf|geh|nach|zu(?:r|m)?\s+|carplay|fahrmodus|spotify|musik|karte|overlay|restweg|akku|taschenlampe|schreib|sms|youtube|netflix|disney|amazon|körper|koerper|kugel|erde|weltkugel|(?:den\s+|die\s+)?(?:körper|koerper|kugel|erde)|lage)/i
+  /^(?:ruf|anruf|fahr|bring|navigier|route|spiel|pause|weiter|wecker|timer|termin|kalender|wetter|merk|zeig|öffne[n]?|such|lies|aktivier|deaktivier|laut|(?:den\s+|die\s+|dem\s+)?(?:fernseh|\btv\b)|einkauf|erinner|todo|notiz|wo\s+|lauf|geh|nach|zu(?:r|m)?\s+|carplay|fahrmodus|spotify|musik|karte|overlay|restweg|akku|taschenlampe|schreib|sms|youtube|netflix|disney|amazon|körper|koerper|kugel|erde|weltkugel|(?:den\s+|die\s+)?(?:körper|koerper|kugel|erde)|lage)/i
 
 const REPAIRS: Array<[RegExp, string]> = [
   [/\bheil\s*bron(?:n|e)?\b/gi, 'Heilbronn'],
@@ -41,8 +41,19 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bgersde\b/gi, 'gerade'],
   [/\bgerate\b/gi, 'gerade'],
   [/\bgeradde\b/gi, 'gerade'],
+  [/\bt\s*[.\-_]\s*v\b/gi, 'TV'],
+  [/\bt\s+v\b/gi, 'TV'],
+  [/\bfanseher(?:en|n)?\b/gi, 'Fernseher'],
+  [/\bfernseha\b/gi, 'Fernseher'],
+  [/\bfern\s*seher\b/gi, 'Fernseher'],
+  [/\bfernsea\b/gi, 'Fernseher'],
+  [/\bfenseher\b/gi, 'Fernseher'],
+  [/\bfernscher\b/gi, 'Fernseher'],
+  [/\bvernseher\b/gi, 'Fernseher'],
   [/\bfernseheren\b/gi, 'Fernseher'],
   [/\bfernsehern\b/gi, 'Fernseher'],
+  [/\bfernseheran\b/gi, 'Fernseher an'],
+  [/\bfernsehapparat\b/gi, 'Fernseher'],
   [/\bwo\s+bin\s+isch\b/gi, 'wo bin ich'],
   [/\bnachrichte(?:n)?\b/gi, 'Nachrichten'],
   [/\bweltkugl\b/gi, 'Weltkugel'],

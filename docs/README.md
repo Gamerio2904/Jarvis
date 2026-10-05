@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`13.31.1`**. Sideload **`13.31.1`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`15.1.0`**. Sideload **`15.1.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk** [`62-next.md`](./62-next.md) **CODE** 227–235. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: Dual Brain Sprint **238** (Gold-SLO).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -66,7 +66,10 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 58 | [Fachwissen 11.0](./58-next.md) | **CODE** `11.60.0` — Deep Research + Teach-Packs; Sprints 202–208 |
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
-| — | [APK](./apk.md) | Sideload `13.31.1`; Deinstall löscht Keys — erst Hausstand-Export |
+| 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
+| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **CODE** `15.1.0` — Director, Curator, Agenten-Karte; Sprints 227–235 |
+| 63 | [Dual Brain 15.0](./63-next.md) | **CODE** `15.1.0` — Groq primär, BrainOrchestrator; Sprints 236–237; 238 PLAN |
+| — | [APK](./apk.md) | Sideload `15.1.0`; Test: [`TEST-15.1.0.md`](./TEST-15.1.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -246,5 +249,23 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 218 | `13.10.0` | **CODE** in `13.30.0` (body-graph) |
 | 219 | `13.20.0` | **CODE** in `13.30.0` (BodyTree) |
 | 220 | `13.30.0` | **CODE** (Kalender-Härte / Gold) |
+| 221 | `13.40.0` | **CODE** in `13.44.0` (Sprachmodus Leit) |
+| 222 | `13.41.0` | **CODE** in `13.44.0` (TV-Stimme Fernseher an) |
+| 223 | `13.42.0` | **CODE** in `13.44.0` (Hören + Autokorrektur) |
+| 224 | `13.43.0` | **CODE** in `13.44.0` (Antworten + Tempo) |
+| 225 | `13.44.0` | **CODE** (Mund flüssig + Gold) |
+| 226 | `14.0.0` | **CODE** in `15.1.0` (Agenten-Netzwerk Leit) |
+| 227 | `14.1.0` | **CODE** in `15.1.0` (Unified Catalog) |
+| 228 | `14.2.0` | **CODE** in `15.1.0` (AgentBus) |
+| 229 | `14.3.0` | **CODE** in `15.1.0` (Director) |
+| 230 | `14.4.0` | **CODE** in `15.1.0` (Curator) |
+| 231 | `14.5.0` | **CODE** in `15.1.0` (Domänen A) |
+| 232 | `14.6.0` | **CODE** in `15.1.0` (Domänen B) |
+| 233 | `14.7.0` | **CODE** in `15.1.0` (Domänen C) |
+| 234 | `14.8.0` | **CODE** in `15.1.0` (Agenten-Karte UI) |
+| 235 | `14.9.0` | **CODE** in `15.1.0` (Gold; Runtime 15.1.0) |
+| 236 | `15.0.0` | **CODE** in `15.1.0` (Groq primär + BrainOrchestrator) |
+| 237 | `15.1.0` | **CODE** (Micro-LLM + research-lite) |
+| 238 | `15.2.0` | **PLAN** (Dual Brain Gold + SLO) |
 
-**Aktuell:** Code **`13.31.1`**. Sideload `13.31.1`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`15.1.0`**. Sideload `15.1.0`. Execute: Agenten-Netzwerk + Dual Brain bis 237 **CODE**; Sprint 238 **PLAN**. Index: [`42-planned.md`](./42-planned.md).
