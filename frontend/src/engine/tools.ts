@@ -7,6 +7,7 @@ import {
   getPending,
   listNotes,
   listTodos,
+  persistLastList,
   setPending,
   setTodoStatus,
   type ToolPending,
@@ -193,6 +194,10 @@ export async function handleTools(
       .sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
       .map((t, i) => `${i + 1}. ${t.title}`)
       .join('\n')
+    persistLastList(
+      'todo',
+      open.sort((a, b) => (a.created_at < b.created_at ? -1 : 1)).map((t) => t.title),
+    )
     return { handled: true, reply: `Offen:\n${lines}` }
   }
 

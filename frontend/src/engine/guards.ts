@@ -21,7 +21,11 @@ function splitSentences(text: string): string[] {
 
 export function scrubReply(text: string, opts?: { searched?: boolean }): string {
   DUZEN.lastIndex = 0
-  let out = text.replace(/\s+/g, ' ').trim()
+  let out = text
+    .replace(/([a-zäöüß])([A-ZÄÖÜ])/g, '$1 $2')
+    .replace(/([.!?…,;:])(\S)/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim()
   if (INJECT.test(out)) {
     return 'Netter Versuch. Weiter im Chat?'
   }
@@ -66,4 +70,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos, Notizen, Erinnerungen, Wecker einmal oder täglich mit eigenem Ton, Timer, lokaler Kalender, Wetter als Lage plus Tipp und Nachfragen. Orte zu Personen, „fahr mich zu …“ öffnet die Route in Google Maps. Sprachmodus, optional Wake-Word „Jarvis“ (Handy an). Widget und Shortcut auf dem Homescreen. Fernseher nach dem Koppeln. Optional Gemini.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer, lokaler Kalender mit Ort, Losgehen, Fahrmodus (eigene Karte, Spotify in Jarvis), „wenn ich zuhause bin“, Geburtstage, Nummer anrufen, Route zu Fuß oder Bahn. Wetter, Tageslage, Gespräch suchen. Orte zu Personen. Foto lesen nur mit Gemini (Bild geht zu Google). Wake-Word „Jarvis“ (Bildschirm aus, andere Apps: nur der Name). Fernseher Tizen plus Fire TV auf HDMI. Widget. Optional Gemini.'

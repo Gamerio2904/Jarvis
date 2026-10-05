@@ -31,7 +31,7 @@ import {
   type Message,
   type Settings as EngineSettings,
 } from './engine/store'
-import { discoverTvs, pairTv, testTv, tvStatusFromSettings } from './engine/tv'
+import { discoverTvs, pairTv, testFireTv, testTv, tvStatusFromSettings } from './engine/tv'
 import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
 export type { Conversation, MemoryCategory, MemoryItem, Message, Reminder, StreamHandlers, ResearchMeta, ResearchSource }
@@ -153,6 +153,8 @@ export async function listReminders() {
 }
 
 export { removeReminder, syncReminderAlarms } from './engine/reminders'
+export { readEyeImage, fileToJpegDataUrl } from './engine/eye'
+export { checkHomeFence } from './engine/home'
 
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
   const rows = await storeListAudits(limit)
@@ -245,6 +247,10 @@ export async function tvPair(body: {
 
 export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
   return testTv()
+}
+
+export async function tvFireTest(opts?: { host?: string; port?: number }): Promise<{ ok?: boolean; reply?: string }> {
+  return testFireTv(opts)
 }
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {

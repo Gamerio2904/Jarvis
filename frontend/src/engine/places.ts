@@ -1,15 +1,18 @@
 import {
   displayPlaceName,
+  extractPhone,
+  findContactRow,
   isBarePlaceAnswer,
   isHomeName,
   isRelationName,
   looksLikeAddress,
+  looksLikePhone,
   mapsDirUrl,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
 } from './places-parse'
-import { listMemory, loadSettings, upsertMemory } from './store'
+import { addReminder, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store'
 import type { ToolMeta } from './tools'
 
 export {
@@ -50,9 +53,9 @@ async function findPlace(name: string): Promise<{ name: string; place: string } 
   return rows.find((r) => r.name === key || r.name.includes(key) || key.includes(r.name))
 }
 
-function routeOf(name: string, place: string): MapsRoute {
+function routeOf(name: string, place: string, mode: 'driving' | 'walking' | 'transit' = 'driving'): MapsRoute {
   const title = displayPlaceName(name)
-  return { title, destination: place, url: mapsDirUrl(place) }
+  return { title, destination: place, url: mapsDirUrl(place, mode) }
 }
 
 function routeReply(name: string, place: string): string {
@@ -68,6 +71,42 @@ export async function handlePlaces(
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
+
+  if (s.last_step_tool === 'phone_ask' && s.last_step_title) {
+    const who = s.last_step_title
+    const num = extractPhone(text)
+    if (num) {
+      await upsertMemory(who, num, 'contact', conversationId)
+      return {
+        handled: true,
+        reply: `Anruf ${displayPlaceName(who)} — ${num}.`,
+        tool: {
+          tool_status: 'executed',
+          tool: 'maps',
+          action: 'call',
+          label: 'Anrufen',
+          preview: who,
+          result: { tel: `tel:${num}`, name: who },
+        },
+        lastTool: 'maps',
+      }
+    }
+    const aliasName = text.trim().replace(/[.!?]+$/g, '')
+    if (/^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24}$/.test(aliasName) && !looksLikePhone(aliasName)) {
+      const alias = aliasName.toLowerCase()
+      if (alias !== who) {
+        await upsertMemory(`alias:${who}`, alias, 'fact', conversationId)
+        await upsertMemory(`alias:${alias}`, who, 'fact', conversationId)
+        return {
+          handled: true,
+          reply: `Also ${displayPlaceName(alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(alias)}, Tel …“.`,
+          tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: alias },
+          lastTool: 'phone_ask',
+        }
+      }
+    }
+  }
+
   if (s.last_step_tool === 'maps_ask' && s.last_step_title && isBarePlaceAnswer(text)) {
     const place = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
     const name = s.last_step_title
@@ -85,9 +124,21 @@ export async function handlePlaces(
   if (written) {
     await upsertMemory(written.name, written.place, 'place', conversationId)
     const who = displayPlaceName(written.name)
+    let extra = ''
+    const pending = loadSettings()
+    if (written.name === 'zuhause' && pending.last_step_tool === 'home_ask' && pending.last_step_title) {
+      await addReminder({
+        title: pending.last_step_title,
+        due_at: new Date(Date.now() + 365 * 86_400_000).toISOString(),
+        conversationId,
+        kind: 'home',
+      })
+      extra = ` Wenn Sie zuhause sind: ${pending.last_step_title}. Handy muss an sein.`
+      saveSettings({ last_step_tool: 'home', last_step_title: pending.last_step_title })
+    }
     return {
       handled: true,
-      reply: `${who}: ${written.place} — liegt.`,
+      reply: `${who}: ${written.place} — liegt.${extra}`,
       tool: {
         tool_status: 'executed',
         tool: 'maps',
@@ -116,6 +167,78 @@ export async function handlePlaces(
   const nav = parsePlaceNav(text)
   if (!nav) return { handled: false }
 
+  if (nav.kind === 'alias') {
+    await upsertMemory(`alias:${nav.name}`, nav.alias, 'fact', conversationId)
+    await upsertMemory(`alias:${nav.alias}`, nav.name, 'fact', conversationId)
+    const rows = await listMemory()
+    const hit = findContactRow(rows, nav.alias) || findContactRow(rows, nav.name)
+    if (hit) {
+      return {
+        handled: true,
+        reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Anruf ${displayPlaceName(hit.key)} — ${hit.value}.`,
+        tool: {
+          tool_status: 'executed',
+          tool: 'maps',
+          action: 'call',
+          label: 'Anrufen',
+          preview: hit.key,
+          result: { tel: `tel:${hit.value}`, name: hit.key },
+        },
+        lastTool: 'maps',
+      }
+    }
+    return {
+      handled: true,
+      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(nav.alias)}, Tel …“.`,
+      tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.alias },
+      lastTool: 'phone_ask',
+    }
+  }
+
+  if (nav.kind === 'phone') {
+    await upsertMemory(nav.name, nav.number, 'contact', conversationId)
+    return {
+      handled: true,
+      reply: `${displayPlaceName(nav.name)}: ${nav.number} — liegt.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'maps',
+        action: 'phone',
+        label: 'Nummer',
+        preview: nav.name,
+        result: { tel: `tel:${nav.number}`, name: nav.name },
+      },
+      lastTool: 'maps',
+    }
+  }
+
+  if (nav.kind === 'call') {
+    const rows = await listMemory()
+    const hit = findContactRow(rows, nav.query)
+    if (!hit) {
+      const who = displayPlaceName(nav.query)
+      return {
+        handled: true,
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“.`,
+        tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.query },
+        lastTool: 'phone_ask',
+      }
+    }
+    return {
+      handled: true,
+      reply: `Anruf ${displayPlaceName(hit.key)} — ${hit.value}.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'maps',
+        action: 'call',
+        label: 'Anrufen',
+        preview: hit.key,
+        result: { tel: `tel:${hit.value}`, name: hit.key },
+      },
+      lastTool: 'maps',
+    }
+  }
+
   if (nav.kind === 'list') {
     const rows = await places()
     if (!rows.length) {
@@ -125,6 +248,7 @@ export async function handlePlaces(
       }
     }
     const routes = rows.map((r) => routeOf(r.name, r.place))
+    persistLastList('maps', routes.map((r) => r.title))
     const lines = routes.map((r, i) => `${i + 1}. ${r.title} — ${r.destination}`).join('\n')
     return {
       handled: true,
@@ -135,9 +259,10 @@ export async function handlePlaces(
   }
 
   const q = nav.query
+  const mode = nav.mode || 'driving'
   const hit = await findPlace(q)
   if (hit) {
-    const route = routeOf(hit.name, hit.place)
+    const route = routeOf(hit.name, hit.place, mode)
     return {
       handled: true,
       reply: routeReply(hit.name, hit.place),
@@ -148,7 +273,7 @@ export async function handlePlaces(
 
   if ((nav.via === 'nach' && !isRelationName(q) && !isHomeName(q)) || looksLikeAddress(q)) {
     const dest = q.replace(/^\w/, (c) => c.toUpperCase())
-    const route = routeOf(dest, dest)
+    const route = routeOf(dest, dest, mode)
     return {
       handled: true,
       reply: routeReply(dest, dest),

@@ -46,7 +46,8 @@ export async function getJson(
     })
     let json: Record<string, unknown> = {}
     try {
-      json = (typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data || {}) as Record<
+      const parsed: unknown = typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data
+      json = (Array.isArray(parsed) ? parsed : parsed && typeof parsed === 'object' ? parsed : {}) as Record<
         string,
         unknown
       >
@@ -56,6 +57,9 @@ export async function getJson(
     return { status: res.status, json }
   }
   const res = await fetch(url, { headers })
-  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
+  const parsed: unknown = await res.json().catch(() => ({}))
+  const json = (
+    Array.isArray(parsed) ? parsed : parsed && typeof parsed === 'object' ? parsed : {}
+  ) as Record<string, unknown>
   return { status: res.status, json }
 }

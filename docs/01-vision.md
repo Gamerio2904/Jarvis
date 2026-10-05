@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `1.15.0`:** On-Device-APK, lokales 0,5B **oder** Gemini (aus bis Opt-in), Timer/Wecker, Wetter, Kalender, Memory, Personenorte, Route in Google Maps. Live-Ton: **Siezen**, kurz. Weiter: [`19-next.md`](./19-next.md).
+> **Stand Code `1.24.0`:** On-Device-APK, lokales 0,5B **oder** Gemini (aus bis Opt-in), Timer/Wecker, Wetter, Kalender, Einkauf, Losgehen, Memory, Personenorte, Route in Google Maps. Live-Ton: **Siezen**, kurz. Reihe: [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md).
 
 ## Vision
 
