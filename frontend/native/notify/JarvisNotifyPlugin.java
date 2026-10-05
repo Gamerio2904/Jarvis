@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -46,7 +47,7 @@ import org.json.JSONObject;
 )
 public class JarvisNotifyPlugin extends Plugin {
     static final String CHANNEL_ID = "jarvis_reminders";
-    static final String ALARM_CHANNEL = "jarvis_alarms";
+    static final String ALARM_CHANNEL = "jarvis_alarms_v2";
     static final String PREFS = "jarvis_notify";
     static final String KEY_ITEMS = "items";
     static final String KEY_TONE = "alarm_tone";
@@ -213,6 +214,10 @@ public class JarvisNotifyPlugin extends Plugin {
         );
         ch.setDescription("Jarvis-Erinnerungen zur vereinbarten Zeit");
         nm.createNotificationChannel(ch);
+        try {
+            nm.deleteNotificationChannel("jarvis_alarms");
+        } catch (Exception ignored) {
+        }
         NotificationChannel alarm = new NotificationChannel(
                 ALARM_CHANNEL,
                 "Wecker",
@@ -221,11 +226,13 @@ public class JarvisNotifyPlugin extends Plugin {
         alarm.setDescription("Timer und Erinnerungen mit Ton, auch bei Bildschirm aus");
         alarm.setBypassDnd(true);
         alarm.enableVibration(true);
+        alarm.enableLights(true);
         alarm.setSound(
                 android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI,
                 new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                         .build()
         );
         nm.createNotificationChannel(alarm);
@@ -365,6 +372,9 @@ public class JarvisNotifyPlugin extends Plugin {
         full.putExtra("tone", play);
         full.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent fullPi = PendingIntent.getActivity(ctx, id + 20_000, full, flags);
+        Uri soundUri = play != null && !play.isEmpty()
+                ? Uri.parse(play)
+                : android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI;
         NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, alarm ? ALARM_CHANNEL : CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setContentTitle(title == null || title.isEmpty() ? "Jarvis" : title)
@@ -372,6 +382,8 @@ public class JarvisNotifyPlugin extends Plugin {
                 .setAutoCancel(true)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setSound(soundUri, AudioManager.STREAM_ALARM)
                 .setFullScreenIntent(fullPi, true);
         if (content != null) b.setContentIntent(content);
         NotificationManager nm = ctx.getSystemService(NotificationManager.class);

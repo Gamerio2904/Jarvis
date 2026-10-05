@@ -24,6 +24,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E11 | NAS & APK | 2–3 | Compose 24/7 + Sideload-APK — `0.10.x` |
 | E12 | Samsung TV | 5+ | Tizen lokal — **`0.14.1`** (ex-`0.11`, on-device) |
 | E14 | Qualität `0.14` | 2 | Bestehendes härten: Latenz, Ton, Memory/Tools — kein neues Feature |
+| E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
 
 ---
 
@@ -236,13 +237,28 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.19 | Als Nutzer will ich erweiterte Broken-Siezen-Reparatur (`möchtest Sie` …). | Must | done | Sprint 26 / `0.8.4` |
 | S7.20 | Als Nutzer will ich Eval-Pins älterer Suites unter neuer `0.8.x` grün. | Should | done | Sprint 27 / `0.8.5` |
 
+### E15 — Alltag `1.14`–`1.20`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S15.1 | Als Nutzer will ich ein Gedächtnis, das lokal und mit Gemini denselben Namen kennt. | Must | ready | Sprint 66 / `1.14.0` |
+| S15.2 | Als Nutzer will ich Personen an Orte (Freundin, Praxis, Zuhause). | Must | ready | Sprint 66 / `1.14.0` |
+| S15.3 | Als Nutzer will ich „lösch das“ / „und um 16“ auf das letzte Tool, nicht nur Wetter. | Must | ready | Sprint 67 / `1.15.0` |
+| S15.4 | Als Nutzer will ich zwei Befehle in einem Satz. | Must | ready | Sprint 67 / `1.15.0` |
+| S15.5 | Als Nutzer will ich eine Einkaufsliste ohne Ja/Nein pro Artikel. | Must | ready | Sprint 68 / `1.16.0` |
+| S15.6 | Als Nutzer will ich Losgehen: fehlt der Zahnarzt-Ort, nachfragen, dann Route. | Must | ready | Sprint 69 / `1.17.0` |
+| S15.7 | Als Nutzer will ich „wenn ich zuhause bin …“. | Must | ready | Sprint 70 / `1.18.0` |
+| S15.8 | Als Nutzer will ich eine kurze Tageslage und einen menschlicheren Ton (Siezen). | Must | ready | Sprint 71 / `1.19.0` |
+| S15.9 | Als Nutzer will ich ein Foto vorlesen lassen, nur mit Gemini. | Must | ready | Sprint 72 / `1.20.0` |
+| S15.10 | Als Nutzer will ich Suche mit Quellen oder ehrlicher Absage, kein Raten. | Must | ready | Sprint 67 / `1.15.0` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Abnahme `0.14.1` (Chat + eigener Tizen)
-2. TTS / `1.0.0` — **PO-Kommando**
-4. Research-Netz / NAS / Mail / Fire TV / Alexa / Play Store — **Parking**
+1. Sideload `1.13.2`
+2. Reihe `1.14`–`1.20` — [`19-next.md`](./19-next.md)
+3. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
