@@ -1,4 +1,4 @@
-import { isAllowedPcHost } from './pc-host.ts'
+import { isPrivateLanHost } from './pc-host.ts'
 import { newPresenceToken } from './presence-lan.ts'
 import { loadSettings, saveSettings } from './store.ts'
 import {
@@ -97,7 +97,7 @@ export function readFensterGrant(): FensterGrant | null {
 export function readFensterRequest(): FensterRequest | null {
   const row = readJson<FensterRequest>(loadSettings().fenster_request_json)
   if (!row || Date.now() - row.at > REQUEST_MS) return null
-  if (!isAllowedPcHost(row.fromHost)) return null
+  if (!isPrivateLanHost(row.fromHost)) return null
   return row
 }
 
@@ -110,7 +110,7 @@ export function requestFromBody(body: unknown, fromHost: string, fromPort = PORT
   if (!o || o.op !== 'anfrage') return null
   const nonce = String(o.nonce || '')
   if (nonce.length < 8 || nonce.length > 80) return null
-  if (!isAllowedPcHost(fromHost)) return null
+  if (!isPrivateLanHost(fromHost)) return null
   const fromKind: FensterKind = o.fromKind === 'tablet' ? 'tablet' : 'handy'
   return {
     nonce,
@@ -126,7 +126,7 @@ export async function grantFromConfirm(request: FensterRequest, ownKind: Fenster
   grant: FensterGrant
   body: Record<string, unknown>
 } | null> {
-  if (!isAllowedPcHost(request.fromHost)) return null
+  if (!isPrivateLanHost(request.fromHost)) return null
   const token = newPresenceToken()
   const grant: FensterGrant = {
     tokenHash: await fensterHash(token),
@@ -148,8 +148,9 @@ export function releaseFensterPair(): void {
 }
 
 export function ownFensterKind(): FensterKind {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'handy'
-  return window.matchMedia('(min-width: 900px)').matches ? 'tablet' : 'handy'
+  if (typeof window === 'undefined') return 'handy'
+  const short = Math.min(window.innerWidth || 0, window.innerHeight || 0)
+  return short >= 700 ? 'tablet' : 'handy'
 }
 
 export function denyFensterRequest(): void {
@@ -161,7 +162,7 @@ export function acceptJa(body: unknown, fromHost: string): FensterPair | null {
   if (!o || o.op !== 'ja' || !outgoing) return null
   if (String(o.nonce || '') !== outgoing.nonce) return null
   const token = String(o.token || '')
-  if (token.length < 8 || !isAllowedPcHost(fromHost)) return null
+  if (token.length < 8 || !isPrivateLanHost(fromHost)) return null
   const kind: FensterKind = o.kind === 'tablet' ? 'tablet' : 'handy'
   if (kind !== outgoing.kind) return null
   const pair: FensterPair = {
@@ -196,7 +197,7 @@ export async function handleFensterCommand(text: string, transport: FensterTrans
   if (pair.kind !== show.kind) {
     return `Gekoppelt ist ein ${fensterKindLabel(pair.kind)}.`
   }
-  if (!isAllowedPcHost(pair.host)) {
+  if (!isPrivateLanHost(pair.host)) {
     releaseFensterPair()
     return noPeerReply(show.kind)
   }
@@ -218,8 +219,13 @@ function readSeek(found: FensterSeek): { peers: FensterPeer[]; blocked: boolean 
 
 async function sendRequest(kind: FensterKind, transport: FensterTransport, ownKind: FensterKind): Promise<string> {
   const found = readSeek(await transport.seek())
-  const allowed = found.peers.filter((p) => isAllowedPcHost(p.host))
-  const peers = allowed.filter((p) => p.kind === kind)
+  const allowed = found.peers.filter((p) => isPrivateLanHost(p.host))
+  let peers = allowed.filter((p) => p.kind === kind)
+  let asked = kind
+  if (!peers.length && allowed.length === 1) {
+    peers = allowed
+    asked = peers[0].kind
+  }
   if (!peers.length) {
     if (found.blocked) return needLanReply()
     const other = allowed.find((p) => p.kind !== kind)
@@ -227,7 +233,7 @@ async function sendRequest(kind: FensterKind, transport: FensterTransport, ownKi
     return noPeerReply(kind)
   }
   const nonce = newPresenceToken()
-  outgoing = { nonce, kind }
+  outgoing = { nonce, kind: asked }
   let sent = 0
   for (const peer of peers) {
     const ok = await transport.post(peer, {
@@ -242,7 +248,7 @@ async function sendRequest(kind: FensterKind, transport: FensterTransport, ownKi
     outgoing = null
     return noPeerReply(kind)
   }
-  return sentReply(kind)
+  return sentReply(asked)
 }
 
 function readJson<T>(raw: string): T | null {

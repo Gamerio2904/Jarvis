@@ -145,6 +145,14 @@ export async function handleCalendar(
     }
   }
 
+  if (intent.kind === 'close') {
+    return {
+      handled: true,
+      reply: 'Kalender zu.',
+      tool: { tool_status: 'executed', tool: 'calendar', action: 'close', label: 'Kalender' },
+    }
+  }
+
   if (intent.kind === 'open') {
     const from = startOfDay(new Date())
     const until = new Date(from)

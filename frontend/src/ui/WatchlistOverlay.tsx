@@ -94,23 +94,25 @@ export function WatchlistOverlay({
                   <div className="watch-poster-empty" aria-hidden />
                 )}
               </div>
-              <h3>
-                {m.title}
-                {m.year ? ` (${m.year})` : ''}
-              </h3>
-              {(() => {
-                const { critic, audience, imdb, source } = watchScoreParts(m)
-                return (
-                  <>
-                    <p className="watch-scores">
-                      <span className="watch-score">Kritiker {critic}</span>
-                      <span className="watch-score">Publikum {audience}</span>
-                      {imdb ? <span className="watch-score is-imdb">IMDb {imdb}</span> : null}
-                    </p>
-                    <p className="watch-source">{source}</p>
-                  </>
-                )
-              })()}
+              <div className="watch-body">
+                <h3>
+                  {m.title}
+                  {m.year ? ` (${m.year})` : ''}
+                </h3>
+                {(() => {
+                  const { critic, audience, imdb, source } = watchScoreParts(m)
+                  return (
+                    <>
+                      <p className="watch-scores">
+                        <span className="watch-score">Kritiker {critic}</span>
+                        <span className="watch-score">Publikum {audience}</span>
+                        {imdb ? <span className="watch-score is-imdb">IMDb {imdb}</span> : null}
+                      </p>
+                      <p className="watch-source">{source}</p>
+                    </>
+                  )
+                })()}
+              </div>
             </article>
           ))}
         </div>

@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core'
-import { isAllowedPcHost } from './pc-host.ts'
+import { isPrivateLanHost } from './pc-host.ts'
 import type { FensterKind, FensterSurface } from './fenster-parse.ts'
 import {
   acceptJa,
@@ -42,7 +42,7 @@ export async function seekFenster(): Promise<{ peers: FensterPeer[]; blocked: bo
   try {
     const res = await native.seek()
     const rows = JSON.parse(res.peers || '[]') as FensterPeer[]
-    const peers = Array.isArray(rows) ? rows.filter((p) => p && isAllowedPcHost(p.host)) : []
+    const peers = Array.isArray(rows) ? rows.filter((p) => p && isPrivateLanHost(p.host)) : []
     return { peers, blocked: Boolean(res.blocked) }
   } catch {
     return { peers: [], blocked: false }
@@ -50,7 +50,7 @@ export async function seekFenster(): Promise<{ peers: FensterPeer[]; blocked: bo
 }
 
 export async function postFenster(peer: Pick<FensterPeer, 'host' | 'port'>, body: unknown): Promise<boolean> {
-  if (!native || !isAllowedPcHost(peer.host)) return false
+  if (!native || !isPrivateLanHost(peer.host)) return false
   try {
     const res = await native.post({
       host: peer.host,

@@ -3412,37 +3412,46 @@ button.linkish {
 
 .watch-tab.is-on {
   color: #04140a;
+  background: linear-gradient(180deg, #ff8a90, #ff2a36);
   animation: navPop 420ms var(--ease-spring);
 }
 
 .watch-track {
   display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  padding: 8px 2px 18px;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+  padding: 4px 2px 18px;
   flex: 1;
 }
 
 .watch-card {
-  flex: 0 0 76%;
-  scroll-snap-align: center;
+  flex: 0 0 auto;
   background: linear-gradient(180deg, rgba(18, 22, 20, 0.92), rgba(10, 12, 11, 0.96));
   border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 8px 10px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   box-shadow:
-    0 14px 36px rgba(0, 0, 0, 0.4),
+    0 8px 20px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+.watch-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .watch-poster-wrap {
-  aspect-ratio: 2 / 3;
-  border-radius: 12px;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 68px;
+  border-radius: 8px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
 }
@@ -7420,27 +7429,28 @@ html.theme-wipe-dark::before {
 
 .cal-fab {
   position: fixed;
-  right: 18px;
-  bottom: calc(118px + env(safe-area-inset-bottom, 0px));
-  z-index: 20;
+  left: 50%;
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
   border: none;
   border-radius: 999px;
-  padding: 14px 20px;
+  padding: 14px 22px;
   font-weight: 700;
   background: linear-gradient(180deg, #ff8a90, var(--accent));
   color: #041008;
   box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 45%, transparent);
   animation: calFabIn 420ms var(--ease-out);
+  transform: translateX(-50%);
   transition: transform var(--motion-fast) var(--ease-spring), box-shadow var(--motion-fast) ease;
 }
 
 .cal-fab:hover {
-  transform: translateY(-2px);
+  transform: translateX(-50%) translateY(-2px);
   box-shadow: 0 12px 32px color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
 .cal-fab:active {
-  transform: scale(0.94);
+  transform: translateX(-50%) scale(0.94);
 }
 
 .app.is-kb .cal-fab {

@@ -1135,6 +1135,14 @@ export async function putIdea(row: Idea): Promise<void> {
   await put('ideas', { ...row, updated_at: nowIso() })
 }
 
+function normFilmTitle(title: string): string {
+  return (title || '')
+    .toLowerCase()
+    .replace(/^(?:the|der|die|das|ein|eine)\s+/i, '')
+    .replace(/[^a-z0-9äöüß]+/gi, '')
+    .trim()
+}
+
 function movieKeyOf(m: { imdbId?: string; title: string; year?: string }): string {
   const id = (m.imdbId || '').trim().toLowerCase()
   if (id) return `id:${id}`
@@ -1158,9 +1166,10 @@ export async function addWatchMovie(
   const rows = await getAll<WatchMovie>('watch_movies')
   const probe = { title, year: extra.year, imdbId: extra.imdbId }
   const extraId = (extra.imdbId || '').trim().toLowerCase()
+  const want = normFilmTitle(extra.title || title)
   const existing = rows.find((r) => {
     if (movieKeyOf(r) === movieKeyOf(probe)) return true
-    if (r.title.toLowerCase() === title.trim().toLowerCase()) return true
+    if (normFilmTitle(r.title) === want || normFilmTitle(r.title) === normFilmTitle(title)) return true
     const haveId = (r.imdbId || '').trim().toLowerCase()
     return Boolean(extraId && haveId && extraId === haveId)
   })

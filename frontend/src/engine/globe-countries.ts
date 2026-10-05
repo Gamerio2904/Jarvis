@@ -45,7 +45,7 @@ export const COUNTRIES: CountryFix[] = [
   { id: 'qa', name: 'Katar', lat: 25.35, lon: 51.18, re: /\b(katar|qatar|doha)\b/i },
   { id: 'eg', name: 'Ägypten', lat: 26.82, lon: 30.8, re: /\b(ägypten|aegypten|kairo)\b/i },
   { id: 'in', name: 'Indien', lat: 20.59, lon: 78.96, re: /\b(indien|neu[- ]?delhi|new\s+delhi|modi)\b/i },
-  { id: 'jp', name: 'Japan', lat: 36.2, lon: 138.25, re: /\b(japan|tokio|tokyo)\b/i },
+  { id: 'jp', name: 'Japan', lat: 36.2, lon: 138.25, re: /\b(japan|toki(?:o)?|tokyo)\b/i },
   { id: 'kr', name: 'Südkorea', lat: 35.91, lon: 127.77, re: /\b(südkorea|suedkorea|seoul)\b/i },
   { id: 'pk', name: 'Pakistan', lat: 30.38, lon: 69.35, re: /\b(pakistan|islamabad)\b/i },
   { id: 'au', name: 'Australien', lat: -25.27, lon: 133.78, re: /\b(australien|canberra|sydney)\b/i },

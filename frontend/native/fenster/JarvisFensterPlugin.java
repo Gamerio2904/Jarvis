@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -74,6 +75,7 @@ public class JarvisFensterPlugin extends Plugin {
     private static volatile String lastHost = "";
     private static volatile Context appCtx;
     private static JarvisFensterPlugin live;
+    private static WifiManager.MulticastLock multicast;
 
     public static void setFront(boolean on) {
         front.set(on);
@@ -227,19 +229,18 @@ public class JarvisFensterPlugin extends Plugin {
             }
         }
         if (any) {
-            for (InetAddress addr : addrs) {
-                if (!isLan(addr) || addr.isLoopbackAddress()) continue;
-                try {
-                    DatagramSocket udp = new DatagramSocket(null);
-                    udp.setReuseAddress(true);
-                    udp.bind(new InetSocketAddress(addr, UDP_PORT));
-                    udpSockets.add(udp);
-                    Thread u = new Thread(() -> udpLoop(udp), "jarvis-fenster-udp-" + addr.getHostAddress());
-                    u.setDaemon(true);
-                    u.start();
-                } catch (Exception ignored) {
-                    /* diese Adresse hört kein UDP */
-                }
+            holdMulticast();
+            try {
+                DatagramSocket udp = new DatagramSocket(null);
+                udp.setReuseAddress(true);
+                udp.setBroadcast(true);
+                udp.bind(new InetSocketAddress(UDP_PORT));
+                udpSockets.add(udp);
+                Thread u = new Thread(() -> udpLoop(udp), "jarvis-fenster-udp");
+                u.setDaemon(true);
+                u.start();
+            } catch (Exception ignored) {
+                /* Broadcast kommt nur an 0.0.0.0 an, nicht an eine einzelne IP */
             }
         }
         if (!any) running.set(false);
@@ -263,6 +264,31 @@ public class JarvisFensterPlugin extends Plugin {
             }
         }
         udpSockets.clear();
+        dropMulticast();
+    }
+
+    private static void holdMulticast() {
+        try {
+            Context ctx = appCtx;
+            if (ctx == null) return;
+            WifiManager wm = (WifiManager) ctx.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wm == null) return;
+            if (multicast == null) {
+                multicast = wm.createMulticastLock("jarvis-fenster");
+                multicast.setReferenceCounted(false);
+            }
+            if (!multicast.isHeld()) multicast.acquire();
+        } catch (Exception ignored) {
+            /* ohne Lock filtert Android den Broadcast */
+        }
+    }
+
+    private static void dropMulticast() {
+        try {
+            if (multicast != null && multicast.isHeld()) multicast.release();
+        } catch (Exception ignored) {
+            /* */
+        }
     }
 
     private static void acceptLoop(ServerSocket ss) {
@@ -420,7 +446,7 @@ public class JarvisFensterPlugin extends Plugin {
         }
         pool.shutdown();
         try {
-            pool.awaitTermination(2500, TimeUnit.MILLISECONDS);
+            pool.awaitTermination(4000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
@@ -439,7 +465,7 @@ public class JarvisFensterPlugin extends Plugin {
             byte[] msg = "ULTRON-FENSTER".getBytes(StandardCharsets.UTF_8);
             for (String base : bases) sendUdp(sock, base + ".255", msg);
             sendUdp(sock, "255.255.255.255", msg);
-            long end = System.currentTimeMillis() + 700;
+            long end = System.currentTimeMillis() + 1200;
             byte[] buf = new byte[400];
             while (System.currentTimeMillis() < end) {
                 try {
@@ -513,8 +539,8 @@ public class JarvisFensterPlugin extends Plugin {
     private static String hello(String host) {
         Socket sock = new Socket();
         try {
-            sock.connect(new InetSocketAddress(host, PORT), 80);
-            sock.setSoTimeout(400);
+            sock.connect(new InetSocketAddress(host, PORT), 220);
+            sock.setSoTimeout(500);
             String req = "GET /fenster HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
             OutputStream out = sock.getOutputStream();
             out.write(req.getBytes(StandardCharsets.UTF_8));
@@ -615,6 +641,7 @@ public class JarvisFensterPlugin extends Plugin {
             if (c < 0 || c > 255 || d < 0 || d > 255) return false;
             if (a == 192 && b == 168) return true;
             if (a == 10 && b >= 0 && b <= 255) return true;
+            if (a == 172 && b >= 16 && b <= 31) return true;
             if (a == 127) return true;
         } catch (NumberFormatException ignored) {
             return false;

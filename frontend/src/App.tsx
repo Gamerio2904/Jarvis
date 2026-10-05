@@ -55,6 +55,7 @@ import { CalendarView } from './ui/Calendar.tsx'
 import { HomeScreen } from './ui/HomeScreen.tsx'
 import { UltronIntro } from './ui/UltronIntro.tsx'
 import { FensterSheet } from './ui/FensterSheet.tsx'
+import { ownFensterKind } from './engine/fenster.ts'
 import { GlanceRail } from './ui/GlanceRail.tsx'
 import { MiniChat } from './ui/MiniChat.tsx'
 import { VoiceSphere } from './ui/VoiceSphere.tsx'
@@ -538,9 +539,59 @@ function App() {
       if (dock) goDock(dock)
       return
     }
+    if (action === 'surface.off') {
+      const dock = String(tool.result?.dock || '')
+      if (dock === 'calendar') {
+        setCalendarOpen(false)
+        closeSheet('calendar')
+      } else if (dock === 'watchlist') {
+        closeWatchlist()
+      } else if (dock === 'voice') {
+        closeVoice()
+      } else if (dock === 'lage') {
+        setLageSession(false)
+        void patchSettings({ hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
+      } else if (dock === 'tisch' || dock === 'home' || dock === 'chat') {
+        goDock(dock === 'tisch' ? 'home' : dock)
+      }
+      return
+    }
     if (action === 'set') {
       void refreshSettings()
     }
+  }
+
+  function applyWatchTool(tool?: ToolMeta | null) {
+    if (!tool || tool.tool !== 'watchlist') return
+    if (tool.action === 'close') {
+      closeWatchlist()
+      return
+    }
+    const focusRaw = String(tool.result?.focus || '')
+    const focus = focusRaw === 'favorite' || focusRaw === 'watch' ? focusRaw : tool.action === 'open' ? 'watch' : ''
+    if (focus) openWatchlistSheet(focus)
+  }
+
+  function applyCalendarTool(tool?: ToolMeta | null) {
+    if (!tool || tool.tool !== 'calendar') return
+    if (tool.action === 'open') {
+      setCalendarOpen(true)
+      setWatchlistOpen(false)
+      setSettingsPanelOpen(false)
+      setSidebarOpen(false)
+      closeVoice()
+      openSheet('calendar')
+    } else if (tool.action === 'close') {
+      setCalendarOpen(false)
+      closeSheet('calendar')
+    }
+  }
+
+  function applyBoardTool(tool?: ToolMeta | null) {
+    if (!tool) return
+    if (tool.tool === 'board' && tool.action === 'on') showTischplatte()
+    if (tool.tool === 'board' && tool.action === 'off') goDock('home')
+    if (tool.tool === 'idea' && tool.action === 'plan_table') showTischplatte()
   }
 
   function applyHudTool(tool?: ToolMeta | null) {
@@ -1473,21 +1524,9 @@ function App() {
           }
           if (payload.research) void refreshAudits()
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (payload.tool?.tool === 'calendar') {
-            if (payload.tool.action === 'open') {
-              setCalendarOpen(true)
-              setWatchlistOpen(false)
-              setSettingsPanelOpen(false)
-              setSidebarOpen(false)
-              closeVoice()
-              openSheet('calendar')
-            }
-          }
-          if (payload.tool?.tool === 'watchlist') {
-            const focusRaw = String(payload.tool.result?.focus || '')
-            const focus = focusRaw === 'favorite' || focusRaw === 'watch' ? focusRaw : payload.tool.action === 'open' ? 'watch' : ''
-            if (focus) openWatchlistSheet(focus)
-          }
+          applyCalendarTool(payload.tool)
+          applyBoardTool(payload.tool)
+          applyWatchTool(payload.tool)
           applyAppTool(payload.tool)
           applyHudTool(payload.tool)
           if (driveCloseGenRef.current === closeGen) {
@@ -1741,11 +1780,9 @@ function App() {
               }
             }
             maybeOpenSettingsFromReply(contentOut)
-            if (payload.tool?.tool === 'watchlist') {
-              const focusRaw = String(payload.tool.result?.focus || '')
-              const focus = focusRaw === 'favorite' || focusRaw === 'watch' ? focusRaw : payload.tool.action === 'open' ? 'watch' : ''
-              if (focus) openWatchlistSheet(focus)
-            }
+            applyCalendarTool(payload.tool)
+            applyBoardTool(payload.tool)
+            applyWatchTool(payload.tool)
             applyAppTool(payload.tool)
             applyHudTool(payload.tool)
           },
@@ -2049,7 +2086,7 @@ function App() {
     <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}`} ref={appRef}>
       <UltronIntro />
       <FensterSheet
-        ownKind={lageWide ? 'tablet' : 'handy'}
+        ownKind={ownFensterKind()}
         onShow={(id) => {
           if (id === 'watchlist') {
             openWatchlistSheet()

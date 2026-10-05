@@ -35,3 +35,14 @@ export function isAllowedPcHost(raw: string): boolean {
   if (parts[0] === '10') return true
   return false
 }
+
+/** Zwei Ultron-Geräte im Hausnetz. 172.16–31 ist LAN (Hotspot), nicht der PC-Weg. */
+export function isPrivateLanHost(raw: string): boolean {
+  if (isAllowedPcHost(raw)) return true
+  const h = sanitizePcHost(raw)
+  const parts = h.split('.')
+  if (parts.length !== 4 || !parts.every(octetOk)) return false
+  const a = Number(parts[0])
+  const b = Number(parts[1])
+  return a === 172 && b >= 16 && b <= 31
+}

@@ -117,6 +117,31 @@ async function handleUi(conversationId: string, action: UiAction): Promise<AppHi
     return packOpenSettings('keys')
   }
   if (action.id === 'settings.tab') return packOpenSettings(action.topic)
+  if (action.id === 'surface.off') {
+    const packed = packVerified({
+      domain: 'app',
+      intent: `surface.off:${action.dock}`,
+      plan: 'surface.off',
+      label: 'Fläche',
+      observation: { action: 'surface.off', dock: action.dock },
+      verify: (obs) => obs.action === 'surface.off' && obs.dock === action.dock,
+      successReply:
+        action.dock === 'tisch'
+          ? 'Tischplatte zu.'
+          : action.dock === 'calendar'
+            ? 'Kalender zu.'
+            : action.dock === 'lage'
+              ? 'Lage zu.'
+              : action.dock === 'watchlist'
+                ? 'Filme zu.'
+                : action.dock === 'voice'
+                  ? 'Sprachmodus zu.'
+                  : 'Zu.',
+      failReply: 'Nicht geschlossen.',
+      extra: { dock: action.dock },
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'app' }
+  }
   if (action.id === 'overlay.close') {
     const packed = packVerified({
       domain: 'app',
@@ -151,7 +176,9 @@ async function handleUi(conversationId: string, action: UiAction): Promise<AppHi
                 ? 'Sprachmodus.'
                 : action.dock === 'calendar'
                   ? 'Kalender.'
-                  : 'Einstellungen.',
+                  : action.dock === 'tisch'
+                    ? 'Tischplatte.'
+                    : 'Einstellungen.',
       failReply: 'Leiste nicht gewechselt.',
       extra: { dock: action.dock },
     })

@@ -93,8 +93,8 @@ function sessionWork(raw: string): string {
 
 function isPlanningScreenAsk(t: string): boolean {
   return (
-    /^\s*(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+)?planungsbildschirm\s*[.!?]*$/i.test(t) ||
-    /^\s*planungsbildschirm\s*(?:auf|öffnen|oeffnen)?\s*[.!?]*$/i.test(t)
+    /^\s*(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+|die\s+)?(?:planungsbildschirm|planungsmodus|tischplatte)\s*[.!?]*$/i.test(t) ||
+    /^\s*(?:planungsbildschirm|planungsmodus)\s*(?:auf|öffnen|oeffnen|an)?\s*[.!?]*$/i.test(t)
   )
 }
 

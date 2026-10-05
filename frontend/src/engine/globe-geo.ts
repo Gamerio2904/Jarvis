@@ -94,7 +94,7 @@ export const PLACES: PlaceFix[] = [
   { re: /\bzürich\b|\bzuerich\b/i, name: 'Zürich', lat: 47.38, lon: 8.54, blurb: 'größte Stadt der Schweiz.' },
   { re: /\bkairo\b/i, name: 'Kairo', lat: 30.04, lon: 31.24, blurb: 'Hauptstadt von Ägypten, am Nil.' },
   { re: /\bdubai\b/i, name: 'Dubai', lat: 25.2, lon: 55.27, blurb: 'an der persischen Golfküste.' },
-  { re: /\btokio\b|\btokyo\b/i, name: 'Tokio', lat: 35.68, lon: 139.69, blurb: 'Hauptstadt von Japan.' },
+  { re: /\btoki(?:o)?\b|\btokyo\b/i, name: 'Tokio', lat: 35.68, lon: 139.69, blurb: 'Hauptstadt von Japan.' },
   { re: /\bseoul\b/i, name: 'Seoul', lat: 37.57, lon: 126.98, blurb: 'Hauptstadt Südkoreas.' },
   { re: /\bneu[- ]?delhi\b|\bnew delhi\b/i, name: 'Neu-Delhi', lat: 28.61, lon: 77.21, blurb: 'Hauptstadt von Indien.' },
   { re: /\bbangkok\b/i, name: 'Bangkok', lat: 13.76, lon: 100.5, blurb: 'Hauptstadt von Thailand.' },

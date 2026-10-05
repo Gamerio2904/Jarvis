@@ -21,6 +21,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 0-plan. **Tischplatte lesbar** [`tischplatte-plan.md`](./tischplatte-plan.md) — **PLAN**, noch nicht gebaut. S1 Karten, die man vorliest. S2 Das bauen wir nicht. S3 Eine Frage, wenn der Satz dünn ist. S4 Zwei Sichten.
 0-plan. **Hausstand nach dem Koppeln** [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) — **PLAN**, noch nicht gebaut. S1 Vergleich nach dem Koppeln. S2 Der neuere Stand, dann die Frage. S3 Ja überschreibt den älteren.
 0-plan. **Formulierung egal** [`formulierung-plan.md`](./formulierung-plan.md) — **PLAN**, noch nicht gebaut. S1 Kopplung, egal wie gesagt. S2 Jede vorhandene Aktion. S3 Unbekannt bleibt unbekannt.
+0-plan. **Flächen-Bugs** [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md) — S438 Kopplung. S439 Termin-Name und Knopf. S440 Planungsmodus. S441 Tokio. S442 Flächen per Satz. S443 Watchliste.
 0a. **`18.18` Homescreen** [`90-next.md`](./90-next.md) — Sprints **382–384 CODE + APK**. App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel. In Sideload **`18.19.0`**.
 0a. **`18.17` Kalender Alltag** [`89-next.md`](./89-next.md) — Sprints **377–381 CODE + APK**. Hausstand-Termine + ICS, Serie, Konflikt. Sideload **`18.17.0`**.
 0a. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE + APK**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname. Sideload **`18.16.0`**.

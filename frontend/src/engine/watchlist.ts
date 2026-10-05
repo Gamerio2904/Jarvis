@@ -80,10 +80,21 @@ function titleMatch(a: string, b: string): boolean {
   return Boolean(x && y && (x === y || x.includes(y) || y.includes(x)))
 }
 
+function normTitle(title: string): string {
+  return (title || '')
+    .toLowerCase()
+    .replace(/^(?:the|der|die|das|ein|eine)\s+/i, '')
+    .replace(/[^a-z0-9äöüß]+/gi, '')
+    .trim()
+}
+
 function sameFilm(a: WatchMovie, b: WatchMovie): boolean {
   const idA = (a.imdbId || '').trim().toLowerCase()
   const idB = (b.imdbId || '').trim().toLowerCase()
   if (idA && idB && idA === idB) return true
+  const na = normTitle(a.title)
+  const nb = normTitle(b.title)
+  if (na && na === nb) return true
   return sameFilmTitle(a.title, b.title)
 }
 
@@ -175,8 +186,18 @@ async function dedupeRows(title?: string): Promise<WatchMovie[]> {
 }
 
 export async function enrichWatchlist(list?: WatchListKind): Promise<WatchMovie[]> {
+  await dedupeRows()
   const rows = await listWatchMovies(list)
-  return Promise.all(rows.map((r) => enrich(r)))
+  const enriched = await Promise.all(rows.map((r) => enrich(r)))
+  await dedupeRows()
+  const fresh = await listWatchMovies(list)
+  const pool = fresh.length ? fresh : enriched
+  const out: WatchMovie[] = []
+  for (const row of pool) {
+    if (out.some((have) => sameFilm(have, row))) continue
+    out.push(row)
+  }
+  return out
 }
 
 async function persistWatchedPack(): Promise<void> {
@@ -268,6 +289,11 @@ export async function handleWatchlist(
 
   const intent = parseWatchlistIntent(text)
   if (!intent) return { handled: false }
+
+  if (intent.kind === 'close') {
+    return pack('Filme zu.', 'close')
+  }
+
 
   if (intent.kind === 'move') {
     const title = (intent.title || lastFilmTitle()).trim()

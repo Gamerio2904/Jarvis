@@ -14,6 +14,7 @@ export type UiAction =
   | { id: 'settings.tab'; topic: SettingsTopic }
   | { id: 'settings.set'; flag: JarvisFlag; on: boolean; title: string }
   | { id: 'dock.go'; dock: UiDockId }
+  | { id: 'surface.off'; dock: UiDockId }
 
 export type AppIntent =
   | { kind: 'settings'; topic: SettingsTopic }
@@ -74,6 +75,9 @@ export function parseAppIntent(text: string): AppIntent | null {
   ) {
     return { kind: 'ui', action: { id: 'overlay.close' } }
   }
+
+  const surface = parseSurface(t)
+  if (surface) return surface
 
   const flag = parseFlagSet(t)
   if (flag) return { kind: 'ui', action: flag }
@@ -150,4 +154,30 @@ export function parseAppIntent(text: string): AppIntent | null {
   }
 
   return null
+}
+
+const SURFACE_WORD: Array<{ re: RegExp; dock: UiDockId }> = [
+  { re: /^(?:den\s+)?kalender$/, dock: 'calendar' },
+  { re: /^(?:den\s+|die\s+)?(?:planungsmodus|planungsbildschirm|tischplatte|werkbank|projekttafel)$/, dock: 'tisch' },
+  { re: /^(?:die\s+)?lage$/, dock: 'lage' },
+  { re: /^(?:die\s+|meine\s+)?filme$/, dock: 'watchlist' },
+  { re: /^(?:den\s+)?chat$/, dock: 'chat' },
+  { re: /^(?:den\s+|das\s+)?(?:start(?:bildschirm)?|homescreen|home)$/, dock: 'home' },
+  { re: /^(?:den\s+)?(?:sprachmodus|stimme)$/, dock: 'voice' },
+]
+
+function parseSurface(t: string): AppIntent | null {
+  const open =
+    /^\s*(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf|start(?:e)?)\s+(?:mir\s+)?(?:bitte\s+)?(.+?)\s*[.!?]*\s*$/i.exec(t)
+  const close =
+    /^\s*(?:schließ(?:e)?|schliess(?:e)?|mach(?:e)?\s+zu)\s+(?:mir\s+)?(?:bitte\s+)?(.+?)\s*[.!?]*\s*$/i.exec(t)
+  const bare = /^\s*(.+?)\s+(?:aus|weg)\s*[.!?]*\s*$/i.exec(t)
+  const hit = open || close || bare
+  if (!hit) return null
+  const what = hit[1].trim().toLowerCase().replace(/\s+/g, ' ')
+  const row = SURFACE_WORD.find((s) => s.re.test(what))
+  if (!row) return null
+  if (close || bare) return { kind: 'ui', action: { id: 'surface.off', dock: row.dock } }
+  if (row.dock === 'voice') return { kind: 'voice' }
+  return { kind: 'ui', action: { id: 'dock.go', dock: row.dock } }
 }

@@ -26,9 +26,14 @@ export type BoardIntent =
 
 const END = String.raw`[.!?]?\s*$`
 
-const ON = new RegExp(String.raw`^\s*(?:tischplatte|werkbank|projekttafel)\s+an\s*` + END, 'i')
+const ON = new RegExp(
+  String.raw`^\s*(?:(?:tischplatte|werkbank|projekttafel)\s+an|(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+|die\s+)?(?:planungsmodus|planungsbildschirm|tischplatte|werkbank|projekttafel))\s*` +
+    END,
+  'i',
+)
 const OFF = new RegExp(
-  String.raw`^\s*(?:(?:tischplatte|werkbank|projekttafel)\s+aus|icons?\s+wieder|homescreen[\s-]?icons?)\s*` + END,
+  String.raw`^\s*(?:(?:tischplatte|werkbank|projekttafel|planungsmodus|planungsbildschirm)\s+aus|(?:schließ(?:e)?|schliess(?:e)?|mach(?:e)?\s+zu)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+|die\s+)?(?:planungsmodus|planungsbildschirm|tischplatte|werkbank|projekttafel)|icons?\s+wieder|homescreen[\s-]?icons?)\s*` +
+    END,
   'i',
 )
 

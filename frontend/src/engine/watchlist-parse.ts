@@ -14,6 +14,7 @@ export type WatchlistIntent =
   | { kind: 'move'; list: WatchListKind; title?: string }
   | { kind: 'list'; list: WatchListKind }
   | { kind: 'show'; list: WatchListKind }
+  | { kind: 'close' }
   | { kind: 'remove'; list: WatchListKind; title?: string; index?: number }
   | { kind: 'dedupe'; title?: string }
 
@@ -79,6 +80,14 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
     const title = cleanTitle(dedupeNamed[1])
     if (title && !/^(?:der|die|das|ein|eine)$/i.test(title)) return { kind: 'dedupe', title }
     return { kind: 'dedupe' }
+  }
+
+  if (
+    /^\s*(?:schließ(?:e)?|schliess(?:e)?|mach(?:e)?\s+zu)\s+(?:mir\s+)?(?:die\s+|meine\s+|den\s+)?(?:watchliste|filme|lieblinge|lieblingsfilme)\s*$/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'close' }
   }
 
   const showOpen =

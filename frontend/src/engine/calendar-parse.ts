@@ -20,6 +20,7 @@ export type CalendarIntent =
   | { kind: 'rename'; query: string; title: string }
   | { kind: 'move'; query: string; start: Date; whenLabel: string }
   | { kind: 'open' }
+  | { kind: 'close' }
   | { kind: 'export_ics' }
 
 const WEEKDAYS =
@@ -27,7 +28,10 @@ const WEEKDAYS =
 const CREATE = /^\s*termin(?:e)?\s*[:-]?\s*(.+)$/is
 const CREATE_NL =
   /^\s*(?:erstell(?:e)?|leg(?:e)?\s+an|mach(?:e)?)\s+(?:einen?\s+)?termin(?:\s+für)?(?:\s+den)?\s+(\d{1,2})\.(\d{1,2})\.?\s*(\d{2,4})?\s*[, ]+(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?\s*[,:]?\s+(.+)$/is
-const OPEN = /^\s*(?:zeig(?:e)?\s+(?:mir\s+)?(?:den\s+)?)?kalender\s*$/i
+const OPEN =
+  /^\s*(?:(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf|start(?:e)?)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+)?)?kalender\s*[.!?]*\s*$/i
+const CLOSE =
+  /^\s*(?:schließ(?:e)?|schliess(?:e)?|mach(?:e)?\s+zu)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+)?kalender\s*[.!?]*\s*$/i
 const EXPORT_ICS =
   /^\s*(?:(?:exportiere?|sichere?)\s+)?(?:den\s+)?(?:kalender|termine?)\s+(?:als\s+)?ics(?:\s+export(?:ieren)?)?\s*$/i
 const WEEKLY_CAL = new RegExp(
@@ -331,6 +335,7 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   const t = normalizeCalendarSpeech(text)
   if (!t || t.length > 220) return null
   if (EXPORT_ICS.test(t)) return { kind: 'export_ics' }
+  if (CLOSE.test(t)) return { kind: 'close' }
   if (OPEN.test(t)) return { kind: 'open' }
   if (LIST_ALL.test(t)) return { kind: 'list' }
   if (LIST_WEEK.test(t)) {
@@ -462,7 +467,7 @@ export function splitTitlePlace(raw: string): { title: string; place?: string } 
   if (!t) return { title: 'Termin' }
   if (/\b(?:geburtstag\w*|birthday)\b/i.test(t)) return { title: t }
   const inPlace = t.match(/^(.+?)\s+(?:in|an der|am|auf der)\s+(.+)$/i)
-  if (inPlace && inPlace[1].trim().length >= 2) {
+  if (inPlace && inPlace[1].trim().length >= 2 && placeOk(inPlace[2])) {
     return { title: inPlace[1].trim(), place: inPlace[2].trim() }
   }
   const street = t.match(/^(.+?)\s+(\S*(?:straße|strasse|weg|platz|gasse|ring|allee)(?:\s+\d+[a-z]?)?)$/i)
@@ -474,6 +479,20 @@ export function splitTitlePlace(raw: string): { title: string; place?: string } 
     return { title: numbered[1].trim(), place: numbered[2].trim() }
   }
   return { title: t }
+}
+
+function placeOk(place: string): boolean {
+  const p = place.replace(/\s+/g, ' ').trim()
+  if (p.length < 2) return false
+  if (/^(?:heute|morgen|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag|uhr)$/i.test(p)) {
+    return false
+  }
+  if (/^(?:heute|morgen|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)\b/i.test(p)) {
+    return false
+  }
+  if (/\buhr\b/i.test(p) && p.length < 28) return false
+  if (/^\d{1,2}(?:[:.]\d{2})?$/.test(p)) return false
+  return true
 }
 
 function takeClock(raw: string): { h: number; m: number; span: string } | null {
