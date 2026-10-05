@@ -23,6 +23,7 @@ Gerätzeit und GPS nutzen. Live-Fakten mit Gemini selbst suchen, statt Wissensl�
 | P4 | Wissenslücke | „keine verifizierten Zahlen“ / „kein Systemzugriff“ → nochmal Netz |
 | P5 | Tabelle als Text | keine Absage „Format“, Zahlen nur aus Treffern |
 | P6 | Sideload `2.2.0` | versionCode 20200 |
+| P7 | Testprompts kopieren (`2.2.1`) | Einstellungen → Tests, ein Klick |
 
 ## Probe
 

@@ -114,4 +114,7 @@ export const TEST_PROMPTS = [
   'wo könnte ich denn sein',
   'Was ist der bip in Deutschland',
   'Kannst du den bip von Deutschland in einer Tabelle darstellen?',
+  'Taschenlampe an',
+  'ohne meine Adresse nachzugucken weißt du wo ich bin',
+  'Nach Ingersheim',
 ] as const

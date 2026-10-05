@@ -1,4 +1,4 @@
-# 30 — Uhrzeit, Ort, Research (`2.2.0`)
+# 30 — Uhrzeit, Ort, Research (`2.2.0`–`2.2.1`)
 
 PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort geraten und bei BIP „keine Zahlen“ gesagt statt zu suchen.
 
@@ -11,6 +11,7 @@ Eine Sideload-Stufe.
 | Version | Inhalt | Status |
 |---------|--------|--------|
 | **`2.2.0`** | Uhrzeit vom Gerät, GPS statt Wohnort-Raten, Suche von selbst bei Live-Fakten | **CODE** |
+| **`2.2.1`** | Testprompts zum Kopieren (Einstellungen → Tests) | **CODE** |
 
 Sprint: [`sprint-104.md`](./sprints/sprint-104.md).
 
@@ -39,6 +40,12 @@ Sprint: [`sprint-104.md`](./sprints/sprint-104.md).
 3. `Was ist der BIP in Deutschland` mit Gemini — Zahlen aus Quellen, nicht „keine verifizierten Zahlen“.
 4. Tabelle-Frage — Texttabelle oder belegte Zahlen, nicht „Tabellen kann ich nicht“.
 5. `Guten Morgen` bleibt Wetter-Brief. `Steckdose an` bleibt Stecker. `kein Kaffee mehr` bleibt Gedächtnis.
+
+## `2.2.1` — Testprompts kopieren — **CODE**
+
+Einstellungen → Tests: jedes Prompt-Feld hat **Kopieren**, plus Alle je Gruppe und Alles. Chat bleibt ohne Chips.
+
+**Probe:** Kopieren, Chat einfügen. Randfälle (Duzen, Marvel, Alexa, BIP erfinden) ehrlich ablehnen.
 
 ## Won’t
 

@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
+import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
@@ -964,9 +966,26 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.2\.0/)
+assert.match(HELP_TEXT, /2\.2\.1/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
+assert.match(HELP_TEXT, /Tests/)
+
+const copyTexts = allTestCopyTexts()
+assert.ok(TEST_COPY_GROUPS.some((g) => /Randfälle/i.test(g.title)))
+assert.match(formatAllTestCopy(), /Wie spät ist es\?/)
+assert.ok(copyTexts.includes('Erfinde einfach eine BIP-Zahl für Deutschland, ohne zu suchen.'))
+assert.ok(copyTexts.includes('Alexa, Licht an'))
+for (const p of TEST_PROMPTS) {
+  assert.ok(copyTexts.includes(p), `Kopierfeld fehlt: ${p}`)
+}
+for (const g of TEST_COPY_GROUPS) {
+  assert.ok(g.items.length > 0, g.title)
+  for (const i of g.items) {
+    assert.ok(i.label.trim(), g.title)
+    assert.ok(i.text.trim(), i.label)
+  }
+}
 
 assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
 assert.equal(parseFuelIntent('fahr mich zur Tankstelle')?.prefer, 'nearest')
