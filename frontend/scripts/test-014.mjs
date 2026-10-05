@@ -40,6 +40,7 @@ import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import { parsePlugIntent } from '../src/engine/plug-parse.ts'
+import { lanIpHint } from '../src/engine/plug-net.ts'
 import {
   displayPlaceName,
   findContactRow,
@@ -774,6 +775,10 @@ assert.equal(parsePlugIntent('Ventilator an'), null)
 assert.equal(parsePlugIntent('Nach Witzen erzähl mir ein'), null)
 assert.equal(parsePlugIntent('aus', [], true)?.action, 'off')
 assert.equal(parsePlugIntent('Ist die Steckdose an?')?.action, 'status')
+assert.equal(lanIpHint('89.246.103.118')?.includes('Hausnetz'), true)
+assert.equal(lanIpHint('192.168.178.40'), null)
+assert.equal(lanIpHint('10.0.0.20'), null)
+assert.equal(lanIpHint('172.16.1.2'), null)
 assert.equal(parseCalendarIntent('Termin um 16:00 Jane', frozen)?.kind, 'create')
 assert.equal(parseAlarmIntent('Wecker 7', frozen)?.kind, 'create')
 assert.equal(parseTimerIntent('Timer 8 Minuten Nudeln', frozen)?.kind, 'create')
@@ -939,7 +944,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.1\.0/)
+assert.match(HELP_TEXT, /2\.1\.1/)
 assert.match(HELP_TEXT, /Steckdosen/)
 
 assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')

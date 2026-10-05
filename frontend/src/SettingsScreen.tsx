@@ -842,8 +842,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>WLAN-Steckdosen</h3>
               <p className="settings-lead">
-                Lokal im Hausnetz. Shelly und Tasmota brauchen nur die IP. Smart Life / Tuya: Device-ID und Local
-                Key, dann LAN — keine Tuya-Cloud in Jarvis. Tapo (TP-Link) noch nicht.
+                Lokal im Hausnetz. IP wie 192.168.178.40 — nicht die Internet-Adresse 89.… Shelly und Tasmota
+                brauchen nur die IP. Smart Life / Tuya: Device-ID und Local Key, dann LAN — keine Tuya-Cloud in
+                Jarvis. Tapo (TP-Link) noch nicht.
               </p>
               <label className="settings-toggle">
                 <span>Steckdosen an</span>
@@ -912,7 +913,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <input
                   value={plugDraft.host}
                   disabled={busy || plugBusy}
-                  placeholder="192.168.1.50"
+                  placeholder="192.168.178.40"
                   inputMode="decimal"
                   autoComplete="off"
                   onChange={(e) => setPlugDraft({ ...plugDraft, host: e.target.value })}
@@ -1080,7 +1081,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               {plugMsg ? <p className={`tv-test-msg${plugMsgOk === false ? ' warn' : ''}`}>{plugMsg}</p> : null}
               <p className="settings-hint">
                 Chat: „Steckdose an“, „Schreibtisch aus“, „alle Steckdosen aus“. Handy und Stecker im selben WLAN,
-                nicht Gastnetz. Feste IP am Router ist sinnvoll.
+                nicht Gastnetz. Die IP holst Du im Router unter Heimnetz/Geräte (192.168.…), nicht „meine IP“ aus
+                dem Internet.
               </p>
             </section>
           ) : null}

@@ -80,6 +80,14 @@ final class JarvisPlug {
             ret.put("message", "Keine IP.");
             return ret;
         }
+        if (isPublicIpv4(host)) {
+            ret.put("ok", false);
+            ret.put(
+                "message",
+                "Das ist keine Adresse im Hausnetz. Im Router unter Heimnetz/Geräte steht etwas wie 192.168.178.40 — nicht 89.…"
+            );
+            return ret;
+        }
         String kind = str(opts, "kind");
         String hit = tryHttpKind(host, kind);
         if (hit != null) {
@@ -122,6 +130,14 @@ final class JarvisPlug {
         if (host.isEmpty() && !"http".equals(kind)) {
             ret.put("ok", false);
             ret.put("message", "Keine IP.");
+            return ret;
+        }
+        if (isPublicIpv4(host)) {
+            ret.put("ok", false);
+            ret.put(
+                "message",
+                "Das ist keine Adresse im Hausnetz. Im Router unter Heimnetz/Geräte steht etwas wie 192.168.178.40 — nicht 89.…"
+            );
             return ret;
         }
         try {
@@ -353,6 +369,28 @@ final class JarvisPlug {
     private static String str(JSObject o, String k) {
         String v = o.getString(k, "");
         return v == null ? "" : v.trim();
+    }
+
+    static boolean isPublicIpv4(String host) {
+        if (host == null) return false;
+        String[] p = host.trim().split("\\.");
+        if (p.length != 4) return false;
+        int[] o = new int[4];
+        try {
+            for (int i = 0; i < 4; i++) {
+                o[i] = Integer.parseInt(p[i]);
+                if (o[i] < 0 || o[i] > 255) return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        int a = o[0];
+        int b = o[1];
+        if (a == 10) return false;
+        if (a == 192 && b == 168) return false;
+        if (a == 172 && b >= 16 && b <= 31) return false;
+        if (a == 127) return false;
+        return true;
     }
 
     private static String dps(JSObject o) {

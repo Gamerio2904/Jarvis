@@ -142,6 +142,7 @@ MAJOR.MINOR.PATCH
 | `2.0.0` | Haus-AI: letztes Medium, ehrliches Wetter, interne Navi | Sprint 102 MAJOR |
 | `2.0.1` | Latenz, Ingersheim DE, Kurven/Kreisverkehr, Follow-ups | Sprint 102 Patch |
 | `2.1.0` | WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN) | Sprint 103 |
+| `2.1.1` | Steckdose: Hausnetz-IP, nicht öffentliche 89.… | Sprint 103 Patch |
 
 ### Weitere Beispiele
 
