@@ -1,4 +1,4 @@
-# 66 — Agenten-Netzwerk: Ist-Stand (Code `18.15.0`)
+# 66 — Agenten-Netzwerk: Ist-Stand (Code `18.15.1`)
 
 > Dieses Dokument beschreibt, **was der Code tut** — nicht was geplant war.
 > [`62-next.md`](./62-next.md) ist das Planungsdokument zu 14.0; wo die Namen
@@ -52,7 +52,7 @@ Teile plus einen Kurzschluss verteilt. Begründung und Won’t: [`70-next.md`](.
 | **Router** `decideTurn` | im Director Schritt 4 | Parser-Score, Konflikte, Kosten, Verb-nach-vorn | LLM-Tiebreak (das war Sprint 257, Tor hat gehalten) |
 | **Bus** `agentDispatch` | im Director Schritt 5 | Budget, eine Wiederholung nur beim Lesen, Sicherungsschalter | Zustand schreiben nach Abbruch (Signal in `turn-abort.ts`) |
 | **Curator** | Director Schritt 2 | Gedächtnis pflegen (2,5 s), Writes über `decideGate` | Routing, Geräte |
-| **BrainOrchestrator** | nur wenn Director `hit == null` | Groq / Gemini / 0,5B wählen | Agenten starten, Tools ausführen |
+| **BrainOrchestrator** | nur wenn Director `hit == null` **und nicht abgebrochen** | Groq / Gemini / 0,5B wählen | Agenten starten, Tools ausführen, nach Barge-in weiterlaufen |
 | **Werkzeug-Vertrag** | Director Schritt 7, nur `looksCommandish` | ein JSON-Schema vorschlagen | ausführen — das tut der Parser am kanonischen Satz |
 
 `identity` hat seit `17.0.0` einen Executor **und** den Kurzschluss in
@@ -219,8 +219,8 @@ Antwort, Pfad, Zeiten, Agenten-Schritte, Hirn-Plätze und Kontingent-Stand.
 
 | Zahl | Wert | Quelle |
 |------|------|--------|
-| Agenten mit `parse` | 60 | `agents/parse-catalog.ts` |
-| Agenten mit `execute` | 60 | `agents/execute-map.ts` |
+| Agenten mit `parse` | 63 | `agents/parse-catalog.ts` |
+| Agenten mit `execute` | 63 | `agents/execute-map.ts` |
 
 `18.20.0` hängt `clip` daran: YouTube-Highlights, das Handy wählt, der PC schneidet.
 

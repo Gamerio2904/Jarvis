@@ -173,7 +173,12 @@ assert.match(src('src/ui/VoiceMode.tsx'), /createSentenceTap/)
 assert.match(src('src/ui/VoiceMode.tsx'), /tap\.feed/)
 
 assert.match(src('src/engine/director.ts'), /signal: currentTurnSignal/)
+assert.match(src('src/engine/director.ts'), /aborted: true/)
+assert.match(src('src/engine/chat.ts'), /isAbortError/)
+assert.match(src('src/engine/brain-orchestrator.ts'), /isAbortError/)
 assert.match(src('src/engine/groq.ts'), /isTurnAborted/)
+assert.match(src('src/engine/groq.ts'), /waitTurn/)
+assert.match(src('src/engine/http-json.ts'), /raceTurn/)
 assert.match(src('src/engine/llm.ts'), /currentTurnSignal/)
 assert.match(src('src/native/voice.ts'), /withTurnSignal/)
 

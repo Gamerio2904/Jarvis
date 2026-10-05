@@ -1,13 +1,13 @@
 # TEST 18.15 — Hirn härten
 
-Nach Execute von [`87-next.md`](./87-next.md). App-Code **`18.15.0`**.
-Sideload **`18.15.0`**, versionCode `181500`.
+Nach Execute von [`87-next.md`](./87-next.md). App-Code **`18.15.1`**.
+Sideload **`18.15.0`**, versionCode `181500`, bis neue APK.
 
-Gerät, nicht nur die Cloud-VM. Over `18.14.2` installieren.
+Gerät, nicht nur die Cloud-VM. Over `18.14.2` oder `18.15.0` installieren.
 
 ## 1. Version
 
-Einstellungen / Hilfe nennt **`18.15.0`**. Nicht `18.14.2`.
+Einstellungen / Hilfe nennt **`18.15.1`**. Nicht `18.14.2`. Die Sideload-APK `18.15.0` zeigt noch `18.15.0`, bis eine neue APK gebaut ist.
 
 ## 2. Retrieve / e5 (361)
 
@@ -42,6 +42,7 @@ Nachricht / Sport mit passendem Pack → URL sichtbar.
 
 Lange Suche oder Nachrichten, dann neues Wort / Antippen im Sprachmodus:
 alte Antwort kommt nicht mehr, neuer Zug startet. Settings-Keys bleiben.
+Kein Banner „Chat fehlgeschlagen“, kein zweiter Groq-Satz aus dem alten Zug.
 
 ## 6. Presence (365)
 

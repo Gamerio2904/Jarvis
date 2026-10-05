@@ -3,6 +3,7 @@ import { completeGemini, geminiReady, streamGemini, testGemini } from './gemini.
 import { groqReady, testGroq } from './groq.ts'
 import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain.ts'
 import { userFacingCloudError } from './cloud-errors.ts'
+import { abortError, isAbortError, isTurnAborted } from './turn-abort.ts'
 import { groundMicroMerge, HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
 import { greetingReply, greetingStandFact, parseGreeting, WRONG_NAME_REPLY, wrongNameGreeting } from './greeting.ts'
 import { handleFensterCommand, ownFensterKind } from './fenster.ts'
@@ -388,9 +389,10 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: `Das ${label}: ${title}.`, lastTool: stepTool || 'ordinal' }
   }
 
-  return loadSettings().agent_network_v2
-    ? (await runDirectorTurn(conversationId, content)).hit
-    : routeRegistry(conversationId, content)
+  if (!loadSettings().agent_network_v2) return routeRegistry(conversationId, content)
+  const dir = await runDirectorTurn(conversationId, content)
+  if (dir.aborted) throw abortError()
+  return dir.hit
 }
 
 /** Gibt es für diese Äußerung überhaupt einen Agenten? */
@@ -708,6 +710,10 @@ export async function streamChat(
       if (found.length === 1 && !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '')) {
         joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
       }
+      if (isTurnAborted()) {
+        finishLatency()
+        return
+      }
       setLatencyPath('parser')
       emitToken(handlers, joined)
       const assistant = await sayAssistant(conversationId, joined, {
@@ -728,6 +734,10 @@ export async function streamChat(
 
     const routeSettings = loadSettings()
     const policyAsk = getPolicyAsk()
+    if (isTurnAborted()) {
+      finishLatency()
+      return
+    }
     if (!found.length && policyAsk?.kind === 'ask' && routeSettings.brain_v2 && routeSettings.brain_micro_llm_clarify) {
       const out = await runBrainOrchestrator({
         messages: [],
@@ -955,6 +965,7 @@ export async function streamChat(
                 ).text
         }
       } catch (err) {
+        if (isAbortError(err)) throw err
         if (!wantSearch || !researchHasSources(research)) throw err
         raw = ''
       }
@@ -1047,6 +1058,10 @@ export async function streamChat(
       tool: wantSearch ? researchTool(nSources) : null,
     })
   } catch (err) {
+    if (isAbortError(err) || isTurnAborted()) {
+      finishLatency()
+      return
+    }
     const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
     const detail = kind === 'gemini' || kind === 'groq' ? userFacingCloudError(raw, groqReady()) : raw
     finishLatency()

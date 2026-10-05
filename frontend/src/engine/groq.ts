@@ -11,7 +11,7 @@ import { postJson } from './http-json.ts'
 import { streamSseLines } from '../native/voice.ts'
 import { loadSettings, saveSettings } from './store.ts'
 import { noteQuotaExhausted, noteQuotaHeaders, retryAfterMs } from './quota.ts'
-import { isTurnAborted } from './turn-abort.ts'
+import { abortError, isAbortError, isTurnAborted, waitTurn } from './turn-abort.ts'
 
 /**
  * Gemini merkt sich über `markSkip`, welches Modell gerade nicht geht. Groq
@@ -74,6 +74,7 @@ export async function completeGroq(
   }
   let last = 'Groq antwortet nicht.'
   for (const model of groqModelOrder(loadSettings().groq_skip_until)) {
+    if (isTurnAborted()) throw abortError()
     const streamed = await streamGroq({ ...body, stream: true, model }, key, onToken)
     if (streamed.fatal) throw new Error(streamed.last)
     if (streamed.text) {
@@ -114,11 +115,11 @@ export async function completeGroq(
         continue
       }
       if (status === 429) {
-        if (isTurnAborted()) throw new DOMException('Neuer Zug', 'AbortError')
+        if (isTurnAborted()) throw abortError()
         noteQuotaExhausted('groq', headers)
         const wait = retryAfterMs(headers)
         if (wait > 0) {
-          await new Promise((r) => setTimeout(r, wait))
+          await waitTurn(wait)
           last = 'Groq-Tageslimit erreicht.'
           continue
         }
@@ -138,7 +139,7 @@ export async function completeGroq(
       onToken?.(text, text)
       return text
     } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') throw err
+      if (isAbortError(err)) throw err
       const msg = err instanceof Error ? err.message : String(err)
       if (msg.includes('ungültig')) throw err instanceof Error ? err : new Error(msg)
       last = msg
@@ -153,7 +154,7 @@ export async function completeGroq(
  * Feldname kann damit nicht falsch geschrieben sein, weil er nicht falsch
  * geschrieben *werden* kann — kein Regex-Rettungsversuch nötig.
  *
- * Wirft nie. Wer hier nichts bekommt, geht den Weg von vorher.
+ * Wirft nur bei Abbruch. Wer sonst nichts bekommt, geht den Weg von vorher.
  */
 export async function completeGroqJson(opts: {
   system: string
@@ -192,12 +193,11 @@ export async function completeGroqJson(opts: {
       )
       noteQuotaHeaders('groq', headers)
       if (status === 429) {
-        if (isTurnAborted()) return null
+        if (isTurnAborted()) throw abortError()
         noteQuotaExhausted('groq', headers)
         const wait = retryAfterMs(headers)
         if (wait > 0) {
-          if (isTurnAborted()) return null
-          await new Promise((r) => setTimeout(r, wait))
+          await waitTurn(wait)
           continue
         }
         return null
@@ -212,7 +212,8 @@ export async function completeGroqJson(opts: {
       if (!text) continue
       groqUnskip(model)
       return JSON.parse(text) as unknown
-    } catch {
+    } catch (err) {
+      if (isAbortError(err)) throw err
       /* Netz weg, Zeit um oder kein JSON — dann eben kein Vorschlag */
     }
   }
@@ -240,6 +241,7 @@ async function streamGroq(
       onToken?.(piece, full)
     },
   )
+  if (isTurnAborted() || res.message === 'Abgebrochen.') throw abortError()
   const t = full.trim()
   if (t) return { text: t, last: '', fatal: false }
   const msg = (res.message || '').toLowerCase()

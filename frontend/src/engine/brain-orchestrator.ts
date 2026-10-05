@@ -14,6 +14,7 @@ import {
   type TurnBrainCtx,
 } from './brain-tasks.ts'
 import { announceSwitch } from './recover.ts'
+import { isAbortError } from './turn-abort.ts'
 
 export type BrainOrchestratorInput = {
   messages: Array<{ role: string; content: string }>
@@ -192,7 +193,8 @@ export async function runBrainOrchestrator(input: BrainOrchestratorInput): Promi
   let result: BrainSlotResult
   try {
     result = await runSlot(primary, input, input.turn.policyAsk)
-  } catch {
+  } catch (err) {
+    if (isAbortError(err)) throw err
     result = { slot: primary, model: 'none', text: '' }
   }
   if (!result.text.trim() && geminiReady() && primary !== 'research-deep') {
@@ -209,7 +211,8 @@ export async function runBrainOrchestrator(input: BrainOrchestratorInput): Promi
           slots: [...slots, 'research-deep'],
         }
       }
-    } catch {
+    } catch (err) {
+      if (isAbortError(err)) throw err
       /* nächster Slot tot — ehrliche Leere, kein Raten */
     }
   }
