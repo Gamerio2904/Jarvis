@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { scrubReply, isHelpCommand, finishReply } from '../src/engine/guards.ts'
+import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
   formatResearchReply,
@@ -61,7 +61,7 @@ import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
 import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
-import { formatHoursSpeech, hoursOpenNow, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
+import { formatHoursSpeech, hoursOpenNow, isBwHoliday, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
 import { formatHereReply, parseHereIntent } from '../src/engine/here-parse.ts'
@@ -181,8 +181,14 @@ assert.deepEqual(parseSpotifyIntent('Spiel Hotel California auf Spotify'), {
   query: 'Hotel California',
 })
 assert.equal(parseSpotifyIntent('Spiel das auf Spotify')?.kind, 'resume')
-assert.equal(parseDriveIntent('Zeig Spotify')?.kind, 'tab')
-assert.equal(parseDriveIntent('Zeig Spotify')?.kind === 'tab' && parseDriveIntent('Zeig Spotify')?.tab, 'spotify')
+assert.equal(parseSpotifyIntent('Zeig Spotify')?.kind, 'resume')
+assert.equal(parseSpotifyIntent('Lautstärke 50')?.kind, 'volume_set')
+assert.equal(parseSpotifyIntent('lauter um 10')?.kind, 'volume_up')
+assert.equal(parseTvIntent('Lautstärke 50')?.action, 'volume_set')
+assert.equal(parseTvIntent('Fernseher lautstärke 50')?.action, 'volume_set')
+assert.equal(parseDriveIntent('Zeig Spotify'), null)
+assert.equal(parseDriveIntent('Zeig Spotify', true)?.tab, 'spotify')
+assert.equal(parseDriveIntent('Öffne das Spotify overlay')?.tab, 'spotify')
 assert.equal(parseDriveIntent('öffne Karte')?.kind === 'tab' && parseDriveIntent('öffne Karte')?.tab, 'map')
 assert.equal(parseDriveIntent('Karte'), null)
 assert.equal(parseDriveIntent('Karte', true)?.tab, 'map')
@@ -312,7 +318,8 @@ assert.equal(parseShopIntent('auch Brot')?.kind, 'add')
 assert.equal(parseShopIntent('was fehlt?')?.kind, 'list')
 assert.equal(parseShopIntent('Milch hab ich')?.kind, 'got')
 assert.equal(parseToolIntent('ich muss noch Brot holen')?.kind, 'todo_create')
-assert.equal(parseToolIntent('erinner mich an Steuer')?.kind, 'todo_create')
+assert.equal(parseToolIntent('erinner mich an Steuer'), null)
+assert.equal(parseReminderIntent('erinner mich an Steuer')?.kind, 'ask')
 assert.equal(parseToolIntent('erledige das erste')?.kind, 'todo_done_first')
 assert.equal(parseToolIntent('was steht an')?.kind, 'todo_list')
 assert.equal(parseToolIntent('Was soll ich kaufen?'), null)
@@ -370,7 +377,7 @@ if (morgen?.kind === 'create') {
 const um = parseReminderIntent('erinner mich um 18:30 an Ofen', frozen)
 assert.equal(um?.kind, 'create')
 if (um?.kind === 'create') assert.equal(um.title, 'Ofen')
-assert.equal(parseReminderIntent('erinner mich an Steuer', frozen), null)
+assert.equal(parseReminderIntent('erinner mich an Steuer', frozen)?.kind, 'ask')
 assert.equal(parseReminderIntent('was steht an')?.kind, 'agenda')
 assert.equal(parseReminderIntent('zeige Erinnerungen')?.kind, 'list')
 assert.equal(parseReminderIntent('lösche Erinnerung Milch')?.kind, 'delete')
@@ -554,9 +561,11 @@ assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln und Wetter he
   'Timer 8 Minuten Nudeln',
   'Wetter heute',
 ])
-assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln'), [
+assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln und Wetter heute und Nachrichten'), [
   'Wecker 7',
   'Timer 8 Minuten Nudeln',
+  'Wetter heute',
+  'Nachrichten',
 ])
 assert.deepEqual(splitIntents('Ich heiße Max und trinke gerne Kaffee'), [
   'Ich heiße Max und trinke gerne Kaffee',
@@ -580,6 +589,12 @@ assert.equal(rewriteFollowUp('und morgen?', { last_step_tool: 'weather' }), null
 assert.equal(rewriteFollowUp('das lauter', { last_step_tool: 'tv', last_medium: 'tv' }), 'Fernseher lauter')
 assert.equal(rewriteFollowUp('stopp das', { last_medium: 'spotify' }), 'Spotify Pause')
 assert.equal(rewriteFollowUp('pause', { last_medium: 'tv' }), 'Fernseher pause')
+assert.equal(rewriteFollowUp('lauter', { last_medium: 'spotify' }), 'Spotify lauter')
+assert.equal(rewriteFollowUp('leiser', { last_step_tool: 'drive', last_medium: 'drive' }), 'Spotify leiser')
+assert.equal(
+  rewriteFollowUp('in 20 Minuten', { last_step_tool: 'reminder', last_step_title: 'Steuer' }),
+  'erinner mich in 20 Minuten an Steuer',
+)
 assert.equal(
   rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
   'Öffne Netflix',
@@ -859,8 +874,11 @@ assert.match(
   /Wikipedia/,
 )
 assert.equal(parseDriveIntent('Nachher'), null)
-assert.equal(rewriteFollowUp('stopp', { last_step_tool: 'fuel' }), 'Fahrmodus aus')
-assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', value: 'Kaffee' }]), /Smalltalk/)
+assert.equal(rewriteFollowUp('stopp', { last_step_tool: 'fuel', last_medium: 'drive' }), 'Spotify Pause')
+assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', value: 'Kaffee' }]), /Widerspruch/)
+assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
+assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
+assert.match(HELP_TEXT, /Wake an\/aus/)
 
 assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
 assert.equal(parseFuelIntent('fahr mich zur Tankstelle')?.prefer, 'nearest')

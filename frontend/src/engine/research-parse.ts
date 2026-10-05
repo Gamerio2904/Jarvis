@@ -429,7 +429,7 @@ function hasUnsupportedFigure(sentence: string, corpus: string): boolean {
   const allowed = new Set(figureKeys(corpus))
   if (!allowed.size) return false
   for (const key of figureKeys(sentence)) {
-    if (key < 1000) continue
+    if (key < 10) continue
     if (!allowed.has(key) && !approxIn(key, allowed)) return true
   }
   return false
@@ -459,6 +459,13 @@ function figureKeys(text: string): number[] {
   while ((m = grouped.exec(text))) {
     const n = Number(m[0].replace(/[.\s]/g, ''))
     if (Number.isFinite(n)) out.push(n)
+  }
+  const plain = /\b(\d{3,7})\b/g
+  while ((m = plain.exec(text))) {
+    const n = Number(m[1])
+    if (!Number.isFinite(n) || n < 100) continue
+    if (n >= 1900 && n <= 2100) continue
+    out.push(n)
   }
   return out
 }

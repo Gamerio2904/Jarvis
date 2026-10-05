@@ -376,11 +376,17 @@ function FollowMap({
 }
 
 function seedLiveFix(): MapFix {
+  const last = readLastMapFix()
   const route = getDriveRoute()
-  if (route && Number.isFinite(route.fromLat) && Number.isFinite(route.fromLon)) {
+  if (
+    route &&
+    (route.coords.length || route.minutes > 0) &&
+    Number.isFinite(route.fromLat) &&
+    Number.isFinite(route.fromLon)
+  ) {
     return { lat: route.fromLat, lon: route.fromLon }
   }
-  return readLastMapFix() || { lat: 48.78, lon: 9.18 }
+  return last || { lat: 48.78, lon: 9.18 }
 }
 
 function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string {
@@ -424,6 +430,7 @@ export function DriveMode({
   useEffect(() => {
     if (here) return
     if (!route) return
+    if (!route.coords.length && route.minutes <= 0) return
     liveRef.current = { ...liveRef.current, lat: route.fromLat, lon: route.fromLon }
   }, [route, here])
   useEffect(

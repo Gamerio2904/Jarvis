@@ -4,6 +4,9 @@ export type SpotifyIntent =
   | { kind: 'resume' }
   | { kind: 'next' }
   | { kind: 'prev' }
+  | { kind: 'volume_set'; level: number }
+  | { kind: 'volume_up'; steps: number }
+  | { kind: 'volume_down'; steps: number }
 
 export type SpotifySource = 'internal' | 'connect' | 'preview'
 
@@ -22,8 +25,25 @@ function stripSpotifyPrefix(text: string): string {
     .trim()
 }
 
+function clampLevel(n: number): number {
+  return Math.max(1, Math.min(100, Math.round(n)))
+}
+
+function clampSteps(n: number): number {
+  return Math.max(1, Math.min(30, Math.round(n)))
+}
+
 export function parseSpotifyIntent(text: string): SpotifyIntent | null {
   const t = stripSpotifyPrefix(text)
+  if (/^\s*(?:zeig(?:e)?|öffne)\s+spotify\s*[.!?]*$/i.test(text.trim())) return { kind: 'resume' }
+  const setVol = /(?:lautstärke|volume)\s*(?:auf\s*)?(\d{1,3})\b/i.exec(t)
+  if (setVol) return { kind: 'volume_set', level: clampLevel(Number(setVol[1])) }
+  const upN = /\blauter\s+um\s+(\d{1,3})\b|\b(\d{1,3})\s+lauter\b/i.exec(t)
+  if (upN) return { kind: 'volume_up', steps: clampSteps(Number(upN[1] || upN[2])) }
+  const downN = /\bleiser\s+um\s+(\d{1,3})\b|\b(\d{1,3})\s+leiser\b/i.exec(t)
+  if (downN) return { kind: 'volume_down', steps: clampSteps(Number(downN[1] || downN[2])) }
+  if (/^\s*lauter\s*[.!?]*$/i.test(t)) return { kind: 'volume_up', steps: 1 }
+  if (/^\s*leiser\s*[.!?]*$/i.test(t)) return { kind: 'volume_down', steps: 1 }
   if (/^\s*(pause|pausier(?:e)?(?:n)?|stopp(?:e)?(?:\s+die)?\s*musik|musik\s+(?:aus|pause))\s*[.!?]*$/i.test(t)) {
     return { kind: 'pause' }
   }

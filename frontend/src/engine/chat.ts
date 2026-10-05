@@ -667,7 +667,7 @@ export async function streamChat(
         return
       }
       const reply =
-        'Sprachmodus braucht Gemini. Unter Einstellungen an — das Handy-Modell ist dafür zu langsam.'
+        'Befehl nicht erkannt. Smalltalk im Sprachmodus braucht Gemini. Wetter, Timer, Route, Einkauf gehen ohne.'
       handlers.onToken?.(reply)
       const assistant = await addMessage(conversationId, 'assistant', reply)
       const updated = (await touchConversation(conversationId)) || conv

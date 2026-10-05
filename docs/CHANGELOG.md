@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.8`**.
+App-Version im Code: **`2.0.0`**.
+
+### `2.0.0` — Haus-AI, ein Kontext — *CODE*
+
+Letztes Medium: Lautstärke und Stopp treffen Spotify im Fahrmodus, nicht den Fernseher und nicht „CarPlay aus“. `Zeig Spotify` öffnet nicht die Karte. Wetter ohne Gemini-Raten. Erinnerung ohne Zeit fragt wann. Widget-Mikro schaltet Wake. Ohne GPS kein Fake-Ankunft. Research/Guards/TV/Memory/Stimme/Feiertage nachgezogen.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 20000)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-102.md`](./sprints/sprint-102.md)
 
 ### `1.48.8` — CarPlay-Route + Cafés am Valeo — *CODE*
 

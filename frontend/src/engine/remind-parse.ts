@@ -12,6 +12,7 @@ export type ReminderIntent =
   | { kind: 'week' }
   | { kind: 'delete'; query: string }
   | { kind: 'delete_last' }
+  | { kind: 'ask'; title: string }
 
 const WEEKDAYS: Record<string, number> = {
   sonntag: 0,
@@ -305,6 +306,12 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
     if (!clock || !title) return null
     const due = dueFromDayTime(now, null, clock.h, clock.m)
     return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
+  }
+
+  const bare = /^\s*erinner(?:e)?\s+mich\s+an\s+(.+)$/is.exec(t)
+  if (bare) {
+    const title = cleanTitle(bare[1])
+    if (title) return { kind: 'ask', title }
   }
 
   return null

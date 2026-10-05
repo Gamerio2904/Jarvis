@@ -25,32 +25,58 @@ const DAY_TOKEN: Record<string, number> = {
 const COMPLEX =
   /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|week(?:\d)|sunrise|sunset|easter|\bsh\b)\b/i
 
-const BW_PH = new Set([
-  '2026-01-01',
-  '2026-01-06',
-  '2026-04-03',
-  '2026-04-06',
-  '2026-05-01',
-  '2026-05-14',
-  '2026-05-25',
-  '2026-06-04',
-  '2026-10-03',
-  '2026-11-01',
-  '2026-12-25',
-  '2026-12-26',
-  '2027-01-01',
-  '2027-01-06',
-  '2027-03-26',
-  '2027-03-29',
-  '2027-05-01',
-  '2027-05-06',
-  '2027-05-17',
-  '2027-05-27',
-  '2027-10-03',
-  '2027-11-01',
-  '2027-12-25',
-  '2027-12-26',
-])
+function pad2(n: number): string {
+  return String(n).padStart(2, '0')
+}
+
+function isoDay(y: number, month: number, day: number): string {
+  return `${y}-${pad2(month)}-${pad2(day)}`
+}
+
+/** Anonymous Gregorian — Ostersonntag. */
+function easterSunday(year: number): Date {
+  const a = year % 19
+  const b = Math.floor(year / 100)
+  const c = year % 100
+  const d = Math.floor(b / 4)
+  const e = b % 4
+  const f = Math.floor((b + 8) / 25)
+  const g = Math.floor((b - f + 1) / 3)
+  const h = (19 * a + b - d - g + 15) % 30
+  const i = Math.floor(c / 4)
+  const k = c % 4
+  const l = (32 + 2 * e + 2 * i - h - k) % 7
+  const m = Math.floor((a + 11 * h + 22 * l) / 451)
+  const month = Math.floor((h + l - 7 * m + 114) / 31)
+  const day = ((h + l - 7 * m + 114) % 31) + 1
+  return new Date(Date.UTC(year, month - 1, day))
+}
+
+function addUtcDays(d: Date, n: number): string {
+  const x = new Date(d.getTime() + n * 86_400_000)
+  return isoDay(x.getUTCFullYear(), x.getUTCMonth() + 1, x.getUTCDate())
+}
+
+export function isBwHoliday(at: Date): boolean {
+  const y = at.getFullYear()
+  const key = isoDay(y, at.getMonth() + 1, at.getDate())
+  const easter = easterSunday(y)
+  const days = new Set([
+    isoDay(y, 1, 1),
+    isoDay(y, 1, 6),
+    addUtcDays(easter, -2),
+    addUtcDays(easter, 1),
+    isoDay(y, 5, 1),
+    addUtcDays(easter, 39),
+    addUtcDays(easter, 50),
+    addUtcDays(easter, 60),
+    isoDay(y, 10, 3),
+    isoDay(y, 11, 1),
+    isoDay(y, 12, 25),
+    isoDay(y, 12, 26),
+  ])
+  return days.has(key)
+}
 
 export function parseOpeningHours(raw: string): ParsedHours | null {
   const src = String(raw || '')
@@ -247,11 +273,4 @@ function clampTime(h: number, m: number): number | null {
 
 function unique(rows: number[]): number[] {
   return [...new Set(rows)]
-}
-
-export function isBwHoliday(at: Date): boolean {
-  const y = at.getFullYear()
-  const mo = String(at.getMonth() + 1).padStart(2, '0')
-  const d = String(at.getDate()).padStart(2, '0')
-  return BW_PH.has(`${y}-${mo}-${d}`)
 }

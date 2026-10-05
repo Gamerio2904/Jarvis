@@ -174,7 +174,15 @@ export function VoiceMode({
           : 'Bereit.'
 
   return (
-    <div className="voice-mode" role="dialog" aria-label="Sprachmodus">
+    <div
+      className="voice-mode"
+      role="dialog"
+      aria-label="Sprachmodus"
+      onPointerDown={(e) => {
+        if ((e.target as HTMLElement).closest('.voice-close')) return
+        if (phaseRef.current === 'speaking' || phaseRef.current === 'thinking') void onOrb()
+      }}
+    >
       <div className="voice-sheet">
         <header className="voice-head">
           <div>

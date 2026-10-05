@@ -13,6 +13,8 @@ import {
 } from '../native/tv'
 import { TV_APP_IDS, TV_APP_LABEL, type TvAppId } from './tv-apps.ts'
 import {
+  FIRE_ANCHOR,
+  TV_ANCHOR,
   TV_FOLLOWUP_MS,
   isFollowUpPhrase,
   parseTvIntent,
@@ -207,7 +209,9 @@ async function sendFire(action: TvAction): Promise<string> {
   if (!host) {
     return 'Fire TV: IP unter Einstellungen → Fernseher eintragen. ADB über Netzwerk, sonst nur HDMI am Samsung.'
   }
-  if (code == null) return REPLIES[action]
+  if (code == null) {
+    return 'Diese Taste gibt es am Fire TV so nicht. HDMI am Samsung oder andere Taste.'
+  }
   const res = await tvFireKeyNative({ host, port: s.tv_fire_port || 5555, code })
   if (!res.ok) return res.message || 'Fire TV hat die Taste nicht genommen.'
   return REPLIES[action]
@@ -270,9 +274,10 @@ export async function handleTvOrdinal(index: number): Promise<{ handled: boolean
   markTvTurn(lastVia)
   if (ok.includes('nicht') || ok.includes('Fire TV: IP')) return { handled: true, reply: ok }
   const which = n === 0 ? 'erste' : n === 1 ? 'zweite' : `${n + 1}.`
+  const how = n === 0 ? 'OK' : 'Runter/OK'
   return {
     handled: true,
-    reply: `Das ${which}: Runter/OK. Ich sehe den Schirm nicht — Falsches: „zurück“.`,
+    reply: `Das ${which}: ${how}. Ich sehe den Schirm nicht — Falsches: „zurück“.`,
   }
 }
 
@@ -329,6 +334,17 @@ export async function handleTv(text: string): Promise<{ handled: boolean; reply?
   if (!intent) return { handled: false }
 
   const s = loadSettings()
+  const volish =
+    intent.action === 'volume_up' || intent.action === 'volume_down' || intent.action === 'volume_set'
+  if (
+    volish &&
+    s.last_medium !== 'tv' &&
+    (s.drive_mode || s.last_medium === 'spotify' || s.last_medium === 'drive') &&
+    !TV_ANCHOR.test(text) &&
+    !FIRE_ANCHOR.test(text)
+  ) {
+    return { handled: false }
+  }
   if (!s.tv_enabled) {
     return { handled: true, reply: 'Fernseher ist aus (Einstellungen → Fernseher).' }
   }

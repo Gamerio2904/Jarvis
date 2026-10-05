@@ -69,6 +69,14 @@ export async function handleReminders(
     }
   }
 
+  if (intent.kind === 'ask') {
+    return {
+      handled: true,
+      reply: `Wann soll ich an ${intent.title} erinnern? Zum Beispiel „in 20 Minuten“ oder „morgen 8 Uhr“.`,
+      tool: { tool_status: 'executed', tool: 'reminder', action: 'ask', label: 'Zeit fehlt', preview: intent.title },
+    }
+  }
+
   if (intent.kind === 'list') {
     return { handled: true, reply: await formatReminderList() }
   }

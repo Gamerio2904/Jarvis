@@ -73,6 +73,7 @@ MAJOR.MINOR.PATCH
 | `0.14.1` | **TV verbinden & steuern** — Tizen on-device (ex-`0.11`) | Sprint 48 |
 | `0.16.0` | **Gemini Opt-in** — Google-API, Default aus | Sprint 50 |
 | `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
+| `2.0.0` | **Jarvis 2.0** — ein Kontext, ehrliche Tools, internes CarPlay | Sprint 102 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -138,6 +139,7 @@ MAJOR.MINOR.PATCH
 | `1.48.6` | Overlay=Karte, Cafés am GPS, echte Route | Sprint 101 Patch |
 | `1.48.7` | Research: Zahlen nur aus Treffern | Sprint 101 Patch |
 | `1.48.8` | CarPlay-Route auf Straßen, Cafés am GPS | Sprint 101 Patch |
+| `2.0.0` | Haus-AI: letztes Medium, ehrliches Wetter, interne Navi | Sprint 102 MAJOR |
 
 ### Weitere Beispiele
 

@@ -14,7 +14,6 @@ const NOTE_WRITE =
 const LIST_PREFIX =
   /^\s*(?:setz(?:e)?|pack(?:e)?|tu)\s+(?:das\s+)?(?:auf\s+die\s+liste|auf\s+die\s+todos?)[:\s]+(.+)$/is
 const MUST_DO = /^\s*ich\s+muss\s+(?:noch\s+)?(.+)$/is
-const REMIND_TASK = /^\s*erinner(?:e)?\s+mich\s+an\s+(.+)$/is
 const TASK_TAIL =
   /^\s*(?:bitte\s+)?(.{2,40}?)\s+(abholen|anrufen|putzen|waschen)\s*[.!]?\s*$/i
 const TODO_LIST =
@@ -36,9 +35,6 @@ export function parseToolIntent(text: string): ToolIntent | null {
 
   const must = MUST_DO.exec(text)
   if (must) return { kind: 'todo_create', title: must[1].trim().replace(/[.!?]+$/, '') }
-
-  const remind = REMIND_TASK.exec(text)
-  if (remind) return { kind: 'todo_create', title: remind[1].trim().replace(/[.!?]+$/, '') }
 
   const tail = TASK_TAIL.exec(text)
   if (tail && !/[?]/.test(text) && text.trim().length <= 60 && !/anrufen/i.test(tail[2])) {

@@ -7,7 +7,7 @@ export type LastStep = {
 }
 
 const FOLLOW_UP =
-  /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch|stattdessen\s+um\s+\d{1,2})\s*[.?!]?$/i
+  /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch|stattdessen\s+um\s+\d{1,2}|in\s+\d+\s+(?:minuten?|stunden?)|morgen\s+\d{1,2}(?:[:.]\d{2})?)\s*[.?!]?$/i
 
 const CONFIRM = /^(ja|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt)\s*[.!?]?$/i
 
@@ -57,6 +57,9 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   const vol = VOL.exec(raw)
   if (vol) {
     const up = vol[1].toLowerCase() === 'lauter'
+    if (medium === 'spotify' || medium === 'drive' || tool === 'drive') {
+      return up ? 'Spotify lauter' : 'Spotify leiser'
+    }
     if (tool === 'tv' || medium === 'tv') return up ? 'Fernseher lauter' : 'Fernseher leiser'
     return null
   }
@@ -69,8 +72,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
 
   if (HALT.test(raw)) {
     if (medium === 'tv' || tool === 'tv') return 'Fernseher pause'
-    if (medium === 'spotify') return 'Spotify Pause'
-    if (medium === 'drive' || tool === 'drive' || tool === 'fuel' || tool === 'poi') return 'Fahrmodus aus'
+    if (medium === 'spotify' || medium === 'drive' || tool === 'drive') return 'Spotify Pause'
     if (tool === 'timer') return 'Timer aus'
     if (tool === 'alarm') return 'Wecker aus'
     return null
@@ -84,6 +86,11 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
 
   if (!FOLLOW_UP.test(raw)) return null
   if (!tool || tool === 'weather') return null
+
+  const relFollow = /^in\s+(\d+)\s+(minuten?|stunden?)\s*[.!?]?$/i.exec(raw)
+  if (relFollow && title && (tool === 'reminder' || tool === 'todo')) {
+    return `erinner mich in ${relFollow[1]} ${relFollow[2]} an ${title}`
+  }
 
   const timeM = raw.match(/um\s+(\d{1,2})(?:[:.](\d{2}))?/i)
   if (timeM) {
