@@ -3,6 +3,7 @@ import { normalizeUtterance } from './utterance.ts'
 export type DevicePage = 'wifi' | 'bluetooth' | 'dnd'
 
 export type DeviceIntent =
+  | { kind: 'clock' }
   | { kind: 'battery' }
   | { kind: 'network' }
   | { kind: 'torch'; on: boolean }
@@ -33,6 +34,21 @@ const PAGE_DND =
 const SYSTEM =
   /^\s*(?:stoß(?:e|en)?|anstoß(?:e|en)?)\s+(?:das\s+)?system|(?:system)\s+(?:anstoßen|aktivieren)\s*[.!?]*$/i
 
+const CLOCK =
+  /\b(?:wie\s+spät(?:\s+ist\s+(?:es|die\s+uhr))?|wie\s*viel\s+uhr(?:\s+es\s+ist)?|wie\s*viel\s+uhr\s+ist\s+es|welche\s+uhrzeit|wie\s+ist\s+(?:die\s+)?uhrzeit|weißt?\s+du(?:\s+denn)?\s+(?:wie\s+spät|wie\s*viel\s+uhr)|aktuelle(?:\s+)?uhrzeit)\b/i
+
+export function formatClockReply(now = new Date()): string {
+  const time = new Intl.DateTimeFormat('de-DE', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(now)
+  const weekday = new Intl.DateTimeFormat('de-DE', { weekday: 'long' }).format(now)
+  const day = weekday ? weekday.charAt(0).toUpperCase() + weekday.slice(1) : ''
+  const clock = time.replace(/\s/g, '')
+  return day ? `${day}, ${clock} Uhr.` : `Es ist ${clock} Uhr.`
+}
+
 export function parseDeviceIntent(text: string): DeviceIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t) return null
@@ -45,6 +61,7 @@ export function parseDeviceIntent(text: string): DeviceIntent | null {
   if (PAGE_DND.test(t) && /\b(?:nicht\s+stören|störung|dnd|öffne|zeig|aktivier)\b/i.test(t)) {
     return { kind: 'page', page: 'dnd' }
   }
+  if (CLOCK.test(t)) return { kind: 'clock' }
   if (BATTERY.test(t)) return { kind: 'battery' }
   if (NETWORK.test(t)) return { kind: 'network' }
   return null

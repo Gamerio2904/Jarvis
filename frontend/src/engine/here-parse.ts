@@ -6,7 +6,7 @@ const SKIP =
   /\b(fahrmodus|carplay|fernseher|ventilator|lüfter|spotify|wecker|timer|netflix|youtube)\b/i
 
 const LOCATE =
-  /\b(?:wo\s+bin\s+ich(?:\s+gerade)?|wo\s+stehe\s+ich|wo\s+befinde\s+ich\s+mich|meine?\s+standort|aktuelle(?:r|n)?\s+position|live[- ]?ortung)\b/i
+  /\b(?:wo\s+bin\s+ich(?:\s+gerade)?|wo\s+stehe\s+ich|wo\s+befinde\s+ich\s+mich|weißt?\s+du(?:\s+denn)?\s+wo\s+ich\s+(?:bin|gerade(?:\s+bin)?)|wo\s+(?:könnte|kann)\s+ich\s+(?:denn\s+)?(?:jetzt\s+)?sein\b|ohne\s+(?:meine\s+)?adresse|meine?\s+standort|aktuelle(?:r|n)?\s+position|live[- ]?ortung)\b/i
 
 const ACTIVATE_EXPLICIT =
   /\b(?:standort(?:freigabe)?|live[- ]?ortung|gps)\b.+\b(?:aktivier|erlaub|freigeb|anschalt|an\s*$)|(?:aktivier|erlaub|freigeb|anschalt).+\b(?:standort|gps|ortung|freigabe)\b|^\s*(?:standort|gps)\s+(?:an|aktivier(?:e|en)?|erlauben|freigeben)\s*[.!?]*$/i
