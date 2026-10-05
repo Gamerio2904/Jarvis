@@ -1,4 +1,4 @@
-import type { ResearchMeta, ResearchSource } from './research-parse'
+import { hostOf, sourcesFromText, type ResearchMeta, type ResearchSource } from './research-parse'
 import {
   germanAuthError,
   germanNetworkError,
@@ -56,7 +56,11 @@ function errorFields(json: GeminiResponse): { message: string; status: string } 
   }
 }
 
-async function postGemini(model: string, body: unknown): Promise<{ status: number; json: GeminiResponse }> {
+async function postGemini(
+  model: string,
+  body: unknown,
+  timeoutMs?: number,
+): Promise<{ status: number; json: GeminiResponse }> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
   const { status, json } = await postJson(
     url,
@@ -65,6 +69,7 @@ async function postGemini(model: string, body: unknown): Promise<{ status: numbe
       'x-goog-api-key': apiKey(),
     },
     body,
+    timeoutMs,
   )
   return { status, json: json as GeminiResponse }
 }
@@ -75,46 +80,53 @@ function textFrom(json: GeminiResponse, trim = true): string {
   return trim ? raw.trim() : raw
 }
 
-function researchFrom(json: GeminiResponse): ResearchMeta | undefined {
+function researchFrom(json: GeminiResponse, answer = ''): ResearchMeta | undefined {
   const cand = json.candidates?.[0] as Record<string, unknown> | undefined
   const g = (cand?.groundingMetadata || cand?.grounding_metadata) as
     | (GroundingMetadata & {
         grounding_chunks?: GroundingChunk[]
         web_search_queries?: string[]
         searchEntryPoint?: { renderedContent?: string }
+        search_entry_point?: { renderedContent?: string; rendered_content?: string }
       })
     | undefined
-  if (!g) return undefined
   const now = new Date().toISOString()
-  const chunks = g.groundingChunks || g.grounding_chunks || []
-  const sources: ResearchSource[] = chunks
-    .map((c) => ({
-      title: c.web?.title || hostOf(c.web?.uri || '') || 'Quelle',
-      url: c.web?.uri || '',
-      snippet: '',
-      provider: 'google_search',
-      retrieved_at: now,
-    }))
-    .filter((s) => s.url)
-  const query = (g.webSearchQueries || g.web_search_queries || []).filter(Boolean)[0]
-  if (!sources.length && !query) return undefined
+  const chunks = g?.groundingChunks || g?.grounding_chunks || []
+  const fromChunks: ResearchSource[] = chunks.flatMap((c) => {
+    const web = c.web || (c as { retrievedContext?: { uri?: string; title?: string } }).retrievedContext
+    const url = web?.uri || ''
+    if (!url) return []
+    return [
+      {
+        title: web?.title || hostOf(url) || 'Quelle',
+        url,
+        snippet: '',
+        provider: 'google_search',
+        retrieved_at: now,
+      },
+    ]
+  })
+  const html = g?.searchEntryPoint?.renderedContent || g?.search_entry_point?.renderedContent || g?.search_entry_point?.rendered_content || ''
+  const fromHtml = html ? sourcesFromText(html.replace(/href=["']([^"']+)["']/gi, ' $1 '), 'google_search') : []
+  const fromAnswer = sourcesFromText(answer)
+  const seen = new Set<string>()
+  const sources: ResearchSource[] = []
+  for (const s of [...fromChunks, ...fromHtml, ...fromAnswer]) {
+    if (!s.url || seen.has(s.url)) continue
+    seen.add(s.url)
+    sources.push(s)
+  }
+  const query = (g?.webSearchQueries || g?.web_search_queries || []).filter(Boolean)[0]
+  if (!sources.length && !query && !g) return undefined
   return {
     used: sources.length > 0,
     status: sources.length ? 'ok' : 'empty',
-    status_label: sources.length ? `${sources.length} Quellen` : 'Suche ohne Quellen',
-    badge: sources.length ? 'Quellen' : 'Research',
+    status_label: sources.length ? `${sources.length} Quellen` : 'Suche ohne Links',
+    badge: sources.length ? 'Quellen' : 'Suche',
     query,
     sources,
     network_attempted: true,
     privacy_note: 'Nur die Suchanfrage ging zu Google. Tippen öffnet die Seite.',
-  }
-}
-
-function hostOf(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '')
-  } catch {
-    return ''
   }
 }
 
@@ -141,12 +153,12 @@ function buildBody(
     contents.unshift({ role: 'user', parts: [{ text: 'Hallo.' }] })
   }
   const generationConfig: Record<string, unknown> = {
-    temperature: opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.4 : 0.55,
-    maxOutputTokens: opts.maxOutputTokens || 640,
+    temperature: opts.search ? 0.15 : opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.62 : 0.72,
+    maxOutputTokens: opts.maxOutputTokens || 1400,
   }
   const thinking = opts.thinking !== false && /2\.5|3\./.test(model) && !opts.search
-  if (thinking) {
-    generationConfig.thinkingConfig = { thinkingBudget: 0 }
+  if (thinking || /2\.5|3\./.test(model)) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0, includeThoughts: false }
   }
   const body: Record<string, unknown> = {
     system_instruction: { parts: [{ text: system }] },
@@ -169,21 +181,34 @@ export async function streamGemini(
   onToken?: (piece: string, full: string) => void,
   opts?: { search?: boolean; maxOutputTokens?: number },
 ): Promise<CloudComplete> {
-  if (opts?.search) return completeGemini(messages, onToken, opts)
+  if (opts?.search) {
+    return completeGemini(messages, onToken, {
+      ...opts,
+      timeoutMs: 10_000,
+      maxModels: 2,
+      thinking: false,
+    })
+  }
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
   }
   const key = loadSettings().gemini_api_key.trim()
-  const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
+  const order = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
+  const preferred = loadSettings().gemini_model
+  const models = [...new Set([preferred, ...order].filter(Boolean))].slice(0, 2)
+  const budgetMs = 9_000
+  const started = Date.now()
   for (const model of models) {
+    const left = budgetMs - (Date.now() - started)
+    if (left < 1_200) break
     const body = buildBody(model, messages, {
       search: false,
       thinking: false,
-      maxOutputTokens: opts?.maxOutputTokens || 96,
+      maxOutputTokens: opts?.maxOutputTokens || 480,
     })
     let full = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
-    const res = await streamSseLines({ url, body, apiKey: key }, (json) => {
+    const res = await streamSseLines({ url, body, apiKey: key, timeoutMs: Math.min(7_000, left) }, (json) => {
       const incoming = textFrom(json as GeminiResponse, false)
       if (!incoming) return
       let piece = incoming
@@ -198,7 +223,7 @@ export async function streamGemini(
       }
       if (piece) onToken?.(piece, full)
     })
-    if (res.ok && full.trim()) {
+    if (full.trim()) {
       saveSettings({ gemini_model: model })
       return { text: full.trim() }
     }
@@ -206,13 +231,23 @@ export async function streamGemini(
       throw new Error(germanAuthError())
     }
   }
-  return completeGemini(messages, onToken, { ...opts, maxOutputTokens: opts?.maxOutputTokens || 96 })
+  const left = budgetMs - (Date.now() - started)
+  if (left < 1_500) {
+    throw new Error('Antwort dauert zu lange. Nochmal?')
+  }
+  return completeGemini(messages, onToken, {
+    ...opts,
+    maxOutputTokens: opts?.maxOutputTokens || 480,
+    timeoutMs: Math.min(8_000, left),
+    maxModels: 1,
+    thinking: false,
+  })
 }
 
 export async function completeGemini(
   messages: Array<{ role: string; content: string }>,
   onToken?: (piece: string, full: string) => void,
-  opts?: { search?: boolean; maxOutputTokens?: number },
+  opts?: { search?: boolean; maxOutputTokens?: number; timeoutMs?: number; maxModels?: number; thinking?: boolean },
 ): Promise<CloudComplete> {
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
@@ -220,17 +255,18 @@ export async function completeGemini(
   const groqOn = groqReady()
   let last = germanQuotaHint(groqOn)
   const wantSearch = Boolean(opts?.search)
-  for (const model of geminiModelOrder(loadSettings().gemini_skip_until, missingModels)) {
+  const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels).slice(
+    0,
+    opts?.maxModels || 99,
+  )
+  for (const model of models) {
     const attempts = wantSearch
-      ? [
-          buildBody(model, messages, { search: true, thinking: false, maxOutputTokens: opts?.maxOutputTokens }),
-          buildBody(model, messages, { search: false, thinking: true, maxOutputTokens: opts?.maxOutputTokens }),
-        ]
-      : [buildBody(model, messages, { search: false, thinking: true, maxOutputTokens: opts?.maxOutputTokens })]
+      ? [buildBody(model, messages, { search: true, thinking: false, maxOutputTokens: opts?.maxOutputTokens })]
+      : [buildBody(model, messages, { search: false, thinking: opts?.thinking !== false, maxOutputTokens: opts?.maxOutputTokens })]
     let modelRetryable = false
     try {
       for (let i = 0; i < attempts.length; i += 1) {
-        const { status, json } = await postGemini(model, attempts[i])
+        const { status, json } = await postGemini(model, attempts[i], opts?.timeoutMs)
         const { message, status: errStatus } = errorFields(json)
         if (isFatalAuth(status, message, errStatus)) {
           throw new Error(germanAuthError())
@@ -257,14 +293,28 @@ export async function completeGemini(
         if (json.promptFeedback?.blockReason) {
           throw new Error('Google hat die Antwort blockiert.')
         }
+        const cand = json.candidates?.[0]
         const text = textFrom(json)
         if (!text) {
           last = 'Gemini lieferte keinen Text.'
           continue
         }
+        const cut = cand?.finishReason === 'MAX_TOKENS' || cand?.finishReason === 'max_tokens'
+        const incomplete = !/[.!?…]$/.test(text.trim())
+        if (cut && i === 0 && (incomplete || text.split(/\s+/).length < 8)) {
+          last = 'Antwort war abgeschnitten, nochmal mit mehr Platz.'
+          attempts.push(
+            buildBody(model, messages, {
+              search: wantSearch,
+              thinking: false,
+              maxOutputTokens: Math.max(opts?.maxOutputTokens || 0, 1800),
+            }),
+          )
+          continue
+        }
         saveSettings({ gemini_model: model })
         onToken?.(text, text)
-        return { text, research: researchFrom(json) }
+        return { text, research: researchFrom(json, text) }
       }
       if (modelRetryable) continue
     } catch (err) {

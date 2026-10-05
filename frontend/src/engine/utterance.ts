@@ -1,3 +1,5 @@
+import { expandZahlenworte } from './zahlenworte.ts'
+
 /** Spoken German → written command. Vocative, fillers, STT-Tippfehler. */
 
 const VOCATIVE =
@@ -5,16 +7,26 @@ const VOCATIVE =
 const FILLER =
   /^(?:ähm+|also|ja\s+)?(?:bitte\s+)?(?:kannst\s+du(?:\s+mal)?|könntest\s+du|könnten\s+sie|würdest\s+du|ich\s+(?:möchte|will|würde\s+gerne)|mach(?:e)?(?:\s+mal)?)\s+/i
 const COMMAND_START =
-  /^(?:ruf|anruf|fahr|bring|navigier|route|spiel|pause|weiter|wecker|timer|termin|kalender|wetter|merk|zeig|such|lies|aktivier|deaktivier|laut|fernseh|\btv\b|einkauf|erinner|todo|notiz|wo\s+|lauf|geh|nach|zu(?:r|m)?\s+|carplay|fahrmodus)/i
+  /^(?:ruf|anruf|fahr|bring|navigier|route|spiel|pause|weiter|wecker|timer|termin|kalender|wetter|merk|zeig|öffne[n]?|such|lies|aktivier|deaktivier|laut|fernseh|\btv\b|einkauf|erinner|todo|notiz|wo\s+|lauf|geh|nach|zu(?:r|m)?\s+|carplay|fahrmodus|spotify|musik|karte|overlay|restweg|akku|taschenlampe|schreib|sms|youtube|netflix|disney|amazon)/i
 
 const REPAIRS: Array<[RegExp, string]> = [
   [/\bheil\s*bron(?:n|e)?\b/gi, 'Heilbronn'],
   [/\bhailbronn?\b/gi, 'Heilbronn'],
+  [/\bingers(?:heim)?\b/gi, 'Ingersheim'],
+  [/\bnet\s*fli(?:cks|x)\b/gi, 'Netflix'],
+  [/\bnetfliks?\b/gi, 'Netflix'],
+  [/\byou\s*tube\b/gi, 'YouTube'],
+  [/\bdisney\s*plus\b/gi, 'Disney+'],
+  [/\bprime\s*video\b/gi, 'Prime'],
   [/\bfire\s*t[ve]\b/gi, 'Fire TV'],
   [/\bcar\s*play\b/gi, 'CarPlay'],
   [/\bkarplay\b/gi, 'CarPlay'],
   [/\bfahr(?:er)?\s*modus\b/gi, 'Fahrmodus'],
   [/\bnach\s*hause\b/gi, 'nach Hause'],
+  [/\bover\s*lay\b/gi, 'overlay'],
+  [/\bnächster\s+pol\b/gi, 'nächster POI'],
+  [/\brotren\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
+  [/\brotten\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
   [/\bnaviga(?:tion|iere?n?)\b/gi, 'navigiere'],
 ]
 
@@ -25,7 +37,7 @@ export function repairSpeech(text: string): string {
 }
 
 export function normalizeUtterance(text: string): string {
-  let raw = repairSpeech(text)
+  let raw = expandZahlenworte(repairSpeech(text))
   if (!raw) return raw
   const voc = VOCATIVE.exec(raw)
   if (voc) {

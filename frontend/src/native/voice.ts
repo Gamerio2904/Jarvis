@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { synthesizeGemini, wantGeminiVoice } from '../engine/tts'
+import { synthesizeGemini, TTS_NATIVE_RACE_MS, wantGeminiVoice } from '../engine/tts'
 import { pickHeard } from '../engine/heard.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
@@ -10,17 +10,22 @@ type NativeVoice = {
   stopListen(): Promise<{ ok: boolean }>
   speak(opts: { text: string }): Promise<{ ok: boolean; message?: string }>
   stopSpeak(): Promise<{ ok: boolean }>
-  consumeLaunch(): Promise<{ voice: boolean }>
+  consumeLaunch(): Promise<{ voice: boolean; utterance?: string }>
   pinShortcut(): Promise<{ ok: boolean; message?: string }>
   startWake(): Promise<{ ok: boolean; message?: string }>
   stopWake(): Promise<{ ok: boolean }>
-  wakeStatus(): Promise<{ running: boolean }>
+  wakeStatus(): Promise<{ running: boolean; wanted?: boolean }>
   requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
-  streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
+  streamSse(opts: {
+    url: string
+    body: string
+    apiKey: string
+    timeoutMs?: number
+  }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
     event: 'partial' | 'sse' | 'wake',
-    cb: (ev: { text?: string; data?: string; hit?: boolean }) => void,
+    cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
   ): Promise<{ remove: () => void }>
 }
 
@@ -98,7 +103,7 @@ function playBlob(blob: Blob): Promise<void> {
     currentUrl = url
     const audio = new Audio(url)
     currentAudio = audio
-    audio.playbackRate = 1.06
+    audio.playbackRate = 1.02
     audio.onended = () => {
       stopHtmlAudio()
       resolve()
@@ -115,9 +120,10 @@ function playBlob(blob: Blob): Promise<void> {
 }
 
 export async function streamSseLines(
-  opts: { url: string; body: unknown; apiKey: string },
+  opts: { url: string; body: unknown; apiKey: string; timeoutMs?: number },
   onData: (json: Record<string, unknown>) => void,
 ): Promise<{ ok: boolean; message?: string }> {
+  const timeoutMs = opts.timeoutMs && opts.timeoutMs > 0 ? opts.timeoutMs : 8_000
   if (native) {
     const handle = await native.addListener('sse', (ev) => {
       if (!ev.data) return
@@ -132,6 +138,7 @@ export async function streamSseLines(
         url: opts.url,
         body: JSON.stringify(opts.body),
         apiKey: opts.apiKey,
+        timeoutMs,
       })
       return { ok: Boolean(res.ok), message: res.message }
     } finally {
@@ -147,6 +154,7 @@ export async function streamSseLines(
         'x-goog-api-key': opts.apiKey,
       },
       body: JSON.stringify(opts.body),
+      signal: AbortSignal.timeout(timeoutMs),
     })
     if (!res.ok || !res.body) {
       return { ok: false, message: `HTTP ${res.status}` }
@@ -186,10 +194,15 @@ export function createSpeakPipeline() {
 
   function prepare(text: string): Promise<Blob | 'native'> {
     return (async () => {
-      if (wantGeminiVoice()) {
-        const blob = await synthesizeGemini(text)
-        if (blob) return blob
-      }
+      if (!wantGeminiVoice()) return 'native'
+      const gemini = synthesizeGemini(text)
+      const raced = await Promise.race([
+        gemini,
+        new Promise<null>((resolve) => {
+          globalThis.setTimeout(() => resolve(null), TTS_NATIVE_RACE_MS)
+        }),
+      ])
+      if (raced) return raced
       return 'native'
     })()
   }
@@ -235,6 +248,11 @@ function speakNative(text: string): Promise<void> {
   return webSpeak(clean)
 }
 
+/** Fast system TTS — for turn-by-turn, never wait on Gemini. */
+export function speakCueFast(text: string): Promise<void> {
+  return speakNative(text)
+}
+
 export async function speakText(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, '').replace(/\s+/g, ' ').trim()
   if (!clean) return
@@ -265,19 +283,22 @@ export async function stopSpeak(): Promise<void> {
   window.speechSynthesis?.cancel()
 }
 
-export async function consumeVoiceLaunch(): Promise<boolean> {
-  if (!native) return window.location.hash === '#voice'
+export async function consumeVoiceLaunch(): Promise<{ voice: boolean; utterance: string }> {
+  if (!native) {
+    return { voice: window.location.hash === '#voice', utterance: '' }
+  }
   try {
-    return Boolean((await native.consumeLaunch()).voice)
+    const res = await native.consumeLaunch()
+    return { voice: Boolean(res.voice), utterance: (res.utterance || '').trim() }
   } catch {
-    return false
+    return { voice: false, utterance: '' }
   }
 }
 
-export function onWakeHit(cb: () => void): () => void {
+export function onWakeHit(cb: (utterance?: string) => void): () => void {
   if (!native) return () => undefined
   let handle: { remove: () => void } | undefined
-  void native.addListener('wake', () => cb()).then((h) => {
+  void native.addListener('wake', (ev) => cb((ev as { utterance?: string }).utterance || '')).then((h) => {
     handle = h
   })
   return () => {
@@ -318,6 +339,16 @@ export async function stopWakeWord(): Promise<void> {
     await native.stopWake()
   } catch {
     /* ignore */
+  }
+}
+
+export async function wakeWordWanted(): Promise<boolean> {
+  if (!native) return false
+  try {
+    const st = await native.wakeStatus()
+    return Boolean(st.wanted ?? st.running)
+  } catch {
+    return false
   }
 }
 

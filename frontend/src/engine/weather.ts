@@ -1,5 +1,6 @@
-import { readDeviceLocation, requestLocationPermission } from '../native/geo'
+import { readDeviceLocation, requestLocationPermission, hasLocationPermission } from '../native/geo'
 import { completeGemini, geminiReady } from './gemini'
+import { geocodePlace, reversePlace } from './geo-lookup'
 import { getJson } from './http-json'
 import type { ResearchMeta, ResearchSource } from './research-parse'
 import { syncGlance } from './glance'
@@ -21,7 +22,7 @@ export async function handleWeather(
   if (!intent) return { handled: false }
 
   const fix =
-    intent.kind === 'place' ? await geocodePlace(intent.place) : await resolveHere()
+    intent.kind === 'place' ? await geocodePlace(intent.place) : await resolveWeatherHere()
   if (!fix.ok) {
     return {
       handled: true,
@@ -30,43 +31,68 @@ export async function handleWeather(
     }
   }
 
-  const snapshot = await fetchOpenMeteo(fix.fix)
+  const snapshot =
+    intent.focus === 'air'
+      ? await fetchAirQuality(fix.fix)
+      : intent.focus === 'sun'
+        ? await fetchSun(fix.fix, intent.when)
+        : await fetchOpenMeteo(fix.fix)
   if (!snapshot) {
-    const s = loadSettings()
-    if (s.research_opt_in && geminiReady()) {
-      return geminiWeather(content, fix.fix)
+    if (intent.focus !== 'air' && intent.focus !== 'sun') {
+      const s = loadSettings()
+      if (s.research_opt_in && geminiReady()) {
+        return geminiWeather(content, fix.fix)
+      }
     }
+    const which = intent.focus === 'air' ? 'Luftwerte' : intent.focus === 'sun' ? 'Sonnenzeiten' : 'Wetterdienst'
     return {
       handled: true,
-      reply: 'Wetterdienst nicht erreichbar. Ich rate nicht.',
+      reply: `${which} gerade nicht da. Raten wäre unseriös.`,
       tool: { tool_status: 'error', tool: 'weather', action: 'fetch', label: 'Wetter fehlt' },
     }
   }
 
   const source: ResearchSource = {
     title: 'Open-Meteo',
-    url: 'https://open-meteo.com/',
-    snippet: `${snapshot.temp} °C, ${snapshot.label}`,
+    url: intent.focus === 'air' ? 'https://open-meteo.com/en/docs/air-quality-api' : 'https://open-meteo.com/',
+    snippet:
+      intent.focus === 'air'
+        ? `AQI ${snapshot.aqi ?? '—'}`
+        : intent.focus === 'sun'
+          ? `${snapshot.sunrise || ''} ${snapshot.sunset || ''}`.trim()
+          : `${snapshot.temp} °C, ${snapshot.label}`,
     provider: 'open-meteo',
     retrieved_at: new Date().toISOString(),
   }
   const research: ResearchMeta = {
     used: true,
     status: 'ok',
-    status_label: 'Wetter · Quelle',
-    query: `Wetter ${fix.fix.place}`,
+    status_label: intent.focus === 'air' ? 'Luft · Quelle' : intent.focus === 'sun' ? 'Sonne · Quelle' : 'Wetter · Quelle',
+    query:
+      intent.focus === 'air'
+        ? `Luft ${fix.fix.place}`
+        : intent.focus === 'sun'
+          ? `Sonne ${fix.fix.place}`
+          : `Wetter ${fix.fix.place}`,
     sources: [source],
     privacy_note: 'Lage über Open-Meteo, kein Raten.',
   }
 
   const reply = formatWeatherBrief(snapshot, intent.when, intent.focus)
   rememberWeather(intent, reply, fix.fix.place)
-  await syncGlance()
+  if (intent.focus === 'general' || intent.focus === 'rain' || intent.focus === 'wear') {
+    await syncGlance()
+  }
   return {
     handled: true,
     reply,
     research,
-    tool: { tool_status: 'executed', tool: 'weather', action: intent.when, label: 'Wetter' },
+    tool: {
+      tool_status: 'executed',
+      tool: 'weather',
+      action: intent.when,
+      label: intent.focus === 'air' ? 'Luft' : intent.focus === 'sun' ? 'Sonne' : 'Wetter',
+    },
   }
 }
 
@@ -102,19 +128,22 @@ function rememberWeather(
   })
 }
 
-async function resolveHere(): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+export async function resolveWeatherHere(): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   const s = loadSettings()
-  const cached = readCachedFix(s)
+  const granted = await hasLocationPermission()
+  const cached = granted ? readCachedFix(s) : null
   if (cached) return { ok: true, fix: cached }
 
-  await requestLocationPermission()
+  if (!granted) {
+    await requestLocationPermission()
+  }
   const loc = await readDeviceLocation()
   if (!loc.ok || loc.lat == null || loc.lon == null) {
     return {
       ok: false,
       message:
         loc.message ||
-        'Standort einmal erlauben — dann sage ich das Wetter hier, ohne Ortsname. Oder „Wetter in …“.',
+        'Standort einmal erlauben — „aktivieren“ genügt, dann kommt die Android-Abfrage. Oder Wetter in einem Ort. Die Lage rate ich nicht.',
     }
   }
   const place = (await reversePlace(loc.lat, loc.lon)) || 'hier'
@@ -137,48 +166,6 @@ function readCachedFix(s: ReturnType<typeof loadSettings>): Fix | null {
   return { lat, lon, place: s.last_place || 'hier' }
 }
 
-async function geocodePlace(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
-  try {
-    const q = new URLSearchParams({
-      name,
-      count: '1',
-      language: 'de',
-      format: 'json',
-    })
-    const { status, json } = await getJson(`https://geocoding-api.open-meteo.com/v1/search?${q}`)
-    if (status < 200 || status >= 300) {
-      return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    }
-    const first = (json.results as Array<Record<string, unknown>> | undefined)?.[0]
-    if (!first) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const lat = Number(first.latitude)
-    const lon = Number(first.longitude)
-    const place = String(first.name || name)
-    const admin = first.admin1 ? `, ${first.admin1}` : ''
-    return { ok: true, fix: { lat, lon, place: `${place}${admin}` } }
-  } catch {
-    return { ok: false, message: `Ort „${name}“ nicht erreichbar.` }
-  }
-}
-
-async function reversePlace(lat: number, lon: number): Promise<string | null> {
-  try {
-    const q = new URLSearchParams({
-      latitude: String(lat),
-      longitude: String(lon),
-      localityLanguage: 'de',
-    })
-    const { status, json } = await getJson(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?${q}`,
-    )
-    if (status < 200 || status >= 300) return null
-    const city = String(json.city || json.locality || json.principalSubdivision || '').trim()
-    return city || null
-  } catch {
-    return null
-  }
-}
-
 async function fetchOpenMeteo(fix: Fix): Promise<WeatherSnapshot | null> {
   try {
     const q = new URLSearchParams({
@@ -196,6 +183,103 @@ async function fetchOpenMeteo(fix: Fix): Promise<WeatherSnapshot | null> {
   } catch {
     return null
   }
+}
+
+async function fetchSun(fix: Fix, when: string): Promise<WeatherSnapshot | null> {
+  try {
+    const q = new URLSearchParams({
+      latitude: String(fix.lat),
+      longitude: String(fix.lon),
+      daily: 'sunrise,sunset',
+      forecast_days: when === 'tomorrow' ? '2' : '1',
+      timezone: 'auto',
+    })
+    const { status, json } = await getJson(`https://api.open-meteo.com/v1/forecast?${q}`)
+    if (status < 200 || status >= 300) return null
+    const daily = json.daily as Record<string, unknown> | undefined
+    const ups = (daily?.sunrise as string[] | undefined) || []
+    const downs = (daily?.sunset as string[] | undefined) || []
+    const i = when === 'tomorrow' && ups.length > 1 ? 1 : 0
+    return {
+      place: fix.place,
+      temp: 0,
+      feels: null,
+      label: '',
+      code: -1,
+      wind: null,
+      precipNow: null,
+      today: null,
+      tomorrow: null,
+      saturday: null,
+      sunday: null,
+      rainSoon: false,
+      maxPrecipSoon: null,
+      sunrise: ups[i] || null,
+      sunset: downs[i] || null,
+    }
+  } catch {
+    return null
+  }
+}
+
+async function fetchAirQuality(fix: Fix): Promise<WeatherSnapshot | null> {
+  try {
+    const q = new URLSearchParams({
+      latitude: String(fix.lat),
+      longitude: String(fix.lon),
+      current: 'european_aqi,pm10,pm2_5,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,ragweed_pollen',
+    })
+    const { status, json } = await getJson(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}`)
+    if (status < 200 || status >= 300) return null
+    const current = json.current as Record<string, unknown> | undefined
+    const aqi = Number(current?.european_aqi)
+    if (!Number.isFinite(aqi)) return null
+    const pm = Number(current?.pm2_5)
+    return {
+      place: fix.place,
+      temp: 0,
+      feels: null,
+      label: '',
+      code: -1,
+      wind: null,
+      precipNow: null,
+      today: null,
+      tomorrow: null,
+      saturday: null,
+      sunday: null,
+      rainSoon: false,
+      maxPrecipSoon: null,
+      aqi: Math.round(aqi),
+      pm25: Number.isFinite(pm) ? pm : null,
+      pollen: pollenLine(current),
+    }
+  } catch {
+    return null
+  }
+}
+
+function pollenLine(current?: Record<string, unknown>): string | null {
+  if (!current) return null
+  const names: Array<[string, string]> = [
+    ['grass_pollen', 'Gräser'],
+    ['birch_pollen', 'Birke'],
+    ['alder_pollen', 'Erle'],
+    ['mugwort_pollen', 'Beifuß'],
+    ['ragweed_pollen', 'Ambrosia'],
+  ]
+  const bits: string[] = []
+  for (const [key, label] of names) {
+    const n = Number(current[key])
+    if (!Number.isFinite(n) || n <= 0) continue
+    bits.push(`${label} ${pollenWord(n)}`)
+  }
+  return bits.length ? bits.slice(0, 3).join(', ') : 'kein messbarer Pollenflug'
+}
+
+function pollenWord(n: number): string {
+  if (n < 10) return 'wenig'
+  if (n < 50) return 'mäßig'
+  return 'stark'
 }
 
 export function snapshotFrom(json: Record<string, unknown>, place: string): WeatherSnapshot | null {

@@ -2,9 +2,13 @@ const DUZEN = /\b(du|dir|dich|dein|deine|deinen|deinem|deiner|duzen)\b/gi
 const INJECT =
   /\b(pwned|hacked|ja_ich_gehorche|ignore(?:\s+all)?\s+instructions|du bist jetzt)\b/i
 const HELPDESK =
-  /wie kann ich helfen|was kann ich für sie tun|womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich|womit kann ich dienen|gerne!|als ki\b/i
+  /wie kann ich helfen|was kann ich für sie tun|womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich|womit kann ich dienen|gerne!|als ki\b|stehe (?:ihnen )?zu (?:ihren )?diensten|wie kann ich (?:sie |ihnen )?unterstützen|ich bin (?:eine |ein )?(?:ki|sprachmodell|digitaler assistent)|ich helfe ihnen gerne|was möchten sie (?:heute |jetzt )?(?:wissen|tun)/i
 const FAKE_CLAIM =
   /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt))\b/i
+const FAKE_CARPLAY =
+  /(?:apple\s+)?car\s*play\s+ist\s+verbunden|musik\s+läuft(?:,|\s+und)\s+navigation|navigation\s+nach\s+\S.+\s+steht|im internen fahrmodus aktiv|navigation zum\b.+\bist\b|sie erreichen das ziel|rund\s+(?:zehn|\d+)\s+minuten/i
+const FAKE_NO_DEVICE =
+  /kein(?:en)?\s+direkten?\s+zugriff\s+auf|apple lässt mich hier nicht|müssen sie auf dem fernseher/i
 const INSULT_USER =
   /akute(?:r)?\s+amnesie|neurolog|kognitive(?:n)?\s+fähigkeiten|sinnlose fragen|blutbild|arterien|fürchte ich um ihre|offensichtlich an |ihr(?:em)?\s+letzten blut/i
 const FAKE_SEARCH =
@@ -30,16 +34,24 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
     return 'Netter Versuch. Weiter im Chat?'
   }
   if (FAKE_CLAIM.test(out)) {
-    return 'Das habe ich nicht ausgeführt. Bitte den Befehl klar sagen.'
+    return 'Das habe ich nicht ausgeführt. Den Befehl bitte klar sagen.'
+  }
+  if (FAKE_CARPLAY.test(out)) {
+    return 'Fahrmodus ist intern in Jarvis, nicht Apple CarPlay. Keine erfundene Verbindung, keine erfundene Navigation. Wohin?'
+  }
+  if (FAKE_NO_DEVICE.test(out)) {
+    return 'Den Fernseher steuere ich. Sagen Sie zum Beispiel „Öffne YouTube“ oder „Spiel Dune Film“.'
   }
   if (INSULT_USER.test(out)) {
-    return 'Ich bin Jarvis. Worum geht es — sachlich, ohne Anfälle.'
+    return 'Jarvis. Zur Sache — ohne Diagnosen.'
   }
   const searched = Boolean(opts?.searched)
   out = splitSentences(out)
     .filter((s) => {
+      if (/\b(wikipedia|tagesschau|idealo|geizhals|open-meteo|heise|spiegel)\b/i.test(s)) return true
       if (FAKE_SEARCH.test(s) && !searched) return false
-      if (NO_NET_LIE.test(s)) return false
+      if (NO_NET_LIE.test(s) && searched) return false
+      if (NO_NET_LIE.test(s) && !searched) return false
       return true
     })
     .join(' ')
@@ -47,11 +59,17 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
   if (HELPDESK.test(out)) {
     out = out
       .replace(/gerne!?/gi, '')
+      .replace(/natürlich!?/gi, '')
       .replace(/wie kann ich helfen[?]*/gi, '')
       .replace(/was kann ich für sie tun[?]*/gi, '')
       .replace(/womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich sein[?]*/gi, '')
       .replace(/womit kann ich dienen[?]*/gi, '')
+      .replace(/stehe (?:ihnen )?zu (?:ihren )?diensten[?.!]*/gi, '')
+      .replace(/wie kann ich (?:sie |ihnen )?unterstützen[?]*/gi, '')
+      .replace(/ich helfe ihnen gerne[^.!]*/gi, '')
+      .replace(/ich bin (?:eine |ein )?(?:ki|sprachmodell|digitaler assistent)[^.!]*/gi, '')
       .replace(/als ki[^.!]*/gi, '')
+      .replace(/\s+/g, ' ')
       .trim()
   }
   if (DUZEN.test(out)) {
@@ -61,7 +79,20 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
       .replace(/\bdich\b/gi, 'Sie')
       .replace(/\bdein(e|en|em|er)?\b/gi, 'Ihr')
   }
-  if (!out) return 'Kurz ausgesetzt. Nochmal?'
+  if (!out) return 'Einen Moment. Noch einmal?'
+  return finishReply(out)
+}
+
+/** Abgeschnittenes Markdown und hängende Satzenden schließen — kein halbes „Entweder Sie“. */
+export function finishReply(text: string): string {
+  let out = (text || '').replace(/\r/g, '').trim()
+  out = out.replace(/\*\*/g, '').replace(/__/g, '').replace(/(^|\s)\*+\s*/g, '$1').replace(/\s+\*+$/g, '')
+  out = out.replace(/\s+/g, ' ').trim()
+  if (!out) return out
+  out = out.replace(/[,;:\-–—]+$/g, '').trim()
+  out = out.replace(/\s+[A-Za-zÄÖÜäöüß]{1,2}$/g, '').trim()
+  if (!out) return 'Einen Moment. Noch einmal?'
+  if (!/[.!?…]$/.test(out) && (out.split(/\s+/).length >= 2 || out.length >= 12)) out = `${out}.`
   return out
 }
 
@@ -70,4 +101,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer, lokaler Kalender mit Ort, Losgehen, Fahrmodus (eigene Karte, Spotify in Jarvis), „wenn ich zuhause bin“, Geburtstage, Nummer anrufen, Route zu Fuß oder Bahn. Wetter, Tageslage, Gespräch suchen. Orte zu Personen. Foto lesen nur mit Gemini (Bild geht zu Google). Wake-Word „Jarvis“ (Bildschirm aus, andere Apps: nur der Name). Fernseher Tizen plus Fire TV auf HDMI. Widget. Optional Gemini.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer, lokaler Kalender mit Ort, Losgehen, Fahrmodus/CarPlay (eigene Karte, intern nicht Apple, Overlay, Restweg, nächste Apotheke/Bäcker/Parkplatz/Laden, Tanke E10), Standort, Akku/Verbindung, Taschenlampe, WLAN/Bluetooth-Seiten, Bro/Freundin anrufen nach Nachfrage, SMS nach Nachfrage senden, Route zu Fuß oder Bahn (Fahrplan nur wenn Sie Bahn/ÖPNV sagen). Wetter; Luftqualität und Sonnenaufgang nur auf Nachfrage. Nachrichten (Tagesschau; Ort zuerst Tagesschau, sonst Netz, nichts erfinden). Feiertage in DE. Gespräch suchen. Orte zu Personen (Zuhause, Arbeit, Freundin, Bro). Filme: IMDb/Rotten Tomatoes über OMDb, wo gratis in DE. Öffnungszeiten von Läden aus der Karte. PC im WLAN: Bildschirm sehen, Maus, FIFA starten, Ordner — JarvisPC.bat muss laufen. Foto lesen nur mit Gemini (Bild geht zu Google). Wake-Word „Jarvis“ (Bildschirm aus, andere Apps: nur der Name). Fernseher Tizen plus Fire TV auf HDMI. YouTube, Netflix, Disney+, Prime per Stimme; „Spiel … Film“ sucht kostenlos und öffnet die App. Deckenventilator über Brücke. Widget 2×4 mit Sprache an/aus. Optional Gemini. Rabatt-Suche unter Netz zuschaltbar.'

@@ -32,6 +32,13 @@ import {
   type Settings as EngineSettings,
 } from './engine/store'
 import { discoverTvs, pairTv, testFireTv, testTv, tvStatusFromSettings } from './engine/tv'
+import {
+  discoverFan,
+  learnFan,
+  pickFan,
+  testFan,
+} from './engine/fan'
+import { testPc as engineTestPc } from './engine/pc'
 import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
 export type { Conversation, MemoryCategory, MemoryItem, Message, Reminder, StreamHandlers, ResearchMeta, ResearchSource }
@@ -251,6 +258,29 @@ export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
 
 export async function tvFireTest(opts?: { host?: string; port?: number }): Promise<{ ok?: boolean; reply?: string }> {
   return testFireTv(opts)
+}
+
+export async function fanDiscover(): Promise<{ items: Array<{ host?: string; mac?: string; name?: string }>; message?: string }> {
+  return discoverFan()
+}
+
+export async function fanTest(opts?: { host?: string }): Promise<{ ok: boolean; reply: string }> {
+  return testFan(opts)
+}
+
+export async function fanLearn(slot: 'on' | 'off' | 'speed1' | 'speed2' | 'speed3' | 'light'): Promise<{ ok: boolean; reply: string }> {
+  return learnFan(slot)
+}
+
+export async function fanPick(item: { host?: string; mac?: string; name?: string }): Promise<string> {
+  return pickFan(item)
+}
+
+export async function testPc(opts?: { host?: string; token?: string; port?: number }): Promise<{
+  ok: boolean
+  reply: string
+}> {
+  return engineTestPc(opts)
 }
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {

@@ -6,7 +6,7 @@ function normalize(text: string): string {
   return text.replace(/([.!?…])(\S)/g, '$1 $2').replace(/\s+/g, ' ')
 }
 
-export function pullReady(hold: string): { parts: string[]; rest: string } {
+export function pullReady(hold: string, eager = false): { parts: string[]; rest: string } {
   const sentences: string[] = []
   let rest = normalize(hold)
   while (true) {
@@ -31,15 +31,24 @@ export function pullReady(hold: string): { parts: string[]; rest: string } {
     bundle.push(s)
     const text = textOf()
     const words = text.split(/\s+/).filter(Boolean).length
-    if (bundle.length >= 2 || words >= 10 || text.length >= 72) emit()
+    const minWords = eager ? 2 : 4
+    const minChars = eager ? 12 : 28
+    if (bundle.length >= 2 || words >= minWords || text.length >= minChars) emit()
   }
 
   const leftover = textOf()
   rest = [leftover, rest].filter(Boolean).join(' ')
+  if (eager) {
+    const words = rest.split(/\s+/).filter(Boolean).length
+    if (words >= 8) {
+      parts.push(rest.trim())
+      rest = ''
+    }
+  }
   return { parts, rest }
 }
 
-export function createSentenceTap() {
+export function createSentenceTap(eager = false) {
   let emitted = 0
   let hold = ''
   return {
@@ -47,7 +56,7 @@ export function createSentenceTap() {
       const add = full.slice(emitted)
       emitted = full.length
       hold += add
-      const { parts, rest } = pullReady(hold)
+      const { parts, rest } = pullReady(hold, eager)
       hold = rest
       return parts
     },
