@@ -1,4 +1,4 @@
-/** PO-Test: Kopierfelder unter Einstellungen → Tests. Texte sind genau der Chat-Inhalt. */
+/** Prompt-Katalog für Routing-Tests. Nicht in der APK-UI. */
 
 export type TestCopyItem = { label: string; text: string }
 export type TestCopyGroup = { title: string; items: TestCopyItem[] }
