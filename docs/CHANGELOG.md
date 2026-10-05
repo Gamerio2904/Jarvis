@@ -2357,6 +2357,8 @@ Eine Sideload-Stufe, Inhalt aus [`19-next.md`](./19-next.md) und [`20-next.md`](
 - Banner: Chat geht ins Netz
 - [`sprints/sprint-50.md`](./sprints/sprint-50.md) · [`16-gemini.md`](./16-gemini.md)
 
+Geplant: **`0.15.0`** Start & Chat-Zuverlässigkeit ([`sprints/sprint-49.md`](./sprints/sprint-49.md)) — [`15-startup-chat.md`](./15-startup-chat.md).
+
 ### `0.14.1` — TV verbinden & steuern — *CODE*
 
 - Native Capacitor-Brücke: SSDP/Portscan, WOL, Tizen-WS 8001/8002, Token auf dem Gerät

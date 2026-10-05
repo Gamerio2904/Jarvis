@@ -248,6 +248,13 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S14.3 | Als Nutzer will ich ehrliches Recall statt Halluzination. | Must | done | Sprint 47 |
 | S14.4 | Als Nutzer will ich Todos/Notizen in Alltagssprache. | Should | done | Sprint 47 |
 
+### E15 — Start & Chat (`0.15.0`)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S15.1 | Als Nutzer will ich die App öffnen, ohne lange aufs Modell zu warten. | Must | ready | Sprint 49 / `0.15.0` |
+| S15.2 | Als Nutzer will ich wieder eine Antwort oder eine klare Fehlermeldung. | Must | ready | Sprint 49 |
+
 ### E13 — LAN-Proxy & APK (`0.12.x`)
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
