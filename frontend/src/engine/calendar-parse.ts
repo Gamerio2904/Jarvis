@@ -457,6 +457,17 @@ function parseRename(text: string): CalendarIntent | null {
   return { kind: 'rename', query, title }
 }
 
+function parseRename(text: string): CalendarIntent | null {
+  const hit = RENAME_IN.exec(text) || RENAME_HEISST.exec(text)
+  if (!hit) return null
+  const query = hit[1].replace(/\s+/g, ' ').replace(/[.!?]+$/g, '').trim()
+  const title = hit[2].replace(/\s+/g, ' ').replace(/[.!?]+$/g, '').trim()
+  if (!query || !title || query.length < 2 || title.length < 2) return null
+  if (RENAME_SKIP.test(query) || RENAME_SKIP.test(title)) return null
+  if (query.toLowerCase() === title.toLowerCase()) return null
+  return { kind: 'rename', query, title }
+}
+
 export function splitTitlePlace(raw: string): { title: string; place?: string } {
   const t = raw.replace(/\s+/g, ' ').trim()
   if (!t) return { title: 'Termin' }
