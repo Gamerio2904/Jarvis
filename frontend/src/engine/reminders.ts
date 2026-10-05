@@ -8,6 +8,7 @@ import {
   listReminders,
   listTodos,
   loadSettings,
+  persistLastList,
   putReminder,
   setReminderStatus,
   type Reminder,
@@ -71,6 +72,10 @@ export async function handleReminders(
     return { handled: true, reply: await formatReminderList() }
   }
 
+  if (intent.kind === 'week') {
+    return { handled: true, reply: await formatWeekList() }
+  }
+
   if (intent.kind === 'agenda') {
     return { handled: true, reply: await formatAgenda() }
   }
@@ -123,8 +128,18 @@ export async function upcomingReminders(): Promise<Reminder[]> {
 export async function formatReminderList(): Promise<string> {
   const rows = await upcomingReminders()
   if (!rows.length) return 'Keine offenen Erinnerungen.'
-    const lines = rows.map((r, i) => `${i + 1}. ${recurTag(r)}${r.title} — ${formatDue(new Date(r.due_at))}`)
+  persistLastList('reminder', rows.map((r) => r.title))
+  const lines = rows.map((r, i) => `${i + 1}. ${recurTag(r)}${r.title} — ${formatDue(new Date(r.due_at))}`)
   return `Erinnerungen:\n${lines.join('\n')}`
+}
+
+export async function formatWeekList(): Promise<string> {
+  const end = Date.now() + 7 * 86_400_000
+  const rows = (await upcomingReminders()).filter((r) => new Date(r.due_at).getTime() <= end)
+  if (!rows.length) return 'Diese Woche kommt nichts raus.'
+  persistLastList('reminder', rows.map((r) => r.title))
+  const lines = rows.map((r, i) => `${i + 1}. ${recurTag(r)}${r.title} — ${formatDue(new Date(r.due_at))}`)
+  return `Diese Woche:\n${lines.join('\n')}`
 }
 
 export async function formatAgenda(): Promise<string> {
@@ -179,12 +194,35 @@ export async function syncReminderAlarms(): Promise<void> {
   for (const r of rows) {
     if (r.status !== 'open') continue
     const due = new Date(r.due_at).getTime()
+    if (r.kind === 'home') continue
     if (due <= now - 2 * 3_600_000) {
+      if (r.kind === 'birthday') {
+        const next = rollBirthday(new Date(r.due_at), now)
+        await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
+        await scheduleNotify({
+          id: notifyIdFromKey(r.id),
+          title: 'Geburtstag',
+          body: r.title,
+          at: next,
+        })
+        continue
+      }
       await setReminderStatus(r.id, 'missed')
       await cancelNotify(notifyIdFromKey(r.id))
       continue
     }
     if (due <= now) {
+      if (r.kind === 'birthday') {
+        const next = rollBirthday(new Date(r.due_at), now)
+        await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
+        await scheduleNotify({
+          id: notifyIdFromKey(r.id),
+          title: 'Geburtstag',
+          body: r.title,
+          at: next,
+        })
+        continue
+      }
       if (r.recur === 'daily' || r.recur === 'weekly') {
         const next = nextRecurDue(new Date(r.due_at), r.recur)
         await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
@@ -228,5 +266,12 @@ export function nextRecurDue(from: Date, recur: 'daily' | 'weekly'): Date {
   const next = new Date(from)
   next.setDate(next.getDate() + step)
   while (next.getTime() <= Date.now()) next.setDate(next.getDate() + step)
+  return next
+}
+
+function rollBirthday(from: Date, nowMs: number): Date {
+  const next = new Date(from)
+  next.setFullYear(next.getFullYear() + 1)
+  while (next.getTime() <= nowMs) next.setFullYear(next.getFullYear() + 1)
   return next
 }

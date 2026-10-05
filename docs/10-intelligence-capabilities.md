@@ -3,22 +3,20 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-### Live `1.15.0` (Code)
+### Live `1.24.0` (Code)
 
-Router-Reihenfolge in `chat.ts`: help → TV → Orte/Maps → Memory → Kalender → Wecker → Timer → Erinnerung → Tools → Wetter → Research → LLM.  
-Zwei Befehle an „und“. Letzter Schritt für alle Tools. Memory-Block lokal = Gemini. Personenorte + Google-Maps-Link. Suche ohne Quellen: ehrlich. Titel folgt dem Thema.
+Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Maps → Memory → Einkauf → Geburtstag → Zuhause → Los → Tageslage → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Chatsuche → LLM.  
+Zwei Befehle an „und“. Letzter Schritt inkl. „das zweite“. Memory-Block lokal = Gemini. Personenorte, Nummer, Maps-Modus, Einkauf, Losgehen, JS-Zaun Zuhause, Auge (Gemini), lokale Chatsuche.
 
-**Nicht** im Code: Einkaufsliste, Fahrzeit/Losgehen, Geofence, Foto, Nummer, Chatsuche.
-
-### Als Nächstes (`1.16`–`1.24`) — [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
+### Reihe `1.16`–`1.24` — [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
 
 | Version | Intelligenz | Status |
 |---------|-------------|--------|
 | `1.14` | Letztes Tool; zwei Dinge; ein Name; Titel; Suche ehrlich | **CODE** |
 | `1.15` | Personen↔Orte; Route in Google Maps | **CODE** |
-| `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **PLANNED** |
-| `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **PLANNED** |
-| `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **PLANNED** |
+| `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **CODE** |
+| `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **CODE** |
+| `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **CODE** |
 
 Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
 

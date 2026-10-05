@@ -18,11 +18,25 @@ import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { RESEARCH_EMPTY, researchHasSources } from '../src/engine/research-parse.ts'
 import {
+  findContactRow,
   mapsDirUrl,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
 } from '../src/engine/places-parse.ts'
+import { normalizeUtterance } from '../src/engine/utterance.ts'
+import { pickHeard } from '../src/engine/heard.ts'
+import { parseShopIntent } from '../src/engine/shopping-parse.ts'
+import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
+import { parseHomeIntent } from '../src/engine/home-parse.ts'
+import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
+import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
+import { isBriefAsk } from '../src/engine/brief-parse.ts'
+import { parseEyeIntent } from '../src/engine/eye-parse.ts'
+import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
+import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
+import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -32,8 +46,42 @@ assert.equal(parseTvIntent('Fernseher stumm')?.action, 'mute')
 assert.equal(parseTvIntent('auf HDMI 2'), null)
 assert.equal(parseTvIntent('Fernseher auf HDMI 2')?.action, 'hdmi2')
 assert.equal(parseTvIntent('TV Quelle 1')?.action, 'hdmi1')
+assert.equal(parseTvIntent('Fire TV')?.via, 'fire')
+assert.equal(parseTvIntent('Fire TV')?.action, 'on')
+assert.equal(parseTvIntent('Fire TV Pause')?.action, 'pause')
+assert.equal(parseTvIntent('Fernseher auf HDMI 3')?.action, 'hdmi3')
 assert.equal(parseTvIntent('lauter'), null)
 assert.equal(parseTvIntent('lauter', true)?.action, 'volume_up')
+assert.equal(parseTvIntent('Lautstärke 50')?.action, 'volume_set')
+assert.equal(parseTvIntent('Lautstärke 50')?.level, 50)
+assert.equal(parseTvIntent('lauter um 10')?.action, 'volume_up')
+assert.equal(parseTvIntent('lauter um 10')?.steps, 10)
+assert.equal(parseTvIntent('leiser um 5')?.action, 'volume_down')
+assert.equal(parseDriveIntent('Aktiviere Fahrmodus')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahrmodus aus')?.kind, 'off')
+assert.equal(parseDriveIntent('zur Freundin', true)?.kind, 'dest')
+assert.equal(parseDriveIntent('Nach Heilbronn')?.kind, 'on')
+assert.equal(parseDriveIntent('Nach Heilbronn')?.kind === 'on' && parseDriveIntent('Nach Heilbronn')?.dest, 'Heilbronn')
+assert.equal(parseDriveIntent('nach Heilbronn fahren')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahr nach Heilbronn')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahr mich zur Freundin')?.kind, 'on')
+assert.equal(parseDriveIntent('Nach Heilbronn', true)?.kind, 'dest')
+assert.equal(parseDriveIntent('Kannst du nach Heilbronn fahren')?.kind, 'on')
+assert.equal(parseDriveIntent('Ich will nach Heilbronn')?.dest, 'Heilbronn')
+assert.equal(parseDriveIntent('Nach dem Wetter'), null)
+assert.equal(normalizeUtterance('Kannst du nach Heilbronn fahren'), 'nach Heilbronn fahren')
+assert.equal(normalizeUtterance('nach heilbron'), 'nach Heilbronn')
+assert.equal(pickHeard('nach heilbron', ['nach Heilbronn']), 'nach Heilbronn')
+assert.equal(pickHeard('ähm fahr nach heilbron', ['Fahr nach Heilbronn']), 'fahr nach Heilbronn')
+assert.equal(parseDriveIntent(pickHeard('ähm fahr nach heilbron', ['xyz']))?.dest, 'Heilbronn')
+assert.equal(parseSpotifyIntent('Spiel Hotel California')?.kind, 'play')
+assert.deepEqual(parseSpotifyIntent('Spiel mal Hotel California'), { kind: 'play', query: 'Hotel California' })
+assert.equal(parseSpotifyIntent('Pause')?.kind, 'pause')
+assert.equal(parseSpotifyIntent('Spotify Pause')?.kind, 'pause')
+assert.equal(parseSpotifyIntent('weiter')?.kind, 'next')
+assert.equal(parseSpotifyIntent('nächster Song')?.kind, 'next')
+assert.equal(spotifySourceLabel('internal'), 'in Jarvis')
+assert.equal(spotifySourceLabel('preview'), '30s-Vorschau')
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))
 const facts = parseMemoryFacts('Ich heiße Max und trinke gerne Kaffee und esse Pizza')
@@ -45,7 +93,12 @@ assert.ok(isMemoryRecall('Wie ist mein Name?'))
 assert.ok(!isMemoryWrite('Hallo Jarvis'))
 
 assert.equal(parseToolIntent('todo: Milch')?.kind, 'todo_create')
-assert.equal(parseToolIntent('Milch kaufen')?.kind, 'todo_create')
+assert.equal(parseToolIntent('Milch kaufen'), null)
+assert.equal(parseShopIntent('Milch kaufen')?.kind, 'add')
+assert.equal(parseShopIntent('Milch auf die Einkaufsliste')?.kind, 'add')
+assert.equal(parseShopIntent('auch Brot')?.kind, 'add')
+assert.equal(parseShopIntent('was fehlt?')?.kind, 'list')
+assert.equal(parseShopIntent('Milch hab ich')?.kind, 'got')
 assert.equal(parseToolIntent('ich muss noch Brot holen')?.kind, 'todo_create')
 assert.equal(parseToolIntent('erinner mich an Steuer')?.kind, 'todo_create')
 assert.equal(parseToolIntent('erledige das erste')?.kind, 'todo_done_first')
@@ -179,6 +232,13 @@ if (termin?.kind === 'create') {
   assert.equal(termin.title, 'Zahnarzt')
   assert.equal(termin.start.getHours(), 15)
 }
+const terminPlace = parseCalendarIntent('Termin morgen 15 Uhr Zahnarzt Bahnhofstraße', frozen)
+assert.equal(terminPlace?.kind, 'create')
+if (terminPlace?.kind === 'create') {
+  assert.equal(terminPlace.title, 'Zahnarzt')
+  assert.equal(terminPlace.place, 'Bahnhofstraße')
+}
+assert.deepEqual(splitTitlePlace('Zahnarzt Bahnhofstraße'), { title: 'Zahnarzt', place: 'Bahnhofstraße' })
 const dated = parseCalendarIntent('Termin 21.08. mit jane treffen', frozen)
 assert.equal(dated?.kind, 'create')
 if (dated?.kind === 'create') {
@@ -271,6 +331,63 @@ if (parsePlaceNav('fahr mich nach Heilbronn')?.kind === 'navigate') {
 assert.match(mapsDirUrl('Heilbronn'), /google\.com\/maps\/dir/)
 assert.match(mapsDirUrl('Heilbronn'), /destination=Heilbronn/)
 assert.match(mapsDirUrl('Heilbronn'), /travelmode=driving/)
+assert.match(mapsDirUrl('Heilbronn', 'walking'), /travelmode=walking/)
+const walk = parsePlaceNav('Lauf zur Freundin')
+assert.equal(walk?.kind, 'navigate')
+if (walk?.kind === 'navigate') assert.equal(walk.mode, 'walking')
+assert.equal(parsePlaceNav('Ruf die Freundin an')?.kind, 'call')
+assert.equal(parsePlaceNav('Freundin, Tel 01711234567')?.kind, 'phone')
+assert.equal(normalizeUtterance('Service Ruf meine Freundin an'), 'Ruf meine Freundin an')
+assert.equal(parsePlaceNav('Service Ruf meine Freundin an')?.kind, 'call')
+const callFreundin = parsePlaceNav('Ruf meine Freundin an')
+assert.equal(callFreundin?.kind, 'call')
+if (callFreundin?.kind === 'call') assert.equal(callFreundin.query, 'freundin')
+const callOdett = parsePlaceNav('Ruf Odett an')
+assert.equal(callOdett?.kind, 'call')
+if (callOdett?.kind === 'call') assert.equal(callOdett.query, 'odett')
+assert.equal(parsePlaceNav('Odett anrufen')?.kind, 'call')
+assert.equal(parseToolIntent('Odett anrufen'), null)
+const phoneOdett = parsePlaceNav('Odett 01711234567')
+assert.equal(phoneOdett?.kind, 'phone')
+if (phoneOdett?.kind === 'phone') assert.equal(phoneOdett.number.replace(/\D/g, '').length >= 6, true)
+const alias = parsePlaceNav('Meine Freundin heißt Odett')
+assert.equal(alias?.kind, 'alias')
+assert.equal(
+  findContactRow(
+    [
+      { key: 'freundin', value: '01711234567', category: 'contact' },
+      { key: 'alias:freundin', value: 'odett', category: 'fact' },
+      { key: 'alias:odett', value: 'freundin', category: 'fact' },
+    ],
+    'odett',
+  )?.value,
+  '01711234567',
+)
+assert.equal(scrubReply('Wähle dieWen genau soll ich anrufen?'), 'Wähle die Wen genau soll ich anrufen?')
+assert.equal(titleFromUser('Service Ruf meine Freundin an'), 'Ruf meine Freundin an')
+assert.equal(parseLeaveIntent('Wann muss ich zum Zahnarzt los?')?.query, 'Zahnarzt')
+assert.equal(parseHomeIntent('Wenn ich zuhause bin Müll raus')?.kind, 'when_home')
+assert.equal(parseHomeIntent('Ich bin zuhause')?.kind, 'im_home')
+assert.ok(isBriefAsk('Guten Morgen'))
+assert.ok(isBriefAsk('Was steht an?'))
+assert.ok(parseEyeIntent('Lies das Foto'))
+const bday = parseBirthdayIntent('Mama hat am 3. März Geburtstag')
+assert.equal(bday?.kind, 'create')
+if (bday?.kind === 'create') {
+  assert.equal(bday.name, 'Mama')
+  assert.equal(bday.month, 3)
+  assert.equal(bday.day, 3)
+}
+const weeklyBare = parseReminderIntent('Jeden Dienstag Müll', frozen)
+assert.equal(weeklyBare?.kind, 'create')
+if (weeklyBare?.kind === 'create') {
+  assert.equal(weeklyBare.recur, 'weekly')
+  assert.equal(weeklyBare.title, 'Müll')
+}
+assert.equal(parseReminderIntent('was kommt diese Woche raus?')?.kind, 'week')
+assert.equal(parseOrdinalFollowUp('das zweite')?.index, 1)
+assert.equal(parseOrdinalFollowUp('lösch das zweite')?.del, true)
+assert.equal(parseChatSearch('Wann hatte ich das mit der Steuer?'), 'Steuer')
 
 assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])

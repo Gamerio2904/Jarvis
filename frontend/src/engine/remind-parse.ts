@@ -9,6 +9,7 @@ export type ReminderIntent =
     }
   | { kind: 'list' }
   | { kind: 'agenda' }
+  | { kind: 'week' }
   | { kind: 'delete'; query: string }
   | { kind: 'delete_last' }
 
@@ -155,6 +156,7 @@ const DATE_TITLE = new RegExp(
   'is',
 )
 const LIST = /^\s*(?:zeig(?:e)?\s+(?:mir\s+)?(?:meine\s+)?)?erinnerungen\s*\??\s*$/i
+const WEEK_OUT = /^\s*was\s+kommt\s+diese\s+woche(?:\s+raus)?\s*\??\s*$/i
 const AGENDA =
   /^\s*(?:was\s+steht\s+an|was\s+habe\s+ich\s+(?:heute\s+)?an|termine?\s+heute|was\s+liegt\s+an)\s*\??\s*$/i
 const DELETE =
@@ -177,6 +179,24 @@ function parseRecur(t: string, now: Date): ReminderIntent | null {
       whenLabel: `jeden ${weekly[1]} ${clock.h}:${String(clock.m).padStart(2, '0')}`,
       recur: 'weekly',
       weekday: WEEKDAYS[weekly[1].toLowerCase()],
+    }
+  }
+  const weeklyBare = new RegExp(
+    `^\\s*jeden\\s+(${Object.keys(WEEKDAYS).join('|')})\\s+(.+)$`,
+    'is',
+  ).exec(t)
+  if (weeklyBare) {
+    const title = cleanTitle(weeklyBare[2])
+    if (title && !/^\d/.test(title)) {
+      const due = dueFromDayTime(now, weeklyBare[1], 18, 0)
+      return {
+        kind: 'create',
+        title,
+        due,
+        whenLabel: `jeden ${weeklyBare[1]} 18:00`,
+        recur: 'weekly',
+        weekday: WEEKDAYS[weeklyBare[1].toLowerCase()],
+      }
     }
   }
   const daily = new RegExp(
@@ -219,6 +239,7 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   const t = text.trim()
   if (!t || t.length > 200) return null
   if (LIST.test(t)) return { kind: 'list' }
+  if (WEEK_OUT.test(t)) return { kind: 'week' }
   if (AGENDA.test(t)) return { kind: 'agenda' }
   if (/^(?:lösch(?:e)?\s+(?:die\s+)?letzte\s+erinnerung|erinnerung\s+aus)$/i.test(t)) {
     return { kind: 'delete_last' }

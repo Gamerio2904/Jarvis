@@ -47,6 +47,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     if (tool === 'timer') return 'Timer aus'
     if (tool === 'reminder') return title ? `lösche Erinnerung ${title}` : 'Erinnerung aus'
     if (tool === 'todo') return title ? `lösche Todo ${title}` : 'lösche das letzte Todo'
+    if (tool === 'shopping') return title ? `${title} hab ich` : null
     if (tool === 'maps' || tool === 'maps_ask') return title ? `vergiss ${title}` : null
   }
 

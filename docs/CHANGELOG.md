@@ -5,8 +5,81 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.15.0`**.  
-Geplant `1.16`–`1.20`: [`19-next.md`](./19-next.md). Extra `1.21`–`1.24`: [`20-next.md`](./20-next.md).
+App-Version im Code: **`1.28.2`**.
+
+### `1.28.2` — Fire-TV-Test sichtbar — *CODE*
+
+- **Fire TV testen** zeigt das Ergebnis direkt unter dem Knopf (nicht nur oben beim Samsung)
+- IP wird beim Tippen gehalten und beim Test gespeichert (vorher oft leer → keine Meldung)
+- Kurzer TCP-Check vor ADB: klare Meldung, wenn Port 5555 zu ist
+- Fire TV 2. Gen: kein Dialog ohne WLAN-ADB; Samsung HDMI 3 geht trotzdem
+
+### `1.28.1` — Wake-Word reagiert — *CODE*
+
+- „Jarvis“ öffnet den Sprachmodus auch, wenn die App schon offen ist
+- Erkennung ohne Offline-Zwang; auch Jarwis/Javis
+- Dienst startet neu, wenn er stirbt
+
+### `1.28.0` — Wake-Word im Hintergrund + Fire TV — *CODE*
+
+- Wake-Word läuft bei Bildschirm aus und in anderen Apps (nur „Jarvis“)
+- Gespräch endet, wenn Jarvis in den Hintergrund geht; Beenden in der Meldung oder unter Sprache
+- Fire TV auf HDMI (Standard 3): Quelle am Samsung, Stick per ADB (Play/Pause/Home)
+
+### `1.27.2` — Fahrmodus / Sprache — *CODE*
+
+- „Nach Heilbronn“, „nach Heilbronn fahren“, „Fahr nach …“ startet Fahrmodus mit Route
+- Karte zoomt auf die ganze Strecke; Ziel-Feld und **Hören** im Overlay
+- Sprache: längere Pause, mehrere STT-Treffer, Füllwörter und Tippfehler (heilbron → Heilbronn)
+
+### `1.27.1` — Anruf-Hotfix — *CODE*
+
+- „Service/Jarvis ruf … an“ landet als Anruf, nicht im LLM
+- Geklebte Wörter („dieWen“) werden getrennt
+- Nummer und Alias: „Odett, Tel …“, „Odett 0171…“, „Meine Freundin heißt Odett“
+- „Odett anrufen“ ist kein Todo mehr
+- Ort und Telefonnummer zur selben Person überschreiben sich nicht
+
+### `1.27.0` — Internes Spotify im Fahrmodus — *CODE*
+
+- Fahrmodus startet den Spotify-Web-Player: Gerät **Jarvis**, volle Titel in der App (Premium)
+- Ohne Premium oder ohne DRM: 30s-Vorschau, ehrlich gesagt
+- Dock mit Cover, Play/Pause/Skip, Suche; Chat: `Spiel …`, `Pause`, `weiter`
+
+### `1.26.0` — Fahrmodus, Spotify, Auge, TV-Lautstärke — *CODE*
+
+- Foto liefert eine Chat-Antwort (JPEG, Timeout, ohne Gemini ehrlich)
+- TV: `Lautstärke 50`, `lauter um 10` (Tasten, etwa 1–100)
+- Fahrmodus-Overlay mit eigener Karte (OSM/OSRM, nicht Google Maps)
+- Spotify intern im Fahrmodus: eigene Client-ID, PKCE-Login, Play/Pause/Skip
+- Wake-Word-Kugel unten am Composer
+
+### `1.25.0` — Einstellungen Vollbild — *CODE*
+
+- Einstellungen öffnen über den ganzen Bildschirm, nicht mehr in der engen Sidebar
+- Linke Leiste mit Hauptthemen (Allgemein, Modell, Cloud, Sprache, Wecker, Ort, Fernseher, Ton, Netz, Gedächtnis, Gefahr)
+- Gedächtnis sitzt unter Einstellungen, Sidebar bleibt bei Chats
+- Test-Chips eine Zeile, seitlich scrollbar
+
+### `1.24.1` — Chat hängt nicht mehr an TV/Standort — *CODE*
+
+- TV-Suchen/Koppeln/Tasten haben ein hartes Zeitlimit — Jarvis bleibt nicht auf „denkt…“ stehen
+- Zuhause-Zaun fragt beim Start nicht mehr nach Standort, wenn das Recht fehlt
+- Standort-Plugin bricht nach wenigen Sekunden ab
+
+### `1.24.0` — Alltag 1.16–1.24 — *CODE*
+
+Eine Sideload-Stufe, Inhalt aus [`19-next.md`](./19-next.md) und [`20-next.md`](./20-next.md):
+
+- **Einkauf** als Liste, kein Ja/Nein: „Milch auf die Einkaufsliste“, „auch Brot“, „was fehlt?“, „Milch hab ich“. „Milch kaufen“ landet hier, nicht beim Todo-Confirm
+- **Losgehen:** „Wann muss ich zum Zahnarzt los?“ — Ort am Termin im selben Satz (`Termin morgen 15 Uhr Zahnarzt Bahnhofstraße`), sonst nachfragen. Fahrzeit über Netz + GPS, Maps-Knopf. Ohne Fix: ehrlich
+- **Zuhause:** „Wenn ich zuhause bin Müll raus“ — JS-Zaun beim App-Start oder „Ich bin zuhause“. Handy an; Gerät aus löst nicht aus
+- **Tageslage:** „Guten Morgen“ / „Was steht an?“ eine Bubble
+- **Auge:** „Lies das Foto“ nur mit Gemini; Bild geht zu Google. Sonst: „Dafür Gemini an.“
+- **Nummer + Maps-Modus:** „Freundin, Tel …“, „Ruf die Freundin an“ (`tel:`), „Lauf zur Freundin“ / Bahn
+- **Geburtstag** + **Wochenserie:** „Mama hat am 3. März Geburtstag“, „Jeden Dienstag Müll“, „was kommt diese Woche raus?“
+- **Widget** zeigt nächsten Termin oder Einkauf; „das zweite“ nach einer Liste
+- **Gespräch suchen** lokal: „Wann hatte ich das mit der Steuer?“
 
 ### `1.15.0` — Personen/Orte + Maps-Route — *CODE*
 

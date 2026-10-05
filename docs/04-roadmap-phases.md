@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.15.0`:** Alltag auf dem Handy (Wetter, Kalender, Maps, Sprache). **Als Nächstes `1.16`–`1.20`:** [`19-next.md`](./19-next.md). Extra `1.21`–`1.24`: [`20-next.md`](./20-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.24.0`:** Alltag auf dem Handy (Wetter, Kalender, Maps, Einkauf, Losgehen, Zuhause, Auge, Sprache). Reihe: [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md). TTS ist geliefert (`1.5`+).
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -142,7 +142,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
 - Mail / Fire TV / Alexa / Play Store — **Parking**
 - Tools (Kalender/Mail) — Kalender **ist** in `1.4`+; Mail bleibt Parking
-- Alltag `1.14.0` Kontext + Gedächtnis — **CODE**; `1.15`–`1.20` Personen, Einkauf, Losgehen, Zuhause, Auge — **PLANNED** [`19-next.md`](./19-next.md)
+- Alltag `1.14`–`1.15` — **CODE**; `1.16`–`1.20` — **PLANNED** [`19-next.md`](./19-next.md); Extra `1.21`–`1.24` — **PLANNED** [`20-next.md`](./20-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

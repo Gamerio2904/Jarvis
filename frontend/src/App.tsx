@@ -23,8 +23,12 @@ import {
   tvDiscover,
   tvPair,
   tvTest,
+  tvFireTest,
   testGemini,
   testGroq,
+  readEyeImage,
+  fileToJpegDataUrl,
+  checkHomeFence,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -41,10 +45,15 @@ import { playUiSound, unlockUiAudio } from './sounds'
 import { TEST_PROMPTS } from './engine/test-prompts'
 import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
+import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
+import { DriveMode } from './DriveMode'
+import { WakeBubble } from './WakeBubble'
+import { closeDrive } from './engine/drive'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
-import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord } from './native/voice'
+import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
+import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 
 function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
   const raw = tool.result
@@ -116,6 +125,18 @@ function ToolChip({
             </a>
           ))
         : null}
+      {typeof tool.result?.tel === 'string' && tool.result.tel ? (
+        <a
+          className="maps-btn"
+          href={String(tool.result.tel)}
+          onClick={(e) => {
+            e.preventDefault()
+            window.open(String(tool.result?.tel), '_self')
+          }}
+        >
+          Anrufen{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
+        </a>
+      ) : null}
     </span>
   )
 }
@@ -202,13 +223,13 @@ function App() {
   const [composerFocused, setComposerFocused] = useState(false)
   const [threadKey, setThreadKey] = useState(0)
   const [enterIds, setEnterIds] = useState<Record<string, true>>({})
-  const [memoryOpen, setMemoryOpen] = useState(false)
   const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([])
   const [memoryBusy, setMemoryBusy] = useState(false)
   const [memoryFilter, setMemoryFilter] = useState<MemoryCategory | 'all'>('all')
   const [settings, setSettings] = useState<Settings | null>(null)
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
+  const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('allgemein')
   const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
@@ -216,6 +237,8 @@ function App() {
   const [remindBusy, setRemindBusy] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
+  const [driveOpen, setDriveOpen] = useState(false)
+  const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
@@ -225,8 +248,9 @@ function App() {
   const [hasLocalModel, setHasLocalModel] = useState(false)
   const [tvBusy, setTvBusy] = useState(false)
   const [tvMsg, setTvMsg] = useState<string | null>(null)
+  const [tvMsgOk, setTvMsgOk] = useState<boolean | null>(null)
   const [tvFound, setTvFound] = useState<
-    Array<{ host?: string; name?: string; mac?: string; port?: number }>
+    Array<{ host?: string; name?: string; mac?: string; port?: number; kind?: string }>
   >([])
   const [geminiBusy, setGeminiBusy] = useState(false)
   const [geminiMsg, setGeminiMsg] = useState<string | null>(null)
@@ -235,6 +259,7 @@ function App() {
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const eyeFileRef = useRef<HTMLInputElement | null>(null)
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
@@ -258,11 +283,57 @@ function App() {
   }, [])
 
   useEffect(() => {
+    const pending = pendingSpotifyCode()
+    if (!pending) return
+    void completeSpotifyLogin(pending).then(() => {
+      const u = new URL(window.location.href)
+      u.search = ''
+      u.hash = ''
+      window.history.replaceState({}, '', u.pathname || '/')
+    })
+  }, [])
+
+  useEffect(() => {
     void bootstrap()
     const t = window.setInterval(() => {
       void refreshHealth()
     }, 8000)
     return () => window.clearInterval(t)
+  }, [])
+
+  useEffect(() => {
+    let live = true
+    async function tick() {
+      const on = await wakeWordRunning()
+      if (!live) return
+      setWakeListening(on)
+      if (settings?.wake_word && !on) void startWakeWord()
+    }
+    void tick()
+    const id = window.setInterval(() => void tick(), 4000)
+    return () => {
+      live = false
+      window.clearInterval(id)
+    }
+  }, [settings?.wake_word])
+
+  useEffect(() => {
+    const openVoice = () => {
+      setVoiceOpen(true)
+      setCalendarOpen(false)
+    }
+    const off = onWakeHit(openVoice)
+    const vis = () => {
+      if (document.hidden) setVoiceOpen(false)
+      else void consumeVoiceLaunch().then((v) => {
+        if (v) openVoice()
+      })
+    }
+    document.addEventListener('visibilitychange', vis)
+    return () => {
+      off()
+      document.removeEventListener('visibilitychange', vis)
+    }
   }, [])
 
   useEffect(() => {
@@ -392,6 +463,7 @@ function App() {
     if (tvBusy) return
     setTvBusy(true)
     setTvMsg('Suche im WLAN…')
+    setTvMsgOk(null)
     try {
       const res = await tvDiscover()
       const items = (res.items || []) as Array<{
@@ -399,6 +471,7 @@ function App() {
         name?: string
         mac?: string
         port?: number
+        kind?: string
       }>
       setTvFound(items)
       setTvMsg(
@@ -406,15 +479,33 @@ function App() {
           ? `${items.length} Gerät${items.length === 1 ? '' : 'e'} gefunden.`
           : res.message || 'Nichts gefunden.',
       )
+      setTvMsgOk(items.length > 0)
     } catch (err) {
       setTvMsg(err instanceof Error ? err.message : 'Suchen fehlgeschlagen')
+      setTvMsgOk(false)
     } finally {
       setTvBusy(false)
     }
   }
 
-  async function onTvPick(item: { host?: string; name?: string; mac?: string; port?: number }) {
+  async function onTvPick(item: {
+    host?: string
+    name?: string
+    mac?: string
+    port?: number
+    kind?: string
+  }) {
     if (!item.host) return
+    if (item.kind === 'fire') {
+      await patchSetting({
+        tv_enabled: true,
+        tv_fire_host: item.host,
+        tv_fire_port: item.port || 5555,
+      })
+      setTvMsg(`Fire TV: ${item.host}. ADB-Dialog nur bei WLAN-ADB, dann testen.`)
+      setTvMsgOk(true)
+      return
+    }
     await patchSetting({
       tv_host: item.host,
       tv_name: item.name || settings?.tv_name || 'Wohnzimmer',
@@ -422,12 +513,14 @@ function App() {
       tv_port: item.port || settings?.tv_port || 8002,
     })
     setTvMsg(`Gewählt: ${item.name || item.host}`)
+    setTvMsgOk(true)
   }
 
   async function onTvPair() {
     if (tvBusy) return
     setTvBusy(true)
     setTvMsg('Koppeln — am Fernseher erlauben…')
+    setTvMsgOk(null)
     try {
       const res = await tvPair({
         host: settings?.tv_host,
@@ -436,9 +529,11 @@ function App() {
         port: settings?.tv_port,
       })
       setTvMsg(res.message)
+      setTvMsgOk(true)
       await refreshSettings()
     } catch (err) {
       setTvMsg(err instanceof Error ? err.message : 'Koppeln fehlgeschlagen')
+      setTvMsgOk(false)
     } finally {
       setTvBusy(false)
     }
@@ -473,15 +568,44 @@ function App() {
     }
   }
 
+  async function onTvFireTest(host?: string, port?: number) {
+    if (tvBusy) return
+    const ip = (host || settings?.tv_fire_host || '').trim()
+    const p =
+      typeof port === 'number' && Number.isFinite(port) && port > 0
+        ? port
+        : settings?.tv_fire_port || 5555
+    setTvBusy(true)
+    setTvMsgOk(null)
+    setTvMsg('Teste Fire TV…')
+    try {
+      if (ip) {
+        const updated = await patchSettings({ tv_fire_host: ip, tv_fire_port: p, tv_enabled: true })
+        setSettings(updated)
+      }
+      const res = await tvFireTest({ host: ip, port: p })
+      setTvMsg(res.reply || (res.ok ? 'Fire TV da.' : 'Fire TV nicht erreichbar.'))
+      setTvMsgOk(Boolean(res.ok))
+    } catch (err) {
+      setTvMsg(err instanceof Error ? err.message : 'Fire-TV-Test fehlgeschlagen')
+      setTvMsgOk(false)
+    } finally {
+      setTvBusy(false)
+    }
+  }
+
   async function onTvTest() {
     if (tvBusy) return
     setTvBusy(true)
     setTvMsg('Teste Verbindung…')
+    setTvMsgOk(null)
     try {
       const res = await tvTest()
       setTvMsg(res.reply || (res.ok ? 'Erreichbar.' : 'Nicht erreichbar.'))
+      setTvMsgOk(Boolean(res.ok))
     } catch (err) {
       setTvMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
+      setTvMsgOk(false)
     } finally {
       setTvBusy(false)
     }
@@ -497,6 +621,15 @@ function App() {
     } catch {
       /* browser ohne Notification ist ok */
     }
+    try {
+      const homeHits = await Promise.race([
+        checkHomeFence(),
+        new Promise<string[]>((resolve) => window.setTimeout(() => resolve([]), 6_000)),
+      ])
+      if (homeHits.length) setStatusNote(`Zuhause: ${homeHits.join('; ')}`)
+    } catch {
+      /* Standort nur auf dem Handy */
+    }
     await refreshReminders()
     try {
       if (await consumeVoiceLaunch()) {
@@ -507,6 +640,7 @@ function App() {
       /* browser ohne Deep-Link */
     }
     const s = await getSettings()
+    if (s.drive_mode) setDriveOpen(true)
     if (s.wake_word) {
       try {
         await startWakeWord()
@@ -738,6 +872,14 @@ function App() {
               setSidebarOpen(false)
             }
           }
+          if (payload.tool?.tool === 'drive') {
+            if (payload.tool.action === 'close') setDriveOpen(false)
+            else {
+              setDriveOpen(true)
+              setCalendarOpen(false)
+              setSidebarOpen(false)
+            }
+          }
         },
         onError: (detail) => {
           setError(detail)
@@ -759,6 +901,39 @@ function App() {
       void refreshHealth()
       void refreshMemory()
       void refreshSettings()
+    }
+  }
+
+  async function onEyeFile(file: File) {
+    if (!file || busy) return
+    setBusy(true)
+    setError(null)
+    setStatusNote('Foto…')
+    try {
+      let conversationId = activeId
+      if (!conversationId) {
+        const created = await createConversation()
+        conversationId = created.id
+        setConversations((prev) => [created, ...prev])
+        setActiveId(created.id)
+      }
+      const prepared = await fileToJpegDataUrl(file)
+      const payload = 'error' in prepared ? `error:${prepared.error}` : prepared.dataUrl
+      const { reply } = await readEyeImage(conversationId, payload)
+      const conv = await getConversation(conversationId)
+      setMessages(conv.messages)
+      setConversations((prev) => {
+        const rest = prev.filter((c) => c.id !== conv.id)
+        return [conv, ...rest]
+      })
+      setStatusNote(null)
+      if (!reply) setStatusNote('Nichts Lesbares auf dem Bild.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Foto fehlgeschlagen')
+      setStatusNote(null)
+    } finally {
+      setBusy(false)
+      if (eyeFileRef.current) eyeFileRef.current.value = ''
     }
   }
 
@@ -815,6 +990,10 @@ function App() {
             return [payload.conversation, ...rest]
           })
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
+          if (payload.tool?.tool === 'drive') {
+            if (payload.tool.action === 'close') setDriveOpen(false)
+            else setDriveOpen(true)
+          }
         },
         onError: (detail) => {
           setError(detail)
@@ -828,6 +1007,15 @@ function App() {
   async function onRetry() {
     if (!lastFailed || busy) return
     await sendMessage(lastFailed)
+  }
+
+  function openSettings(topic: SettingsTopic = 'allgemein') {
+    setSettingsTopic(topic)
+    setSettingsPanelOpen(true)
+    setSidebarOpen(false)
+    void refreshReminders()
+    void refreshMemory(memoryFilter)
+    if (topic === 'forschung') void refreshAudits()
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -901,8 +1089,7 @@ function App() {
               disabled={downloadBusy}
               onClick={() => {
                 setSetupOpen(false)
-                setSidebarOpen(true)
-                setSettingsPanelOpen(true)
+                openSettings('cloud')
               }}
             >
               Stattdessen Gemini (Google)
@@ -922,7 +1109,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.15.0</p>
+            <p>Handy · v1.28.2</p>
           </div>
         </div>
 
@@ -954,607 +1141,10 @@ function App() {
         <button
           type="button"
           className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
-          onClick={() => {
-            setSettingsPanelOpen((o) => !o)
-            void refreshReminders()
-          }}
+          onClick={() => openSettings('allgemein')}
         >
           Einstellungen
         </button>
-        {settingsPanelOpen ? (
-          <div className="settings-panel" id="settings">
-            <section className="settings-section">
-              <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.15.0'} · Handy</p>
-            </section>
-            <section className="settings-section">
-              <h3>Gemini (Google)</h3>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings?.gemini_enabled)}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ gemini_enabled: e.target.checked })}
-                />
-                <span>Gemini statt lokalem 0.5B</span>
-              </label>
-              <p className="settings-hint warn">
-                An = Chat geht zu Google. Nicht privat. Bestes Free-Modell zuerst; bei Limit oder
-                Überlastung sofort das nächste.
-              </p>
-              <label className="settings-inline">
-                <span>API-Key</span>
-                <input
-                  type="text"
-                  inputMode="text"
-                  autoComplete="off"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  key={`gemini-key-${settings?.gemini_api_key ? 'set' : 'empty'}`}
-                  defaultValue={settings?.gemini_api_key || ''}
-                  disabled={settingsBusy}
-                  placeholder="AIza… hier einfügen"
-                  onBlur={(e) => void patchSetting({ gemini_api_key: e.target.value.trim() })}
-                />
-              </label>
-              <div className="settings-actions">
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={geminiBusy || settingsBusy}
-                  onClick={() => void onGeminiTest()}
-                >
-                  Testen
-                </button>
-              </div>
-              {geminiMsg ? <p className="settings-hint">{geminiMsg}</p> : null}
-              <p className="settings-hint">
-                Key: aistudio.google.com/apikey — auf dem Handy speichern, nicht teilen.
-              </p>
-            </section>
-            <section className="settings-section">
-              <h3>Fallback Groq (optional)</h3>
-              <p className="settings-hint">
-                Kein dauerhaft kostenloses Modell ohne eigenen Key. Groq hat einen großen Free-Tier
-                (Llama, ohne Kreditkarte). Nur wenn Gemini leer oder überlastet ist.
-              </p>
-              <label className="settings-inline">
-                <span>API-Key</span>
-                <input
-                  type="text"
-                  inputMode="text"
-                  autoComplete="off"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  key={`groq-key-${settings?.groq_api_key ? 'set' : 'empty'}`}
-                  defaultValue={settings?.groq_api_key || ''}
-                  disabled={settingsBusy}
-                  placeholder="gsk_… hier einfügen"
-                  onBlur={(e) => void patchSetting({ groq_api_key: e.target.value.trim() })}
-                />
-              </label>
-              <div className="settings-actions">
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={groqBusy || settingsBusy}
-                  onClick={() => void onGroqTest()}
-                >
-                  Testen
-                </button>
-              </div>
-              {groqMsg ? <p className="settings-hint">{groqMsg}</p> : null}
-              <p className="settings-hint">Key: console.groq.com/keys — nicht teilen.</p>
-            </section>
-            <section className="settings-section">
-              <h3>Modell</h3>
-              <p className="settings-hint">
-                {settings?.model_default || 'Qwen2.5 0.5B'} läuft auf diesem Handy (llama.cpp / WASM).
-                Kleiner als der alte PC-7b — dafür ohne Server.
-              </p>
-              {!health?.model_ready && !geminiOn ? (
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={downloadBusy}
-                  onClick={() => void downloadModel()}
-                >
-                  {downloadBusy
-                    ? downloadPhase === 'load' || hasLocalModel
-                      ? 'Modell starten…'
-                      : `Laden ${downloadPct}%`
-                    : hasLocalModel
-                      ? 'Modell starten'
-                      : 'Modell laden'}
-                </button>
-              ) : geminiOn ? (
-                <p className="settings-hint">Lokal aus — Gemini übernimmt den Chat. Modell wird nicht geladen.</p>
-              ) : (
-                <p className="settings-hint">Modell bereit.</p>
-              )}
-            </section>
-            <section className="settings-section">
-              <h3>Delight</h3>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings?.delight_moments)}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ delight_moments: e.target.checked })}
-                />
-                <span>Jarvis-Momente</span>
-              </label>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings?.delight_jokes)}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ delight_jokes: e.target.checked })}
-                />
-                <span>Inside Jokes</span>
-              </label>
-              <label className="settings-inline">
-                <span>Witz-Frequenz</span>
-                <select
-                  value={settings?.delight_joke_frequency || 'selten'}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ delight_joke_frequency: e.target.value })}
-                >
-                  <option value="selten">Selten</option>
-                  <option value="normal">Normal</option>
-                </select>
-              </label>
-            </section>
-            <section className="settings-section">
-              <h3>Ort & Wetter</h3>
-              <p className="settings-hint">
-                „Wetter heute“, „Wetter morgen“, „Schirm?“, „Was anziehen“ — Lage plus Tipp, keine
-                Zahlentabelle. Open-Meteo, kein Raten. Oder „Wetter in München“.
-              </p>
-              <p className="settings-hint">
-                {settings?.last_place
-                  ? `Letzter Ort: ${settings.last_place}`
-                  : 'Noch kein Standort. Einmal im Chat nach dem Wetter fragen.'}
-              </p>
-              <div className="settings-actions">
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={settingsBusy}
-                  onClick={() =>
-                    void patchSetting({
-                      last_lat: '',
-                      last_lon: '',
-                      last_place: '',
-                      last_fix_at: '',
-                    })
-                  }
-                >
-                  Ort vergessen
-                </button>
-              </div>
-            </section>
-            <section className="settings-section">
-              <h3>Erinnerungen</h3>
-              <p className="settings-hint">
-                „Wecker 7 Uhr“ einmal, „Wecker 7 Uhr jeden Tag“ mit Wiederholung. Klingelt bei
-                Bildschirm aus. Eigener Ton unten. Timer und Erinnerungen ebenso.
-              </p>
-              {reminders.length === 0 ? (
-                <p className="memory-empty">Keine offenen Erinnerungen.</p>
-              ) : (
-                <ul className="memory-list">
-                  {reminders.map((r) => (
-                    <li key={r.id} className="memory-item">
-                      <div className="memory-value">
-                        {r.kind === 'timer'
-                          ? 'Timer · '
-                          : r.kind === 'alarm'
-                            ? r.recur
-                              ? 'Wecker täglich · '
-                              : 'Wecker · '
-                            : r.recur === 'daily'
-                              ? 'täglich · '
-                              : r.recur === 'weekly'
-                                ? 'wöchentlich · '
-                                : ''}
-                        {r.title}
-                      </div>
-                      <div className="memory-key">
-                        {new Date(r.due_at).toLocaleString('de-DE', {
-                          weekday: 'short',
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </div>
-                      <button
-                        type="button"
-                        className="memory-del"
-                        disabled={remindBusy}
-                        onClick={() => void onDeleteReminder(r.id)}
-                      >
-                        Löschen
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <div className="settings-actions">
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={settingsBusy}
-                  onClick={() => {
-                    void pickAlarmTone().then((r) => {
-                      if (r.ok && r.uri) {
-                        void patchSetting({
-                          alarm_tone_uri: r.uri,
-                          alarm_tone_name: r.name || 'Eigener Ton',
-                        })
-                      } else if (r.message) {
-                        setError(r.message)
-                      }
-                    })
-                  }}
-                >
-                  Wecker-Ton wählen
-                </button>
-              </div>
-              <p className="settings-hint">
-                Aktuell: {settings?.alarm_tone_name || 'Standard-Wecker des Handys'}. Gilt für Wecker,
-                Timer und Erinnerungen. OnePlus: Akku für Jarvis nicht optimieren.
-              </p>
-            </section>
-            <section className="settings-section">
-              <h3>Sprachmodus</h3>
-              <p className="settings-hint">
-                Gespräch, kein Mitschnitt. Die Android-Standardstimme klingt oft nach Roboter
-                (Pico). Mit Gemini-Key nimmt Jarvis die natürliche Gemini-Stimme (Kore, Deutsch).
-              </p>
-              <label className="settings-inline">
-                <span>Stimme</span>
-                <select
-                  value={settings?.voice_tts || 'auto'}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ voice_tts: e.target.value })}
-                >
-                  <option value="auto">Auto (Gemini wenn an, sonst System)</option>
-                  <option value="gemini">Gemini — natürlich, geht ins Netz</option>
-                  <option value="system">System — offline, oft hart</option>
-                </select>
-              </label>
-              <p className="settings-hint">
-                Ohne Gemini: unter Android „Text-in-Sprache-Ausgabe“ die Google-Stimme Deutsch
-                installieren. Extra-Dienste wie ElevenLabs brauchen einen eigenen Key — nicht in
-                dieser Version.
-              </p>
-              <div className="settings-actions">
-                <button
-                  type="button"
-                  className="retry-btn"
-                  onClick={() => {
-                    setVoiceOpen(true)
-                    setSidebarOpen(false)
-                  }}
-                >
-                  Jetzt hören
-                </button>
-                <button
-                  type="button"
-                  className="retry-btn"
-                  onClick={() => {
-                    void pinVoiceShortcut().then((r) =>
-                      setShortcutMsg(r.ok ? 'Shortcut-Dialog ist offen.' : r.message || 'Nicht gesetzt.'),
-                    )
-                  }}
-                >
-                  Shortcut auf Homescreen
-                </button>
-              </div>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings?.wake_word)}
-                  disabled={settingsBusy}
-                  onChange={(e) => {
-                    const on = e.target.checked
-                    void patchSetting({ wake_word: on }).then(() => {
-                      if (on) void startWakeWord()
-                      else void stopWakeWord()
-                    })
-                  }}
-                />
-                <span>Auf „Jarvis“ hören (Handy an, Screen darf aus)</span>
-              </label>
-              <p className="settings-hint">
-                Sichtbare Leiste, Mikro an. Gerät komplett aus: unmöglich. Manche Hersteller
-                beenden das im Standby.
-              </p>
-              <p className="settings-hint">
-                Widget: lange auf den Homescreen → Widgets → Jarvis. Zeigt nächsten Timer und
-                die letzte Wetterzeile.
-              </p>
-              {shortcutMsg ? <p className="settings-hint">{shortcutMsg}</p> : null}
-            </section>
-            <section className="settings-section">
-              <h3>Sound</h3>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings?.ui_sounds)}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ ui_sounds: e.target.checked })}
-                />
-                <span>UI-Sounds</span>
-              </label>
-              <p className="settings-hint">
-                An = kurzer Ton beim Senden. Beim Einschalten sollte es einmal piepen.
-              </p>
-              <label className="settings-inline">
-                <span>Lautstärke</span>
-                <select
-                  value={settings?.ui_sound_volume || 'low'}
-                  disabled={settingsBusy || !settings?.ui_sounds}
-                  onChange={(e) => void patchSetting({ ui_sound_volume: e.target.value })}
-                >
-                  <option value="low">Niedrig</option>
-                  <option value="medium">Mittel</option>
-                  <option value="high">Hoch</option>
-                </select>
-              </label>
-            </section>
-            <section className="settings-section">
-              <h3>Gerät</h3>
-              <p className="settings-hint">
-                Alles läuft auf diesem Handy. Kein Server, kein Token, keine NAS.
-              </p>
-            </section>
-            <section className="settings-section">
-              <h3>Fernseher</h3>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings?.tv_enabled)}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ tv_enabled: e.target.checked })}
-                />
-                <span>TV-Steuerung an</span>
-              </label>
-              <p className="settings-hint">
-                {settings?.tv_paired
-                  ? `Gekoppelt: ${settings.tv_name || settings.tv_host || 'TV'}`
-                  : 'Nicht gekoppelt. Suchen, am TV erlauben, dann testen.'}
-              </p>
-              <label className="settings-inline">
-                <span>Name</span>
-                <input
-                  key={`tv-name-${settings?.tv_name || ''}`}
-                  defaultValue={settings?.tv_name || ''}
-                  disabled={settingsBusy}
-                  onBlur={(e) => void patchSetting({ tv_name: e.target.value })}
-                />
-              </label>
-              <label className="settings-inline">
-                <span>Host</span>
-                <input
-                  key={`tv-host-${settings?.tv_host || ''}`}
-                  defaultValue={settings?.tv_host || ''}
-                  disabled={settingsBusy}
-                  placeholder="192.168.1.20"
-                  onBlur={(e) => void patchSetting({ tv_host: e.target.value })}
-                />
-              </label>
-              <label className="settings-inline">
-                <span>MAC</span>
-                <input
-                  key={`tv-mac-${settings?.tv_mac || ''}`}
-                  defaultValue={settings?.tv_mac || ''}
-                  disabled={settingsBusy}
-                  placeholder="aa:bb:cc:dd:ee:ff"
-                  onBlur={(e) => void patchSetting({ tv_mac: e.target.value })}
-                />
-              </label>
-              <label className="settings-inline">
-                <span>Port</span>
-                <input
-                  key={`tv-port-${settings?.tv_port || 8002}`}
-                  defaultValue={String(settings?.tv_port || 8002)}
-                  disabled={settingsBusy}
-                  onBlur={(e) => {
-                    const n = Number(e.target.value)
-                    if (Number.isFinite(n)) void patchSetting({ tv_port: n })
-                  }}
-                />
-              </label>
-              <div className="settings-actions">
-                <button type="button" className="retry-btn" disabled={tvBusy} onClick={() => void onTvDiscover()}>
-                  Suchen
-                </button>
-                <button type="button" className="retry-btn" disabled={tvBusy} onClick={() => void onTvPair()}>
-                  Koppeln
-                </button>
-                <button type="button" className="retry-btn" disabled={tvBusy} onClick={() => void onTvTest()}>
-                  Testen
-                </button>
-              </div>
-              {tvFound.length ? (
-                <ul className="tv-found">
-                  {tvFound.map((item) => (
-                    <li key={`${item.host}-${item.mac || ''}`}>
-                      <button type="button" disabled={tvBusy} onClick={() => void onTvPick(item)}>
-                        {item.name || 'Samsung TV'} · {item.host}
-                        {item.mac ? ` · ${item.mac}` : ''}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {tvMsg ? <p className="settings-hint">{tvMsg}</p> : null}
-              <p className="settings-hint">
-                Chat: „Fernseher an/aus“, „lauter“, „HDMI 2“. Gleiches WLAN, kein Gastnetz.
-              </p>
-            </section>
-            <section className="settings-section">
-              <h3>Easter Eggs</h3>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={settings?.easter_eggs_enabled !== false}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ easter_eggs_enabled: e.target.checked })}
-                />
-                <span>Easter Eggs aktiv</span>
-              </label>
-              <ul className="egg-list">
-                {(settings?.easter_eggs || []).map((egg) => (
-                  <li key={egg.command}>
-                    <code>{egg.command}</code>
-                    <span>{egg.description}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <section className="settings-section">
-              <h3>Forschung (Netz)</h3>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(settings?.research_opt_in)}
-                  disabled={settingsBusy}
-                  onChange={(e) => void patchSetting({ research_opt_in: e.target.checked })}
-                />
-                <span>Internet-Research (Opt-in)</span>
-              </label>
-              <p className="settings-hint">
-                An = Websuche über Google (braucht Gemini). Wetter selbst kommt von Open-Meteo
-                (Quelle sichtbar). Aus = keine erfundene Suche.
-              </p>
-              <button
-                type="button"
-                className={`audit-toggle ${auditOpen ? 'active' : ''}`}
-                onClick={() => {
-                  setAuditOpen((o) => !o)
-                  void refreshAudits()
-                }}
-              >
-                Research-Audit
-              </button>
-              {auditOpen ? (
-                <div className="audit-panel">
-                  {audits.length === 0 ? (
-                    <p className="memory-empty">Noch keine Research-Turns.</p>
-                  ) : (
-                    <ul className="audit-list">
-                      {audits.map((a) => (
-                        <li key={a.id}>
-                          <div className="audit-meta">
-                            <span>{a.status}</span>
-                            <time>{new Date(a.created_at).toLocaleString()}</time>
-                          </div>
-                          <div className="audit-query">{a.query}</div>
-                          <div className="audit-sources">{a.sources?.length || 0} Quellen</div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ) : null}
-            </section>
-            <section className="settings-section danger-zone">
-              <h3>Danger Zone</h3>
-              <p className="settings-hint">Memory löschen braucht Bestätigung.</p>
-              <button
-                type="button"
-                className="memory-clear"
-                disabled={memoryBusy}
-                onClick={() => void onClearMemory()}
-              >
-                Alles über mich löschen
-              </button>
-            </section>
-          </div>
-        ) : null}
-
-        <button
-          className={`memory-toggle ${memoryOpen ? 'active' : ''}`}
-          type="button"
-          onClick={() => {
-            setMemoryOpen((o) => !o)
-            void refreshMemory()
-          }}
-        >
-          Was Jarvis über mich weiß
-          {typeof health?.memory_count === 'number' ? (
-            <span className="memory-count">{health.memory_count}</span>
-          ) : null}
-        </button>
-
-        {memoryOpen ? (
-          <div className="memory-panel">
-            <div className="memory-filters" role="tablist" aria-label="Memory-Kategorien">
-              {(['all', 'place', 'pref', 'fact', 'joke', 'boundary', 'open_loop'] as const).map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  role="tab"
-                  aria-selected={memoryFilter === f}
-                  className={`memory-filter ${memoryFilter === f ? 'active' : ''}`}
-                  onClick={() => {
-                    setMemoryFilter(f)
-                    void refreshMemory(f)
-                  }}
-                >
-                  {f === 'all' ? 'Alle' : f === 'place' ? 'Orte' : f}
-                </button>
-              ))}
-            </div>
-            {memoryItems.length === 0 ? (
-              <p className="memory-empty">Noch nichts gespeichert.</p>
-            ) : (
-              <ul className="memory-list">
-                {memoryItems.map((m) => {
-                  const uncertain =
-                    m.confidence < 0.7 || Boolean(m.expires_at)
-                  return (
-                    <li key={m.id} className="memory-item">
-                      <div className="memory-meta">
-                        <span className="memory-cat">{m.category}</span>
-                        {uncertain ? (
-                          <span className="memory-uncertain">unsicher</span>
-                        ) : null}
-                        <span className="memory-key">{m.key}</span>
-                      </div>
-                      <div className="memory-value">{m.value}</div>
-                      <button
-                        type="button"
-                        className="memory-del"
-                        disabled={memoryBusy}
-                        onClick={() => void onDeleteMemory(m.id)}
-                        aria-label={`Erinnerung ${m.key} löschen`}
-                      >
-                        Löschen
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-            {memoryItems.length > 0 ? (
-              <button
-                type="button"
-                className="memory-clear"
-                disabled={memoryBusy}
-                onClick={() => void onClearMemory()}
-              >
-                Alles löschen
-              </button>
-            ) : null}
-          </div>
-        ) : null}
 
         <div className="chat-list">
           {conversations.map((c, i) => (
@@ -1574,32 +1164,18 @@ function App() {
           {healthOk ? (
             geminiOn ? (
               <>
-                Gemini: <strong>an</strong>
-                <br />
-                Chat geht zu Google
+                Gemini <strong>an</strong>
               </>
             ) : (
               <>
-                Gerät: <strong>bereit</strong>
-                <br />
-                Modell: {health?.model}
-                <br />
-                on-device · kein Server
+                Lokal <strong>bereit</strong>
               </>
             )
           ) : (
             <>
-              Gerät: <strong>nicht bereit</strong>
-              <br />
-              {health?.error || 'Modell laden oder Gemini einschalten.'}
+              Gerät <strong>nicht bereit</strong>
             </>
           )}
-          {settings?.tv_enabled ? (
-            <>
-              <br />
-              TV: {settings.tv_paired ? settings.tv_name || 'gekoppelt' : 'nicht gekoppelt'}
-            </>
-          ) : null}
         </div>
       </aside>
 
@@ -1611,6 +1187,17 @@ function App() {
           />
         ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
+        {driveOpen ? (
+          <DriveMode
+            onClose={() => {
+              closeDrive()
+              setDriveOpen(false)
+            }}
+            onCommand={(text) => {
+              void sendMessage(text)
+            }}
+          />
+        ) : null}
         <div className="topbar">
           <button
             className="menu-btn"
@@ -1622,6 +1209,13 @@ function App() {
           </button>
           <h2 key={threadKey}>{activeTitle}</h2>
           <div className="topbar-actions">
+            <button
+              type="button"
+              className="ghost-btn"
+              onClick={() => openSettings('allgemein')}
+            >
+              Einstellungen
+            </button>
             {activeId ? (
               <button
                 type="button"
@@ -1676,9 +1270,8 @@ function App() {
                       <SourcesBlock
                         research={m.meta.research}
                         onOpenAudit={(id) => {
-                          setSettingsPanelOpen(true)
                           setAuditOpen(true)
-                          void refreshAudits()
+                          openSettings('forschung')
                           if (id) setStatusNote(`Audit ${id.slice(0, 8)}… in Einstellungen`)
                         }}
                       />
@@ -1702,9 +1295,8 @@ function App() {
                         <SourcesBlock
                           research={streamResearch}
                           onOpenAudit={(id) => {
-                            setSettingsPanelOpen(true)
                             setAuditOpen(true)
-                            void refreshAudits()
+                            openSettings('forschung')
                             if (id) setStatusNote(`Audit ${id.slice(0, 8)}… in Einstellungen`)
                           }}
                         />
@@ -1751,6 +1343,16 @@ function App() {
             ))}
           </div>
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
+            <input
+              ref={eyeFileRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) void onEyeFile(file)
+              }}
+            />
             <textarea
               ref={textareaRef}
               value={draft}
@@ -1762,6 +1364,15 @@ function App() {
               rows={1}
               disabled={busy}
             />
+            <button
+              type="button"
+              className="mic-btn"
+              disabled={busy}
+              onClick={() => eyeFileRef.current?.click()}
+              aria-label="Foto lesen"
+            >
+              Foto
+            </button>
             <button
               type="button"
               className="mic-btn"
@@ -1777,8 +1388,102 @@ function App() {
               Senden
             </button>
           </div>
+          {!voiceOpen ? (
+            <WakeBubble
+              listening={wakeListening}
+              onTap={() => {
+                setVoiceOpen(true)
+                setCalendarOpen(false)
+              }}
+            />
+          ) : null}
         </div>
       </main>
+
+      {settingsPanelOpen ? (
+        <SettingsScreen
+          topic={settingsTopic}
+          onTopic={(t) => {
+            setSettingsTopic(t)
+            if (t === 'forschung') void refreshAudits()
+            if (t === 'gedaechtnis') void refreshMemory(memoryFilter)
+            if (t === 'wecker') void refreshReminders()
+          }}
+          onClose={() => setSettingsPanelOpen(false)}
+          settings={settings}
+          settingsBusy={settingsBusy}
+          patchSetting={patchSetting}
+          health={health}
+          geminiOn={geminiOn}
+          downloadBusy={downloadBusy}
+          downloadPhase={downloadPhase}
+          downloadPct={downloadPct}
+          hasLocalModel={hasLocalModel}
+          downloadModel={() => void downloadModel()}
+          geminiBusy={geminiBusy}
+          geminiMsg={geminiMsg}
+          onGeminiTest={() => void onGeminiTest()}
+          groqBusy={groqBusy}
+          groqMsg={groqMsg}
+          onGroqTest={() => void onGroqTest()}
+          reminders={reminders}
+          remindBusy={remindBusy}
+          onDeleteReminder={(id) => void onDeleteReminder(id)}
+          onPickTone={() => {
+            void pickAlarmTone().then((r) => {
+              if (r.ok && r.uri) {
+                void patchSetting({
+                  alarm_tone_uri: r.uri,
+                  alarm_tone_name: r.name || 'Eigener Ton',
+                })
+              } else if (r.message) {
+                setError(r.message)
+              }
+            })
+          }}
+          onOpenVoice={() => {
+            setVoiceOpen(true)
+            setSettingsPanelOpen(false)
+          }}
+          onPinShortcut={() => {
+            void pinVoiceShortcut().then((r) =>
+              setShortcutMsg(r.ok ? 'Shortcut-Dialog ist offen.' : r.message || 'Nicht gesetzt.'),
+            )
+          }}
+          shortcutMsg={shortcutMsg}
+          onWakeWord={(on) => {
+            void patchSetting({ wake_word: on }).then(() => {
+              if (on) {
+                void startWakeWord().then(() => void requestBatteryUnrestricted())
+              } else void stopWakeWord()
+            })
+          }}
+          tvBusy={tvBusy}
+          tvMsg={tvMsg}
+          tvMsgOk={tvMsgOk}
+          tvFound={tvFound}
+          onTvDiscover={() => void onTvDiscover()}
+          onTvPair={() => void onTvPair()}
+          onTvTest={() => void onTvTest()}
+          onTvFireTest={(host, port) => void onTvFireTest(host, port)}
+          onTvPick={(item) => void onTvPick(item)}
+          auditOpen={auditOpen}
+          onToggleAudit={() => {
+            setAuditOpen((o) => !o)
+            void refreshAudits()
+          }}
+          audits={audits}
+          memoryItems={memoryItems}
+          memoryBusy={memoryBusy}
+          memoryFilter={memoryFilter}
+          onMemoryFilter={(f) => {
+            setMemoryFilter(f)
+            void refreshMemory(f)
+          }}
+          onDeleteMemory={(id) => void onDeleteMemory(id)}
+          onClearMemory={() => void onClearMemory()}
+        />
+      ) : null}
     </div>
   )
 }

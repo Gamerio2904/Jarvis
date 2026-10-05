@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Live `1.15.0`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Stimme, Timer, Wetter, Kalender, Personenorte, Maps-Route. Weiter: [`19-next.md`](./19-next.md).
+> **Live `1.24.0`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Stimme, Timer, Wetter, Kalender, Einkauf, Losgehen, Zuhause, Auge, Personenorte, Maps-Route. Reihe: [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md).
 
 ## Leitentscheidung
 

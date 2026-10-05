@@ -246,34 +246,32 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S15.2 | Als Nutzer will ich Personen an Orte (Freundin, Praxis, Zuhause). | Must | done | Sprint 67 / `1.15.0` |
 | S15.3 | Als Nutzer will ich „lösch das“ / „und um 16“ auf das letzte Tool, nicht nur Wetter. | Must | done | Sprint 66 / `1.14.0` |
 | S15.4 | Als Nutzer will ich zwei Befehle in einem Satz. | Must | done | Sprint 66 / `1.14.0` |
-| S15.5 | Als Nutzer will ich eine Einkaufsliste ohne Ja/Nein pro Artikel. | Must | ready | Sprint 68 / `1.16.0` |
-| S15.6 | Als Nutzer will ich Losgehen: fehlt der Zahnarzt-Ort, nachfragen, dann Route. | Must | ready | Sprint 69 / `1.17.0` |
-| S15.6a | Als Nutzer will ich Ort und Termin in einem Satz. | Must | ready | Sprint 69 / `1.17.0` |
-| S15.7 | Als Nutzer will ich „wenn ich zuhause bin …“. | Must | ready | Sprint 70 / `1.18.0` |
-| S15.8 | Als Nutzer will ich eine kurze Tageslage und einen menschlicheren Ton (Siezen). | Must | ready | Sprint 71 / `1.19.0` |
-| S15.9 | Als Nutzer will ich ein Foto vorlesen lassen, nur mit Gemini. | Must | ready | Sprint 72 / `1.20.0` |
+| S15.5 | Als Nutzer will ich eine Einkaufsliste ohne Ja/Nein pro Artikel. | Must | done | Sprint 68 / `1.24.0` |
+| S15.6 | Als Nutzer will ich Losgehen: fehlt der Zahnarzt-Ort, nachfragen, dann Route. | Must | done | Sprint 69 / `1.24.0` |
+| S15.6a | Als Nutzer will ich Ort und Termin in einem Satz. | Must | done | Sprint 69 / `1.24.0` |
+| S15.7 | Als Nutzer will ich „wenn ich zuhause bin …“. | Must | done | Sprint 70 / `1.24.0` |
+| S15.8 | Als Nutzer will ich eine kurze Tageslage und einen menschlicheren Ton (Siezen). | Must | done | Sprint 71 / `1.24.0` |
+| S15.9 | Als Nutzer will ich ein Foto vorlesen lassen, nur mit Gemini. | Must | done | Sprint 72 / `1.24.0` |
 | S15.10 | Als Nutzer will ich Suche mit Quellen oder ehrlicher Absage, kein Raten. | Must | done | Sprint 66 / `1.14.0` |
 
 ### E16 — Extra-Alltag `1.21`–`1.24`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S16.1 | Als Nutzer will ich eine Nummer an der Person und „Ruf … an“. | Should | ready | Sprint 73 / `1.21.0` |
-| S16.2 | Als Nutzer will ich Maps zu Fuß oder mit der Bahn. | Should | ready | Sprint 73 / `1.21.0` |
-| S16.3 | Als Nutzer will ich Geburtstage merken. | Should | ready | Sprint 74 / `1.22.0` |
-| S16.4 | Als Nutzer will ich Wochenserien ohne Geofence (Müll). | Should | ready | Sprint 74 / `1.22.0` |
-| S16.5 | Als Nutzer will ich im Widget Termin/Einkauf/Route nach Hause. | Should | ready | Sprint 75 / `1.23.0` |
-| S16.6 | Als Nutzer will ich „das zweite“ nach einer Liste. | Should | ready | Sprint 75 / `1.23.0` |
-| S16.7 | Als Nutzer will ich alte Gespräche lokal suchen. | Should | ready | Sprint 76 / `1.24.0` |
+| S16.1 | Als Nutzer will ich eine Nummer an der Person und „Ruf … an“. | Should | done | Sprint 73 / `1.24.0` |
+| S16.2 | Als Nutzer will ich Maps zu Fuß oder mit der Bahn. | Should | done | Sprint 73 / `1.24.0` |
+| S16.3 | Als Nutzer will ich Geburtstage merken. | Should | done | Sprint 74 / `1.24.0` |
+| S16.4 | Als Nutzer will ich Wochenserien ohne Geofence (Müll). | Should | done | Sprint 74 / `1.24.0` |
+| S16.5 | Als Nutzer will ich im Widget Termin/Einkauf/Route nach Hause. | Should | done | Sprint 75 / `1.24.0` |
+| S16.6 | Als Nutzer will ich „das zweite“ nach einer Liste. | Should | done | Sprint 75 / `1.24.0` |
+| S16.7 | Als Nutzer will ich alte Gespräche lokal suchen. | Should | done | Sprint 76 / `1.24.0` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.15.0`
-2. Reihe `1.16`–`1.20` — [`19-next.md`](./19-next.md)
-3. Extra `1.21`–`1.24` — [`20-next.md`](./20-next.md)
-3. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
+1. Sideload `1.24.0`
+2. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

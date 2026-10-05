@@ -9,6 +9,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognitionListener;
@@ -63,8 +64,12 @@ public class JarvisVoicePlugin extends Plugin {
             .build();
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+    private static JarvisVoicePlugin self;
+    private static volatile boolean pendingWake = false;
+
     @Override
     public void load() {
+        self = this;
         main.post(() -> {
             tts = new TextToSpeech(getContext(), status -> {
                 ttsReady = status == TextToSpeech.SUCCESS;
@@ -80,6 +85,7 @@ public class JarvisVoicePlugin extends Plugin {
 
     @Override
     protected void handleOnDestroy() {
+        self = null;
         main.post(() -> {
             if (recognizer != null) {
                 recognizer.destroy();
@@ -162,11 +168,12 @@ public class JarvisVoicePlugin extends Plugin {
         call.setKeepAlive(true);
         main.post(() -> {
             if (listenCall != null) {
-                finishListen("", false, "schon am Zuhören");
+                finishListen("", false, "schon am Zuhören", null);
             }
+            JarvisWakeService.pauseListen();
             listenCall = call;
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
-                finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.");
+                finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
                 return;
             }
             if (recognizer == null) {
@@ -180,16 +187,16 @@ public class JarvisVoicePlugin extends Plugin {
                     @Override public void onError(int error) {
                         if (error == SpeechRecognizer.ERROR_NO_MATCH
                                 || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                            finishListen("", true, "");
+                            finishListen("", true, "", null);
                             return;
                         }
-                        finishListen("", false, "Zuhören unterbrochen.");
+                        finishListen("", false, "Zuhören unterbrochen.", null);
                     }
                     @Override
                     public void onResults(Bundle results) {
                         ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                         String text = list != null && !list.isEmpty() ? list.get(0) : "";
-                        finishListen(text, true, "");
+                        finishListen(text, true, "", list);
                     }
                     @Override
                     public void onPartialResults(Bundle partialResults) {
@@ -205,28 +212,38 @@ public class JarvisVoicePlugin extends Plugin {
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "de-DE");
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "de-DE");
+            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 380L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 380L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 350L);
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1400L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1100L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 600L);
             try {
                 recognizer.startListening(intent);
             } catch (Exception e) {
-                finishListen("", false, "Zuhören fehlgeschlagen.");
+                finishListen("", false, "Zuhören fehlgeschlagen.", null);
             }
         });
     }
 
-    private void finishListen(String text, boolean ok, String message) {
+    private void finishListen(String text, boolean ok, String message, ArrayList<String> alts) {
         PluginCall c = listenCall;
         listenCall = null;
         if (c == null) return;
         JSObject r = new JSObject();
         r.put("ok", ok);
         r.put("text", text == null ? "" : text);
+        if (alts != null && !alts.isEmpty()) {
+            com.getcapacitor.JSArray arr = new com.getcapacitor.JSArray();
+            for (String a : alts) {
+                if (a != null && !a.isEmpty()) arr.put(a);
+            }
+            r.put("alts", arr);
+        }
         if (message != null && !message.isEmpty()) r.put("message", message);
         c.resolve(r);
+        main.postDelayed(() -> JarvisWakeService.resumeListen(getContext()), 400);
     }
 
     @PluginMethod
@@ -235,7 +252,7 @@ public class JarvisVoicePlugin extends Plugin {
             if (recognizer != null) {
                 try { recognizer.cancel(); } catch (Exception ignored) {}
             }
-            finishListen("", true, "");
+            finishListen("", true, "", null);
         });
         JSObject r = new JSObject();
         r.put("ok", true);
@@ -345,16 +362,27 @@ public class JarvisVoicePlugin extends Plugin {
         });
     }
 
+    public static void emitWake() {
+        pendingWake = true;
+        JarvisVoicePlugin p = self;
+        if (p == null) return;
+        JSObject ev = new JSObject();
+        ev.put("hit", true);
+        p.notifyListeners("wake", ev);
+    }
+
     @PluginMethod
     public void consumeLaunch(PluginCall call) {
         Activity a = getActivity();
-        boolean voice = false;
+        boolean voice = pendingWake;
+        pendingWake = false;
         if (a != null) {
             Intent i = a.getIntent();
             if (i != null) {
                 Uri data = i.getData();
                 String extra = i.getStringExtra("jarvis_mode");
-                voice = (data != null && "voice".equals(data.getHost()))
+                voice = voice
+                        || (data != null && "voice".equals(data.getHost()))
                         || "voice".equals(extra)
                         || (data != null && String.valueOf(data).contains("voice"));
                 if (voice) {
@@ -409,6 +437,45 @@ public class JarvisVoicePlugin extends Plugin {
             return;
         }
         JarvisWakeService.start(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void requestBatteryUnrestricted(PluginCall call) {
+        try {
+            Activity a = getActivity();
+            if (a == null) {
+                JSObject r = new JSObject();
+                r.put("ok", false);
+                r.put("message", "Keine Activity.");
+                call.resolve(r);
+                return;
+            }
+            Intent i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            i.setData(Uri.parse("package:" + getContext().getPackageName()));
+            a.startActivity(i);
+            JSObject r = new JSObject();
+            r.put("ok", true);
+            call.resolve(r);
+        } catch (Exception e) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Akku-Ausnahme nicht geöffnet.");
+            call.resolve(r);
+        }
+    }
+
+    @PluginMethod
+    public void setKeepScreenOn(PluginCall call) {
+        boolean on = Boolean.TRUE.equals(call.getBoolean("on", false));
+        main.post(() -> {
+            Activity a = getActivity();
+            if (a != null && getBridge() != null && getBridge().getWebView() != null) {
+                getBridge().getWebView().setKeepScreenOn(on);
+            }
+        });
         JSObject r = new JSObject();
         r.put("ok", true);
         call.resolve(r);

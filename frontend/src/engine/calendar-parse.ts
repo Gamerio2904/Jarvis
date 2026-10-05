@@ -1,7 +1,7 @@
 import { formatDue, parseReminderIntent, startOfDay } from './remind-parse.ts'
 
 export type CalendarIntent =
-  | { kind: 'create'; title: string; start: Date; whenLabel: string }
+  | { kind: 'create'; title: string; start: Date; whenLabel: string; place?: string }
   | { kind: 'list'; day?: Date }
   | { kind: 'delete'; query: string }
   | { kind: 'delete_last' }
@@ -65,20 +65,37 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   if (created) {
     const inner = parseReminderIntent(created[1].trim(), now)
     if (inner?.kind === 'create') {
+      const split = splitTitlePlace(inner.title)
       return {
         kind: 'create',
-        title: inner.title,
+        title: split.title,
+        place: split.place,
         start: inner.due,
         whenLabel: inner.whenLabel,
       }
     }
-    const title = created[1].trim()
-    if (title) {
+    const rawTitle = created[1].trim()
+    if (rawTitle) {
+      const split = splitTitlePlace(rawTitle)
       const start = new Date(now)
       start.setMinutes(0, 0, 0)
       start.setHours(start.getHours() + 1)
-      return { kind: 'create', title, start, whenLabel: formatDue(start, now) }
+      return { kind: 'create', title: split.title, place: split.place, start, whenLabel: formatDue(start, now) }
     }
   }
   return null
+}
+
+export function splitTitlePlace(raw: string): { title: string; place?: string } {
+  const t = raw.replace(/\s+/g, ' ').trim()
+  if (!t) return { title: 'Termin' }
+  const inPlace = t.match(/^(.+?)\s+(?:in|an der|am|auf der)\s+(.+)$/i)
+  if (inPlace && inPlace[1].trim().length >= 2) {
+    return { title: inPlace[1].trim(), place: inPlace[2].trim() }
+  }
+  const m = t.match(/^(.+?)\s+((?:[A-ZÄÖÜ][\wÄÖÜäöüß.-]{2,})(?:\s+\d+[a-z]?)?)$/)
+  if (m && m[1].trim().length >= 2) {
+    return { title: m[1].trim(), place: m[2].trim() }
+  }
+  return { title: t }
 }

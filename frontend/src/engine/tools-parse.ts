@@ -16,7 +16,7 @@ const LIST_PREFIX =
 const MUST_DO = /^\s*ich\s+muss\s+(?:noch\s+)?(.+)$/is
 const REMIND_TASK = /^\s*erinner(?:e)?\s+mich\s+an\s+(.+)$/is
 const TASK_TAIL =
-  /^\s*(?:bitte\s+)?(.{2,40}?)\s+(kaufen|holen|besorgen|abholen|anrufen|putzen|waschen)\s*[.!]?\s*$/i
+  /^\s*(?:bitte\s+)?(.{2,40}?)\s+(abholen|anrufen|putzen|waschen)\s*[.!]?\s*$/i
 const TODO_LIST =
   /^\s*(?:(?:zeig(?:e)?|liste)\s+(?:mir\s+)?(?:meine\s+)?(?:offenen\s+)?(?:todos?|aufgaben)|(?:offene\s+)?todos?\??|was\s+steht\s+an\??|meine\s+aufgaben)\s*$/i
 const TODO_CLEANUP = /\btodos?\s+aufräumen\b|\berledigte\s+todos?\s+löschen\b/i
@@ -41,7 +41,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
   if (remind) return { kind: 'todo_create', title: remind[1].trim().replace(/[.!?]+$/, '') }
 
   const tail = TASK_TAIL.exec(text)
-  if (tail && !/[?]/.test(text) && text.trim().length <= 60) {
+  if (tail && !/[?]/.test(text) && text.trim().length <= 60 && !/anrufen/i.test(tail[2])) {
     return { kind: 'todo_create', title: `${tail[1].trim()} ${tail[2].toLowerCase()}` }
   }
 
