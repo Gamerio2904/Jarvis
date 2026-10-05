@@ -15,6 +15,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.media.AudioAttributes;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognitionListener;
@@ -121,8 +122,17 @@ public class JarvisVoicePlugin extends Plugin {
                 ttsReady = status == TextToSpeech.SUCCESS;
                 if (ttsReady) {
                     tts.setLanguage(Locale.GERMANY);
-                    tts.setSpeechRate(1.03f);
-                    tts.setPitch(0.94f);
+                    tts.setSpeechRate(0.94f);
+                    tts.setPitch(0.90f);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        int usage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                                ? AudioAttributes.USAGE_ASSISTANT
+                                : AudioAttributes.USAGE_MEDIA;
+                        tts.setAudioAttributes(new AudioAttributes.Builder()
+                                .setUsage(usage)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .build());
+                    }
                     pickGermanVoice();
                 }
             });
@@ -133,10 +143,10 @@ public class JarvisVoicePlugin extends Plugin {
     protected void handleOnDestroy() {
         self = null;
         main.post(() -> {
-            if (recognizer != null) {
-                recognizer.destroy();
-                recognizer = null;
-            }
+            holdOpen = false;
+            main.removeCallbacks(restartListen);
+            JarvisListenAudio.release(getContext());
+            dropRecognizer();
             if (tts != null) {
                 tts.shutdown();
                 tts = null;
@@ -217,9 +227,9 @@ public class JarvisVoicePlugin extends Plugin {
 
     private void startListen(PluginCall call) {
         call.setKeepAlive(true);
-        final int gen = ++listenGen;
         main.post(() -> {
             if (listenCall != null) {
+                holdOpen = false;
                 finishListen("", false, "schon am Zuhören", null);
                 /**
                  * Der alte Ruf wurde beantwortet, die Erkennung lief aber
@@ -457,7 +467,10 @@ public class JarvisVoicePlugin extends Plugin {
         listenExtend = 0;
         PluginCall c = listenCall;
         listenCall = null;
-        if (c == null) return;
+        if (c == null) {
+            main.postDelayed(() -> JarvisWakeService.resumeListen(getContext()), 400);
+            return;
+        }
         JSObject r = new JSObject();
         r.put("ok", ok);
         r.put("text", text == null ? "" : text);
@@ -496,9 +509,9 @@ public class JarvisVoicePlugin extends Plugin {
     @PluginMethod
     public void stopListen(PluginCall call) {
         main.post(() -> {
-            if (recognizer != null) {
-                try { recognizer.cancel(); } catch (Exception ignored) {}
-            }
+            holdOpen = false;
+            main.removeCallbacks(restartListen);
+            dropRecognizer();
             finishListen("", true, "", null);
         });
         JSObject r = new JSObject();
@@ -560,6 +573,8 @@ public class JarvisVoicePlugin extends Plugin {
                 }
                 @Override public void onError(String utteranceId) { finishSpeak(false); }
             });
+            tts.setSpeechRate(0.94f);
+            tts.setPitch(0.90f);
             applyVoiceGender(gender);
             Bundle params = new Bundle();
             String utterId = "jarvis-voice-" + gen;
