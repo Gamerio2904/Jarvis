@@ -102,6 +102,7 @@ import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate.ts'
 import { lageSessionActive, setLageSession } from './engine/lage-session.ts'
 import { resolveUiTheme } from './fx/theme-transition.ts'
 import { DebugChatDock } from './ui/DebugChatDock.tsx'
+import { useDebugRun } from './engine/use-debug-run.ts'
 import {
   IconCal,
   IconChat,

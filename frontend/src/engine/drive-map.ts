@@ -17,20 +17,17 @@ export function wrapTile(n: number, x: number): number {
   return ((x % size) + size) % size
 }
 
+export function cartoKey(raw?: string): string {
+  return (raw ?? loadSettings().carto_api_key ?? '').trim()
+}
+
 export function tileUrl(z: number, x: number, y: number, day: boolean, key?: string): string {
   const tx = wrapTile(z, x)
   const n = 2 ** z
   const ty = Math.min(n - 1, Math.max(0, y))
   const style = day ? 'rastertiles/voyager' : 'dark_all'
   const base = `https://basemaps.cartocdn.com/${style}/${z}/${tx}/${ty}@2x.png`
-  let token = (key || '').trim()
-  if (!token) {
-    try {
-      token = loadSettings().carto_api_key.trim()
-    } catch {
-      token = ''
-    }
-  }
+  const token = cartoKey(key)
   return token ? `${base}?key=${encodeURIComponent(token)}` : base
 }
 

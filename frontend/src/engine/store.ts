@@ -303,7 +303,6 @@ export type Settings = {
   outlook_watch: boolean
   outlook_interrupt: boolean
   outlook_fred_key: string
-  carto_api_key: string
   taxi_app: string
   chain_json: string
   last_taxi_json: string
@@ -533,7 +532,6 @@ export const DEFAULT_SETTINGS: Settings = {
   outlook_watch: false,
   outlook_interrupt: false,
   outlook_fred_key: '',
-  carto_api_key: '',
   taxi_app: 'call',
   chain_json: '',
   last_taxi_json: '',
