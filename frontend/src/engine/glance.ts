@@ -11,7 +11,11 @@ export async function syncGlance(): Promise<void> {
     const timer = rows.find((r) => r.kind === 'timer')
     const rem = rows.find((r) => r.kind !== 'timer')
     let next = 'Nichts geplant'
-    if (timer) next = `Timer ${timer.title} · ${formatDue(new Date(timer.due_at))}`
+    const alarm = rows.find((r) => r.kind === 'alarm')
+    if (alarm) {
+      const tag = alarm.recur ? 'Wecker täglich' : 'Wecker'
+      next = `${tag} ${alarm.title} · ${formatDue(new Date(alarm.due_at))}`
+    } else if (timer) next = `Timer ${timer.title} · ${formatDue(new Date(timer.due_at))}`
     else if (rem) {
       const tag = rem.recur === 'daily' ? 'täglich' : rem.recur === 'weekly' ? 'wöchentlich' : ''
       next = `${tag ? `${tag} · ` : ''}${rem.title} · ${formatDue(new Date(rem.due_at))}`

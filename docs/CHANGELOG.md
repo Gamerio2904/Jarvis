@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.11.0`**.
+App-Version im Code: **`1.12.0`**.
+
+### `1.12.0` — Wecker + eigener Ton — *CODE*
+
+- „Wecker 7 Uhr“ einmal, „Wecker 7 Uhr jeden Tag“ / „jeden Montag“ mit Wiederholung
+- Klingelt bei Bildschirm aus (gleicher Wecker-Pfad)
+- Einstellungen: eigenen Alarmton wählen (System-Picker)
 
 ### `1.11.0` — Wake-Word — *CODE*
 

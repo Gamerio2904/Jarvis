@@ -4,6 +4,7 @@ import {
   addReminder,
   deleteReminder,
   listReminders,
+  loadSettings,
   type Reminder,
 } from './store'
 import { parseTimerIntent } from './timer-parse'
@@ -32,6 +33,7 @@ export async function handleTimers(
       body: row.title,
       at: intent.due,
       alarm: true,
+      tone: loadSettings().alarm_tone_uri,
     })
     await syncGlance()
     const ping = perm && scheduled.ok

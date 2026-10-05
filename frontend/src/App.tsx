@@ -42,6 +42,7 @@ import { TEST_PROMPTS } from './engine/test-prompts'
 import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { syncGlance } from './engine/glance'
+import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord } from './native/voice'
 
 function prefersReducedMotion(): boolean {
@@ -691,7 +692,7 @@ function App() {
             })
           }
           if (payload.research) void refreshAudits()
-          if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer') void refreshReminders()
+          if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
@@ -774,7 +775,7 @@ function App() {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
             return [payload.conversation, ...rest]
           })
-          if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer') void refreshReminders()
+          if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
         },
         onError: (detail) => {
           setError(detail)
@@ -870,7 +871,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.11.0</p>
+            <p>Handy · v1.12.0</p>
           </div>
         </div>
 
@@ -913,7 +914,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.11.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.12.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1087,8 +1088,8 @@ function App() {
             <section className="settings-section">
               <h3>Erinnerungen</h3>
               <p className="settings-hint">
-                „Timer 8 Minuten Nudeln“ klingelt bei Bildschirm aus. „jeden Tag 8 Uhr Tabletten“
-                wiederholt sich. Erinnerungen piepen ebenfalls.
+                „Wecker 7 Uhr“ einmal, „Wecker 7 Uhr jeden Tag“ mit Wiederholung. Klingelt bei
+                Bildschirm aus. Eigener Ton unten. Timer und Erinnerungen ebenso.
               </p>
               {reminders.length === 0 ? (
                 <p className="memory-empty">Keine offenen Erinnerungen.</p>
@@ -1097,7 +1098,17 @@ function App() {
                   {reminders.map((r) => (
                     <li key={r.id} className="memory-item">
                       <div className="memory-value">
-                        {r.kind === 'timer' ? 'Timer · ' : r.recur === 'daily' ? 'täglich · ' : r.recur === 'weekly' ? 'wöchentlich · ' : ''}
+                        {r.kind === 'timer'
+                          ? 'Timer · '
+                          : r.kind === 'alarm'
+                            ? r.recur
+                              ? 'Wecker täglich · '
+                              : 'Wecker · '
+                            : r.recur === 'daily'
+                              ? 'täglich · '
+                              : r.recur === 'weekly'
+                                ? 'wöchentlich · '
+                                : ''}
                         {r.title}
                       </div>
                       <div className="memory-key">
@@ -1121,6 +1132,31 @@ function App() {
                   ))}
                 </ul>
               )}
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={settingsBusy}
+                  onClick={() => {
+                    void pickAlarmTone().then((r) => {
+                      if (r.ok && r.uri) {
+                        void patchSetting({
+                          alarm_tone_uri: r.uri,
+                          alarm_tone_name: r.name || 'Eigener Ton',
+                        })
+                      } else if (r.message) {
+                        setError(r.message)
+                      }
+                    })
+                  }}
+                >
+                  Wecker-Ton wählen
+                </button>
+              </div>
+              <p className="settings-hint">
+                Aktuell: {settings?.alarm_tone_name || 'Standard-Wecker des Handys'}. Gilt für Wecker,
+                Timer und Erinnerungen. OnePlus: Akku für Jarvis nicht optimieren.
+              </p>
             </section>
             <section className="settings-section">
               <h3>Sprachmodus</h3>

@@ -7,6 +7,7 @@ import {
   listEvents,
   listReminders,
   listTodos,
+  loadSettings,
   putReminder,
   setReminderStatus,
   type Reminder,
@@ -47,6 +48,7 @@ export async function handleReminders(
       at: intent.due,
       alarm: true,
       recur: intent.recur,
+      tone: loadSettings().alarm_tone_uri,
     })
     await syncGlance()
     const ping = perm && scheduled.ok
@@ -172,31 +174,34 @@ export async function syncReminderAlarms(): Promise<void> {
         await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
         await scheduleNotify({
           id: notifyIdFromKey(r.id),
-          title: 'Erinnerung',
+          title: r.kind === 'alarm' ? 'Wecker' : 'Erinnerung',
           body: r.title,
           at: next,
           alarm: true,
           recur: r.recur,
+          tone: loadSettings().alarm_tone_uri,
         })
         continue
       }
       await scheduleNotify({
         id: notifyIdFromKey(r.id),
-        title: r.kind === 'timer' ? 'Timer' : 'Jarvis',
+        title: r.kind === 'timer' ? 'Timer' : r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
         body: r.title,
         at: new Date(now + 1_500),
         alarm: true,
+        tone: loadSettings().alarm_tone_uri,
       })
       await setReminderStatus(r.id, 'fired')
       continue
     }
     await scheduleNotify({
       id: notifyIdFromKey(r.id),
-      title: r.kind === 'timer' ? 'Timer' : 'Jarvis',
+      title: r.kind === 'timer' ? 'Timer' : r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
       body: r.title,
       at: new Date(r.due_at),
       alarm: true,
       recur: r.recur || undefined,
+      tone: loadSettings().alarm_tone_uri,
     })
   }
   await syncGlance()

@@ -8,6 +8,7 @@ import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseTimerIntent } from '../src/engine/timer-parse.ts'
+import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
@@ -97,6 +98,23 @@ if (timer?.kind === 'create') {
 }
 assert.equal(parseTimerIntent('Timer aus')?.kind, 'stop')
 assert.equal(parseTimerIntent('in 20 Minuten Milch'), null)
+const onceAlarm = parseAlarmIntent('Wecker 7 Uhr', frozen)
+assert.equal(onceAlarm?.kind, 'create')
+if (onceAlarm?.kind === 'create') {
+  assert.equal(onceAlarm.recur, undefined)
+  assert.equal(onceAlarm.due.getHours(), 7)
+}
+const dailyAlarm = parseAlarmIntent('Wecker 6:30 jeden Tag', frozen)
+assert.equal(dailyAlarm?.kind, 'create')
+if (dailyAlarm?.kind === 'create') assert.equal(dailyAlarm.recur, 'daily')
+const weekAlarm = parseAlarmIntent('Wecker jeden Montag 7 Uhr Arbeit', frozen)
+assert.equal(weekAlarm?.kind, 'create')
+if (weekAlarm?.kind === 'create') {
+  assert.equal(weekAlarm.recur, 'weekly')
+  assert.equal(weekAlarm.title, 'Arbeit')
+}
+assert.equal(parseAlarmIntent('Wecker aus')?.kind, 'stop')
+assert.equal(parseAlarmIntent('Timer 8 Minuten'), null)
 assert.match(formatDue(new Date('2026-08-15T17:42:00'), frozen), /heute/)
 
 assert.equal(parseWeatherIntent('Wetter heute')?.kind, 'here')

@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.11.0'
+export const APP_VERSION = '1.12.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -70,7 +70,7 @@ export type Reminder = {
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
-  kind?: 'once' | 'timer' | 'recur'
+  kind?: 'once' | 'timer' | 'recur' | 'alarm'
   recur?: 'daily' | 'weekly' | null
   weekday?: number | null
 }
@@ -114,6 +114,8 @@ export type Settings = {
   last_weather_kind: string
   last_weather_line: string
   wake_word: boolean
+  alarm_tone_uri: string
+  alarm_tone_name: string
   voice_tts: string
   gemini_tts_model: string
   model_default: string
@@ -154,6 +156,8 @@ export const DEFAULT_SETTINGS: Settings = {
   last_weather_kind: '',
   last_weather_line: '',
   wake_word: false,
+  alarm_tone_uri: '',
+  alarm_tone_name: '',
   voice_tts: 'auto',
   gemini_tts_model: '',
   model_default: DEFAULT_MODEL.label,
