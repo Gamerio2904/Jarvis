@@ -84,8 +84,29 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 78 | [`sprint-78.md`](./sprint-78.md) | `1.26.0` | Fahrmodus + Spotify + Auge + TV-Lautstärke | **CODE** |
 | 79 | [`sprint-79.md`](./sprint-79.md) | `1.27.0` | Internes Spotify (Web Playback) | **CODE** |
 | 80 | [`sprint-80.md`](./sprint-80.md) | `1.28.0` | Wake-Word Hintergrund + Fire TV | **CODE** |
+| 81 | [`sprint-81.md`](./sprint-81.md) | `1.29.0` | Suche, Fire TV, GUI, Widget, Ventilator | **CODE** |
+| 82 | [`sprint-82.md`](./sprint-82.md) | `1.30.0` | CarPlay flüssig: HUD, Voice-Tabs, Navi-Ansagen | **CODE** |
+| 83 | [`sprint-83.md`](./sprint-83.md) | `1.31.0` | Stimme Charon + Latenz; Jarvis-Smalltalk | **CODE** |
+| 84 | [`sprint-84.md`](./sprint-84.md) | `1.32.0` | Samsung-Apps YouTube/Amazon/Disney/Netflix | **CODE** |
+| 85 | [`sprint-85.md`](./sprint-85.md) | `1.32.1` | Sprachmodus Tempo | **CODE** |
+| 86 | [`sprint-86.md`](./sprint-86.md) | `1.33.0` | Suche & Antworten | **CODE** |
+| 87 | [`sprint-87.md`](./sprint-87.md) | `1.34.0` | Bessere Antworten | **CODE** |
+| 88 | [`sprint-88.md`](./sprint-88.md) | `1.35.0` | CarPlay besser | **CODE** |
+| 89 | [`sprint-89.md`](./sprint-89.md) | `1.36.0` | Alltag-Phrasen | **CODE** |
+| 90 | [`sprint-90.md`](./sprint-90.md) | `1.37.0` | Flüssig | **CODE** |
+| 91 | [`sprint-91.md`](./sprint-91.md) | `1.38.0` | Gedächtnis im Dialog | **CODE** |
+| 92 | [`sprint-92.md`](./sprint-92.md) | `1.39.0` | Stimme bleiben | **CODE** |
+| 93 | [`sprint-93.md`](./sprint-93.md) | `1.40.0` | Härten | **CODE** |
+| 94 | [`sprint-94.md`](./sprint-94.md) | `1.41.0` | Tanke E10 (nächste + günstigste) | **CODE** |
+| 95 | [`sprint-95.md`](./sprint-95.md) | `1.42.0` | Standort: Wo bin ich + Freigabe | **CODE** |
+| 96 | [`sprint-96.md`](./sprint-96.md) | `1.43.0` | CarPlay ehrlich + Alltag am Steuer | **CODE** |
+| 97 | [`sprint-97.md`](./sprint-97.md) | `1.44.0` | Filme IMDb/RT + Rabatt-Suche | **CODE** |
+| 98 | [`sprint-98.md`](./sprint-98.md) | `1.45.0` | Öffnungszeiten Läden | **CODE** |
+| 99 | [`sprint-99.md`](./sprint-99.md) | `1.46.0` | Anruf/SMS mit Nachfrage | **CODE** |
+| 100 | [`sprint-100.md`](./sprint-100.md) | `1.47.0` | PC live (Bildschirm, Maus, FIFA) | **CODE** |
+| 101 | [`sprint-101.md`](./sprint-101.md) | `1.48.0` | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | **CODE** |
 
-**Aktuell:** Sideload `1.28.3`. Spotify intern: [`22-next.md`](../22-next.md).
+**Aktuell:** Sideload `1.48.8`. CarPlay-Route auf den Straßen, Cafés am GPS. [`28-next.md`](../28-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

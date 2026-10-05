@@ -27,7 +27,13 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 20 | [Extra-Alltag](./20-next.md) | **`1.21`–`1.24` CODE** |
 | 21 | [Fahrmodus & Spotify](./21-next.md) | **`1.26` CODE** |
 | 22 | [Internes Spotify](./22-next.md) | **`1.27` CODE** |
-| — | [APK](./apk.md) | Sideload `1.28.3` |
+| 23 | [Alltag 1.29](./23-next.md) | **`1.29` CODE** — Suche, Fire TV, GUI, Widget, Ventilator |
+| 24 | [CarPlay flüssig](./24-next.md) | **`1.30` CODE** — HUD, Voice-Tabs, Navi-Ansagen |
+| 25 | [Stimme & Ton](./25-next.md) | **`1.31` CODE** — TTS, Smalltalk, Jarvis-Formulierung |
+| 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
+| 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
+| 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`1.48` CODE** — Suche bis Live-Lage |
+| — | [APK](./apk.md) | Sideload `1.48.8` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -77,5 +83,16 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 67 | `1.15.0` | **CODE** (Personen/Orte, Maps-Route) |
 | 68–72 | `1.16`–`1.20` | **CODE** (in `1.24.0`) |
 | 73–76 | `1.21`–`1.24` | **CODE** |
+| 77–85 | `1.25`–`1.32.1` | **CODE** (Settings, Fahrmodus, Spotify, Wake-Word, TV-Apps, Voice-Tempo) |
+| 86 | `1.33.0` | **CODE** (Suche, Preise, Antworten, CarPlay öffnen) |
+| 87–93 | `1.34`–`1.40` | **CODE** (Qualität — [`28-next.md`](./28-next.md)) |
+| 94 | `1.41.0` | **CODE** (Tanke E10) |
+| 95 | `1.42.0` | **CODE** (Live-Ort) |
+| 96 | `1.43.0` | **CODE** (CarPlay ehrlich + Alltag am Steuer) |
+| 97 | `1.44.0` | **CODE** (Filme IMDb/RT + Rabatt-Suche) |
+| 98 | `1.45.0` | **CODE** (Öffnungszeiten Läden) |
+| 99 | `1.46.0` | **CODE** (Anruf/SMS mit Nachfrage) |
+| 100 | `1.47.0` | **CODE** (PC live) |
+| 101 | `1.48.0` | **CODE** (Luft/Sonne/Bahn/Nachrichten/Feiertage) |
 
-**Aktuell:** Sideload `1.28.3` — [`Jarvis.apk`](./apk.md).
+**Aktuell:** Sideload `1.48.8` — [`Jarvis.apk`](./apk.md). CarPlay-Route auf den Straßen, Cafés am GPS. PC-App: [`../desktop/README.md`](../desktop/README.md). [`28-next.md`](./28-next.md).

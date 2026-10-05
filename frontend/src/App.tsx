@@ -39,19 +39,21 @@ import {
   type ResearchMeta,
   type Settings,
   type ToolMeta,
+  APP_VERSION,
 } from './api'
+import { researchStatusLabel } from './engine/research-parse'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
-import { TEST_PROMPTS } from './engine/test-prompts'
 import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
 import { WakeBubble } from './WakeBubble'
-import { closeDrive } from './engine/drive'
+import { closeDrive, subscribeDrive } from './engine/drive'
+import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
-import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning } from './native/voice'
+import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 
@@ -71,6 +73,12 @@ function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
     return [{ title: String(raw.destination || tool.preview || 'Route'), url: raw.url }]
   }
   return []
+}
+
+function opensDriveOverlay(tool?: ToolMeta | null): boolean {
+  if (!tool) return false
+  if (tool.tool === 'drive') return true
+  return tool.action === 'nav' && (tool.tool === 'poi' || tool.tool === 'fuel')
 }
 
 function ToolChip({
@@ -137,6 +145,21 @@ function ToolChip({
           Anrufen{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
         </a>
       ) : null}
+      {typeof tool.result?.sms === 'string' && tool.result.sms ? (
+        <a
+          className="maps-btn"
+          href={String(tool.result.sms)}
+          onClick={(e) => {
+            e.preventDefault()
+            window.open(String(tool.result?.sms), '_self')
+          }}
+        >
+          SMS{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
+        </a>
+      ) : null}
+      {typeof tool.result?.image === 'string' && String(tool.result.image).startsWith('data:image/') ? (
+        <img className="pc-shot" alt="PC-Bildschirm" src={String(tool.result.image)} />
+      ) : null}
     </span>
   )
 }
@@ -148,9 +171,9 @@ function SourcesBlock({
   research: ResearchMeta
   onOpenAudit?: (auditId?: string) => void
 }) {
-  const sources = research.sources || []
-  const status = research.status_label || research.badge || research.status
-  const query = research.query
+  const sources = (research.sources || []).filter((s) => s.url)
+  const status = researchStatusLabel(research)
+  const query = (research.query || '').replace(/^[·.\s]+/, '').trim()
   if (!sources.length && !status && !query) return null
   return (
     <details className="sources-block" open>
@@ -179,7 +202,7 @@ function SourcesBlock({
                 [{i + 1}] {s.title}
               </a>
               {s.url ? <p className="sources-url">{s.url}</p> : null}
-              {s.snippet ? <p>{s.snippet}</p> : null}
+              {s.snippet ? <p className="sources-snippet">{s.snippet}</p> : null}
             </li>
           ))}
         </ul>
@@ -205,6 +228,55 @@ function SourcesBlock({
         <p className="sources-privacy">{research.privacy_note}</p>
       ) : null}
     </details>
+  )
+}
+
+function IconGear() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+      <path
+        fill="currentColor"
+        d="M19.14 12.94a7.6 7.6 0 0 0 .06-1l2.03-1.58-2-3.46-2.43.98a7.4 7.4 0 0 0-1.73-1L14.5 2h-5l-.57 2.88a7.4 7.4 0 0 0-1.73 1L4.77 4.9l-2 3.46 2.03 1.58a7.6 7.6 0 0 0 0 2L2.77 13.6l2 3.46 2.43-.98a7.4 7.4 0 0 0 1.73 1L9.5 22h5l.57-2.88a7.4 7.4 0 0 0 1.73-1l2.43.98 2-3.46zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"
+      />
+    </svg>
+  )
+}
+
+function IconTrash() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+      <path fill="currentColor" d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z" />
+    </svg>
+  )
+}
+
+function IconCamera() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+      <path
+        fill="currentColor"
+        d="M9 4h6l1.5 2H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.5zm3 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+      />
+    </svg>
+  )
+}
+
+function IconMic() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
+      <path
+        fill="currentColor"
+        d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11z"
+      />
+    </svg>
+  )
+}
+
+function IconSend() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+      <path fill="currentColor" d="M3 11.5 21 3l-6.5 18-2.8-6.7z" />
+    </svg>
   )
 }
 
@@ -263,6 +335,15 @@ function App() {
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
+  const voiceHoldUntilRef = useRef(0)
+  const [voiceSeed, setVoiceSeed] = useState('')
+
+  function openVoiceMode(seed = '') {
+    voiceHoldUntilRef.current = Date.now() + 2500
+    if (seed) setVoiceSeed(seed)
+    setVoiceOpen(true)
+    setCalendarOpen(false)
+  }
 
   useEffect(() => {
     const unlock = () => {
@@ -274,6 +355,17 @@ function App() {
       window.removeEventListener('pointerdown', unlock)
       window.removeEventListener('touchstart', unlock)
     }
+  }, [])
+
+  useEffect(() => {
+    return subscribeDrive(() => {
+      const on = Boolean(loadSettings().drive_mode)
+      setDriveOpen(on)
+      if (on) {
+        setCalendarOpen(false)
+        setSidebarOpen(false)
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -298,16 +390,26 @@ function App() {
     const t = window.setInterval(() => {
       void refreshHealth()
     }, 8000)
-    return () => window.clearInterval(t)
+    const glance = window.setInterval(() => {
+      void syncGlance()
+    }, 5 * 60_000)
+    return () => {
+      window.clearInterval(t)
+      window.clearInterval(glance)
+    }
   }, [])
 
   useEffect(() => {
     let live = true
     async function tick() {
       const on = await wakeWordRunning()
+      const wanted = await wakeWordWanted()
       if (!live) return
       setWakeListening(on)
-      if (settings?.wake_word && !on) void startWakeWord()
+      if (wanted && !on) void startWakeWord()
+      if (settings && wanted !== settings.wake_word) {
+        void patchSettings({ wake_word: wanted }).then((s) => setSettings(s))
+      }
     }
     void tick()
     const id = window.setInterval(() => void tick(), 4000)
@@ -318,20 +420,27 @@ function App() {
   }, [settings?.wake_word])
 
   useEffect(() => {
-    const openVoice = () => {
-      setVoiceOpen(true)
-      setCalendarOpen(false)
-    }
-    const off = onWakeHit(openVoice)
+    const off = onWakeHit((utt) => openVoiceMode(utt || ''))
+    let hideTimer = 0
     const vis = () => {
-      if (document.hidden) setVoiceOpen(false)
-      else void consumeVoiceLaunch().then((v) => {
-        if (v) openVoice()
+      window.clearTimeout(hideTimer)
+      if (document.hidden) {
+        // WebView flickers hidden during widget/shortcut resume; don't kill VoiceMode.
+        hideTimer = window.setTimeout(() => {
+          if (document.hidden && Date.now() >= voiceHoldUntilRef.current) {
+            setVoiceOpen(false)
+          }
+        }, 400)
+        return
+      }
+      void consumeVoiceLaunch().then((v) => {
+        if (v.voice) openVoiceMode(v.utterance)
       })
     }
     document.addEventListener('visibilitychange', vis)
     return () => {
       off()
+      window.clearTimeout(hideTimer)
       document.removeEventListener('visibilitychange', vis)
     }
   }, [])
@@ -632,9 +741,9 @@ function App() {
     }
     await refreshReminders()
     try {
-      if (await consumeVoiceLaunch()) {
-        setVoiceOpen(true)
-        setCalendarOpen(false)
+      const launch = await consumeVoiceLaunch()
+      if (launch.voice) {
+        openVoiceMode(launch.utterance)
       }
     } catch {
       /* browser ohne Deep-Link */
@@ -872,14 +981,15 @@ function App() {
               setSidebarOpen(false)
             }
           }
-          if (payload.tool?.tool === 'drive') {
-            if (payload.tool.action === 'close') setDriveOpen(false)
+          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+            if (payload.tool?.action === 'close') setDriveOpen(false)
             else {
               setDriveOpen(true)
               setCalendarOpen(false)
               setSidebarOpen(false)
             }
           }
+          maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
           setError(detail)
@@ -990,10 +1100,11 @@ function App() {
             return [payload.conversation, ...rest]
           })
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (payload.tool?.tool === 'drive') {
-            if (payload.tool.action === 'close') setDriveOpen(false)
+          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+            if (payload.tool?.action === 'close') setDriveOpen(false)
             else setDriveOpen(true)
           }
+          maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
           setError(detail)
@@ -1016,6 +1127,14 @@ function App() {
     void refreshReminders()
     void refreshMemory(memoryFilter)
     if (topic === 'forschung') void refreshAudits()
+  }
+
+  function maybeOpenSettingsFromReply(reply: string) {
+    const t = reply || ''
+    if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
+    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
+    else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -1109,7 +1228,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.28.3</p>
+            <p>Handy · v{APP_VERSION}</p>
           </div>
         </div>
 
@@ -1130,8 +1249,7 @@ function App() {
           type="button"
           className={`memory-toggle ${voiceOpen ? 'active' : ''}`}
           onClick={() => {
-            setVoiceOpen(true)
-            setCalendarOpen(false)
+            openVoiceMode()
             setSidebarOpen(false)
           }}
         >
@@ -1179,11 +1297,15 @@ function App() {
         </div>
       </aside>
 
-      <main className="main">
+      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
         {voiceOpen ? (
           <VoiceMode
-            onClose={() => setVoiceOpen(false)}
+            onClose={() => {
+              setVoiceOpen(false)
+              setVoiceSeed('')
+            }}
             onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
+            initialUtterance={voiceSeed}
           />
         ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
@@ -1193,9 +1315,7 @@ function App() {
               closeDrive()
               setDriveOpen(false)
             }}
-            onCommand={(text) => {
-              void sendMessage(text)
-            }}
+            onCommand={(text) => sendVoiceTurn(text)}
           />
         ) : null}
         <div className="topbar">
@@ -1211,19 +1331,23 @@ function App() {
           <div className="topbar-actions">
             <button
               type="button"
-              className="ghost-btn"
+              className="ghost-btn icon-only"
               onClick={() => openSettings('allgemein')}
+              aria-label="Einstellungen"
+              title="Einstellungen"
             >
-              Einstellungen
+              <IconGear />
             </button>
             {activeId ? (
               <button
                 type="button"
-                className="ghost-btn"
+                className="ghost-btn icon-only"
                 onClick={() => void onDeleteChat()}
                 disabled={busy}
+                aria-label="Gespräch löschen"
+                title="Löschen"
               >
-                Löschen
+                <IconTrash />
               </button>
             ) : null}
           </div>
@@ -1328,20 +1452,6 @@ function App() {
               ) : null}
             </div>
           ) : null}
-          <div className="prompt-chips" role="list" aria-label="Test-Prompts">
-            {TEST_PROMPTS.map((text) => (
-              <button
-                key={text}
-                type="button"
-                className="prompt-chip"
-                role="listitem"
-                disabled={busy}
-                onClick={() => void sendMessage(text)}
-              >
-                {text}
-              </button>
-            ))}
-          </div>
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
             <input
               ref={eyeFileRef}
@@ -1364,36 +1474,43 @@ function App() {
               rows={1}
               disabled={busy}
             />
-            <button
-              type="button"
-              className="mic-btn"
-              disabled={busy}
-              onClick={() => eyeFileRef.current?.click()}
-              aria-label="Foto lesen"
-            >
-              Foto
-            </button>
-            <button
-              type="button"
-              className="mic-btn"
-              onClick={() => {
-                setVoiceOpen(true)
-                setCalendarOpen(false)
-              }}
-              aria-label="Sprachmodus"
-            >
-              Hören
-            </button>
-            <button type="button" onClick={() => void onSend()} disabled={busy || !draft.trim()}>
-              Senden
-            </button>
+            <div className="composer-actions">
+              <button
+                type="button"
+                className="icon-btn"
+                disabled={busy}
+                onClick={() => eyeFileRef.current?.click()}
+                aria-label="Foto"
+                title="Foto"
+              >
+                <IconCamera />
+              </button>
+              <button
+                type="button"
+                className="icon-btn mic-round"
+                onClick={() => openVoiceMode()}
+                aria-label="Spracheingabe"
+                title="Hören"
+              >
+                <IconMic />
+              </button>
+              <button
+                type="button"
+                className="icon-btn send-round"
+                onClick={() => void onSend()}
+                disabled={busy || !draft.trim()}
+                aria-label="Senden"
+                title="Senden"
+              >
+                <IconSend />
+              </button>
+            </div>
           </div>
           {!voiceOpen ? (
             <WakeBubble
               listening={wakeListening}
               onTap={() => {
-                setVoiceOpen(true)
-                setCalendarOpen(false)
+                openVoiceMode()
               }}
             />
           ) : null}
@@ -1442,7 +1559,7 @@ function App() {
             })
           }}
           onOpenVoice={() => {
-            setVoiceOpen(true)
+            openVoiceMode()
             setSettingsPanelOpen(false)
           }}
           onPinShortcut={() => {
@@ -1452,11 +1569,14 @@ function App() {
           }}
           shortcutMsg={shortcutMsg}
           onWakeWord={(on) => {
-            void patchSetting({ wake_word: on }).then(() => {
-              if (on) {
-                void startWakeWord().then(() => void requestBatteryUnrestricted())
-              } else void stopWakeWord()
-            })
+            if (on) {
+              void startWakeWord().then(() => {
+                void patchSetting({ wake_word: true })
+                void requestBatteryUnrestricted()
+              })
+            } else {
+              void stopWakeWord().then(() => void patchSetting({ wake_word: false }))
+            }
           }}
           tvBusy={tvBusy}
           tvMsg={tvMsg}

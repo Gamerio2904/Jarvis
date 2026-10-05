@@ -102,6 +102,42 @@ MAJOR.MINOR.PATCH
 | `1.28.1` | Wake-Word öffnet Sprachmodus | Sprint 80 Patch |
 | `1.28.2` | Fire-TV-Test sichtbar, Gen-2-Hinweis | Sprint 80 Patch |
 | `1.28.3` | Wecker klingelt (Dienst + Alarm-Lautstärke) | Sprint 80 Patch |
+| `1.29.0` | Suche, Fire TV in der APK, GUI-Icons, Widget 2×4, Ventilator | Sprint 81 |
+| `1.30.0` | CarPlay flüssig: HUD, Voice-Tabs, Navi-Ansagen | Sprint 82 |
+| `1.31.0` | Stimme Charon + Latenz; Jarvis-Smalltalk | Sprint 83 |
+| `1.32.0` | Samsung-Apps YouTube/Amazon/Disney/Netflix | Sprint 84 |
+| `1.32.1` | Sprachmodus Tempo (kein Hänger, sofort Ton) | Sprint 85 |
+| `1.33.0` | Suche & Antworten (Preise, keine Absage, CarPlay öffnen) | Sprint 86 |
+| `1.33.1` | Fernseher: YouTube-Video vs Film, Follow-up `… ab` | Sprint 86 Patch |
+| `1.33.2` | Widget öffnet Sprachmodus (hören + antworten) | Sprint 86 Patch |
+| `1.33.3` | Wecker klingelt wieder (nicht nur Anzeige) | Sprint 86 Patch |
+| `1.34.0` | Bessere Antworten (History, Memory, Persona, Groq) | Sprint 87 |
+| `1.35.0` | CarPlay besser (Replan, Cue, HUD, Zoom, Ankunft) | Sprint 88 |
+| `1.36.0` | Alltag-Phrasen (bestehende Tools, Smalltalk-Schutz) | Sprint 89 |
+| `1.37.0` | Flüssig (Chat, Overlay, Wake-Word, Voice, TV, Widget) | Sprint 90 |
+| `1.38.0` | Gedächtnis im Dialog (Recall, Widerspruch, Anapher) | Sprint 91 |
+| `1.39.0` | Stimme bleiben (NO_MATCH, Barge-in, Navi vs Jarvis) | Sprint 92 |
+| `1.40.0` | Härten (Eval, False-Positives, keine Fake-Erfolge) | Sprint 93 |
+| `1.40.1` | Sätze zu Ende; TV-Tasten/Ordinal, YouTube-Suche, kein Live-Bild | Sprint 93 Patch |
+| `1.40.2` | Timer spricht ohne Klingeln; natürliche Timer-Sätze | Sprint 93 Patch |
+| `1.40.3` | Chat/Stimme näher am Film-Jarvis (Understatement) | Sprint 93 Patch |
+| `1.41.0` | Tanke: nächste + günstigste, immer E10, Preise | Sprint 94 |
+| `1.42.0` | Wo bin ich: GPS + Freigabe anstoßen | Sprint 95 |
+| `1.43.0` | CarPlay ehrlich: Overlay, Restweg, POI, Anruf/SMS | Sprint 96 |
+| `1.44.0` | Filme: IMDb/RT über OMDb, wo gratis; Rabatt-Suche | Sprint 97 |
+| `1.45.0` | Öffnungszeiten für Läden aus OSM | Sprint 98 |
+| `1.46.0` | Anruf/SMS direkt, erst nach Nachfrage | Sprint 99 |
+| `1.47.0` | PC live: Bildschirm, Maus, FIFA, Ordner | Sprint 100 |
+| `1.47.1` | Ein-Klick-Kopieren IP/Token/Prompts | Sprint 100 Patch |
+| `1.48.0` | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | Sprint 101 |
+| `1.48.1` | Satzbildung näher am Film-Jarvis | Sprint 101 Patch |
+| `1.48.2` | Live-Test-Bugs: Parser, Overlay, Straße | Sprint 101 Patch |
+| `1.48.3` | Fahrmodus: Karte und Route | Sprint 101 Patch |
+| `1.48.4` | Fahrmodus-Karte: vollflächig, Norden oben | Sprint 101 Patch |
+| `1.48.5` | Karte schieben/zoomen, Sprache im Fahrmodus | Sprint 101 Patch |
+| `1.48.6` | Overlay=Karte, Cafés am GPS, echte Route | Sprint 101 Patch |
+| `1.48.7` | Research: Zahlen nur aus Treffern | Sprint 101 Patch |
+| `1.48.8` | CarPlay-Route auf Straßen, Cafés am GPS | Sprint 101 Patch |
 
 ### Weitere Beispiele
 

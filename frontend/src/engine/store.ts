@@ -1,6 +1,6 @@
-import { shouldRefreshTitle, titleFromUser } from './chat-title'
+import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '1.28.3'
+export const APP_VERSION = '1.48.8'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -117,6 +117,18 @@ export type Settings = {
   tv_fire_hdmi: number
   gemini_enabled: boolean
   gemini_api_key: string
+  tankerkoenig_api_key: string
+  omdb_api_key: string
+  shop_discount: boolean
+  last_fuel_json: string
+  last_poi_json: string
+  last_comm_json: string
+  last_pc_json: string
+  last_drive_json: string
+  pc_enabled: boolean
+  pc_host: string
+  pc_port: number
+  pc_token: string
   gemini_model: string
   gemini_skip_until: string
   groq_api_key: string
@@ -132,11 +144,18 @@ export type Settings = {
   last_step_tool: string
   last_step_title: string
   last_step_when: string
+  last_step_utterance: string
+  last_medium: string
   last_list_json: string
   home_lat: string
   home_lon: string
   home_radius_m: string
   wake_word: boolean
+  fan_enabled: boolean
+  fan_name: string
+  fan_host: string
+  fan_mac: string
+  fan_codes_json: string
   drive_mode: boolean
   spotify_client_id: string
   spotify_access: string
@@ -175,6 +194,18 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_fire_hdmi: 3,
   gemini_enabled: false,
   gemini_api_key: '',
+  tankerkoenig_api_key: '',
+  omdb_api_key: '',
+  shop_discount: false,
+  last_fuel_json: '',
+  last_poi_json: '',
+  last_comm_json: '',
+  last_pc_json: '',
+  last_drive_json: '',
+  pc_enabled: false,
+  pc_host: '',
+  pc_port: 18790,
+  pc_token: '',
   gemini_model: '',
   gemini_skip_until: '',
   groq_api_key: '',
@@ -190,11 +221,18 @@ export const DEFAULT_SETTINGS: Settings = {
   last_step_tool: '',
   last_step_title: '',
   last_step_when: '',
+  last_step_utterance: '',
+  last_medium: '',
   last_list_json: '',
   home_lat: '',
   home_lon: '',
   home_radius_m: '250',
   wake_word: false,
+  fan_enabled: false,
+  fan_name: 'Wohnzimmer',
+  fan_host: '',
+  fan_mac: '',
+  fan_codes_json: '',
   drive_mode: false,
   spotify_client_id: '',
   spotify_access: '',

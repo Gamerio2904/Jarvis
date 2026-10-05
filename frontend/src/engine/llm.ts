@@ -23,7 +23,7 @@ const MODEL_URLS = [
 const FIRST_TOKEN_MS = 45_000
 const INFER_TIMEOUT_MS = 90_000
 const LOAD_TIMEOUT_MS = 180_000
-const MAX_NEW_TOKENS = 40
+const MAX_NEW_TOKENS = 128
 
 let instance: Wllama | null = null
 let loaded = false
@@ -299,7 +299,7 @@ async function completeStreaming(
         onToken?.(piece, cleanPiece(acc).trim())
       },
       max_tokens: MAX_NEW_TOKENS,
-      temperature: 0.55,
+      temperature: 0.7,
       top_p: 0.85,
       cache_prompt: true,
       stop: QWEN_STOP,
@@ -336,7 +336,7 @@ export async function completeChat(
   const prompt = formatQwenChat(mapped)
   const text = await completeStreaming(prompt, onToken)
   if (!text) {
-    return 'Kurz ausgesetzt. Nochmal senden?'
+    return 'Einen Moment. Noch einmal senden?'
   }
   return text
 }

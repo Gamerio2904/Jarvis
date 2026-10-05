@@ -23,8 +23,10 @@ export async function syncGlance(): Promise<void> {
     } else if (alarm) {
       const tag = alarm.recur ? 'Wecker täglich' : 'Wecker'
       next = `${tag} ${alarm.title} · ${formatDue(new Date(alarm.due_at))}`
-    } else if (timer) next = `Timer ${timer.title} · ${formatDue(new Date(timer.due_at))}`
-    else if (shop.length) next = `Einkauf: ${shop.slice(0, 3).map((s) => s.title).join(', ')}`
+    } else if (timer) {
+      const name = (timer.title || '').trim()
+      next = `${name && !/^timer$/i.test(name) ? name : 'Timer'} · ${formatDue(new Date(timer.due_at))}`
+    } else if (shop.length) next = `Einkauf: ${shop.slice(0, 3).map((s) => s.title).join(', ')}`
     else if (rem) {
       const tag = rem.recur === 'daily' ? 'täglich' : rem.recur === 'weekly' ? 'wöchentlich' : ''
       next = `${tag ? `${tag} · ` : ''}${rem.title} · ${formatDue(new Date(rem.due_at))}`

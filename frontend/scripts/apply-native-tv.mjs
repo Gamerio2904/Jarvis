@@ -17,6 +17,11 @@ mkdirSync(pluginDest, { recursive: true })
 copyFileSync(join(srcDir, 'JarvisTvPlugin.java'), join(pluginDest, 'JarvisTvPlugin.java'))
 copyFileSync(join(srcDir, 'AdbShell.java'), join(pluginDest, 'AdbShell.java'))
 
+const homeSrc = join(root, 'native', 'home')
+const homeDest = join(android, 'app/src/main/java/app/jarvis/home')
+mkdirSync(homeDest, { recursive: true })
+copyFileSync(join(homeSrc, 'JarvisHomePlugin.java'), join(homeDest, 'JarvisHomePlugin.java'))
+
 const notifySrc = join(root, 'native', 'notify')
 const notifyDest = join(android, 'app/src/main/java/app/jarvis/notify')
 mkdirSync(notifyDest, { recursive: true })
@@ -26,6 +31,8 @@ for (const name of [
   'JarvisNotifyBoot.java',
   'JarvisAlarmActivity.java',
   'JarvisAlarmService.java',
+  'JarvisAlarmPlayer.java',
+  'JarvisTimerVoice.java',
   'JarvisGlanceWidget.java',
 ]) {
   copyFileSync(join(notifySrc, name), join(notifyDest, name))
@@ -34,6 +41,9 @@ mkdirSync(join(android, 'app/src/main/res/layout'), { recursive: true })
 mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
 copyFileSync(join(notifySrc, 'jarvis_widget.xml'), join(android, 'app/src/main/res/layout/jarvis_widget.xml'))
 copyFileSync(join(notifySrc, 'jarvis_widget_info.xml'), join(android, 'app/src/main/res/xml/jarvis_widget_info.xml'))
+mkdirSync(join(android, 'app/src/main/res/drawable'), { recursive: true })
+copyFileSync(join(notifySrc, 'jarvis_widget_bg.xml'), join(android, 'app/src/main/res/drawable/jarvis_widget_bg.xml'))
+copyFileSync(join(notifySrc, 'jarvis_widget_mic.xml'), join(android, 'app/src/main/res/drawable/jarvis_widget_mic.xml'))
 const rawDest = join(android, 'app/src/main/res/raw')
 mkdirSync(rawDest, { recursive: true })
 const alarmWav = join(notifySrc, 'jarvis_alarm.wav')
@@ -45,6 +55,11 @@ const geoSrc = join(root, 'native', 'geo')
 const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
 mkdirSync(geoDest, { recursive: true })
 copyFileSync(join(geoSrc, 'JarvisGeoPlugin.java'), join(geoDest, 'JarvisGeoPlugin.java'))
+
+const deviceSrc = join(root, 'native', 'device')
+const deviceDest = join(android, 'app/src/main/java/app/jarvis/device')
+mkdirSync(deviceDest, { recursive: true })
+copyFileSync(join(deviceSrc, 'JarvisDevicePlugin.java'), join(deviceDest, 'JarvisDevicePlugin.java'))
 
 const voiceSrc = join(root, 'native', 'voice')
 const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
@@ -96,10 +111,14 @@ const perms = [
   'android.permission.FOREGROUND_SERVICE',
   'android.permission.FOREGROUND_SERVICE_MICROPHONE',
   'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK',
+  'android.permission.FOREGROUND_SERVICE_SPECIAL_USE',
   'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
   'android.permission.CAMERA',
+  'android.permission.FLASHLIGHT',
+  'android.permission.CALL_PHONE',
+  'android.permission.SEND_SMS',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -151,13 +170,18 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
         <service
             android:name="app.jarvis.notify.JarvisAlarmService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="mediaPlayback|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Wecker-Klingeln" />
+        </service>
         <receiver
             android:name="app.jarvis.notify.JarvisGlanceWidget"
             android:exported="true"
             android:label="Jarvis">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="app.jarvis.notify.TOGGLE_VOICE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -176,8 +200,28 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmService')) {
     `        <service
             android:name="app.jarvis.notify.JarvisAlarmService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="mediaPlayback|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Wecker-Klingeln" />
+        </service>
 </application>`,
+  )
+}
+if (
+  manifest.includes('app.jarvis.notify.JarvisAlarmService') &&
+  !manifest.includes('android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE')
+) {
+  manifest = manifest.replace(
+    /<service\s+android:name="app\.jarvis\.notify\.JarvisAlarmService"\s+android:exported="false"\s+android:foregroundServiceType="mediaPlayback"\s*\/>/,
+    `<service
+            android:name="app.jarvis.notify.JarvisAlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Wecker-Klingeln" />
+        </service>`,
   )
 }
 if (!manifest.includes('android.app.shortcuts')) {
@@ -193,6 +237,31 @@ if (!manifest.includes('android.app.shortcuts')) {
             <data android:scheme="jarvis" android:host="voice" />
         </intent-filter>
     </activity>`,
+  )
+}
+if (!manifest.includes('android.hardware.camera.flash')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    `    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />\n</manifest>`,
+  )
+}
+if (!manifest.includes('<queries>')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    `    <queries>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+    </queries>
+</manifest>`,
   )
 }
 writeFileSync(manifestPath, manifest)
