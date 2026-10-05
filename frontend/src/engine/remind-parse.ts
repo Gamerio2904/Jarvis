@@ -1,5 +1,12 @@
 export type ReminderIntent =
-  | { kind: 'create'; title: string; due: Date; whenLabel: string }
+  | {
+      kind: 'create'
+      title: string
+      due: Date
+      whenLabel: string
+      recur?: 'daily' | 'weekly'
+      weekday?: number
+    }
   | { kind: 'list' }
   | { kind: 'agenda' }
   | { kind: 'delete'; query: string }
@@ -123,6 +130,61 @@ const AGENDA =
 const DELETE =
   /^\s*(?:lösch(?:e)?|streich(?:e)?|nimm\s+weg)\s+(?:die\s+)?erinnerung(?:en)?\s*(?:an\s+)?(.+)$/is
 
+function parseRecur(t: string, now: Date): ReminderIntent | null {
+  const weekly = new RegExp(
+    `^\\s*jeden\\s+(${Object.keys(WEEKDAYS).join('|')})\\s+${TIME}\\s+(?:an\\s+)?(.+)$`,
+    'is',
+  ).exec(t)
+  if (weekly) {
+    const clock = parseClock(weekly[2], weekly[3])
+    const title = cleanTitle(weekly[4])
+    if (!clock || !title) return null
+    const due = dueFromDayTime(now, weekly[1], clock.h, clock.m)
+    return {
+      kind: 'create',
+      title,
+      due,
+      whenLabel: `jeden ${weekly[1]} ${clock.h}:${String(clock.m).padStart(2, '0')}`,
+      recur: 'weekly',
+      weekday: WEEKDAYS[weekly[1].toLowerCase()],
+    }
+  }
+  const daily = new RegExp(
+    `^\\s*(?:jeden\\s+tag|täglich)\\s+${TIME}\\s+(?:an\\s+)?(.+)$`,
+    'is',
+  ).exec(t)
+  if (daily) {
+    const clock = parseClock(daily[1], daily[2])
+    const title = cleanTitle(daily[3])
+    if (!clock || !title) return null
+    const due = dueFromDayTime(now, 'heute', clock.h, clock.m)
+    const next = due.getTime() <= now.getTime() ? new Date(due.getTime() + 86_400_000) : due
+    return {
+      kind: 'create',
+      title,
+      due: next,
+      whenLabel: `jeden Tag ${clock.h}:${String(clock.m).padStart(2, '0')}`,
+      recur: 'daily',
+    }
+  }
+  const morning = /^\s*jeden\s+morgen\s+(?:um\s+(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?\s+)?(?:an\s+)?(.+)$/is.exec(t)
+  if (morning) {
+    const clock = morning[1] ? parseClock(morning[1], morning[2]) : { h: 8, m: 0 }
+    const title = cleanTitle(morning[3])
+    if (!clock || !title) return null
+    const due = dueFromDayTime(now, 'heute', clock.h, clock.m)
+    const next = due.getTime() <= now.getTime() ? new Date(due.getTime() + 86_400_000) : due
+    return {
+      kind: 'create',
+      title,
+      due: next,
+      whenLabel: `jeden Morgen ${clock.h}:${String(clock.m).padStart(2, '0')}`,
+      recur: 'daily',
+    }
+  }
+  return null
+}
+
 export function parseReminderIntent(text: string, now = new Date()): ReminderIntent | null {
   const t = text.trim()
   if (!t || t.length > 200) return null
@@ -130,6 +192,9 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   if (AGENDA.test(t)) return { kind: 'agenda' }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: cleanTitle(del[1]) }
+
+  const recur = parseRecur(t, now)
+  if (recur) return recur
 
   const rel = REL.exec(t)
   if (rel) {

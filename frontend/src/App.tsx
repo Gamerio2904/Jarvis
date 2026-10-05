@@ -41,7 +41,9 @@ import { playUiSound, unlockUiAudio } from './sounds'
 import { TEST_PROMPTS } from './engine/test-prompts'
 import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
-import { consumeVoiceLaunch, pinVoiceShortcut } from './native/voice'
+import { syncGlance } from './engine/glance'
+import { pickAlarmTone } from './native/notify'
+import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord } from './native/voice'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -452,6 +454,7 @@ function App() {
     await refreshMemory()
     try {
       await syncReminderAlarms()
+      await syncGlance()
     } catch {
       /* browser ohne Notification ist ok */
     }
@@ -465,6 +468,13 @@ function App() {
       /* browser ohne Deep-Link */
     }
     const s = await getSettings()
+    if (s.wake_word) {
+      try {
+        await startWakeWord()
+      } catch {
+        /* nur Android */
+      }
+    }
     const gemini = Boolean(s.gemini_enabled && s.gemini_api_key?.trim())
     try {
       setHasLocalModel(await hasCachedModel())
@@ -682,7 +692,7 @@ function App() {
             })
           }
           if (payload.research) void refreshAudits()
-          if (payload.tool?.tool === 'reminder') void refreshReminders()
+          if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
@@ -765,7 +775,7 @@ function App() {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
             return [payload.conversation, ...rest]
           })
-          if (payload.tool?.tool === 'reminder') void refreshReminders()
+          if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
         },
         onError: (detail) => {
           setError(detail)
@@ -861,7 +871,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.6.0</p>
+            <p>Handy · v1.12.0</p>
           </div>
         </div>
 
@@ -904,7 +914,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.6.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.12.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1078,8 +1088,8 @@ function App() {
             <section className="settings-section">
               <h3>Erinnerungen</h3>
               <p className="settings-hint">
-                Chat: „in 20 Minuten Milch“, „morgen 8 Uhr Steuer“. Ping auch wenn die App im
-                Hintergrund ist.
+                „Wecker 7 Uhr“ einmal, „Wecker 7 Uhr jeden Tag“ mit Wiederholung. Klingelt bei
+                Bildschirm aus. Eigener Ton unten. Timer und Erinnerungen ebenso.
               </p>
               {reminders.length === 0 ? (
                 <p className="memory-empty">Keine offenen Erinnerungen.</p>
@@ -1087,7 +1097,20 @@ function App() {
                 <ul className="memory-list">
                   {reminders.map((r) => (
                     <li key={r.id} className="memory-item">
-                      <div className="memory-value">{r.title}</div>
+                      <div className="memory-value">
+                        {r.kind === 'timer'
+                          ? 'Timer · '
+                          : r.kind === 'alarm'
+                            ? r.recur
+                              ? 'Wecker täglich · '
+                              : 'Wecker · '
+                            : r.recur === 'daily'
+                              ? 'täglich · '
+                              : r.recur === 'weekly'
+                                ? 'wöchentlich · '
+                                : ''}
+                        {r.title}
+                      </div>
                       <div className="memory-key">
                         {new Date(r.due_at).toLocaleString('de-DE', {
                           weekday: 'short',
@@ -1109,6 +1132,31 @@ function App() {
                   ))}
                 </ul>
               )}
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={settingsBusy}
+                  onClick={() => {
+                    void pickAlarmTone().then((r) => {
+                      if (r.ok && r.uri) {
+                        void patchSetting({
+                          alarm_tone_uri: r.uri,
+                          alarm_tone_name: r.name || 'Eigener Ton',
+                        })
+                      } else if (r.message) {
+                        setError(r.message)
+                      }
+                    })
+                  }}
+                >
+                  Wecker-Ton wählen
+                </button>
+              </div>
+              <p className="settings-hint">
+                Aktuell: {settings?.alarm_tone_name || 'Standard-Wecker des Handys'}. Gilt für Wecker,
+                Timer und Erinnerungen. OnePlus: Akku für Jarvis nicht optimieren.
+              </p>
             </section>
             <section className="settings-section">
               <h3>Sprachmodus</h3>
@@ -1156,6 +1204,29 @@ function App() {
                   Shortcut auf Homescreen
                 </button>
               </div>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.wake_word)}
+                  disabled={settingsBusy}
+                  onChange={(e) => {
+                    const on = e.target.checked
+                    void patchSetting({ wake_word: on }).then(() => {
+                      if (on) void startWakeWord()
+                      else void stopWakeWord()
+                    })
+                  }}
+                />
+                <span>Auf „Jarvis“ hören (Handy an, Screen darf aus)</span>
+              </label>
+              <p className="settings-hint">
+                Sichtbare Leiste, Mikro an. Gerät komplett aus: unmöglich. Manche Hersteller
+                beenden das im Standby.
+              </p>
+              <p className="settings-hint">
+                Widget: lange auf den Homescreen → Widgets → Jarvis. Zeigt nächsten Timer und
+                die letzte Wetterzeile.
+              </p>
               {shortcutMsg ? <p className="settings-hint">{shortcutMsg}</p> : null}
             </section>
             <section className="settings-section">

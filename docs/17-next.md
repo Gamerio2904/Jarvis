@@ -22,11 +22,11 @@ Festgelegt in [`18-next.md`](./18-next.md). Kurz:
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`1.7.0`** | Timer + Klingeln (Bildschirm aus, Akku an) | **PLANNED** |
-| **`1.8.0`** | Wiederkehrende Erinnerungen | **PLANNED** |
-| **`1.9.0`** | Wetter-Nachfragen („und morgen?“) | **PLANNED** |
-| **`1.10.0`** | Homescreen-Widget | **PLANNED** |
-| **`1.11.0`** | Wake-Word (Handy an, Screen darf aus) | **PLANNED** |
+| **`1.7.0`** | Timer + Klingeln (Bildschirm aus, Akku an) | **CODE** |
+| **`1.8.0`** | Wiederkehrende Erinnerungen | **CODE** |
+| **`1.9.0`** | Wetter-Nachfragen („und morgen?“) | **CODE** |
+| **`1.10.0`** | Homescreen-Widget | **CODE** |
+| **`1.11.0`** | Wake-Word (Handy an, Screen darf aus) | **CODE** |
 
 Morgenlage, Pollen, größeres Offline-Modell: später, nicht in dieser Reihe.
 

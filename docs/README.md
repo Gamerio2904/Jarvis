@@ -67,6 +67,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 51–54 | `1.1`–`1.4` | **CODE** (Sound/Quellen, Erinnerung, Wetter, Kalender) |
 | 55 | `1.5.0` | **CODE** (Sprachmodus) |
 | 56 | `1.6.0` | **CODE** (Wetter als Lage) |
-| 57–61 | `1.7`–`1.11` | **PLANNED** (Timer, Serie, Wetter-Follow-up, Widget, Wake-Word) |
+| 57–61 | `1.7`–`1.11` | **CODE** (Timer, Serie, Wetter-Follow-up, Widget, Wake-Word) |
 
-**Aktuell:** Sideload `1.6.0` — [`Jarvis.apk`](./apk.md). Als Nächstes: [`18-next.md`](./18-next.md).
+**Aktuell:** Sideload `1.11.0` — [`Jarvis.apk`](./apk.md). Plan: [`18-next.md`](./18-next.md).

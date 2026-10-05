@@ -11,6 +11,9 @@ type NativeVoice = {
   stopSpeak(): Promise<{ ok: boolean }>
   consumeLaunch(): Promise<{ voice: boolean }>
   pinShortcut(): Promise<{ ok: boolean; message?: string }>
+  startWake(): Promise<{ ok: boolean; message?: string }>
+  stopWake(): Promise<{ ok: boolean }>
+  wakeStatus(): Promise<{ running: boolean }>
   streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
     event: 'partial' | 'sse',
@@ -263,6 +266,24 @@ export async function consumeVoiceLaunch(): Promise<boolean> {
     return Boolean((await native.consumeLaunch()).voice)
   } catch {
     return false
+  }
+}
+
+export async function startWakeWord(): Promise<{ ok: boolean; message?: string }> {
+  if (!native) return { ok: false, message: 'Wake-Word nur in der Android-App.' }
+  try {
+    return await native.startWake()
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Wake-Word fehlgeschlagen' }
+  }
+}
+
+export async function stopWakeWord(): Promise<void> {
+  if (!native) return
+  try {
+    await native.stopWake()
+  } catch {
+    /* ignore */
   }
 }
 

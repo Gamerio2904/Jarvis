@@ -26,6 +26,8 @@ import {
 } from './store'
 import { handleCalendar } from './calendar'
 import { handleReminders } from './reminders'
+import { handleAlarms } from './alarms'
+import { handleTimers } from './timers'
 import { handleTools, type ToolMeta } from './tools'
 import { handleTv, tvStatusFromSettings } from './tv'
 import { handleWeather } from './weather'
@@ -165,6 +167,34 @@ export async function streamChat(
         assistant_message: assistant,
         conversation: updated,
         tool: calHit.tool || null,
+      })
+      return
+    }
+
+    const alarmHit = await handleAlarms(conversationId, content)
+    if (alarmHit.handled && alarmHit.reply) {
+      const assistant = await addMessage(conversationId, 'assistant', alarmHit.reply, {
+        tool: alarmHit.tool,
+      })
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        tool: alarmHit.tool || null,
+      })
+      return
+    }
+
+    const timerHit = await handleTimers(conversationId, content)
+    if (timerHit.handled && timerHit.reply) {
+      const assistant = await addMessage(conversationId, 'assistant', timerHit.reply, {
+        tool: timerHit.tool,
+      })
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        tool: timerHit.tool || null,
       })
       return
     }

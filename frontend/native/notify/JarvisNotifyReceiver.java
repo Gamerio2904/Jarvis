@@ -11,6 +11,16 @@ public class JarvisNotifyReceiver extends BroadcastReceiver {
         int id = intent.getIntExtra("id", 0);
         String title = intent.getStringExtra("title");
         String body = intent.getStringExtra("body");
-        JarvisNotifyPlugin.show(context, id, title, body);
+        boolean alarm = intent.getBooleanExtra("alarm", true);
+        String recur = intent.getStringExtra("recur");
+        String tone = intent.getStringExtra("tone");
+        JarvisNotifyPlugin.show(
+                context,
+                id,
+                title,
+                body,
+                alarm,
+                recur == null ? "" : recur,
+                tone == null ? "" : tone);
     }
 }

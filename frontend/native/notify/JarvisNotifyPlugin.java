@@ -5,20 +5,29 @@ import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import androidx.activity.result.ActivityResult;
+
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
@@ -37,8 +46,11 @@ import org.json.JSONObject;
 )
 public class JarvisNotifyPlugin extends Plugin {
     static final String CHANNEL_ID = "jarvis_reminders";
+    static final String ALARM_CHANNEL = "jarvis_alarms";
     static final String PREFS = "jarvis_notify";
     static final String KEY_ITEMS = "items";
+    static final String KEY_TONE = "alarm_tone";
+    static final String KEY_TONE_NAME = "alarm_tone_name";
 
     @PluginMethod
     public void requestPermission(PluginCall call) {
@@ -70,13 +82,21 @@ public class JarvisNotifyPlugin extends Plugin {
         String title = call.getString("title", "Jarvis");
         String body = call.getString("body", "");
         Long atMs = call.getLong("atMs");
+        boolean alarm = Boolean.TRUE.equals(call.getBoolean("alarm", true));
+        String recur = call.getString("recur", "");
+        String tone = call.getString("tone", "");
+        if (tone == null || tone.isEmpty()) {
+            tone = prefs(getContext()).getString(KEY_TONE, "");
+        } else {
+            prefs(getContext()).edit().putString(KEY_TONE, tone).apply();
+        }
         if (id == null || atMs == null) {
             call.reject("id und atMs nötig");
             return;
         }
         ensureChannel(getContext());
-        persist(getContext(), id, title, body, atMs);
-        boolean ok = arm(getContext(), id, title, body, atMs);
+        persist(getContext(), id, title, body, atMs, alarm, recur, tone);
+        boolean ok = arm(getContext(), id, title, body, atMs, alarm, recur, tone);
         JSObject r = new JSObject();
         r.put("ok", ok);
         if (!ok) r.put("message", "Wecker nicht gesetzt.");
@@ -97,6 +117,91 @@ public class JarvisNotifyPlugin extends Plugin {
         call.resolve(r);
     }
 
+    @PluginMethod
+    public void publishGlance(PluginCall call) {
+        String next = call.getString("next", "Nichts geplant");
+        String weather = call.getString("weather", "Wetter im Chat fragen");
+        getContext().getSharedPreferences(JarvisGlanceWidget.PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString("next", next)
+                .putString("weather", weather)
+                .apply();
+        JarvisGlanceWidget.paint(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void pickTone(PluginCall call) {
+        Intent i = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+        i.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
+        i.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        i.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+        i.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Wecker-Ton");
+        String cur = prefs(getContext()).getString(KEY_TONE, "");
+        if (cur != null && !cur.isEmpty()) {
+            i.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(cur));
+        }
+        startActivityForResult(call, i, "onTonePicked");
+    }
+
+    @ActivityCallback
+    private void onTonePicked(PluginCall call, ActivityResult result) {
+        JSObject r = new JSObject();
+        if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null) {
+            r.put("ok", false);
+            r.put("message", "Kein Ton gewählt.");
+            call.resolve(r);
+            return;
+        }
+        Uri uri = result.getData().getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+        if (uri == null) {
+            r.put("ok", false);
+            r.put("message", "Kein Ton gewählt.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            getContext().getContentResolver().takePersistableUriPermission(
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch (Exception ignored) {
+        }
+        String name = RingtoneManager.getRingtone(getContext(), uri) != null
+                ? RingtoneManager.getRingtone(getContext(), uri).getTitle(getContext())
+                : "Eigener Ton";
+        prefs(getContext()).edit().putString(KEY_TONE, uri.toString()).putString(KEY_TONE_NAME, name).apply();
+        r.put("ok", true);
+        r.put("uri", uri.toString());
+        r.put("name", name);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void listTones(PluginCall call) {
+        JSArray arr = new JSArray();
+        try {
+            RingtoneManager rm = new RingtoneManager(getContext());
+            rm.setType(RingtoneManager.TYPE_ALARM);
+            Cursor c = rm.getCursor();
+            int n = 0;
+            while (c != null && c.moveToNext() && n < 40) {
+                Uri u = rm.getRingtoneUri(c.getPosition());
+                if (u == null) continue;
+                JSObject row = new JSObject();
+                row.put("uri", u.toString());
+                row.put("name", c.getString(RingtoneManager.TITLE_COLUMN_INDEX));
+                arr.put(row);
+                n += 1;
+            }
+        } catch (Exception ignored) {
+        }
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        r.put("tones", arr);
+        call.resolve(r);
+    }
+
     static void ensureChannel(Context ctx) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationManager nm = ctx.getSystemService(NotificationManager.class);
@@ -108,12 +213,28 @@ public class JarvisNotifyPlugin extends Plugin {
         );
         ch.setDescription("Jarvis-Erinnerungen zur vereinbarten Zeit");
         nm.createNotificationChannel(ch);
+        NotificationChannel alarm = new NotificationChannel(
+                ALARM_CHANNEL,
+                "Wecker",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        alarm.setDescription("Timer und Erinnerungen mit Ton, auch bei Bildschirm aus");
+        alarm.setBypassDnd(true);
+        alarm.enableVibration(true);
+        alarm.setSound(
+                android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI,
+                new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+        );
+        nm.createNotificationChannel(alarm);
     }
 
-    static boolean arm(Context ctx, int id, String title, String body, long atMs) {
+    static boolean arm(Context ctx, int id, String title, String body, long atMs, boolean alarm, String recur, String tone) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return false;
-        PendingIntent pi = pending(ctx, id, title, body);
+        PendingIntent pi = pending(ctx, id, title, body, alarm, recur, tone);
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (am.canScheduleExactAlarms()) {
@@ -138,15 +259,18 @@ public class JarvisNotifyPlugin extends Plugin {
     static void cancelAlarm(Context ctx, int id) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
-        am.cancel(pending(ctx, id, "", ""));
+        am.cancel(pending(ctx, id, "", "", true, "", ""));
     }
 
-    static PendingIntent pending(Context ctx, int id, String title, String body) {
+    static PendingIntent pending(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone) {
         Intent i = new Intent(ctx, JarvisNotifyReceiver.class);
         i.setAction("app.jarvis.notify.FIRE");
         i.putExtra("id", id);
         i.putExtra("title", title);
         i.putExtra("body", body);
+        i.putExtra("alarm", alarm);
+        i.putExtra("recur", recur == null ? "" : recur);
+        i.putExtra("tone", tone == null ? "" : tone);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             flags |= PendingIntent.FLAG_IMMUTABLE;
@@ -154,7 +278,7 @@ public class JarvisNotifyPlugin extends Plugin {
         return PendingIntent.getBroadcast(ctx, id, i, flags);
     }
 
-    static void persist(Context ctx, int id, String title, String body, long atMs) {
+    static void persist(Context ctx, int id, String title, String body, long atMs, boolean alarm, String recur, String tone) {
         try {
             JSONArray arr = load(ctx);
             JSONArray next = new JSONArray();
@@ -167,6 +291,9 @@ public class JarvisNotifyPlugin extends Plugin {
             row.put("title", title);
             row.put("body", body);
             row.put("atMs", atMs);
+            row.put("alarm", alarm);
+            row.put("recur", recur == null ? "" : recur);
+            row.put("tone", tone == null ? "" : tone);
             next.put(row);
             prefs(ctx).edit().putString(KEY_ITEMS, next.toString()).apply();
         } catch (Exception ignored) {
@@ -197,16 +324,26 @@ public class JarvisNotifyPlugin extends Plugin {
             String title = o.optString("title", "Jarvis");
             String body = o.optString("body", "");
             long at = o.optLong("atMs");
+            boolean alarm = o.optBoolean("alarm", true);
+            String recur = o.optString("recur", "");
+            String tone = o.optString("tone", "");
             if (at <= now) {
-                show(ctx, id, title, body);
-                removeStored(ctx, id);
+                show(ctx, id, title, body, alarm, recur, tone);
             } else {
-                arm(ctx, id, title, body, at);
+                arm(ctx, id, title, body, at, alarm, recur, tone);
             }
         }
     }
 
     static void show(Context ctx, int id, String title, String body) {
+        show(ctx, id, title, body, true, "", "");
+    }
+
+    static void show(Context ctx, int id, String title, String body, boolean alarm, String recur) {
+        show(ctx, id, title, body, alarm, recur, "");
+    }
+
+    static void show(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone) {
         ensureChannel(ctx);
         if (Build.VERSION.SDK_INT >= 33
                 && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS)
@@ -221,16 +358,36 @@ public class JarvisNotifyPlugin extends Plugin {
         PendingIntent content = open == null
                 ? null
                 : PendingIntent.getActivity(ctx, id + 10_000, open, flags);
-        NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_popup_reminder)
+        String play = tone != null && !tone.isEmpty() ? tone : prefs(ctx).getString(KEY_TONE, "");
+        Intent full = new Intent(ctx, JarvisAlarmActivity.class);
+        full.putExtra("title", title);
+        full.putExtra("body", body);
+        full.putExtra("tone", play);
+        full.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent fullPi = PendingIntent.getActivity(ctx, id + 20_000, full, flags);
+        NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, alarm ? ALARM_CHANNEL : CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setContentTitle(title == null || title.isEmpty() ? "Jarvis" : title)
                 .setContentText(body)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setFullScreenIntent(fullPi, true);
         if (content != null) b.setContentIntent(content);
         NotificationManager nm = ctx.getSystemService(NotificationManager.class);
         if (nm != null) nm.notify(id, b.build());
-        removeStored(ctx, id);
+        try {
+            ctx.startActivity(full);
+        } catch (Exception ignored) {
+        }
+        if ("daily".equals(recur) || "weekly".equals(recur)) {
+            long step = "weekly".equals(recur) ? 7L * 86_400_000L : 86_400_000L;
+            long next = System.currentTimeMillis() + step;
+            persist(ctx, id, title, body, next, true, recur, play);
+            arm(ctx, id, title, body, next, true, recur, play);
+        } else {
+            removeStored(ctx, id);
+        }
     }
 
     private static JSONArray load(Context ctx) {
