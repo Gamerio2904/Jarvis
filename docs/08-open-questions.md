@@ -60,6 +60,12 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Ha
 - `0.1.0`=MVP; `0.10.x`=NAS Compose (Parking); `0.11.x`=Samsung-TV; `0.12.0`=NAS-Proxy+APK; `1.0.0`=späterer MAJOR: **entschieden** (PO 2026-08-14)
 - Phase 2+3 Detail: **geplant** in [`12-nas-apk.md`](./12-nas-apk.md) / Sprints 34–39
 
+## G. Hausgeräte
+
+| ID | Frage | Prio | Status | Entscheidung |
+|----|-------|------|--------|--------------|
+| Q40 | Womit spricht der Deckenventilator? Funk-Fernbedienung, IR, Broadlink, Bond, Tuya, nur Wandschalter? | P2 | offen | Default für `1.29.0`: **Broadlink RM4 Pro** im WLAN, Codes lokal. Ohne Brücke keine Stufen. [`23-next.md`](./23-next.md) |
+
 ---
 
 ## Nächster Schritt
