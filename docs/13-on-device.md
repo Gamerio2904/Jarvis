@@ -21,6 +21,6 @@ Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind sc
 
 ## Parking
 
-NAS, Docker, Play Store, TTS, Research-Netz.
+NAS, Docker, Play Store, iOS. TTS und Research-Netz sind in `1.x` (Gemini Opt-in). Nächste Alltag-Reihe: [`19-next.md`](./19-next.md).
 
 Samsung-TV: **live in `0.14.1`** ([`14-quality-tv.md`](./14-quality-tv.md)) — nativ in der APK (WOL/Tizen-WS), nicht WASM.

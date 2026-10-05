@@ -1,5 +1,7 @@
 # 02 — Architektur
 
+> **Live `1.13.2`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Stimme, Timer, Wetter, Kalender sind Code. Nächste Fähigkeiten: [`19-next.md`](./19-next.md).
+
 ## Leitentscheidung
 
 **Design = Variante 3 (lokal).**  
@@ -15,11 +17,11 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
 | Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
 | Laufzeit `0.13.x` | Android-APK, llama.cpp WASM on-device |
-| Stimme | Später: TTS liest denselben Text vor |
+| Stimme | **Code `1.5`+:** TTS liest denselben Text (Gemini-Stimme opt-in) |
 | Handy | Die App **ist** Jarvis; Sideload, kein Store |
 | UI-Kanal | Web-UI in Capacitor; kein Telegram |
 | UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
-| UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
+| UI-Motion | **Code `1.13.0`:** Chrome fest, Chat scrollt, Motion; `prefers-reduced-motion` |
 | Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
 | Kontext / Erinnern | **MVP:** In-Chat inkl. Wiederöffnen. **Später:** maximal gutes Gedächtnis & Kontextverständnis |
 | Backend | Dev entscheidet pragmatisch |
