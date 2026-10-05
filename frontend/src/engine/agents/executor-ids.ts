@@ -41,6 +41,7 @@ export const EXECUTOR_IDS = [
   "ferien",
   "fx",
   "food",
+  "cook",
   "library",
   "sport",
   "sky",

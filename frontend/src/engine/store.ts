@@ -231,6 +231,7 @@ export type Settings = {
   gemini_api_key: string
   tankerkoenig_api_key: string
   omdb_api_key: string
+  themealdb_api_key: string
   carto_api_key: string
   shop_discount: boolean
   last_fuel_json: string
@@ -462,6 +463,7 @@ export const DEFAULT_SETTINGS: Settings = {
   gemini_api_key: '',
   tankerkoenig_api_key: '',
   omdb_api_key: '',
+  themealdb_api_key: '',
   carto_api_key: '',
   shop_discount: false,
   last_fuel_json: '',

@@ -593,5 +593,14 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'wont', 0.35)
   }
 
+  if (parseCookIntent(text) || parseSpiceIntent(text)) {
+    out = drop(out, 'haushalt')
+    out = drop(out, 'outlook')
+    if (!parseFoodIntent(text)) out = drop(out, 'food')
+    if (parseSpiceIntent(text)) out = drop(out, 'memory')
+    if (!/^\s*lies\s+das\s+foto\b/i.test(t)) out = drop(out, 'eye')
+    out = boost(out, 'cook', 0.28)
+  }
+
   return out
 }

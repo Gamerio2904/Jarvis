@@ -662,6 +662,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
+0. **`18.11` Koch / Speisekammer** 342–346 CODE [`84-next.md`](./84-next.md) — Bild, Gewürz-Pin, Rezept; Quellen zu; App-Code `18.11.4`
 1. **`18.9` Recover + Hirn** 331–337 CODE [`80-next.md`](./80-next.md) — Quelle tot → Ansage → Allowlist; nicht parallel zu 18.5
 2. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.9
 3. **`18.8` Debug-Rollback / Termin-Fristen / Download / Prompts** 323–330 CODE [`79-next.md`](./79-next.md)

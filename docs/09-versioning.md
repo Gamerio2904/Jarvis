@@ -777,8 +777,13 @@ Recherche pro Quelle).
 **`18.10.0`** (App-Code, versionCode `181000`): Schiene 301–306
 (historisch PLAN `18.5`). TV beobachtet nach WoL, Groq-Whisper zweite Bahn,
 Edge-TTS zuerst, Working Memory nach Tool. Nicht als `18.5.0` shippen —
-das wäre ein Downgrade unter `18.9.8`. Sideload bleibt `18.9.8`, bis die
-APK `18.10.0` gebaut ist.
+das wäre ein Downgrade unter `18.9.8`. Sideload **`18.10.0`**.
+
+**`18.11.4` CODE** (Sprints 342–346): Koch aus dem Vorrat-Foto. Zeiten
+aus JSON-LD oder Wikibooks, nicht aus dem Modell. Gewürze im
+Hauptgehirn mit Synonymen. Vision-Liste erst nach Ja. Quellen-Badge
+zählt, Liste zu. Kein DummyJSON, kein TheMealDB-Testkey, kein FlavorDB,
+kein zweites Gedächtnis. Sideload bleibt `18.10.0` bis zur 18.11-APK.
 
 **`18.12.0`** (App-Code + Sideload, versionCode `181200`): Kamera-Szene ab
 Staffel 6. Foto, dann Staffel und Folge. Nur Sichtbares, Bestätigung,
