@@ -140,6 +140,7 @@ MAJOR.MINOR.PATCH
 | `1.48.7` | Research: Zahlen nur aus Treffern | Sprint 101 Patch |
 | `1.48.8` | CarPlay-Route auf Straßen, Cafés am GPS | Sprint 101 Patch |
 | `2.0.0` | Haus-AI: letztes Medium, ehrliches Wetter, interne Navi | Sprint 102 MAJOR |
+| `2.0.1` | Latenz, Ingersheim DE, Kurven/Kreisverkehr, Follow-ups | Sprint 102 Patch |
 
 ### Weitere Beispiele
 

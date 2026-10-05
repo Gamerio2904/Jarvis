@@ -211,8 +211,69 @@ function distToSegM(
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
 }
 
-/** Douglas-Peucker in Metern — Ecken bleiben, gerade Stücke werden kürzer. */
-export function simplifyTrack(coords: Array<[number, number]>, epsilonM = 7): Array<[number, number]> {
+export type TrackSnap = {
+  lat: number
+  lon: number
+  bearing: number
+  distM: number
+  index: number
+}
+
+/** GPS auf die Linie ziehen — Kurven/Kreisverkehr nicht über den Ring springen. */
+export function snapToTrack(
+  coords: Array<[number, number]>,
+  pos: { lat: number; lon: number },
+  hintI = 0,
+): TrackSnap | null {
+  if (!Array.isArray(coords) || coords.length < 2) return null
+  const lat0 = pos.lat
+  const p = localMeters(pos.lat, pos.lon, lat0)
+  const start = Math.max(0, Math.min(coords.length - 2, hintI - 12))
+  const end = Math.min(coords.length - 2, Math.max(start + 1, hintI + 48))
+  const windows: Array<[number, number]> = [
+    [start, end],
+    [0, coords.length - 2],
+  ]
+  let best: TrackSnap | null = null
+  const seen = new Set<string>()
+  for (const [from, to] of windows) {
+    const key = `${from}:${to}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    for (let i = from; i <= to; i += 1) {
+      const a = coords[i]
+      const b = coords[i + 1]
+      if (!a || !b) continue
+      const A = localMeters(a[1], a[0], lat0)
+      const B = localMeters(b[1], b[0], lat0)
+      const dx = B.x - A.x
+      const dy = B.y - A.y
+      const len2 = dx * dx + dy * dy
+      let t = 0
+      if (len2 > 1e-9) t = Math.max(0, Math.min(1, ((p.x - A.x) * dx + (p.y - A.y) * dy) / len2))
+      const sx = A.x + t * dx
+      const sy = A.y + t * dy
+      const distM = Math.hypot(p.x - sx, p.y - sy)
+      if (best && distM >= best.distM) continue
+      const cos = Math.cos((lat0 * Math.PI) / 180)
+      const lon = sx / (111_320 * (cos || 1e-6))
+      const lat = sy / 110_540
+      const bearing = (Math.atan2(dx, dy) * 180) / Math.PI
+      best = {
+        lat,
+        lon,
+        bearing: (bearing + 360) % 360,
+        distM,
+        index: i,
+      }
+    }
+    if (best && best.distM < 28) break
+  }
+  return best
+}
+
+/** Douglas-Peucker in Metern — Ecken und Kreisverkehre bleiben enger. */
+export function simplifyTrack(coords: Array<[number, number]>, epsilonM = 4): Array<[number, number]> {
   if (!Array.isArray(coords) || coords.length <= 2) return Array.isArray(coords) ? coords.slice() : []
   const lat0 = coords.reduce((s, p) => s + Number(p[1] || 0), 0) / coords.length
   const xy = coords.map(([lon, lat]) => localMeters(lat, lon, lat0))
@@ -245,7 +306,7 @@ export function isRoadTrack(coords: Array<[number, number]>, meters = 0): boolea
   return true
 }
 
-export function compactCoords(coords: Array<[number, number]>, max = 480): Array<[number, number]> {
+export function compactCoords(coords: Array<[number, number]>, max = 640): Array<[number, number]> {
   if (!Array.isArray(coords) || coords.length <= max) return Array.isArray(coords) ? coords : []
   const out: Array<[number, number]> = []
   const step = (coords.length - 1) / (max - 1)

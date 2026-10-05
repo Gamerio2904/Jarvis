@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `2.0.0`. Letztes Medium, ehrliches Wetter. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
+1. Sideload `2.0.1`. Schnellere Antworten, Ingersheim DE. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
 2. Qualität `1.34`–`2.0` plus PC ist CODE. Weiteres nur auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 

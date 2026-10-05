@@ -14,7 +14,9 @@ export type DriveIntent =
 const SKIP_DEST =
   /^(fuß|fuss|spät|her|mittag|dem|den|der|das|mir|dir|uns|euch|jetzt|mal|bitte|los)$/i
 const NOT_PLACE =
-  /\b(wetter|wecker|timer|todo|notiz|erinnerung|anrufen|rufe|kaufen|frage|sagst|stunde|minute|woche)\b/i
+  /\b(wetter|wecker|timer|todo|notiz|erinnerung|anrufen|rufe|kaufen|frage|sagst|stunde|minute|woche|witz(?:e)?|erzähl|rezept|backanleitung|schlagzeile|zutaten)\b/i
+const DEST_VERB =
+  /\b(erzähl|sag|mach|gib|spiel|such|erinner|kauf|koch|back|öffne|zeig|hilf|erklär)\b/i
 
 function destOf(raw?: string): string | undefined {
   const t = (raw || '')
@@ -25,8 +27,10 @@ function destOf(raw?: string): string | undefined {
   if (!t || t.length < 2) return undefined
   if (SKIP_DEST.test(t)) return undefined
   if (/^\d+$/.test(t)) return undefined
-  if (t.split(/\s+/).length > 8) return undefined
+  if (t.split(/\s+/).length > 5) return undefined
   if (NOT_PLACE.test(t)) return undefined
+  if (DEST_VERB.test(t)) return undefined
+  if (/^(hause|heim|zuhause|zu\s*hause)$/i.test(t)) return 'zuhause'
   if (isFuelPlace(t)) return undefined
   return t
 }
@@ -37,7 +41,7 @@ const BARE_ON = /^\s*(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)\s*[.!?]*$
 const OFF =
   /^\s*(?:deaktivier(?:e)?|beend(?:e)?)\s+(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)|(?:fahr(?:er)?modus|fahrmodus|carplay)\s+aus\s*[.!?]*$/i
 const GO =
-  /^\s*(?:fahr(?:e)?(?:\s+mich)?|bring(?:e)?(?:\s+mich)?|navigier(?:e)?|route|carplay)\s+(?:zu(?:r|m)?|nach)\s+(.+?)\s*$/i
+  /^\s*(?:fahr(?:e)?(?:\s+mich)?|fähr(?:e)?(?:\s+mich)?|bring(?:e)?(?:\s+mich)?|navigier(?:e)?|route|carplay)\s+(?:zu(?:r|m)?|nach)\s+(.+?)\s*$/i
 const DEST =
   /^\s*(?:nach|zu(?:r|m)?)\s+(?!fuß\b|fuss\b)(.+?)(?:\s+(?:fahren|navigieren|losfahren|los))?\s*[.!?]*$/i
 const TAB_MUSIC =
@@ -71,6 +75,7 @@ export function parseDriveIntent(text: string, inMode = false): DriveIntent | nu
     return null
   }
   if (/^nachher\b/i.test(t)) return null
+  if (/\bnach\s+witz/i.test(t)) return null
   if (OFF.test(t)) return { kind: 'off' }
   const overlay = overlayTab(t)
   if (overlay === 'spotify' || (inMode && (TAB_MUSIC.test(t) || BARE_MUSIC.test(t)))) {

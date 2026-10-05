@@ -2,7 +2,7 @@ import { parseDriveIntent, type DriveTab } from './drive-parse'
 import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
-import { compactCoords, isRoadTrack, simplifyTrack } from './drive-map'
+import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map'
 import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
@@ -52,6 +52,7 @@ let lastFix: DriveFix | null = null
 let announced = new Map<string, Set<string>>()
 let offSince = 0
 let lastRerouteAt = 0
+let lastSnapI = 0
 const listeners = new Set<() => void>()
 
 function persistActive() {
@@ -125,7 +126,21 @@ function asNavSteps(steps: DriveStep[] | undefined): NavStep[] {
     type: s.type,
     modifier: s.modifier,
     name: s.name,
+    exit: s.exit,
   }))
+}
+
+export function snapDriveFix(here: DriveFix): DriveFix {
+  if (!active?.coords.length) return here
+  const snap = snapToTrack(active.coords, here, lastSnapI)
+  if (!snap || snap.distM > 70) return here
+  lastSnapI = snap.index
+  return {
+    ...here,
+    lat: snap.lat,
+    lon: snap.lon,
+    bearing: snap.bearing,
+  }
 }
 
 function cueKey(dir: string, name: string): string {
@@ -134,13 +149,15 @@ function cueKey(dir: string, name: string): string {
 
 function resetAnnounced() {
   announced = new Map()
+  lastSnapI = 0
 }
 
 /** GPS später da oder Standort hat sich bewegt: Route nachziehen. */
 export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance | null> {
   lastFix = here
   if (!active) return null
-  const off = nextManeuver(asNavSteps(active.steps), active.coords, here)
+  const snapped = snapDriveFix(here)
+  const off = nextManeuver(asNavSteps(active.steps), active.coords, snapped, lastSnapI)
   const weak = !isRoadTrack(active.coords, active.meters) || active.minutes <= 0
   const moved = haversineM({ lat: active.fromLat, lon: active.fromLon, place: '' }, here)
   let clearlyOff = Boolean(off?.offRoute)
@@ -153,7 +170,7 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
   const needReroute = weak || clearlyOff || moved > 900
   if (needReroute) {
     const now = Date.now()
-    if (weak && !clearlyOff && now - lastRerouteAt < 8_000) return guidanceFor(here)
+    if (weak && !clearlyOff && now - lastRerouteAt < 8_000) return guidanceFor(snapped)
     lastRerouteAt = now
     const ride = await routeDrive(here, { lat: active.destLat, lon: active.destLon })
     if (!ride.ok) {
@@ -169,7 +186,7 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
         persistActive()
         emit()
       }
-      return guidanceFor(here)
+      return guidanceFor(snapped)
     }
     active = {
       ...active,
@@ -184,12 +201,12 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
     persistActive()
     emit()
   }
-  return guidanceFor(here)
+  return guidanceFor(snapped)
 }
 
 function guidanceFor(here: DriveFix): DriveGuidance | null {
   if (!active) return null
-  const nxt = nextManeuver(asNavSteps(active.steps), active.coords, here)
+  const nxt = nextManeuver(asNavSteps(active.steps), active.coords, here, lastSnapI)
   if (!nxt) {
     return {
       arrow: '↑',
@@ -198,7 +215,7 @@ function guidanceFor(here: DriveFix): DriveGuidance | null {
       offRoute: false,
     }
   }
-  const banner = formatNavBanner(nxt.dir, nxt.meters, nxt.name)
+  const banner = formatNavBanner(nxt.dir, nxt.meters, nxt.name, nxt.exit)
   const phase = navPhase(nxt.meters)
   let cue: string | undefined
   if (phase) {
@@ -207,7 +224,7 @@ function guidanceFor(here: DriveFix): DriveGuidance | null {
     if (!seen.has(phase)) {
       seen.add(phase)
       announced.set(key, seen)
-      cue = formatNavCue(nxt.dir, nxt.meters, phase)
+      cue = formatNavCue(nxt.dir, nxt.meters, phase, nxt.exit)
     }
   }
   return { ...banner, cue, offRoute: nxt.offRoute }

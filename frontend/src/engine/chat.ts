@@ -731,7 +731,7 @@ export async function streamChat(
       : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
-      ...history.slice(geminiReady() || opts?.voice ? -24 : -12).map((m) => ({
+      ...history.slice(geminiReady() || opts?.voice ? -12 : -8).map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),
@@ -747,7 +747,7 @@ export async function streamChat(
     let raw = ''
     try {
       raw = geminiReady()
-        ? await (opts?.voice ? streamGemini : completeGemini)(
+        ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
             llmMessages,
             (_piece, full) => {
               acc = full
@@ -755,7 +755,8 @@ export async function streamChat(
             },
             {
               search: wantSearch,
-              maxOutputTokens: opts?.voice ? 480 : wantSearch ? 1400 : 1400,
+              maxOutputTokens: opts?.voice ? 420 : wantSearch ? 900 : 420,
+              timeoutMs: wantSearch ? 12_000 : 8_000,
             },
           ).then((r) => {
             if (r.research?.sources?.length) {

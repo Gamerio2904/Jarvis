@@ -25,6 +25,10 @@ Dieselbe Haus-AI, ein Kontext. Letztes Medium, ehrliche Daten, CarPlay als inter
 | M6 | Widget: Fläche hören, Mikro Wake | `ACTION_TOGGLE_VOICE` am Mikrofon |
 | M7 | Stopp = letztes Medium | `stopp` nach Spotify pausiert, schließt CarPlay nicht |
 | M8 | Sideload `2.0.0` | versionCode 20000 |
+| M9 | Latenz (`2.0.1`) | Smalltalk streamt, Gemini nicht 60 s |
+| M10 | Ingersheim DE (`2.0.1`) | GPS/DE vor Grand Est |
+| M11 | Follow-ups (`2.0.1`) | Witz/Rezept nicht Ort/Wetter; Schlagzeilen = Tagesschau |
+| M12 | Kurven/Kreisverkehr (`2.0.1`) | GPS auf der Linie, Ausfahrt |
 
 ## Probe
 
