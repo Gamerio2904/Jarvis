@@ -150,6 +150,9 @@ export function VoiceMode({
           onClick={() => void onOrb()}
           aria-label={label}
         >
+          <i className="orb-ring r1" />
+          <i className="orb-ring r2" />
+          <i className="orb-ring r3" />
           <span />
         </button>
         <p className="voice-status">{label}</p>

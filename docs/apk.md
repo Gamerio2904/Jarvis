@@ -1,17 +1,16 @@
-# Android-APK — `1.12.0`
+# Android-APK — `1.13.1`
 
-**1.12.0:** Wecker einmal oder mit Wiederholung, eigener Ton, Klingeln bei Bildschirm aus.
+**1.13.1:** Kalender versteht `21.08.`, Wecker ohne doppelten Titel.
 
 ## Download
 
-**APK `1.12.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/wecker-tone-1-12-0-0bf8/releases/Jarvis.apk
+**APK `1.13.1`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-parse-1-13-1-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.12.0` · versionCode `11200`
+- versionName `1.13.1` · versionCode `11301`
 - App-ID `local.jarvis.app`
 
-1. Über 1.11.0 installieren.
-2. „Wecker 7 Uhr“ (einmal) / „Wecker 7 Uhr jeden Tag“.
-3. Einstellungen → **Wecker-Ton wählen**.
-4. OnePlus: Akku für Jarvis nicht optimieren.
+1. Über 1.13.0 installieren.
+2. `Termin 21.08. mit jane treffen` — Datum 21.8., nicht heute.
+3. `Wecker 5 Uhr` — „Wecker, …“, nicht „Wecker Wecker“.

@@ -5,7 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.12.0`**.
+App-Version im Code: **`1.13.1`**.
+
+### `1.13.1` — Datum + Wecker-Titel — *CODE*
+
+- „Termin 21.08. …“ landet am 21.8., nicht in einer Stunde
+- „Wecker 7 Uhr“ sagt nicht mehr „Wecker Wecker“
+
+### `1.13.0` — GUI fest, Chat scrollt — *CODE*
+
+- Seite, Sidebar, Topbar und Composer sind fest — nur der Chat scrollt
+- Aufwendige Animationen und Hover (Orbs, Magnet, Ripple); `prefers-reduced-motion` bleibt
 
 ### `1.12.0` — Wecker + eigener Ton — *CODE*
 
