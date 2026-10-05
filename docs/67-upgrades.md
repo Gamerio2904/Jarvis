@@ -1,8 +1,8 @@
 # 67 — Upgrade-Vorschläge: näher an Claude, ChatGPT, Astra
 
-> Grundlage ist der Code in `16.1.0`, nicht ein Wunschbild. Jeder Punkt nennt
+> Grundlage ist der Code in `18.14.2`, nicht ein Wunschbild. Jeder Punkt nennt
 > die Stelle, den offenen Nachteil und eine Open-Source-Referenz. Sortiert nach
-> Nutzen pro Aufwand — nicht nach Reihenfolge im Sprint.
+> Nutzen pro Aufwand — nicht nach Reihenfolge im Sprint. Kein neuer Schwarm.
 
 Die Leitentscheidung bleibt: **Parser wählen Geräte, das Modell formuliert.**
 Kein Vorschlag hier gibt einem Modell die Hand am Fernseher.
@@ -67,7 +67,7 @@ Stufe 2 braucht ein Modell und ein Label-Set.
 
 ## C. Der Konflikt-Tisch skaliert nicht mehr
 
-**Ist:** 60 Parser mit handgesetzten `extra`-Boni und `conflicts.ts` mit über
+**Ist:** 63 Parser mit handgesetzten `extra`-Boni und `conflicts.ts` mit über
 40 Regeln auf 360 Zeilen. Beim Audit für `16.1.0` fanden sich darin:
 eine **tote Regel** (`/\b(fernseh|…)\b/` traf „Fernseher" nie), ein
 **Kostenmodell, das nie etwas entschied**, und **Boosts, die an der Decke

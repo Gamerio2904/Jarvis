@@ -2,7 +2,7 @@
 
 PO 2026-08-28: Animationen massiv, GUI Over-the-top, Antworten näher ChatGPT/Grok/Claude. **Nachzug 2026-08-28:** Gemini ist der **Hauptweg**. Groq und das kleine lokale Modell sind nur Backup. Kein größeres Modell lokal testen. Satellitenfoto an: virtueller Globus zum Zoomen; Jarvis dreht/zoomt auf „Zeig London“ und sagt, welche Stadt in der Sicht ist.
 
-**Ist:** Code **`6.90.0`**. Sideload **`6.90.0`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt + Briefing + Welt-Tour. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker. Parser [`46-next.md`](./46-next.md). Split/Identität/Overlay [`47-next.md`](./47-next.md). Globus-Briefing [`48-next.md`](./48-next.md).
+**Ist dieser Schiene:** Code landete in **`6.90.0`**, Gemini zuerst. **Live:** Code **`18.14.2`**, Sideload **`18.14.2`**, Groq primär. Virtueller Globus + Tour **CODE**. Parser [`46-next.md`](./46-next.md). Overlay [`47-next.md`](./47-next.md). Lage-Icons [`86-next.md`](./86-next.md).
 
 **Lücke:** Smalltalk ohne Gemini-Key bleibt klein (gewollt — 0,5B ist Backup). Debug-Hintergrund `5.12`. LocateAnything-Gewichte. Kein 1,5B.
 

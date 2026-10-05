@@ -94,7 +94,7 @@ Bei BPE zerfallen deutsche Komposita in Teile — `Wohnzimmerlampe` ist kein
 Token, sondern mehrere. Deutsche Texte kosten für denselben Inhalt spürbar mehr
 Tokens als englische.
 
-**Für Jarvis:** Betrifft **nur** den Modellpfad. Die 60 Parser arbeiten mit
+**Für Jarvis:** Betrifft **nur** den Modellpfad. Die 63 Parser arbeiten mit
 regulären Ausdrücken auf dem Rohtext und kennen keine Tokens — für die
 deterministische Bahn ist Tokenisierung vollständig gleichgültig. Wo sie zählt,
 zählt sie doppelt: als Kosten (§3) und als Grund für die Sprachaufteilung (§2).

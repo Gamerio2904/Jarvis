@@ -3,7 +3,7 @@
 Spielerei und Begeisterung — **dosiert**, abschaltbar, local-first.  
 Einstellungen: **einfach, flach, klar** — wenig Verschachtelung. Die **17 Themen** sind trotzdem unübersichtlich — nächste IA: [`50-next.md`](./50-next.md) `8.35`.
 
-> **Jetzt:** Code **`10.60.0`**. Cloud-Settings: Gemini-Key Hauptweg, Groq Backup. Overlay Gemini zuerst. Acht Settings-Reiter **CODE**. Suche: [`50-next.md`](./50-next.md). Gedächtnis zeigt Kind/Entities (`10.0`).
+> **Jetzt:** Code **`18.14.2`**. Cloud-Settings: Groq-Key Smalltalk, Gemini-Key Vision/Deep. Overlay nennt Keys ehrlich. Settings-Reiter **CODE**. Suche: [`50-next.md`](./50-next.md).
 
 ## Versionierung (verbindlich)
 

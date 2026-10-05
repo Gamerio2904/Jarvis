@@ -3,7 +3,7 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**. Tools und Speicher bleiben on-device. Smalltalk-Hirn ist Gemini (Key), nicht das 0,5B.
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools. e5 nie Router. Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0` (Schema vor Encoder; 195 Freeze).
+> **Jetzt:** Code **`18.14.2`**. Sideload **`18.14.2`**. Parser wählen Tools. Groq formuliert Smalltalk. Gemini Sehen/Deep. 0,5B wählt keine Tools. e5 nie Router. Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** (Schema vor Encoder; 195 Freeze).
 
 ### Live `10.60.0` (Code)
 
@@ -11,7 +11,7 @@ Memory-Pins tragen optionales `kind`/`tense`/`entities`/`related_ids`. Write geh
 
 ### Live `6.90.0` (Code)
 
-**Hirn:** Gemini zuerst, Groq Backup, 0,5B zuletzt [`16-gemini.md`](./16-gemini.md) · [`45-next.md`](./45-next.md). Overlay Gemini zuerst [`47-next.md`](./47-next.md).  
+**Hirn:** Groq zuerst, Groq Backup nur wenn Primary fehlt, Gemini Spezialist [`16-gemini.md`](./16-gemini.md). Overlay nennt Keys, nicht „Gemini zuerst“ als Live-Default.  
 **Parser `6.51`:** Wont/Help/HUD-Skip [`46-next.md`](./46-next.md).  
 **Split/Identität:** Live-Doppelbefehl, canned Identität ohne Modell.  
 Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  

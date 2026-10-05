@@ -3,6 +3,9 @@
 > Dieses Dokument beschreibt, **was der Code tut** — nicht was geplant war.
 > [`62-next.md`](./62-next.md) ist das Planungsdokument zu 14.0; wo die Namen
 > dort von der Umsetzung abweichen, gilt diese Datei.
+> Katalog: **63** Parser und **63** Executoren in `parse-catalog.ts` /
+> `executor-ids.ts` (Stand `18.14.2`). Intern (`router`, `curator`, `propose`)
+> sind keine `AgentSpec`. Ein Zug = ein Domänen-Agent, kein Schwarm.
 
 ## 1. Ein Zug von vorne nach hinten
 
@@ -60,7 +63,7 @@ keiner.
 
 Intern (`router`, `curator`, `propose`) erscheinen in Traces und in der
 Agenten-Karte, sind aber **keine** `AgentSpec`-Zeilen. Die Karte liest
-`parseCatalog()` (60 Domänen).
+`parseCatalog()` (63 Domänen).
 
 **Nicht bauen:** ein fünfter LLM-Organizer, AgentGrid-Rollen, parallele
 Domänen-Agenten in einem Zug.

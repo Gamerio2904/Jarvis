@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser wählen Tools. Körper, Globus, Debug-FGS, Hausstand-Export, Memory-10 **CODE**. Globus-Briefing `6.90` **CODE**. Live-Ton: **Siezen**. Offen: Gerät-PO [`55-next.md`](./55-next.md) 178, Memory-Gerät 193, LocateAnything-Gewichte Freeze [`41-next.md`](./41-next.md).
+> **Jetzt:** Code **`18.14.2`**. Sideload **`18.14.2`**, versionCode `181402`. **Hirn:** Groq primär → Gemini Spezialist (Vision/Deep) → 0,5B. Parser wählen Geräte; 63 Domänen-Agenten. Lage (Kacheln/Körper/Kugel/Serie) **CODE**. Live-Ton: **Siezen**. Test: [`TEST-18.14.md`](./TEST-18.14.md). LocateAnything-Gewichte Freeze [`41-next.md`](./41-next.md).
 
 ## Vision
 
@@ -10,7 +10,7 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 
 ## Produktprinzipien
 
-1. **Privat by design** — Speicher, Tools, Keys nur auf dem Gerät. Denken über **deinen** Gemini-Key (Hauptweg), sonst Groq, zuletzt 0,5B. Kein Key in der APK.
+1. **Privat by design** — Speicher, Tools, Keys nur auf dem Gerät. Smalltalk über **deinen** Groq-Key; Gemini für Sehen/Deep Research; zuletzt 0,5B. Kein Key in der APK.
 2. **Menschlich wirken, nicht Menschen imitieren** — Ziel ist ein realistisches Gefühl für dich, kein Deepfake-Mensch.
 3. **Chat first** — Messenger-Gefühl. Stimme ist da (`1.5`+), Text bleibt Quelle.
 4. **Charakter vor Features** — Ton fest (Siezen im Code), dann neue Alltags-Tools.
@@ -26,10 +26,10 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Alltags-Smalltalk | Jarvis führt natürliche Kurzgespräche (Hallo, Wie geht’s, …). |
 | Charakterfestigkeit | Gleicher Ton über Tage; erkennbar „dein“ Jarvis (Understatement, „Master“, nur Deutsch, Siezen). |
 | Lokale Kontrolle | Tools und Speicher on-device. Cloud-Hirn nur mit **deinem** Key. |
-| Handy-Nutzbarkeit | Sideload-APK `6.90.0`. Overlay Gemini zuerst. |
+| Handy-Nutzbarkeit | Sideload-APK `18.14.2`. Overlay nennt Keys ehrlich. |
 | 24/7 | Handy selbst; kein NAS-LLM. |
-| Versionierung | `0.1.0` = MVP; `0.13.0` = On-Device; `6.50` = Gemini Hauptweg; `6.90.0` = aktueller Sideload |
-| Stimme | Realistisches Vorlesen derselben Antworten, auf dein Kommando (Algieba). |
+| Versionierung | `0.1.0` = MVP; `0.13.0` = On-Device; `6.50` = Gemini-Hauptweg (historisch); `15.1` = Groq primär; `18.14.2` = aktueller Sideload |
+| Stimme | Realistisches Vorlesen derselben Antworten (Edge zuerst; Algieba nur Fallback). |
 | Premium-Web-UI | Spotify-**Dunkel** + ChatGPT-Layout; Bühne `6.50`+ |
 
 ## Nicht-Ziele (aktuell)
