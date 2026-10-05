@@ -122,6 +122,21 @@ public class JarvisHomePlugin extends Plugin {
         });
     }
 
+    @PluginMethod
+    public void plugDiscover(PluginCall call) {
+        runBg(call, () -> resolve(call, JarvisPlug.discover()));
+    }
+
+    @PluginMethod
+    public void plugProbe(PluginCall call) {
+        runBg(call, () -> resolve(call, JarvisPlug.probe(call.getData())));
+    }
+
+    @PluginMethod
+    public void plugSet(PluginCall call) {
+        runBg(call, () -> resolve(call, JarvisPlug.set(call.getData())));
+    }
+
     private void runBg(PluginCall call, Runnable task) {
         new Thread(() -> {
             try {
@@ -231,8 +246,9 @@ public class JarvisHomePlugin extends Plugin {
                         JSObject row = new JSObject();
                         row.put("host", b.host);
                         row.put("mac", b.macHex);
-                        row.put("name", "Broadlink");
+                        row.put("name", isPlugType(b.type) ? "Broadlink-Steckdose" : "Broadlink");
                         row.put("kind", "broadlink");
+                        row.put("type", b.type);
                         found.put(b.host, row);
                     } catch (Exception timeout) {
                         break;
@@ -288,6 +304,50 @@ public class JarvisHomePlugin extends Plugin {
             System.arraycopy(data, 0, payload, 4, data.length);
             byte[] resp = sendPacket(0x6a, payload);
             if (resp == null) throw new IllegalStateException("keine Antwort");
+        }
+
+        void setPower(boolean on) throws Exception {
+            byte[] payload = new byte[16];
+            payload[0] = 0x02;
+            payload[4] = (byte) (on ? 1 : 0);
+            byte[] resp = sendPacket(0x6a, payload);
+            if (resp == null) throw new IllegalStateException("keine Antwort");
+        }
+
+        static boolean isPlugType(int type) {
+            switch (type) {
+                case 0x2711:
+                case 0x2719:
+                case 0x271a:
+                case 0x2720:
+                case 0x2733:
+                case 0x273e:
+                case 0x753e:
+                case 0x7530:
+                case 0x7918:
+                case 0x7919:
+                case 0x791a:
+                case 0x7d0d:
+                case 0x9479:
+                case 0x947a:
+                case 0x9475:
+                case 0x7568:
+                case 0x756c:
+                case 0x756f:
+                case 0x7587:
+                case 0x758b:
+                case 0x7592:
+                case 0x7599:
+                case 0x759a:
+                case 0x75a1:
+                case 0x75a2:
+                case 0x5115:
+                case 0x51e2:
+                case 0x6111:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         byte[] sendPacket(int command, byte[] payload) throws Exception {

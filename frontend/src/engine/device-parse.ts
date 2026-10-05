@@ -10,7 +10,7 @@ export type DeviceIntent =
   | { kind: 'ask' }
 
 const SKIP =
-  /\b(notiz|todo|erinnerung|wecker|timer|fernseher|ventilator|lüfter|spotify|youtube|netflix)\b/i
+  /\b(notiz|todo|erinnerung|wecker|timer|fernseher|ventilator|lüfter|spotify|youtube|netflix|steckdose)\b/i
 
 const BATTERY =
   /\b(?:akku|ladestand|ladezustand|batterie)\b|\bwie\s+voll\b|\blädt\s+(?:das\s+)?(?:handy|telefon|gerät)\b/i

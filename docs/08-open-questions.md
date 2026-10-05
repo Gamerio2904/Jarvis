@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `2.0.1`. Schnellere Antworten, Ingersheim DE. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
-2. Qualität `1.34`–`2.0` plus PC ist CODE. Weiteres nur auf PO-Kommando.
+1. Sideload `2.1.0`. WLAN-Steckdosen: Einstellungen → Haus. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
+2. Qualität `1.34`–`2.0` plus PC ist CODE. Steckdosen `2.1.0`.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---
@@ -73,4 +73,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-18 | Q42 | Filme: IMDb/RT nur über OMDb (RT ohne öffentliche API). Gratis-Streams JustWatch DE; Joyn/ARD nennen, nicht starten. Rabatt-Suche Default aus, keine erfundenen Codes. | PO |
 | 2026-08-18 | Q43 | Öffnungszeiten von Läden nur aus OSM `opening_hours`. Fehlt der Tag: ehrlich. Keine erfundenen Stunden. | PO |
 | 2026-08-18 | Q44 | Anruf und SMS direkt, aber immer nachfragen. Kein Abheben/Zustellung behaupten. | PO |
-| 2026-08-18 | Q45 | Desktop-App: Jarvis sieht/steuert den Windows-PC live (FIFA, Maus, Ordner). Kein NAS-Backend. | PO |
+| 2026-08-19 | Q46 | WLAN-Steckdosen lokal: Shelly/Tasmota per IP, Tuya/Smart Life nur LAN mit Local Key, keine Tuya-Cloud, kein Tapo | PO |

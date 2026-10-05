@@ -55,6 +55,7 @@ import { handleTools, type ToolMeta } from './tools'
 import { handleTv, handleTvOrdinal, tvStatusFromSettings } from './tv'
 import { handleFilm } from './film'
 import { handleFan } from './fan'
+import { handlePlug } from './plug'
 import { handleWeather } from './weather'
 import { handlePlaces } from './places'
 import { handleShopping } from './shopping'
@@ -268,6 +269,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: fanHit.reply,
       tool: { tool_status: 'executed', tool: 'fan', action: 'command', label: 'Ventilator' },
       lastTool: 'fan',
+    }
+  }
+
+  const plugHit = await handlePlug(content)
+  if (plugHit.handled && plugHit.reply) {
+    return {
+      reply: plugHit.reply,
+      tool: { tool_status: 'executed', tool: 'plug', action: 'command', label: 'Steckdose' },
+      lastTool: 'plug',
     }
   }
 
@@ -545,7 +555,7 @@ async function rememberToolFromStore(tool: string): Promise<void> {
     persistLastStep('todo', td?.title ?? '', '')
     return
   }
-  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan') {
+  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan' || tool === 'plug') {
     persistLastStep(tool)
     return
   }

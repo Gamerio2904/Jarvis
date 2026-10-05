@@ -21,6 +21,7 @@ const homeSrc = join(root, 'native', 'home')
 const homeDest = join(android, 'app/src/main/java/app/jarvis/home')
 mkdirSync(homeDest, { recursive: true })
 copyFileSync(join(homeSrc, 'JarvisHomePlugin.java'), join(homeDest, 'JarvisHomePlugin.java'))
+copyFileSync(join(homeSrc, 'JarvisPlug.java'), join(homeDest, 'JarvisPlug.java'))
 
 const notifySrc = join(root, 'native', 'notify')
 const notifyDest = join(android, 'app/src/main/java/app/jarvis/notify')
