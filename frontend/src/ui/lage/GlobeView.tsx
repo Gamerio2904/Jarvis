@@ -653,6 +653,7 @@ export function GlobeView({
     <div className="globe-wrap">
       {overlay}
       <canvas ref={canvasRef} className="globe-view" aria-label="Weltkugel" />
+      {overlay}
     </div>
   )
 }
