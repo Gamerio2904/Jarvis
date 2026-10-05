@@ -263,6 +263,14 @@ function IconCamera() {
   )
 }
 
+function IconFile() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+      <path fill="currentColor" d="M6 2h8l6 6v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V9h5.5z" />
+    </svg>
+  )
+}
+
 
 function IconSend() {
   return (
@@ -367,6 +375,8 @@ function App() {
     launchHomeRef.current(id)
   }, [])
   const eyeFileRef = useRef<HTMLInputElement | null>(null)
+  const eyeCamRef = useRef<HTMLInputElement | null>(null)
+  const [eyePickOpen, setEyePickOpen] = useState(false)
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
@@ -396,6 +406,15 @@ function App() {
   useEffect(() => {
     activeIdRef.current = activeId
   }, [activeId])
+
+  useEffect(() => {
+    if (!eyePickOpen) return
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') setEyePickOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [eyePickOpen])
 
   async function ensureConversation(): Promise<string> {
     if (activeIdRef.current) return activeIdRef.current
@@ -1527,11 +1546,12 @@ function App() {
     return created.id
   }
 
-  async function onDocFile(file: File) {
+  async function onDocFile(file: File, via: 'camera' | 'file' = 'file') {
     if (!file || busy) return
+    setEyePickOpen(false)
     setBusy(true)
     setError(null)
-    setStatusNote('Datei…')
+    setStatusNote(via === 'camera' ? 'Foto…' : 'Datei…')
     try {
       let conversationId = activeId
       if (!conversationId) {
@@ -1548,13 +1568,14 @@ function App() {
         return [conv, ...rest]
       })
       setStatusNote(null)
-      if (!reply) setStatusNote('Nichts Lesbares in der Datei.')
+      if (!reply) setStatusNote(via === 'camera' ? 'Nichts Sichtbares auf dem Foto.' : 'Nichts Lesbares in der Datei.')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Datei fehlgeschlagen')
+      setError(err instanceof Error ? err.message : via === 'camera' ? 'Foto fehlgeschlagen' : 'Datei fehlgeschlagen')
       setStatusNote(null)
     } finally {
       setBusy(false)
       if (eyeFileRef.current) eyeFileRef.current.value = ''
+      if (eyeCamRef.current) eyeCamRef.current.value = ''
     }
   }
 
@@ -2539,6 +2560,42 @@ function App() {
               ) : null}
             </div>
           ) : null}
+          {eyePickOpen ? (
+            <>
+              <button
+                type="button"
+                className="eye-pick-backdrop"
+                aria-label="Auswahl schließen"
+                onClick={() => setEyePickOpen(false)}
+              />
+              <div className="eye-pick" role="dialog" aria-label="Foto oder Datei">
+                <button
+                  type="button"
+                  className="eye-pick-btn"
+                  disabled={busy}
+                  onClick={() => {
+                    setEyePickOpen(false)
+                    eyeCamRef.current?.click()
+                  }}
+                >
+                  <IconCamera />
+                  Kamera
+                </button>
+                <button
+                  type="button"
+                  className="eye-pick-btn"
+                  disabled={busy}
+                  onClick={() => {
+                    setEyePickOpen(false)
+                    eyeFileRef.current?.click()
+                  }}
+                >
+                  <IconFile />
+                  Datei
+                </button>
+              </div>
+            </>
+          ) : null}
           <div className={`composer ${composerFocused ? 'is-focused' : ''} ${busy ? 'is-busy' : ''}`}>
             {pasteImage ? (
               <div className="paste-preview">
@@ -2549,13 +2606,24 @@ function App() {
               </div>
             ) : null}
             <input
+              ref={eyeCamRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) void onDocFile(file, 'camera')
+              }}
+            />
+            <input
               ref={eyeFileRef}
               type="file"
               accept="image/*,.pdf,.txt,.md,.csv,.json,application/pdf,text/plain,text/markdown,text/csv,application/json"
               hidden
               onChange={(e) => {
                 const file = e.target.files?.[0]
-                if (file) void onDocFile(file)
+                if (file) void onDocFile(file, 'file')
               }}
             />
             <textarea
@@ -2577,11 +2645,13 @@ function App() {
             <div className="composer-actions">
               <button
                 type="button"
-                className="icon-btn"
+                className={`icon-btn${eyePickOpen ? ' is-on' : ''}`}
                 disabled={busy}
-                onClick={() => eyeFileRef.current?.click()}
-                aria-label="Datei (Foto, PDF, Text)"
-                title="Datei (Foto, PDF, Text)"
+                onClick={() => setEyePickOpen((open) => !open)}
+                aria-label="Foto oder Datei"
+                aria-expanded={eyePickOpen}
+                aria-haspopup="dialog"
+                title="Foto oder Datei"
               >
                 <IconCamera />
               </button>
