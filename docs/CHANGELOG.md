@@ -7,6 +7,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`2.2.2`**.
 
+Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`.
+
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 
 Einstellungen → Tests ist weg. Prompts nicht in der APK, Chat ohne Chips.
