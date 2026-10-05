@@ -1038,6 +1038,21 @@ Die Tabelle unten ist das damalige Schnittmuster; gelandet in `15.1.0`–`16.0.0
 | `14.8.0` | Agenten-Karte UI | 234 CODE in `15.1.0` |
 | `14.9.0` | Gold Parity + Sideload | 235 CODE in `15.1.0` |
 
+### `12.0` — Drei Flächen, ein Hirn [`59-next.md`](./59-next.md) **PLAN**
+
+Handy bleibt Source of Truth. Tablet = Lage-Fenster oder Allein-Hirn. PC = Werkzeug + Viewer. LAN-Token. Kein Fine-Tune, kein Quest-Must.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `12.0.0` | Leit + Rollen | 209 PLAN |
+| `12.10.0` | Tablet-Kommandozentrale | 210 PLAN |
+| `12.20.0` | Presence-Token | 211 PLAN |
+| `12.30.0` | `/v1/presence` am Hirn | 212 PLAN |
+| `12.40.0` | PC-Viewer | 213 PLAN |
+| `12.50.0` | Desk-Blick | 214 PLAN |
+| `12.60.0` | Gold drei Flächen | 215 PLAN |
+| `12.70.0` | LAN-Drop; VR Parking | 216 PLAN |
+
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |

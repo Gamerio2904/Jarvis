@@ -436,7 +436,7 @@ Schalter CODE. Silero/Piper/Kokoro/e5 **nicht** in der APK. Sprint **181** Freez
 Router + Parser-Härte **CODE**. Gerät-Tore Sprint **185** PO.
 
 ### Parking
-Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed. Qdrant/Qwen-Embed/ColPali/Multi-Agent — [`56-next.md`](./56-next.md) Won’t.
+Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed, Quest/WebXR. Qdrant/Qwen-Embed/ColPali/Multi-Agent — [`56-next.md`](./56-next.md) Won’t. VR-HUD Parking in [`59-next.md`](./59-next.md).
 
 ### `10.0` Semantisches Gedächtnis (CODE `10.60.0`)
 Schema, Gate, Retrieve-2, Graph light, Gold G1–G6, Experience **CODE**. 195 e5 **FREEZE** (G2/G3 grün ohne Encoder). Gerät-Protokoll Sprint **193** PO. Sideload damals `9.10.0`, Live `13.31.7`. [`56-next.md`](./56-next.md).
