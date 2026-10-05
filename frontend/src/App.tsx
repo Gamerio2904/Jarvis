@@ -1781,6 +1781,17 @@ function App() {
     }
   }
 
+  const debug = useDebugRun({
+    onSend: (text) => sendMessage(text),
+    onStartChat: (title) => startDebugChat(title),
+    busy,
+    onBegin: () => {
+      setSettingsPanelOpen(false)
+      setSidebarOpen(false)
+    },
+  })
+  debugRunningRef.current = debug.running
+
   const activeTitle =
     conversations.find((c) => c.id === activeId)?.title ?? 'Ultron'
 

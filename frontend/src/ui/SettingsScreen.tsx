@@ -289,6 +289,10 @@ export type SettingsScreenProps = {
   debugBusy: boolean
 }
 
+function KeyMark({ on }: { on: boolean }) {
+  return <em className={`key-mark ${on ? 'is-on' : ''}`}>{on ? 'liegt' : 'fehlt'}</em>
+}
+
 export function SettingsScreen(p: SettingsScreenProps) {
   const s = (p.settings || loadSettings()) as Settings
   const busy = p.settingsBusy
@@ -446,6 +450,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
     tabDir.current = b >= a ? 1 : -1
     prevTab.current = tab
   }
+
+  const tabList: SettingsTab[] = railQuery.trim() ? filterTopics(railQuery) : SETTINGS_TABS.map((t) => t.id)
 
   return (
     <div
