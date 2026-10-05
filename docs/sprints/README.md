@@ -413,7 +413,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 429 | [`sprint-429.md`](./sprint-429.md) | `18.25.0` | Entwürfe im Hausstand | **CODE** Must |
 | 430 | [`sprint-430.md`](./sprint-430.md) | `18.25.0` | Gold, Testkarten | **CODE** Must |
 
-**430 ist die letzte Nummer.** `18.25.1` bis `18.25.13` sind im Code und haben keine Sprintnummer. Offen danach: [`../tischplatte-plan.md`](../tischplatte-plan.md), S1 Karten, S2 Grenze, S3 eine Frage, S4 zwei Sichten.
+**430 ist die letzte Nummer.** `18.25.1` bis `18.25.13` sind im Code und haben keine Sprintnummer. Offen danach: [`../tischplatte-plan.md`](../tischplatte-plan.md), S1 Karten, S2 Grenze, S3 eine Frage, S4 zwei Sichten. Dazu [`../hausstand-sync-plan.md`](../hausstand-sync-plan.md), S1 Vergleich, S2 Frage, S3 Ja überschreibt den älteren.
 
 **Aktuell:** App-Code und Sideload **`18.25.13`**, versionCode `182513`. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). 398–403 **CODE** ([`93-next.md`](../93-next.md)), 404–409 **CODE** ([`94-next.md`](../94-next.md)). 410–416 **CODE** ([`95-next.md`](../95-next.md)). 417–423 **CODE** ([`96-next.md`](../96-next.md)). 424–430 **CODE + APK** ([`97-next.md`](../97-next.md)). Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
 
