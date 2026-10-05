@@ -28,6 +28,7 @@ Erinnerungen aus `1.2` zeigen heute nur eine stille/hohe Notification. Das reich
 | **`1.11.0`** | **Wake-Word** — **CODE** | Opt-in, Handy an |
 | **`1.12.0`** | **Wecker + eigener Ton** — **CODE** | Einmal oder täglich, Tonwahl |
 | **`1.13.0`** | **GUI fest + Motion** — **CODE** | Nur Chat scrollt |
+| **`1.13.1`** | **Datum + Wecker-Titel** — **CODE** | 21.08. und kein „Wecker Wecker“ |
 
 Sprints: [`sprint-57`](./sprints/sprint-57.md) … [`sprint-61`](./sprints/sprint-61.md).
 

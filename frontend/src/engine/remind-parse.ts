@@ -82,6 +82,31 @@ function parseClock(hStr: string, mStr?: string): { h: number; m: number } | nul
   return { h, m }
 }
 
+function dateFromParts(
+  now: Date,
+  dayStr: string,
+  monthStr: string,
+  yearStr?: string,
+): Date | null {
+  const day = Number(dayStr)
+  const month = Number(monthStr)
+  if (!Number.isFinite(day) || !Number.isFinite(month) || day < 1 || day > 31 || month < 1 || month > 12) {
+    return null
+  }
+  let year = now.getFullYear()
+  if (yearStr) {
+    const y = Number(yearStr)
+    if (!Number.isFinite(y)) return null
+    year = y < 100 ? 2000 + y : y
+  }
+  const d = new Date(year, month - 1, day)
+  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) return null
+  if (!yearStr && startOfDay(d).getTime() < startOfDay(now).getTime()) {
+    d.setFullYear(year + 1)
+  }
+  return d
+}
+
 function dueFromDayTime(now: Date, dayWord: string | null, h: number, m: number): Date {
   const base = dayWord ? applyDay(now, dayWord) : new Date(now)
   let due = atHours(base, h, m)
@@ -122,6 +147,10 @@ const TIME_ONLY = new RegExp(
 )
 const CLOCK_TITLE = new RegExp(
   `^\\s*(?:erinner(?:e)?\\s+mich\\s+)?(\\d{1,2})(?:[:.](\\d{2}))\\s+(?:uhr\\s+)?(?:an\\s+)?(.+)$`,
+  'is',
+)
+const DATE_TITLE = new RegExp(
+  `^\\s*(?:erinner(?:e)?\\s+mich\\s+)?(\\d{1,2})\\.(\\d{1,2})\\.(\\d{2,4})?(?:\\s+${TIME})?\\s+(?:an\\s+)?(.+)$`,
   'is',
 )
 const LIST = /^\s*(?:zeig(?:e)?\s+(?:mir\s+)?(?:meine\s+)?)?erinnerungen\s*\??\s*$/i
@@ -229,6 +258,19 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
     if (!clock || !title) return null
     const due = dueFromDayTime(now, null, clock.h, clock.m)
     return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
+  }
+
+  const dateTitle = DATE_TITLE.exec(t)
+  if (dateTitle) {
+    const day = dateFromParts(now, dateTitle[1], dateTitle[2], dateTitle[3] || undefined)
+    const title = cleanTitle(dateTitle[6] || '')
+    if (day && title) {
+      const clock = dateTitle[4] ? parseClock(dateTitle[4], dateTitle[5]) : { h: 10, m: 0 }
+      if (clock) {
+        const due = atHours(day, clock.h, clock.m)
+        return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
+      }
+    }
   }
 
   const clockTitle = CLOCK_TITLE.exec(t)
