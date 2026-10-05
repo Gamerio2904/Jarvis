@@ -130,6 +130,7 @@ const KEY_FIELDS: Array<keyof Settings> = [
   'opensky_client_secret',
   'opensky_access',
   'outlook_fred_key',
+  'carto_api_key',
   'tv_token',
   'mail_user',
   'mail_pass',

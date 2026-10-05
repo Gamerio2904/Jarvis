@@ -2355,6 +2355,7 @@ function App() {
               dropOverlayHistory()
             }}
             onCommand={(text) => sendVoiceTurn(text)}
+            onOpenKeys={() => openSettings('keys')}
           />
         ) : null}
         {chessOpen ? (
