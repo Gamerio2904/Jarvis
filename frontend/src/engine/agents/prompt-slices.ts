@@ -127,6 +127,12 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
       "Kugel an"
     ]
   },
+  "expert": {
+    "promptSlice": "Domäne expert: Parser-Fakten only.",
+    "goldPrompts": [
+      "Werde ein Experte in Star Wars"
+    ]
+  },
   "trace": {
     "promptSlice": "Domäne trace: Parser-Fakten only.",
     "goldPrompts": [

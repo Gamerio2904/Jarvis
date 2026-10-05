@@ -49,6 +49,7 @@ export async function teachFromParts(opts: {
   sources?: KnowledgePack['sources']
   origin: KnowledgePack['origin']
   merge?: boolean
+  source_agent?: string
 }): Promise<KnowledgePack | { empty: true }> {
   const topic = opts.topic.trim()
   if (!topic || opts.text.trim().length < 8) return { empty: true }
@@ -64,6 +65,7 @@ export async function teachFromParts(opts: {
       sources: [...prev.sources, ...(opts.sources || [])].slice(0, 16),
       origin: opts.origin,
       user_ok: true,
+      source_agent: opts.source_agent || prev.source_agent || 'teach',
     })
   }
   if (prev && !opts.merge) {
@@ -74,6 +76,7 @@ export async function teachFromParts(opts: {
       sources: [...(opts.sources || []), ...prev.sources].slice(0, 16),
       origin: opts.origin,
       user_ok: true,
+      source_agent: opts.source_agent || prev.source_agent || 'teach',
     })
   }
   return putKnowledgePack({
@@ -91,7 +94,7 @@ export async function teachFromParts(opts: {
     taught_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     user_ok: true,
-    source_agent: 'teach',
+    source_agent: opts.source_agent || (opts.origin === 'expert' ? 'expert' : 'teach'),
   })
 }
 

@@ -8,6 +8,7 @@ import {
   characterById,
   coappearEdges,
   rmAvatar,
+  rmAvatarRemote,
   RM_COAPPEAR_MIN,
 } from '../../engine/rm-graph.ts'
 import type { RmDot, RmEdge } from '../../engine/rm-types.ts'

@@ -51,3 +51,13 @@ Unbekannte Gesichter → Chat-Notiz, kein neuer Knoten
 **Won’t:** S06–S09 als API-Knoten. Erfundene Folgennamen. Wiki-Text.
 Neuer Domänen-Agent. Kamera-Write für S01–S05. Nutella/Carbonara/Wäsche
 als Szene.
+
+## 4. Bilder + Graph im Chat (`18.12.2`)
+
+Die API-Avatare liefen ins Rate-Limit (farbige Kreise). Alle 826 JPEGs
+liegen unter `public/rm-avatars/{id}.jpeg`. `rmAvatar` ist lokal, die
+API nur Fallback.
+
+Chat-Fragen zum Netz (`Wer ist Rick Sanchez`, `Wann hatte er ein
+automatisches Schild`) gehen über `hud` / `rm-ask` und zitieren nur
+Steckbrief und Beleg. Kein Wikipedia-Raten. Route bleibt `hud`.

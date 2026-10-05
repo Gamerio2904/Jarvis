@@ -363,6 +363,7 @@ export type Settings = {
   last_recall_json: string
   last_research_json: string
   last_knowledge_json: string
+  expert_topics_json: string
   last_doc_json: string
   vad_onnx: boolean
   piper_offline: boolean
@@ -587,6 +588,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_recall_json: '',
   last_research_json: '',
   last_knowledge_json: '',
+  expert_topics_json: '',
   last_doc_json: '',
   vad_onnx: false,
   piper_offline: false,

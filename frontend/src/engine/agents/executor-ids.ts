@@ -17,6 +17,7 @@ export const EXECUTOR_IDS = [
   "xfer",
   "maps",
   "teach",
+  "expert",
   "pack",
   "memory",
   "shopping",

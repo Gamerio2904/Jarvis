@@ -23,6 +23,7 @@ import { documentAsk, documentWithoutResearch, replyForHabit } from './work-flex
 import { handleFensterCommand, ownFensterKind } from './fenster.ts'
 import { fensterTransport } from './fenster-net.ts'
 import { handleRmScene } from './rm-scene.ts'
+import { handleExpert } from './expert.ts'
 import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
 import { unknownReplyForCtx } from './command-neighbors.ts'
@@ -240,6 +241,15 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     const answered = await handleRmScene(conversationId, text)
     if (answered.handled && answered.reply) {
       const hit = await fromHandler('hud', answered)
+      if (hit) {
+        setLastUserFacts(hit.reply)
+        return { hit, userFacts: hit.reply }
+      }
+    }
+  } else if (pending?.tool === 'expert' && pending.action === 'create') {
+    const answered = await handleExpert(conversationId, text)
+    if (answered.handled && answered.reply) {
+      const hit = await fromHandler('expert', answered)
       if (hit) {
         setLastUserFacts(hit.reply)
         return { hit, userFacts: hit.reply }

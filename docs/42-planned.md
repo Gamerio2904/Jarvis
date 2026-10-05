@@ -164,6 +164,7 @@ Begründung: [`76-next.md`](./76-next.md).
 | `18.9.8` | [339](./sprints/sprint-339.md) [340](./sprints/sprint-340.md) | Mail im Scan, Kontaktliste, IMAP-Test; Gedächtnis-Kern |
 | `18.10.0` | [341](./sprints/sprint-341.md) | Lage Serie-Netz (Rick and Morty) |
 | `18.12.0` | [347](./sprints/sprint-347.md) | Kamera-Fähigkeiten S6+ (Foto + Staffel/Folge) |
+| `18.12.2` | [353](./sprints/sprint-353.md) [354](./sprints/sprint-354.md) [355](./sprints/sprint-355.md) | Avatare lokal, Graph im Chat, Themen-Experte |
 
 Harte Kette: 331 → alles. 332 braucht 331. 336 braucht 331+332. 337 zuletzt.
 Kein freies Web. Kein Write-Zweitlauf.
