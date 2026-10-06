@@ -83,7 +83,7 @@ import { saveLastEyeImage } from './engine/agent-session.ts'
 import { useOverlay } from './overlay.ts'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm.ts'
 import { closeDrive, subscribeDrive } from './engine/drive.ts'
-import { addMessage, deleteMessage, loadSettings, patchMessage } from './engine/store.ts'
+import { addMessage, deleteMessage, loadSettings, patchMessage, saveSettings } from './engine/store.ts'
 import { truncateSpoken } from './engine/turn-detect.ts'
 import { warmCloud } from './engine/cloud-warm.ts'
 import { syncGlance } from './engine/glance.ts'
@@ -649,6 +649,23 @@ function App() {
   }, [])
 
   useEffect(() => {
+    /** Kaltstart: Homescreen statt leerer Lage/Chat-Schicht (Blackscreen-Falle). */
+    setHomeOpen(true)
+    setShoppingOpen(false)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    if (typeof window !== 'undefined') {
+      const phone = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 700
+      if (phone && !lageSessionActive()) {
+        const s = loadSettings()
+        if (s.hud_force || s.hud_hidden === false) {
+          saveSettings({ hud_force: false, hud_hidden: true })
+        }
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     warmCloud()
   }, [])
 
@@ -1192,6 +1209,14 @@ function App() {
   async function bootstrap() {
     await refreshHealth()
     await refreshSettings()
+    setHomeOpen(true)
+    if (typeof window !== 'undefined' && !lageSessionActive()) {
+      const s = loadSettings()
+      if (s.hud_force) {
+        const next = saveSettings({ hud_force: false, hud_hidden: true })
+        setSettings(next)
+      }
+    }
     await refreshMemory()
     try {
       await syncReminderAlarms()

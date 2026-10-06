@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.25.14'
+export const APP_VERSION = '18.25.15'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -827,8 +827,11 @@ export type DocRecord = {
   created_at: string
 }
 
+let dbPromise: Promise<IDBDatabase> | null = null
+
 function openDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
+  if (dbPromise) return dbPromise
+  dbPromise = new Promise((resolve, reject) => {
     const req = indexedDB.open('jarvis-ondevice', 16)
     req.onupgradeneeded = () => {
       const db = req.result
@@ -863,9 +866,23 @@ function openDb(): Promise<IDBDatabase> {
         }
       }
     }
-    req.onsuccess = () => resolve(req.result)
-    req.onerror = () => reject(req.error)
+    req.onblocked = () => {
+      console.warn('[jarvis] IndexedDB upgrade blocked — andere Tabs schließen')
+    }
+    req.onsuccess = () => {
+      const db = req.result
+      db.onversionchange = () => {
+        db.close()
+        dbPromise = null
+      }
+      resolve(db)
+    }
+    req.onerror = () => {
+      dbPromise = null
+      reject(req.error)
+    }
   })
+  return dbPromise
 }
 
 function txDone(tx: IDBTransaction): Promise<void> {
@@ -1433,34 +1450,47 @@ async function rawListShoppingLists(): Promise<ShoppingList[]> {
   }
 }
 
+let shoppingMigratePromise: Promise<ShoppingList> | null = null
+
 async function ensureDefaultShoppingList(): Promise<ShoppingList> {
-  let lists = await rawListShoppingLists()
-  if (!lists.length) {
-    const row: ShoppingList = {
-      id: newId(),
-      name: DEFAULT_LIST_NAME,
-      slug: DEFAULT_LIST_SLUG,
-      is_default: true,
-      created_at: nowIso(),
-      updated_at: nowIso(),
+  if (shoppingMigratePromise) return shoppingMigratePromise
+  shoppingMigratePromise = (async () => {
+    let lists = await rawListShoppingLists()
+    if (!lists.length) {
+      const row: ShoppingList = {
+        id: newId(),
+        name: DEFAULT_LIST_NAME,
+        slug: DEFAULT_LIST_SLUG,
+        is_default: true,
+        created_at: nowIso(),
+        updated_at: nowIso(),
+      }
+      await put('shopping_lists', row)
+      lists = [row]
     }
-    await put('shopping_lists', row)
-    lists = [row]
-  }
-  let def = lists.find((l) => l.is_default) || lists[0]
-  if (!def.is_default) {
-    def = { ...def, is_default: true, updated_at: nowIso() }
-    await put('shopping_lists', def)
-  }
-  const items = await getAll<ShoppingItem>('shopping')
-  let touched = false
-  for (const item of items) {
-    if (item.list_id) continue
-    touched = true
-    await put('shopping', { ...item, list_id: def.id })
-  }
-  if (touched) emitShopping()
-  return def
+    let def = lists.find((l) => l.is_default) || lists[0]
+    if (!def.is_default) {
+      def = { ...def, is_default: true, updated_at: nowIso() }
+      await put('shopping_lists', def)
+    }
+    const items = await getAll<ShoppingItem>('shopping')
+    const orphan = items.filter((item) => !item.list_id)
+    if (orphan.length) {
+      const db = await openDb()
+      const tx = db.transaction('shopping', 'readwrite')
+      const os = tx.objectStore('shopping')
+      for (const item of orphan) {
+        os.put({ ...item, list_id: def.id })
+      }
+      await txDone(tx)
+      emitShopping()
+    }
+    return def
+  })().catch((err) => {
+    shoppingMigratePromise = null
+    throw err
+  })
+  return shoppingMigratePromise
 }
 
 export async function listShoppingLists(): Promise<ShoppingList[]> {

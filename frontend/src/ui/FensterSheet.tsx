@@ -22,14 +22,21 @@ export function FensterSheet({
   onShowRef.current = onShow
 
   useEffect(() => {
-    return startFensterSession(ownKind, {
-      onRequest: (row) => {
-        setBusy(false)
-        setNote('')
-        setRequest(row)
-      },
-      onShow: (surface) => onShowRef.current(surface),
-    })
+    let stop: (() => void) | undefined
+    const id = window.setTimeout(() => {
+      stop = startFensterSession(ownKind, {
+        onRequest: (row) => {
+          setBusy(false)
+          setNote('')
+          setRequest(row)
+        },
+        onShow: (surface) => onShowRef.current(surface),
+      })
+    }, 400)
+    return () => {
+      window.clearTimeout(id)
+      stop?.()
+    }
   }, [ownKind])
 
   if (!request) return null

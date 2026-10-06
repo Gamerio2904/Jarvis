@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3.
 
+### `18.25.15` — Blackscreen Kaltstart — *CODE + APK*
+
+Kaltstart landet auf dem Homescreen; `hud_force` ohne Lage-Sitzung wird auf dem Handy zurückgesetzt. Probe-Testgruppen werfen nicht mehr beim App-Import. ErrorBoundary + IndexedDB-Singleton für Einkaufs-Migration.
+
+App-Code und Sideload **`18.25.15`** (versionCode `182515`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.14` — Einkaufslisten-GUI + Flächen-Fixes — *CODE + APK*
 
 Mehrere Einkaufslisten (Homescreen **Einkauf**, zwei Overlays, Wischen, FAB + Open-Food-Facts-Vorschläge), Parser mit Listennamen. Kopplung/Kalender/Planungsmodus/Tokio/Watchliste/Flächen per Satz wie in [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md). Test: [`TEST-18.25.14.md`](./TEST-18.25.14.md).

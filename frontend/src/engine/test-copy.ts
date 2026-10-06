@@ -1169,10 +1169,13 @@ const PROBE_SOURCES: Array<{ title: string; source: string }> = [
   { title: '18.8 Debug & Termin', source: '18.8 Debug & Termin' },
 ]
 
-export const PROBE_COPY_GROUPS: TestCopyGroup[] = PROBE_SOURCES.map((row) => {
+export const PROBE_COPY_GROUPS: TestCopyGroup[] = PROBE_SOURCES.flatMap((row) => {
   const src = TEST_COPY_GROUPS.find((g) => g.title === row.source)
-  if (!src) throw new Error(`Probe-Quelle fehlt: ${row.source}`)
-  return { title: row.title, items: src.items }
+  if (!src) {
+    if (typeof console !== 'undefined') console.warn(`Probe-Quelle fehlt: ${row.source}`)
+    return []
+  }
+  return [{ title: row.title, items: src.items }]
 })
 
 export function formatTestCopyGroup(group: TestCopyGroup): string {

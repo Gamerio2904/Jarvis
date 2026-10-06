@@ -1,6 +1,9 @@
 # TEST 18.25.14 — Einkaufslisten-GUI + Flächen-Fixes
 
-App-Code und Sideload **`18.25.14`** (versionCode `182514`):
+App-Code und Sideload **`18.25.15`** (versionCode `182515`, Blackscreen-Fix):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+*(Vorgänger `18.25.14`, versionCode `182514`):*
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Vorgänger: [`TEST-18.25.md`](./TEST-18.25.md), Bugplan [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md), Einkauf-Plan [`einkaufsliste-plan.md`](./einkaufsliste-plan.md).

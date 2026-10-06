@@ -10077,3 +10077,29 @@ html.theme-wipe-dark::before {
   border-radius: 8px;
   object-fit: cover;
 }
+
+.boot-fallback {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.boot-fallback h1 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.boot-fallback-detail {
+  margin: 0;
+  opacity: 0.72;
+  font-size: 0.9rem;
+  max-width: 28rem;
+  word-break: break-word;
+}

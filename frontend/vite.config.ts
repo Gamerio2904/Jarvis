@@ -72,6 +72,9 @@ function copyWllamaAssets() {
 }
 
 export default defineConfig({
+  build: {
+    target: ['es2020', 'chrome87', 'safari14'],
+  },
   plugins: [
     {
       name: 'copy-wllama-assets',

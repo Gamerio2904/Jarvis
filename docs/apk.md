@@ -1,9 +1,11 @@
-# Android-APK — App-Code `18.25.14`
+# Android-APK — App-Code `18.25.15`
 
-App-Code und Sideload **`18.25.14`** (versionCode `182514`):
+App-Code und Sideload **`18.25.15`** (versionCode `182515`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-**Neu in 18.25.14:** Mehrere Einkaufslisten (Homescreen-Kachel, zwei Overlays, Wischen, FAB + Open-Food-Facts-Vorschläge), Parser mit Listennamen. Flächen-Bugfixes (Kopplung UDP/Multicast, Kalender-FAB/-zu, Planungsmodus, Tokio auf der Kugel, Watchliste-Layout, Flächen per Satz). Test: [`TEST-18.25.14.md`](./TEST-18.25.14.md).
+**Neu in 18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
+
+**18.25.14:** Mehrere Einkaufslisten, Flächen-Bugfixes. Test: [`TEST-18.25.14.md`](./TEST-18.25.14.md).
 
 Die Kopplung hört weiter, wenn die Fläche nicht vorn liegt, und meldet sich per Benachrichtigung. `öffne den Planungsbildschirm` öffnet die Planung.
 
