@@ -326,10 +326,10 @@ function playBlob(blob: Blob): Promise<void> {
 export async function streamSseLines(
   opts: { url: string; body: unknown; apiKey: string; timeoutMs?: number; auth?: 'google' | 'bearer' },
   onData: (json: Record<string, unknown>) => void,
-): Promise<{ ok: boolean; message?: string }> {
+): Promise<{ ok: boolean; status?: number; message?: string }> {
   const timeoutMs = opts.timeoutMs && opts.timeoutMs > 0 ? opts.timeoutMs : 8_000
   const bearer = opts.auth === 'bearer'
-  if (native) {
+  if (native?.streamSse) {
     const handle = await native.addListener('sse', (ev) => {
       if (!ev.data || isTurnAborted()) return
       try {
@@ -347,7 +347,17 @@ export async function streamSseLines(
         auth: bearer ? 'bearer' : 'google',
       })
       if (isTurnAborted()) return { ok: false, message: 'Abgebrochen.' }
-      return { ok: Boolean(res.ok), message: res.message }
+      const status = typeof res.status === 'number' ? res.status : undefined
+      const message =
+        res.message || (status != null && !res.ok ? `HTTP ${status}` : undefined)
+      return { ok: Boolean(res.ok), status, message }
+    } catch (err) {
+      if (isTurnAborted()) return { ok: false, message: 'Abgebrochen.' }
+      const msg = err instanceof Error ? err.message : 'Stream fehlgeschlagen'
+      /* Alte APK ohne streamSse: WebView-fetch scheitert an CORS — unten nicht nachbauen. */
+      if (!/not implemented|not found|unimplemented/i.test(msg)) {
+        return { ok: false, message: msg }
+      }
     } finally {
       handle.remove()
     }

@@ -7,6 +7,42 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3.
 
+### `18.25.20` — Fachwissen-Härtung für Internet-Suche — *CODE + APK*
+
+`retrievePacks` normalisiert jedes Paket vor dem Score; kaputte `research.sources` werfen nicht mehr. Sideload bis `main` nachzieht:
+
+https://github.com/Gamerio2904/Jarvis/raw/cursor/groq-gemini-cloud-7427/releases/Jarvis.apk
+
+App-Code **`18.25.20`** (versionCode `182520`).
+
+### `18.25.19` — Chat stirbt nicht mehr an altem Fachwissen — *CODE + APK*
+
+`pack.aliases.some` warf bei IndexedDB-Einträgen ohne `aliases`. Die Meldung „Cannot read properties of undefined (reading 'some')“ kam, bevor Groq oder Gemini gefragt wurden. Lesen füllt fehlende Felder.
+
+App-Code und Sideload **`18.25.19`** (versionCode `182519`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+### `18.25.18` — Cloud über OkHttp — *CODE + APK*
+
+Groq/Gemini auf Android gehen über OkHttp im Voice-Plugin, nicht mehr über CapacitorHttp (SSL-Fabrik/verschluckte Fehler). Die Chat-Fehlzeile zeigt die echte Ursache statt der Sammelmeldung.
+
+App-Code und Sideload **`18.25.18`** (versionCode `182518`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+### `18.25.17` — Cloud POST auf Android — *CODE + APK*
+
+Native SSE lieferte Events nach `resolve` (Race) — Streams wirkten leer. Auf Android: Groq/Gemini ohne SSE, direkt `CapacitorHttp` POST; SSE-Events gebündelt auf dem UI-Thread. Klarere Fehler (Netz, HTTP-Status, Key-Sperren).
+
+App-Code und Sideload **`18.25.17`** (versionCode `182517`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+### `18.25.16` — Groq/Gemini Cloud-Antworten — *CODE + APK*
+
+Groq: Reasoning-Modelle (Qwen, GPT-OSS) liefern nur noch sichtbaren Antworttext (`reasoning_effort`/`reasoning_format`), Llama steht wieder vorne in der Modellkette. Native SSE: Fehlerkörper und HTTP-Status an JS, Events auf dem UI-Thread, längere Timeouts. CapacitorHttp für stabile POSTs auf dem Gerät aktiviert.
+
+App-Code und Sideload **`18.25.16`** (versionCode `182516`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.15` — Blackscreen Kaltstart — *CODE + APK*
 
 Kaltstart landet auf dem Homescreen; `hud_force` ohne Lage-Sitzung wird auf dem Handy zurückgesetzt. Probe-Testgruppen werfen nicht mehr beim App-Import. ErrorBoundary + IndexedDB-Singleton für Einkaufs-Migration.

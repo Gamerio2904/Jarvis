@@ -29,6 +29,7 @@ export {
   claimsFromText,
   mergeClaims,
   normalizePack,
+  coerceKnowledgePack,
   prunePackList,
   resetKnowledgeMem,
   PACK_CAP,

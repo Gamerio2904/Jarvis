@@ -1,3 +1,4 @@
+import { coerceKnowledgePack } from './knowledge-store.ts'
 import { slugTopic } from './teach-parse.ts'
 import type { KnowledgePack } from './knowledge-types.ts'
 
@@ -18,19 +19,22 @@ function tokens(s: string): string[] {
 }
 
 function packBlob(p: KnowledgePack): string {
-  const claims = (p.claims || [])
+  const claims = (Array.isArray(p.claims) ? p.claims : [])
     .filter((c) => c && c.user_ok && c.text)
     .map((c) => c.text)
-  return [p.topic, p.title, ...p.aliases, ...claims].join(' ').toLowerCase()
+  const aliases = Array.isArray(p.aliases) ? p.aliases : []
+  return [p.topic, p.title, ...aliases, ...claims].join(' ').toLowerCase()
 }
 
 export function packScore(ask: string, pack: KnowledgePack): number {
   if (!pack.user_ok) return 0
   const q = ask.toLowerCase()
   const slug = slugTopic(ask)
-  if (pack.topic === slug) return 4
-  if (pack.aliases.some((a) => a === q || slugTopic(a) === slug)) return 3.5
-  if (q.includes(pack.topic) || pack.topic.length > 3 && q.includes(pack.topic.replace(/-/g, ' '))) return 3
+  const topic = pack.topic || ''
+  if (topic === slug) return 4
+  const aliases = Array.isArray(pack.aliases) ? pack.aliases : []
+  if (aliases.some((a) => a === q || slugTopic(a) === slug)) return 3.5
+  if (q.includes(topic) || (topic.length > 3 && q.includes(topic.replace(/-/g, ' ')))) return 3
   const qt = tokens(ask)
   const blob = packBlob(pack)
   const hit = qt.filter((w) => blob.includes(w)).length
@@ -39,12 +43,13 @@ export function packScore(ask: string, pack: KnowledgePack): number {
 }
 
 export function retrievePacks(ask: string, packs: KnowledgePack[]): KnowledgePack[] {
+  const pool = packs.map(coerceKnowledgePack)
   if (/^\s*(?:lage|tablet|hud)\s+(?:an|aus|ein|weg)\s*$/i.test(ask)) return []
   if (/^\s*(?:wo\s+(?:liegt|ist)|öffne\s+(?:die\s+)?(?:weltkugel|kugel|globus))/i.test(ask)) return []
   if (/\btimer\b/i.test(ask)) return []
   const pref = /(?:was\s+(?:trinke?|esse)\s+ich|welche\s+reisen|mag\s+ich)\b/i.test(ask)
   if (pref) return []
-  const ok = packs.filter((p) => p.user_ok)
+  const ok = pool.filter((p) => p.user_ok)
   const ranked = ok
     .map((p) => ({ p, s: packScore(ask, p) }))
     .filter((x) => x.s >= 0.5)
@@ -56,7 +61,7 @@ export function retrievePacks(ask: string, packs: KnowledgePack[]): KnowledgePac
   const seen = new Set(primary.map((p) => p.topic || p.id))
   const hopCands: Array<{ p: KnowledgePack; s: number }> = []
   for (const p of primary) {
-    for (const id of p.links || []) {
+    for (const id of Array.isArray(p.links) ? p.links : []) {
       const n = ok.find((x) => x.topic === id || x.id === id)
       if (!n || seen.has(n.topic || n.id)) continue
       hopCands.push({ p: n, s: packScore(ask, n) })

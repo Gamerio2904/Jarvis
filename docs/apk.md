@@ -1,9 +1,24 @@
-# Android-APK — App-Code `18.25.15`
+# Android-APK — App-Code `18.25.20`
 
-App-Code und Sideload **`18.25.15`** (versionCode `182515`):
+App-Code **`18.25.20`** (versionCode `182520`).
+
+**Sideload (Groq/Gemini/Cloud-Fixes, Stand 18.25.20):**
+https://github.com/Gamerio2904/Jarvis/raw/cursor/groq-gemini-cloud-7427/releases/Jarvis.apk
+
+**`main`-APK** (kann älter sein — Version in der App prüfen):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-**Neu in 18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
+**Neu in 18.25.20:** Fachwissen-Pakete ohne `aliases` kippen Internet-Suche und Chat nicht mehr; klarere Meldung falls doch noch eine alte APK läuft.
+
+**18.25.19:** Erster Fix für fehlendes `aliases` in IndexedDB.
+
+**18.25.18:** Cloud-Anfragen über OkHttp; Fehlzeile nennt die echte Ursache.
+
+**18.25.17:** Groq/Gemini auf Android per POST statt kaputtem SSE-Stream.
+
+**18.25.16:** Reasoning-Stream-Fix, native SSE-Fehler, CapacitorHttp.
+
+**18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
 
 **18.25.14:** Mehrere Einkaufslisten, Flächen-Bugfixes. Test: [`TEST-18.25.14.md`](./TEST-18.25.14.md).
 

@@ -315,7 +315,9 @@ export const RESEARCH_EMPTY =
 export const REPLY_TRUNCATED = 'Die Antwort ist abgebrochen. Bitte den Satz noch einmal sagen.'
 
 export function researchHasSources(r?: ResearchMeta | null): boolean {
-  return Boolean(r?.sources?.some((s) => Boolean(s.url)))
+  const sources = r?.sources
+  if (!Array.isArray(sources)) return false
+  return sources.some((s) => Boolean(s?.url))
 }
 
 export function mergeResearchSources(

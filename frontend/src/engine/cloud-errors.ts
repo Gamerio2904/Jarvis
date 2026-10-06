@@ -12,11 +12,11 @@ export const GEMINI_MODELS_BEST_FIRST = [
 ] as const
 
 export const GROQ_MODELS_BEST_FIRST = [
-  'qwen/qwen3.8-27b',
-  'openai/gpt-oss-20b',
-  'groq/compound-mini',
   'llama-3.3-70b-versatile',
   'llama-3.1-8b-instant',
+  'groq/compound-mini',
+  'openai/gpt-oss-20b',
+  'qwen/qwen3.8-27b',
   'openai/gpt-oss-120b',
 ] as const
 
@@ -104,7 +104,17 @@ export function isFatalAuth(status: number, message: string, errorStatus = ''): 
     return true
   }
   if (status === 401) return true
-  if (status === 403 && (m.includes('api key') || m.includes('unauthenticated'))) return true
+  if (
+    status === 403 &&
+    (m.includes('api key') ||
+      m.includes('unauthenticated') ||
+      m.includes('permission') ||
+      m.includes('blocked') ||
+      m.includes('referer') ||
+      m.includes('android'))
+  ) {
+    return true
+  }
   return false
 }
 
@@ -174,13 +184,26 @@ export function germanNetworkError(): string {
 export function userFacingCloudError(raw: string, groqConfigured: boolean): string {
   const m = raw.toLowerCase()
   if (isFatalAuth(0, raw)) return germanAuthError()
-  if (m.includes('failed to fetch') || m.includes('network') || m.includes('timeout')) {
+  if (
+    m.includes('failed to fetch') ||
+    m.includes('network') ||
+    m.includes('timeout') ||
+    m.includes('unknownhost') ||
+    m.includes('unable to resolve') ||
+    m.includes('connection') ||
+    m.includes('keine verbindung')
+  ) {
     return germanNetworkError()
   }
+  if (m.includes('groq-key ungültig') || m.includes('gemini-key ungültig')) return raw
+  if (/^groq http \d+/i.test(raw.trim())) return raw
   if (isRetryableCloud(0, raw) || looksLikeProviderEnglish(raw)) {
     return germanQuotaHint(groqConfigured)
   }
   if (/[äöüÄÖÜß]/.test(raw)) return raw
+  if (/^groq /i.test(raw) || /^gemini /i.test(raw)) return raw
+  const trimmed = raw.trim()
+  if (trimmed) return trimmed.slice(0, 320)
   return germanQuotaHint(groqConfigured)
 }
 
