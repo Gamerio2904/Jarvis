@@ -862,12 +862,6 @@ public class JarvisVoicePlugin extends Plugin {
         }
     }
 
-    private void emitSse(String data) {
-        JSObject ev = new JSObject();
-        ev.put("data", data);
-        main.post(() -> notifyListeners("sse", ev));
-    }
-
     private static String streamErrMsg(int code, String body) {
         String hint = body == null ? "" : body.trim();
         if (hint.length() > 480) hint = hint.substring(0, 480);
@@ -933,6 +927,7 @@ public class JarvisVoicePlugin extends Plugin {
                     call.resolve(r);
                     return;
                 }
+                ArrayList<String> chunks = new ArrayList<>();
                 String line;
                 String errTail = "";
                 while ((line = reader.readLine()) != null) {
@@ -945,14 +940,23 @@ public class JarvisVoicePlugin extends Plugin {
                     }
                     String data = line.substring(5).trim();
                     if (data.isEmpty() || "[DONE]".equals(data)) continue;
-                    emitSse(data);
+                    chunks.add(data);
                 }
-                JSObject r = new JSObject();
-                boolean ok = code >= 200 && code < 300;
-                r.put("ok", ok);
-                r.put("status", code);
-                if (!ok) r.put("message", streamErrMsg(code, errTail));
-                call.resolve(r);
+                final int fCode = code;
+                final String fErrTail = errTail;
+                final boolean ok = code >= 200 && code < 300;
+                main.post(() -> {
+                    for (String data : chunks) {
+                        JSObject ev = new JSObject();
+                        ev.put("data", data);
+                        notifyListeners("sse", ev);
+                    }
+                    JSObject r = new JSObject();
+                    r.put("ok", ok);
+                    r.put("status", fCode);
+                    if (!ok) r.put("message", streamErrMsg(fCode, fErrTail));
+                    call.resolve(r);
+                });
             } catch (Exception e) {
                 JSObject r = new JSObject();
                 r.put("ok", false);

@@ -1,9 +1,11 @@
-# Android-APK — App-Code `18.25.16`
+# Android-APK — App-Code `18.25.17`
 
-App-Code und Sideload **`18.25.16`** (versionCode `182516`):
+App-Code und Sideload **`18.25.17`** (versionCode `182517`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-**Neu in 18.25.16:** Groq- und Gemini-Antworten auf dem Handy (Reasoning-Stream-Fix, native SSE-Fehler, CapacitorHttp).
+**Neu in 18.25.17:** Groq/Gemini auf Android per POST statt kaputtem SSE-Stream; ehrlichere Fehlermeldungen.
+
+**18.25.16:** Reasoning-Stream-Fix, native SSE-Fehler, CapacitorHttp.
 
 **18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
 

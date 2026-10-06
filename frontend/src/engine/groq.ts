@@ -7,6 +7,7 @@ import {
   markSkip,
   parseSkipMap,
 } from './cloud-errors.ts'
+import { Capacitor } from '@capacitor/core'
 import { postJson } from './http-json.ts'
 import { streamSseLines } from '../native/voice.ts'
 import { loadSettings, saveSettings } from './store.ts'
@@ -88,24 +89,27 @@ export async function completeGroq(
     max_tokens: maxTokens,
   }
   let last = 'Groq antwortet nicht.'
+  const useStream = !Capacitor.isNativePlatform()
   for (const model of groqModelOrder(loadSettings().groq_skip_until)) {
     if (isTurnAborted()) throw abortError()
-    const streamed = await streamGroq({ ...body, ...groqChatExtras(model), stream: true, model }, key, onToken)
-    if (streamed.fatal) throw new Error(streamed.last)
-    if (streamed.text) {
-      groqUnskip(model)
-      return streamed.text
-    }
-    if (streamed.last) last = streamed.last
-    /**
-     * Ein Modell, das es nicht gibt, hat es auch beim zweiten Anlauf nicht.
-     * Vorher kostete genau dieser Fall **zwei** Anfragen pro Zug — bei 1.000
-     * am Tag und einem toten Modell an Position 1 die Hälfte des Budgets.
-     */
-    if (isUnknownModel(0, streamed.last)) {
-      skipGroqModel(model)
-      last = 'Groq-Modell nicht verfügbar.'
-      continue
+    if (useStream) {
+      const streamed = await streamGroq({ ...body, ...groqChatExtras(model), stream: true, model }, key, onToken)
+      if (streamed.fatal) throw new Error(streamed.last)
+      if (streamed.text) {
+        groqUnskip(model)
+        return streamed.text
+      }
+      if (streamed.last) last = streamed.last
+      /**
+       * Ein Modell, das es nicht gibt, hat es auch beim zweiten Anlauf nicht.
+       * Vorher kostete genau dieser Fall **zwei** Anfragen pro Zug — bei 1.000
+       * am Tag und einem toten Modell an Position 1 die Hälfte des Budgets.
+       */
+      if (isUnknownModel(0, streamed.last)) {
+        skipGroqModel(model)
+        last = 'Groq-Modell nicht verfügbar.'
+        continue
+      }
     }
     try {
       const { status, json, headers } = await postJson(
@@ -142,7 +146,7 @@ export async function completeGroq(
         continue
       }
       if (isRetryableCloud(status, errMsg, errCode) || status < 200 || status >= 300) {
-        last = 'Groq gerade ausgelastet.'
+        last = errMsg ? `Groq HTTP ${status}: ${errMsg}` : `Groq HTTP ${status}.`
         continue
       }
       const text = textFrom(parsed)

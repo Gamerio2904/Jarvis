@@ -1,4 +1,5 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core'
+import { germanNetworkError } from './cloud-errors.ts'
 import { shouldProxyWebHost, WEB_PROXY_PATH } from './web-proxy.ts'
 import { abortError, isTurnAborted, raceTurn, withTurnSignal } from './turn-abort.ts'
 
@@ -13,6 +14,25 @@ function abortAfter(ms: number): AbortSignal {
 
 function throwIfAborted(): void {
   if (isTurnAborted()) throw abortError()
+}
+
+function wrapNativeHttpError(err: unknown): never {
+  const msg = err instanceof Error ? err.message : String(err)
+  if (
+    /unknownhost|unable to resolve|network|timeout|timed out|connect|ssl|certificate|refused|failed to fetch/i.test(
+      msg,
+    )
+  ) {
+    throw new Error(germanNetworkError())
+  }
+  throw err instanceof Error ? err : new Error(msg)
+}
+
+/** Android-Brücke serialisiert verschachteltes JSON zuverlässiger als rohe Objekte. */
+function nativePostData(body: unknown): string | Record<string, unknown> {
+  if (body == null) return '{}'
+  if (typeof body === 'string') return body
+  return JSON.stringify(body)
 }
 
 /** Browser darf User-Agent nicht setzen — das löst Preflight aus und killt Wikipedia/Frankfurter. */
@@ -52,15 +72,20 @@ export async function postJson(
   const connect = Math.min(8_000, Math.max(400, Math.min(read, Math.floor(read * 0.5))))
   if (Capacitor.isNativePlatform()) {
     throwIfAborted()
-    const res = await raceTurn(
-      CapacitorHttp.post({
-        url,
-        headers,
-        data: body,
-        connectTimeout: connect,
-        readTimeout: read,
-      }),
-    )
+    let res
+    try {
+      res = await raceTurn(
+        CapacitorHttp.post({
+          url,
+          headers,
+          data: nativePostData(body),
+          connectTimeout: connect,
+          readTimeout: read,
+        }),
+      )
+    } catch (err) {
+      wrapNativeHttpError(err)
+    }
     throwIfAborted()
     let json: Record<string, unknown> = {}
     try {

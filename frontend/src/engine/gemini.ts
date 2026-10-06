@@ -10,6 +10,7 @@ import {
   markSkip,
   userFacingCloudError,
 } from './cloud-errors.ts'
+import { Capacitor } from '@capacitor/core'
 import { completeGroq, groqReady } from './groq.ts'
 import { postJson } from './http-json.ts'
 import { noteQuotaExhausted } from './quota.ts'
@@ -192,6 +193,16 @@ export async function streamGemini(
   }
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
+  }
+  /** Native SSE war racey — auf dem Gerät direkt generateContent (POST). */
+  if (Capacitor.isNativePlatform()) {
+    return completeGemini(messages, onToken, {
+      ...opts,
+      maxOutputTokens: opts?.maxOutputTokens || 480,
+      timeoutMs: opts?.timeoutMs || 12_000,
+      maxModels: 2,
+      thinking: false,
+    })
   }
   const key = loadSettings().gemini_api_key.trim()
   const order = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
