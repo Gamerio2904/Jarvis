@@ -202,6 +202,8 @@ export function userFacingCloudError(raw: string, groqConfigured: boolean): stri
   }
   if (/[äöüÄÖÜß]/.test(raw)) return raw
   if (/^groq /i.test(raw) || /^gemini /i.test(raw)) return raw
+  const trimmed = raw.trim()
+  if (trimmed) return trimmed.slice(0, 320)
   return germanQuotaHint(groqConfigured)
 }
 

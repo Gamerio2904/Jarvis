@@ -371,9 +371,9 @@ export async function completeGemini(
       const text = await completeGroq(messages, onToken)
       return { text }
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') throw err
       const msg = err instanceof Error ? err.message : String(err)
-      if (msg.includes('ungültig')) throw new Error(msg)
-      throw new Error(germanQuotaHint(true))
+      throw new Error(msg || last)
     }
   }
   throw new Error(last)

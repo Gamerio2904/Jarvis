@@ -128,10 +128,13 @@ export async function completeGroq(
       if (isFatalAuth(status, errMsg, errCode)) {
         throw new Error('Groq-Key ungültig. Unter console.groq.com/keys einen neuen holen.')
       }
-      if (isUnknownModel(status, errMsg, errCode) || status === 400) {
+      if (isUnknownModel(status, errMsg, errCode)) {
         skipGroqModel(model)
-        last = 'Groq-Modell nicht verfügbar.'
+        last = errMsg ? `Groq-Modell nicht verfügbar: ${errMsg}` : 'Groq-Modell nicht verfügbar.'
         continue
+      }
+      if (status === 400) {
+        throw new Error(errMsg ? `Groq HTTP 400: ${errMsg}` : 'Groq HTTP 400.')
       }
       if (status === 429) {
         if (isTurnAborted()) throw abortError()
@@ -160,7 +163,9 @@ export async function completeGroq(
     } catch (err) {
       if (isAbortError(err)) throw err
       const msg = err instanceof Error ? err.message : String(err)
-      if (msg.includes('ungültig')) throw err instanceof Error ? err : new Error(msg)
+      if (msg.includes('ungültig') || msg.includes('HTTP 400') || msg.includes('Verbindung')) {
+        throw err instanceof Error ? err : new Error(msg)
+      }
       last = msg
     }
   }

@@ -966,6 +966,64 @@ public class JarvisVoicePlugin extends Plugin {
         });
     }
 
+    /**
+     * JSON GET/POST über OkHttp. CapacitorHttp hängt auf manchen Geräten an der
+     * eigenen SSL-Fabrik oder schluckt den Fehler — dann sehen Groq und Gemini
+     * gleich tot aus.
+     */
+    @PluginMethod
+    public void httpJson(PluginCall call) {
+        String url = call.getString("url", "");
+        if (url == null || url.isEmpty()) {
+            call.reject("url nötig");
+            return;
+        }
+        String method = call.getString("method", "GET");
+        String body = call.getString("body", "");
+        JSObject headers = call.getObject("headers", new JSObject());
+        Integer timeout = call.getInt("timeoutMs");
+        int readMs = timeout == null ? 20_000 : Math.max(2_000, Math.min(60_000, timeout));
+        io.execute(() -> {
+            OkHttpClient client = http.newBuilder()
+                    .connectTimeout(8, TimeUnit.SECONDS)
+                    .readTimeout(readMs, TimeUnit.MILLISECONDS)
+                    .callTimeout(readMs + 4_000L, TimeUnit.MILLISECONDS)
+                    .build();
+            Request.Builder b = new Request.Builder().url(url);
+            if (headers != null) {
+                java.util.Iterator<String> it = headers.keys();
+                while (it.hasNext()) {
+                    String k = it.next();
+                    if (k == null || k.isEmpty()) continue;
+                    String v = headers.optString(k, "");
+                    if (!v.isEmpty()) b.addHeader(k, v);
+                }
+            }
+            String m = method == null ? "GET" : method.toUpperCase(java.util.Locale.ROOT);
+            if ("POST".equals(m) || "PUT".equals(m) || "PATCH".equals(m)) {
+                b.method(m, RequestBody.create(body == null ? "" : body, JSON));
+            } else {
+                b.get();
+            }
+            try (Response res = client.newCall(b.build()).execute()) {
+                String text = res.body() == null ? "" : res.body().string();
+                JSObject hdr = new JSObject();
+                for (String name : res.headers().names()) {
+                    String v = res.header(name);
+                    if (v != null) hdr.put(name.toLowerCase(java.util.Locale.ROOT), v);
+                }
+                JSObject r = new JSObject();
+                r.put("status", res.code());
+                r.put("body", text);
+                r.put("headers", hdr);
+                main.post(() -> call.resolve(r));
+            } catch (Exception e) {
+                String msg = e.getMessage() == null ? "HTTP fehlgeschlagen" : e.getMessage();
+                main.post(() -> call.reject(msg));
+            }
+        });
+    }
+
     public static void emitWake() {
         emitWake("");
     }

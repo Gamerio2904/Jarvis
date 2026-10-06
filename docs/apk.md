@@ -1,9 +1,11 @@
-# Android-APK — App-Code `18.25.17`
+# Android-APK — App-Code `18.25.18`
 
-App-Code und Sideload **`18.25.17`** (versionCode `182517`):
+App-Code und Sideload **`18.25.18`** (versionCode `182518`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-**Neu in 18.25.17:** Groq/Gemini auf Android per POST statt kaputtem SSE-Stream; ehrlichere Fehlermeldungen.
+**Neu in 18.25.18:** Cloud-Anfragen über OkHttp; Fehlzeile nennt die echte Ursache (Key, Limit, Netz).
+
+**18.25.17:** Groq/Gemini auf Android per POST statt kaputtem SSE-Stream.
 
 **18.25.16:** Reasoning-Stream-Fix, native SSE-Fehler, CapacitorHttp.
 

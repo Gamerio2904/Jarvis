@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3.
 
+### `18.25.18` — Cloud über OkHttp — *CODE + APK*
+
+Groq/Gemini auf Android gehen über OkHttp im Voice-Plugin, nicht mehr über CapacitorHttp (SSL-Fabrik/verschluckte Fehler). Die Chat-Fehlzeile zeigt die echte Ursache statt der Sammelmeldung.
+
+App-Code und Sideload **`18.25.18`** (versionCode `182518`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.17` — Cloud POST auf Android — *CODE + APK*
 
 Native SSE lieferte Events nach `resolve` (Race) — Streams wirkten leer. Auf Android: Groq/Gemini ohne SSE, direkt `CapacitorHttp` POST; SSE-Events gebündelt auf dem UI-Thread. Klarere Fehler (Netz, HTTP-Status, Key-Sperren).
