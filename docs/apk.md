@@ -1,9 +1,11 @@
-# Android-APK — App-Code `18.25.18`
+# Android-APK — App-Code `18.25.19`
 
-App-Code und Sideload **`18.25.18`** (versionCode `182518`):
+App-Code und Sideload **`18.25.19`** (versionCode `182519`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-**Neu in 18.25.18:** Cloud-Anfragen über OkHttp; Fehlzeile nennt die echte Ursache (Key, Limit, Netz).
+**Neu in 18.25.19:** Suche und Chat stürzen nicht mehr ab, wenn ein altes Fachwissen-Paket kein `aliases`-Feld hat.
+
+**18.25.18:** Cloud-Anfragen über OkHttp; Fehlzeile nennt die echte Ursache.
 
 **18.25.17:** Groq/Gemini auf Android per POST statt kaputtem SSE-Stream.
 

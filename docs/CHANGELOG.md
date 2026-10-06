@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3.
 
+### `18.25.19` — Chat stirbt nicht mehr an altem Fachwissen — *CODE + APK*
+
+`pack.aliases.some` warf bei IndexedDB-Einträgen ohne `aliases`. Die Meldung „Cannot read properties of undefined (reading 'some')“ kam, bevor Groq oder Gemini gefragt wurden. Lesen füllt fehlende Felder.
+
+App-Code und Sideload **`18.25.19`** (versionCode `182519`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.18` — Cloud über OkHttp — *CODE + APK*
 
 Groq/Gemini auf Android gehen über OkHttp im Voice-Plugin, nicht mehr über CapacitorHttp (SSL-Fabrik/verschluckte Fehler). Die Chat-Fehlzeile zeigt die echte Ursache statt der Sammelmeldung.

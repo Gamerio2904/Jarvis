@@ -153,12 +153,28 @@ export function pruneClaims(claims: KnowledgeClaim[]): KnowledgeClaim[] {
   return claims.filter((c) => !drop.has(c.id))
 }
 
+/** Alte IndexedDB-Zeilen haben kein `aliases`. `pack.aliases.some` hat dann den ganzen Chat gekippt. */
+function coercePack(row: KnowledgePack): KnowledgePack {
+  if (!row || typeof row !== 'object') {
+    return normalizePack({ topic: 'fach', title: 'Fachwissen' })
+  }
+  return {
+    ...row,
+    topic: row.topic || row.id || 'fach',
+    title: row.title || row.topic || 'Fachwissen',
+    aliases: Array.isArray(row.aliases) ? row.aliases : [],
+    claims: Array.isArray(row.claims) ? row.claims : [],
+    sources: Array.isArray(row.sources) ? row.sources : [],
+    links: Array.isArray(row.links) ? row.links : [],
+  }
+}
+
 async function readAll(): Promise<KnowledgePack[]> {
-  if (!hasIdb()) return [...mem.values()]
+  if (!hasIdb()) return [...mem.values()].map(coercePack)
   try {
-    return await getAll<KnowledgePack>('knowledge_packs')
+    return (await getAll<KnowledgePack>('knowledge_packs')).map(coercePack)
   } catch {
-    return [...mem.values()]
+    return [...mem.values()].map(coercePack)
   }
 }
 
@@ -208,7 +224,7 @@ export async function getByTopic(topic: string): Promise<KnowledgePack | undefin
   return rows.find(
     (p) =>
       p.topic === slug ||
-      p.aliases.some((a) => a === q || slugTopic(a) === slug) ||
+      (Array.isArray(p.aliases) ? p.aliases : []).some((a) => a === q || slugTopic(a) === slug) ||
       p.title.toLowerCase() === q,
   )
 }
