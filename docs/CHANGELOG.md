@@ -7,6 +7,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3.
 
+### `18.25.20` — Fachwissen-Härtung für Internet-Suche — *CODE + APK*
+
+`retrievePacks` normalisiert jedes Paket vor dem Score; kaputte `research.sources` werfen nicht mehr. Sideload bis `main` nachzieht:
+
+https://github.com/Gamerio2904/Jarvis/raw/cursor/groq-gemini-cloud-7427/releases/Jarvis.apk
+
+App-Code **`18.25.20`** (versionCode `182520`).
+
 ### `18.25.19` — Chat stirbt nicht mehr an altem Fachwissen — *CODE + APK*
 
 `pack.aliases.some` warf bei IndexedDB-Einträgen ohne `aliases`. Die Meldung „Cannot read properties of undefined (reading 'some')“ kam, bevor Groq oder Gemini gefragt wurden. Lesen füllt fehlende Felder.

@@ -154,7 +154,7 @@ export function pruneClaims(claims: KnowledgeClaim[]): KnowledgeClaim[] {
 }
 
 /** Alte IndexedDB-Zeilen haben kein `aliases`. `pack.aliases.some` hat dann den ganzen Chat gekippt. */
-function coercePack(row: KnowledgePack): KnowledgePack {
+export function coerceKnowledgePack(row: KnowledgePack): KnowledgePack {
   if (!row || typeof row !== 'object') {
     return normalizePack({ topic: 'fach', title: 'Fachwissen' })
   }
@@ -170,18 +170,18 @@ function coercePack(row: KnowledgePack): KnowledgePack {
 }
 
 async function readAll(): Promise<KnowledgePack[]> {
-  if (!hasIdb()) return [...mem.values()].map(coercePack)
+  if (!hasIdb()) return [...mem.values()].map(coerceKnowledgePack)
   try {
-    return (await getAll<KnowledgePack>('knowledge_packs')).map(coercePack)
+    return (await getAll<KnowledgePack>('knowledge_packs')).map(coerceKnowledgePack)
   } catch {
-    return [...mem.values()].map(coercePack)
+    return [...mem.values()].map(coerceKnowledgePack)
   }
 }
 
 async function writeAll(rows: KnowledgePack[]): Promise<void> {
   const kept = prunePackList(rows)
   mem.clear()
-  for (const r of kept) mem.set(r.id, r)
+  for (const r of kept) mem.set(r.id, coerceKnowledgePack(r))
   if (!hasIdb()) return
   let existing: KnowledgePack[] = []
   try {

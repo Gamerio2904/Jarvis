@@ -49,6 +49,23 @@ resetKnowledgeMem()
   assert.ok(pack.claims.some((c) => /Palladium/i.test(c.text)))
 }
 
+// T1b Legacy-Pack ohne aliases (IndexedDB-Altbestand)
+{
+  const legacy = {
+    id: 'legacy-no-alias',
+    topic: 'kuchen-alt',
+    title: 'Kuchen alt',
+    user_ok: true,
+    claims: [{ id: 'c0', text: 'Kuchen braucht Mehl.', source_urls: [], user_ok: true }],
+    sources: [],
+    links: [],
+    origin: 'user',
+    updated_at: new Date().toISOString(),
+  }
+  assert.doesNotThrow(() => retrievePacks('suche im internet nach kuchenrezepten', [legacy]))
+  assert.doesNotThrow(() => knowledgeBlock([legacy], 'suche im internet nach kuchenrezepten'))
+}
+
 // T2 Topic-Ask
 {
   const packs = await listKnowledgePacks()

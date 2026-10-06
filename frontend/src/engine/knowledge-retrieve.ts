@@ -1,3 +1,4 @@
+import { coerceKnowledgePack } from './knowledge-store.ts'
 import { slugTopic } from './teach-parse.ts'
 import type { KnowledgePack } from './knowledge-types.ts'
 
@@ -42,12 +43,13 @@ export function packScore(ask: string, pack: KnowledgePack): number {
 }
 
 export function retrievePacks(ask: string, packs: KnowledgePack[]): KnowledgePack[] {
+  const pool = packs.map(coerceKnowledgePack)
   if (/^\s*(?:lage|tablet|hud)\s+(?:an|aus|ein|weg)\s*$/i.test(ask)) return []
   if (/^\s*(?:wo\s+(?:liegt|ist)|öffne\s+(?:die\s+)?(?:weltkugel|kugel|globus))/i.test(ask)) return []
   if (/\btimer\b/i.test(ask)) return []
   const pref = /(?:was\s+(?:trinke?|esse)\s+ich|welche\s+reisen|mag\s+ich)\b/i.test(ask)
   if (pref) return []
-  const ok = packs.filter((p) => p.user_ok)
+  const ok = pool.filter((p) => p.user_ok)
   const ranked = ok
     .map((p) => ({ p, s: packScore(ask, p) }))
     .filter((x) => x.s >= 0.5)

@@ -845,7 +845,14 @@ export async function streamChat(
     // Antwort. Vorher stand hier eine Liste einzelner Muster; die musste bei
     // jedem neuen Agenten nachgezogen werden.
     const routeNow = deterministicRoute(ask)
-    const know = knowledgeAllowedForRoute(routeNow) ? knowledgeBlock(packs, ask) : ''
+    let know = ''
+    if (knowledgeAllowedForRoute(routeNow)) {
+      try {
+        know = knowledgeBlock(packs, ask)
+      } catch {
+        know = ''
+      }
+    }
     const spokenHint = opts?.voice ? voiceHintFor(routeNow) : ''
     let wantSearch = Boolean((geminiReady() && live) || accepted || contradictionAsk)
     let research: ResearchMeta | undefined
@@ -1062,7 +1069,11 @@ export async function streamChat(
       finishLatency()
       return
     }
-    const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
+    let raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
+    if (/reading 'some'/i.test(raw)) {
+      raw =
+        'Interner Fehler beim Fachwissen (altes Paket). Bitte die neueste APK installieren — danach erneut senden.'
+    }
     const detail = kind === 'gemini' || kind === 'groq' ? userFacingCloudError(raw, groqReady()) : raw
     finishLatency()
     handlers.onError?.(detail)
