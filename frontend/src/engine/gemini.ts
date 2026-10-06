@@ -208,8 +208,11 @@ export async function streamGemini(
       maxOutputTokens: opts?.maxOutputTokens || 480,
     })
     let full = ''
+    let streamErr = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
-    const res = await streamSseLines({ url, body, apiKey: key, timeoutMs: Math.min(7_000, left) }, (json) => {
+    const res = await streamSseLines({ url, body, apiKey: key, timeoutMs: Math.min(12_000, left) }, (json) => {
+      const err = json.error as { message?: string; code?: number } | undefined
+      if (err?.message) streamErr = err.message
       const incoming = textFrom(json as GeminiResponse, false)
       if (!incoming) return
       let piece = incoming
@@ -224,6 +227,10 @@ export async function streamGemini(
       }
       if (piece) onToken?.(piece, full)
     })
+    if (streamErr && !full.trim()) {
+      if (isFatalAuth(0, streamErr, '')) throw new Error(germanAuthError())
+      continue
+    }
     if (full.trim()) {
       const t = full.trim()
       if (!/[.!?…]$/.test(t)) {
@@ -238,7 +245,13 @@ export async function streamGemini(
       saveSettings({ gemini_model: model })
       return { text: t }
     }
-    if (res.message?.includes('403') || res.message?.toLowerCase().includes('unauth')) {
+    if (
+      res.status === 401 ||
+      res.status === 403 ||
+      res.message?.includes('403') ||
+      res.message?.includes('401') ||
+      res.message?.toLowerCase().includes('unauth')
+    ) {
       throw new Error(germanAuthError())
     }
   }

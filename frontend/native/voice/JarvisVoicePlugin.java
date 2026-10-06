@@ -862,6 +862,19 @@ public class JarvisVoicePlugin extends Plugin {
         }
     }
 
+    private void emitSse(String data) {
+        JSObject ev = new JSObject();
+        ev.put("data", data);
+        main.post(() -> notifyListeners("sse", ev));
+    }
+
+    private static String streamErrMsg(int code, String body) {
+        String hint = body == null ? "" : body.trim();
+        if (hint.length() > 480) hint = hint.substring(0, 480);
+        if (hint.isEmpty()) return "HTTP " + code;
+        return "HTTP " + code + ": " + hint;
+    }
+
     @PluginMethod
     public void streamSse(PluginCall call) {
         String url = call.getString("url", "");
@@ -873,12 +886,12 @@ public class JarvisVoicePlugin extends Plugin {
         }
         call.setKeepAlive(true);
         Integer timeout = call.getInt("timeoutMs");
-        int readMs = timeout == null ? 8_000 : Math.max(3_000, Math.min(20_000, timeout));
+        int readMs = timeout == null ? 8_000 : Math.max(3_000, Math.min(45_000, timeout));
         io.execute(() -> {
             OkHttpClient client = http.newBuilder()
                     .connectTimeout(4, TimeUnit.SECONDS)
                     .readTimeout(readMs, TimeUnit.MILLISECONDS)
-                    .callTimeout(readMs + 2_000L, TimeUnit.MILLISECONDS)
+                    .callTimeout(readMs + 4_000L, TimeUnit.MILLISECONDS)
                     .build();
             Request.Builder b = new Request.Builder()
                     .url(url)
@@ -900,23 +913,45 @@ public class JarvisVoicePlugin extends Plugin {
                     JSObject r = new JSObject();
                     r.put("ok", false);
                     r.put("status", code);
-                    r.put("message", "Leere Antwort");
+                    r.put("message", streamErrMsg(code, ""));
                     call.resolve(r);
                     return;
                 }
+                String ctype = res.header("Content-Type", "");
+                boolean sse = ctype != null && ctype.toLowerCase().contains("text/event-stream");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(res.body().byteStream()));
+                if (!sse && (code < 200 || code >= 300)) {
+                    StringBuilder errBody = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (errBody.length() < 2_048) errBody.append(line);
+                    }
+                    JSObject r = new JSObject();
+                    r.put("ok", false);
+                    r.put("status", code);
+                    r.put("message", streamErrMsg(code, errBody.toString()));
+                    call.resolve(r);
+                    return;
+                }
                 String line;
+                String errTail = "";
                 while ((line = reader.readLine()) != null) {
-                    if (!line.startsWith("data:")) continue;
+                    if (line.endsWith("\r")) line = line.substring(0, line.length() - 1);
+                    if (!line.startsWith("data:")) {
+                        if (code < 200 || code >= 300) {
+                            if (errTail.length() < 2_048) errTail += line;
+                        }
+                        continue;
+                    }
                     String data = line.substring(5).trim();
                     if (data.isEmpty() || "[DONE]".equals(data)) continue;
-                    JSObject ev = new JSObject();
-                    ev.put("data", data);
-                    notifyListeners("sse", ev);
+                    emitSse(data);
                 }
                 JSObject r = new JSObject();
-                r.put("ok", code >= 200 && code < 300);
+                boolean ok = code >= 200 && code < 300;
+                r.put("ok", ok);
                 r.put("status", code);
+                if (!ok) r.put("message", streamErrMsg(code, errTail));
                 call.resolve(r);
             } catch (Exception e) {
                 JSObject r = new JSObject();

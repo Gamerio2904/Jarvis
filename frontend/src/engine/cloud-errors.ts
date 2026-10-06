@@ -12,11 +12,11 @@ export const GEMINI_MODELS_BEST_FIRST = [
 ] as const
 
 export const GROQ_MODELS_BEST_FIRST = [
-  'qwen/qwen3.8-27b',
-  'openai/gpt-oss-20b',
-  'groq/compound-mini',
   'llama-3.3-70b-versatile',
   'llama-3.1-8b-instant',
+  'groq/compound-mini',
+  'openai/gpt-oss-20b',
+  'qwen/qwen3.8-27b',
   'openai/gpt-oss-120b',
 ] as const
 

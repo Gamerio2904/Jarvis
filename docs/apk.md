@@ -1,9 +1,11 @@
-# Android-APK — App-Code `18.25.15`
+# Android-APK — App-Code `18.25.16`
 
-App-Code und Sideload **`18.25.15`** (versionCode `182515`):
+App-Code und Sideload **`18.25.16`** (versionCode `182516`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-**Neu in 18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
+**Neu in 18.25.16:** Groq- und Gemini-Antworten auf dem Handy (Reasoning-Stream-Fix, native SSE-Fehler, CapacitorHttp).
+
+**18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
 
 **18.25.14:** Mehrere Einkaufslisten, Flächen-Bugfixes. Test: [`TEST-18.25.14.md`](./TEST-18.25.14.md).
 
