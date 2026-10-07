@@ -4,6 +4,7 @@ import App from './App.tsx'
 import { ErrorBoundary } from './ui/ErrorBoundary.tsx'
 import './index.css'
 import './ultron-shell.css'
+import './theme-alexa.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

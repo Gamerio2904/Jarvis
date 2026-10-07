@@ -7,6 +7,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Der Tischplatten-Rework 444–466 ist umgesetzt; der Test-Build `18.31.2` ist noch nicht final auf einem Android-Gerät abgenommen. Die nächste geplante Qualitätsschiene 467–482 steht in [`101-next.md`](./101-next.md): geprüftes Routing, sichere Planungsübersetzung, gezielte Rückfragen und kürzere Sprachantworten. Soup wird erst nach messbarem Vergleich eingesetzt. Der Teilplan „Tischplatte lesbar“ ist in [`100-next.md`](./100-next.md) integriert. Hausstand nach dem Koppeln ([`hausstand-sync-plan.md`](./hausstand-sync-plan.md)) und Formulierung egal ([`formulierung-plan.md`](./formulierung-plan.md)) bleiben getrennte offene Schienen.
 
+### `18.31.5` — Tabletmodus, Hausstand-Server, Echo-Look — *CODE + APK*
+
+„Tabletmodus an“ startet die Lage im Vollbild, das Wake-Wort „Ultron“ und einen dauerhaften Hausstand-Server (Vordergrunddienst mit Wake-/WLAN-Sperre). Das Handy wird einmal per QR gekoppelt (`Handy koppeln` / `Scanne QR Code`), sucht danach beim Öffnen den Server im /24-WLAN und gleicht per Stand-Zeitstempel ab: neuerer Stand gewinnt, Rückfall auf den eigenen Stand bei Fehlern. Das Tablet sagt „Hausstand aktualisiert, Sir.“. Neues Echo-Theme (`theme-alexa.css`) und Geräteklassen Handy/Tablet/Desktop. Review-Fixes B1–B11, Pflichtfeld-Rückfragen, Datensatz-Governance (Vorbereitung für Soup; kein Soup-Training, kein Soup-Vergleich gelaufen). Nicht auf Gerät abgenommen.
+
 ### `18.31.3` — Hausstand-Import — *CODE + APK*
 
 Ältere oder beschädigte Projektpläne werden beim Hausstand-Import und beim späteren Laden validiert. Fehlende Planlisten werden ergänzt; unlesbare Pläne können die Tischplatte nicht mehr durch fehlende Listen zum Absturz bringen.

@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.31.4'
+export const APP_VERSION = '18.31.5'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -410,6 +410,9 @@ export type Settings = {
   last_pc_frame: boolean
   last_desk_on: boolean
   tischplatte_on: boolean
+  tablet_mode: boolean
+  sync_url: string
+  sync_token: string
   tischplatte_view: string
   workbench_open: boolean
   tischplatte_focus: string
@@ -637,6 +640,9 @@ export const DEFAULT_SETTINGS: Settings = {
   last_pc_frame: false,
   last_desk_on: false,
   tischplatte_on: false,
+  tablet_mode: false,
+  sync_url: '',
+  sync_token: '',
   tischplatte_view: 'sprints',
   workbench_open: false,
   tischplatte_focus: '',
@@ -927,11 +933,52 @@ function txDone(tx: IDBTransaction): Promise<void> {
   })
 }
 
+const STAND_KEY = 'jarvis_stand_at'
+let standMuted = false
+
+export function standAt(): string {
+  try {
+    return localStorage.getItem(STAND_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+export function setStandAt(iso: string): void {
+  try {
+    if (iso) localStorage.setItem(STAND_KEY, iso)
+  } catch {
+    /* node tests */
+  }
+}
+
+/** Während ein fremder Stand eingespielt wird, zählt kein Schreiben als eigene Änderung. */
+export function muteStand(on: boolean): void {
+  standMuted = on
+}
+
+const STAND_STORES = new Set([
+  'conversations', 'messages', 'memory', 'notes', 'todos', 'ideas', 'watch_movies', 'watched_movies',
+  'reminders', 'events', 'shopping', 'shopping_lists', 'price_watches', 'plans', 'portfolio', 'drafts',
+  'knowledge_packs', 'memory_proposals', 'todo_lists',
+])
+
+function touchStand(store: string): void {
+  if (standMuted || !STAND_STORES.has(store)) return
+  setStandAt(new Date().toISOString())
+  try {
+    window.dispatchEvent(new Event('jarvis-stand-changed'))
+  } catch {
+    /* node tests */
+  }
+}
+
 export async function put<T>(store: string, value: T): Promise<void> {
   const db = await openDb()
   const tx = db.transaction(store, 'readwrite')
   tx.objectStore(store).put(value)
   await txDone(tx)
+  touchStand(store)
 }
 
 export async function get<T>(store: string, id: string): Promise<T | undefined> {
@@ -949,6 +996,7 @@ export async function del(store: string, id: string): Promise<void> {
   const tx = db.transaction(store, 'readwrite')
   tx.objectStore(store).delete(id)
   await txDone(tx)
+  touchStand(store)
 }
 
 export async function clearStore(name: string): Promise<void> {

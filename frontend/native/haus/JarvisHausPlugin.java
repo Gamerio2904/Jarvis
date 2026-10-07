@@ -14,7 +14,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 import com.getcapacitor.JSObject;
@@ -38,6 +47,9 @@ public class JarvisHausPlugin extends Plugin {
     private Thread loop;
     private volatile boolean alive;
     private volatile int generation;
+    private final AtomicReference<String> standAt = new AtomicReference<>("");
+    private volatile boolean persistent;
+    private static final int HOME_PORT = 8765;
 
     @PluginMethod
     public void offer(PluginCall call) {
@@ -53,6 +65,16 @@ public class JarvisHausPlugin extends Plugin {
         String ip = lanIp();
         if (ip == null) {
             refuse(call, "Kein WLAN. Beide Geräte ins selbe Netz, dann den Satz nochmal.");
+            return;
+        }
+        if (persistent && alive && server != null) {
+            hosted.set(json);
+            String url = "http://" + ip + ":" + server.getLocalPort() + "/hausstand?t=" + token.get();
+            JSObject r = new JSObject();
+            r.put("ok", true);
+            r.put("url", url);
+            r.put("code", "jarvis-haus:v1|" + url);
+            call.resolve(r);
             return;
         }
         stopServer();
@@ -85,6 +107,182 @@ public class JarvisHausPlugin extends Plugin {
             stopServer();
             refuse(call, "Das WLAN-Tor geht nicht auf.");
         }
+    }
+
+
+    /** Dauerhafter Hausstand-Server fürs Tablet. Die Kennung bleibt gespeichert. */
+    @PluginMethod
+    public void serverStart(PluginCall call) {
+        String json = call.getString("json", "");
+        if (json == null || json.length() < 2) json = "{}";
+        if (json.length() > MAX_BODY) {
+            refuse(call, "Hausstand ist zu groß für den Server.");
+            return;
+        }
+        String ip = lanIp();
+        if (ip == null) {
+            refuse(call, "Kein WLAN. Das Tablet braucht das Heimnetz.");
+            return;
+        }
+        boolean rotate = Boolean.TRUE.equals(call.getBoolean("rotate", false));
+        try {
+            if (!(persistent && alive && server != null)) {
+                stopServer();
+                ServerSocket sock;
+                try {
+                    sock = new ServerSocket(HOME_PORT);
+                } catch (Exception busy) {
+                    sock = new ServerSocket(0);
+                }
+                sock.setReuseAddress(true);
+                server = sock;
+                alive = true;
+                persistent = true;
+                generation++;
+                loop = new Thread(this::acceptLoop, "jarvis-haus-home");
+                loop.start();
+            }
+            android.content.SharedPreferences prefs = getContext().getSharedPreferences("jarvis_haus", Context.MODE_PRIVATE);
+            String saved = prefs.getString("token", "");
+            if (rotate || saved == null || saved.length() < 12) {
+                saved = token() + token();
+                prefs.edit().putString("token", saved).apply();
+            }
+            token.set(saved);
+            hosted.set(json);
+            standAt.set(cleanStamp(call.getString("standAt", "")));
+            JarvisHausService.start(getContext());
+            int port = server.getLocalPort();
+            String base = "http://" + ip + ":" + port;
+            JSObject r = new JSObject();
+            r.put("ok", true);
+            r.put("url", base);
+            r.put("port", port);
+            r.put("token", saved);
+            r.put("code", "jarvis-haus:v2|" + base + "|" + saved);
+            call.resolve(r);
+        } catch (Exception e) {
+            stopServer();
+            refuse(call, "Der Hausstand-Server startet nicht.");
+        }
+    }
+
+    @PluginMethod
+    public void serverUpdate(PluginCall call) {
+        String json = call.getString("json", "");
+        if (!persistent || !alive || json == null || json.length() < 2 || json.length() > MAX_BODY) {
+            refuse(call, "Der Hausstand-Server läuft nicht.");
+            return;
+        }
+        hosted.set(json);
+        standAt.set(cleanStamp(call.getString("standAt", "")));
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void serverStop(PluginCall call) {
+        stopServer();
+        JarvisHausService.stop(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void serverState(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        r.put("running", persistent && alive && server != null);
+        r.put("ip", lanIp());
+        if (server != null) r.put("port", server.getLocalPort());
+        call.resolve(r);
+    }
+
+    /** Sucht den Hausstand-Server im eigenen /24-Netz. Ohne Kennung keine Antwort vom Server. */
+    @PluginMethod
+    public void discover(PluginCall call) {
+        final String tok = call.getString("token", "");
+        final String hint = call.getString("hint", "");
+        final int port = call.getInt("port", HOME_PORT);
+        if (tok == null || tok.length() < 12) {
+            refuse(call, "Noch nicht gekoppelt.");
+            return;
+        }
+        final String own = lanIp();
+        new Thread(() -> {
+            String[] hit = null;
+            if (hint != null && !hint.isEmpty()) hit = probe(hint, port, tok);
+            if (hit == null && own != null) {
+                String prefix = own.substring(0, own.lastIndexOf('.') + 1);
+                ExecutorService pool = Executors.newFixedThreadPool(48);
+                CompletionService<String[]> cs = new ExecutorCompletionService<>(pool);
+                List<Future<String[]>> all = new ArrayList<>();
+                int count = 0;
+                for (int i = 1; i < 255; i++) {
+                    final String host = prefix + i;
+                    if (host.equals(own) || host.equals(hint)) continue;
+                    all.add(cs.submit(() -> probe(host, port, tok)));
+                    count++;
+                }
+                try {
+                    for (int i = 0; i < count && hit == null; i++) {
+                        Future<String[]> f = cs.poll(12, TimeUnit.SECONDS);
+                        if (f == null) break;
+                        try {
+                            hit = f.get();
+                        } catch (Exception ignored) {
+                            /* nächster Host */
+                        }
+                    }
+                } catch (InterruptedException ignored) {
+                    /* abgebrochen */
+                }
+                pool.shutdownNow();
+            }
+            JSObject r = new JSObject();
+            if (hit == null) {
+                r.put("ok", false);
+                r.put("message", "Kein Hausstand-Server im WLAN gefunden.");
+            } else {
+                r.put("ok", true);
+                r.put("host", hit[0]);
+                r.put("url", "http://" + hit[0] + ":" + port);
+                r.put("standAt", hit[1]);
+            }
+            call.resolve(r);
+        }, "jarvis-haus-discover").start();
+    }
+
+    private static String[] probe(String host, int port, String tok) {
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL("http://" + host + ":" + port + "/ping?t=" + tok).openConnection();
+            conn.setConnectTimeout(700);
+            conn.setReadTimeout(1500);
+            conn.setRequestMethod("GET");
+            if (conn.getResponseCode() != 200) {
+                conn.disconnect();
+                return null;
+            }
+            String text = readStream(conn.getInputStream(), 2000);
+            conn.disconnect();
+            if (!text.contains("\"jarvis\":1")) return null;
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("\"stand_at\":\"([^\"]*)\"").matcher(text);
+            return new String[] {host, m.find() ? m.group(1) : ""};
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static String cleanStamp(String raw) {
+        if (raw == null) return "";
+        return raw.replaceAll("[^0-9TZ:.+\\-]", "");
+    }
+
+    private static boolean sameToken(String want, String got) {
+        if (want == null || got == null || want.isEmpty()) return false;
+        return MessageDigest.isEqual(want.getBytes(StandardCharsets.UTF_8), got.getBytes(StandardCharsets.UTF_8));
     }
 
     @PluginMethod
@@ -211,8 +409,13 @@ public class JarvisHausPlugin extends Plugin {
             String target = req[1];
             String want = token.get();
             String got = queryToken(target);
-            if (!target.startsWith("/hausstand") || want.isEmpty() || !want.equals(got)) {
+            boolean ping = target.startsWith("/ping");
+            if ((!ping && !target.startsWith("/hausstand")) || !sameToken(want, got)) {
                 write(sock, 404, "");
+                return;
+            }
+            if (ping && "GET".equals(method)) {
+                write(sock, 200, "{\"jarvis\":1,\"stand_at\":\"" + standAt.get() + "\"}");
                 return;
             }
             if ("GET".equals(method)) {
@@ -310,8 +513,10 @@ public class JarvisHausPlugin extends Plugin {
                 /* */
             }
         }
+        persistent = false;
         token.set("");
         hosted.set("");
+        standAt.set("");
     }
 
     private static String token() {

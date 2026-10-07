@@ -1,0 +1,245 @@
+/* Ultron „Echo“-Look: tiefes Nachtblau, Cyan-Ring, Glas, Licht. Liegt über index.css. */
+:root {
+  --bg: #02060f;
+  --bg-elevated: rgba(14, 24, 44, 0.62);
+  --bg-sidebar: #030812;
+  --bg-hover: rgba(40, 90, 160, 0.22);
+  --bg-input: rgba(10, 20, 40, 0.7);
+  --border: rgba(80, 170, 255, 0.22);
+  --text: #eaf4ff;
+  --text-muted: #8fa8c4;
+  --accent: #19d3ff;
+  --accent-dim: #0a7fa6;
+  --gold: #bfe6ff;
+  --gold-dim: rgba(160, 220, 255, 0.4);
+  --user-bubble: rgba(25, 211, 255, 0.14);
+  --radius: 22px;
+  --echo-glow: 0 0 24px rgba(25, 211, 255, 0.35), 0 0 80px rgba(25, 120, 255, 0.18);
+  --echo-glass: rgba(10, 20, 40, 0.55);
+  --font-display: "Outfit", "Manrope", sans-serif;
+  --shadow: 0 18px 60px rgba(0, 10, 30, 0.6);
+}
+
+html,
+body,
+#root {
+  background:
+    radial-gradient(1200px 700px at 78% -10%, rgba(25, 120, 255, 0.28), transparent 60%),
+    radial-gradient(900px 600px at 5% 110%, rgba(25, 211, 255, 0.16), transparent 60%),
+    #02060f;
+}
+
+.app {
+  background: transparent;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, rgba(8, 18, 38, 0.78), rgba(2, 8, 18, 0.92));
+  backdrop-filter: blur(22px) saturate(140%);
+  border-right: 1px solid var(--border);
+  box-shadow: inset -1px 0 0 rgba(25, 211, 255, 0.06);
+}
+
+.settings-card,
+.pc-scan-card,
+.mini-chat,
+.nav-island {
+  background: var(--echo-glass);
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.bubble {
+  border-radius: 24px;
+}
+
+.row.user .bubble {
+  background: linear-gradient(135deg, rgba(25, 211, 255, 0.22), rgba(25, 100, 255, 0.18));
+  border: 1px solid rgba(25, 211, 255, 0.35);
+  box-shadow: 0 0 22px rgba(25, 211, 255, 0.12);
+}
+
+.row:not(.user) .bubble {
+  background: rgba(14, 26, 48, 0.5);
+  border: 1px solid rgba(80, 170, 255, 0.14);
+  backdrop-filter: blur(14px);
+}
+
+.composer {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(18px);
+}
+
+.composer.is-focused {
+  border-color: var(--accent);
+  box-shadow: var(--echo-glow);
+}
+
+.composer .icon-btn.mic-round,
+.composer .icon-btn.send-round {
+  background: radial-gradient(circle at 35% 30%, #5fe6ff, #0a7fd6);
+  color: #00121f;
+  box-shadow: 0 0 22px rgba(25, 211, 255, 0.5);
+}
+
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.nav-island-item.is-on {
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(25, 211, 255, 0.7);
+}
+
+.lage-tile,
+.lage-chip,
+.lage-layer {
+  background: var(--echo-glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+}
+
+@keyframes echo-ring {
+  0% { transform: scale(0.96); opacity: 0.9; }
+  70% { transform: scale(1.12); opacity: 0; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+
+@keyframes echo-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes echo-breathe {
+  0%, 100% { box-shadow: 0 0 40px rgba(25, 211, 255, 0.35), inset 0 0 40px rgba(25, 211, 255, 0.18); }
+  50% { box-shadow: 0 0 90px rgba(25, 150, 255, 0.55), inset 0 0 60px rgba(25, 211, 255, 0.3); }
+}
+
+/* Tablet-Modus: Lage füllt die Fläche, keine Seitenleiste */
+.app.is-tablet-mode {
+  grid-template-columns: 1fr;
+}
+
+.app.is-tablet-mode .sidebar,
+.app.is-tablet-mode .nav-island,
+.app.is-tablet-mode .nav-island-side {
+  display: none;
+}
+
+.app.is-tablet-mode .main {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tablet-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  align-items: center;
+  padding: max(28px, env(safe-area-inset-top)) 32px max(28px, env(safe-area-inset-bottom));
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 55%, rgba(2, 6, 15, 0) 30%, rgba(2, 6, 15, 0.55) 100%);
+}
+
+.tablet-clock {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+
+.tablet-clock strong {
+  font: 650 clamp(3.5rem, 12vw, 8rem) / 1 var(--font-display);
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 40px rgba(25, 211, 255, 0.45);
+}
+
+.tablet-clock span {
+  font-size: clamp(1rem, 2.4vw, 1.6rem);
+  color: var(--text-muted);
+}
+
+.tablet-orb {
+  pointer-events: auto;
+  position: relative;
+  width: clamp(120px, 22vmin, 220px);
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  background: conic-gradient(from 0deg, #19d3ff, #1a5cff, #7a3cff, #19d3ff);
+  animation: echo-spin 9s linear infinite;
+  box-shadow: 0 0 60px rgba(25, 211, 255, 0.45);
+}
+
+.tablet-orb::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 2px solid rgba(25, 211, 255, 0.5);
+  animation: echo-ring 2.6s ease-out infinite;
+}
+
+.tablet-orb-core {
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #0b1a33, #02060f 70%);
+  animation: echo-breathe 4s ease-in-out infinite;
+}
+
+.tablet-orb.is-listening {
+  filter: saturate(1.4) brightness(1.15);
+}
+
+.tablet-hint {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+}
+
+.tablet-hint small {
+  color: var(--text-muted);
+  font-size: 0.8em;
+}
+
+/* Handy: Daumen-Zone, ruhigere Flächen */
+html[data-device='phone'] .composer {
+  border-radius: 28px;
+}
+
+html[data-device='phone'] .bubble {
+  max-width: 92%;
+}
+
+/* iPad/Tablet: breitere Karten, größere Schrift */
+html[data-device='tablet'] body {
+  font-size: 17px;
+}
+
+html[data-device='tablet'] .bubble {
+  max-width: min(760px, 78%);
+  padding: 16px 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tablet-orb,
+  .tablet-orb::before,
+  .tablet-orb-core {
+    animation: none;
+  }
+}

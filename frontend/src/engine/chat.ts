@@ -4,6 +4,7 @@ import { groqReady, testGroq } from './groq.ts'
 import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain.ts'
 import { userFacingCloudError } from './cloud-errors.ts'
 import { abortError, isAbortError, isTurnAborted } from './turn-abort.ts'
+import { handleTabletText } from './tablet-chat.ts'
 import { groundMicroMerge, HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
 import { greetingReply, greetingStandFact, parseGreeting, WRONG_NAME_REPLY, wrongNameGreeting } from './greeting.ts'
 import { handleFensterCommand, ownFensterKind } from './fenster.ts'
@@ -187,6 +188,9 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       tool: { tool_status: 'executed', tool: 'help', action: 'catalog', label: 'Hilfe' },
     }
   }
+
+  const tablet = await handleTabletText(content)
+  if (tablet) return { reply: tablet.reply, lastTool: 'tablet', tool: tablet.tool, blocks: tablet.blocks }
 
   if (isPersonaAsk(content) || isPersonaAsk(normalizeUtterance(content))) {
     return {

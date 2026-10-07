@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { createPortal } from 'react-dom'
 import {
   clearMemory,
@@ -122,6 +122,9 @@ import { ReplyOrb } from './ui/ReplyOrb.tsx'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session.ts'
 import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate.ts'
 import { watchDeviceClass } from './engine/device-class.ts'
+import { TabletShell } from './ui/TabletShell.tsx'
+import { useTabletRuntime } from './ui/useTabletRuntime.ts'
+import { enterTabletMode, leaveTabletMode } from './engine/tablet-runtime.ts'
 
 function opensDriveOverlay(tool?: ToolMeta | null): boolean {
   if (!tool) return false
@@ -399,11 +402,18 @@ function App() {
   const voiceReqRef = useRef<string | null>(null)
   const [voiceSeed, setVoiceSeed] = useState('')
   const [lageWide, setLageWide] = useState(false)
+  const [tabletLine, setTabletLine] = useState('')
+  const tabletHooks = useMemo(
+    () => ({ note: (line: string) => setStatusNote(line), reload: () => window.location.reload() }),
+    [],
+  )
+  useTabletRuntime(tabletHooks)
 
   useEffect(() => {
     const open = () => setHausScan(true)
     window.addEventListener('jarvis-haus-scan', open)
     const stop = watchHausIncoming((json) => {
+      if (loadSettings().tablet_mode) return
       const choice = parseImportPayload(json)
       if (!choice || choice.kind !== 'haus') return
       void applyBackup(choice.data).then((line) => {
@@ -649,6 +659,27 @@ function App() {
     if (tool.tool === 'idea' && tool.action === 'plan_table') showTischplatte()
   }
 
+  function applyTabletTool(tool?: ToolMeta | null) {
+    if (!tool || tool.tool !== 'tablet') return
+    if (tool.action === 'on') {
+      setHomeOpen(false)
+      setCalendarOpen(false)
+      setWatchlistOpen(false)
+      setSettingsPanelOpen(false)
+      closeVoice()
+      void enterTabletMode().then((st) => {
+        setTabletLine(st.line)
+        setStatusNote(st.line)
+        void refreshSettings()
+      })
+    } else if (tool.action === 'off') {
+      void leaveTabletMode().then(() => {
+        setTabletLine('')
+        void refreshSettings()
+      })
+    }
+  }
+
   function applyHudTool(tool?: ToolMeta | null) {
     if (!tool || tool.tool !== 'hud') return
     const s = loadSettings()
@@ -686,6 +717,13 @@ function App() {
   }, [])
 
   useEffect(() => watchDeviceClass(window), [])
+
+  useEffect(() => {
+    if (!loadSettings().tablet_mode) return
+    setHomeOpen(false)
+    setLageSession(true)
+    void enterTabletMode().then((st) => setTabletLine(st.line))
+  }, [])
 
   useEffect(() => {
     /** Kaltstart: Homescreen statt leerer Lage/Chat-Schicht (Blackscreen-Falle). */
@@ -1634,6 +1672,7 @@ function App() {
           applyBoardTool(payload.tool)
           applyWatchTool(payload.tool)
           applyAppTool(payload.tool)
+          applyTabletTool(payload.tool)
           applyHudTool(payload.tool)
           if (driveCloseGenRef.current === closeGen) {
             if (opensChessOverlay(payload.tool)) {
@@ -1890,6 +1929,7 @@ function App() {
             applyBoardTool(payload.tool)
             applyWatchTool(payload.tool)
             applyAppTool(payload.tool)
+            applyTabletTool(payload.tool)
             applyHudTool(payload.tool)
           },
           onError: (detail) => {
@@ -1979,6 +2019,7 @@ function App() {
     ? !liveHud.hud_hidden
     : Boolean(liveHud.hud_force) && lageSessionActive())
   const lageSideChatOn = lageOn && lageWide && lageSideChat
+  const tabletOn = Boolean(liveHud.tablet_mode)
   const lageChat = lageOn && liveHud.hud_view === 'body' && liveHud.body_with_chat !== false
   const lageAmber = liveHud.hud_accent === 'amber'
   const leisteOff = liveHud.leiste_on === false
@@ -2210,7 +2251,7 @@ function App() {
   }, [liveHud.scan_json])
 
   return (
-    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}`} ref={appRef}>
+    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${tabletOn ? ' is-tablet-mode' : ''}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}`} ref={appRef}>
       <UltronIntro />
       <FensterSheet
         ownKind={ownFensterKind()}
@@ -2617,6 +2658,10 @@ function App() {
           <div className="fallback-banner">
             Debug-Lauf im Hintergrund. Settings → Debug: Stop oder Download. Chat bleibt nutzbar.
           </div>
+        ) : null}
+
+        {tabletOn && lageOn && !voiceOpen && !settingsLayer.shown ? (
+          <TabletShell listening={wakeListening} serverLine={tabletLine} onTalk={() => openVoiceMode()} />
         ) : null}
 
         {lageOn && !voiceOpen && !calendarOpen && !watchlistOpen && !shoppingOpen && !notesOpen && !todosOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (

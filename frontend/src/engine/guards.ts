@@ -244,7 +244,7 @@ MEDIEN
 Filme suchen und Watchlist verwalten. Fernseher (Tizen/Fire TV) und Spotify steuern, wenn eingerichtet. „Stopp“ stoppt das zuletzt verwendete Medium.
 
 GERÄT UND HAUS
-Standort, Uhrzeit, Akku und Taschenlampe. Lokale WLAN-Steckdosen, wenn eingerichtet; kein SmartThings und keine Tuya-Cloud. Anruf und SMS nach Rückfrage. Telefonbuch nach Ja; die Kontaktliste gibt es auf Zuruf. E-Mail lesen mit App-Passwort; Entwurf erst nach Ja. Antworten: kein stilles WhatsApp-Senden, nur über die sichtbare Meldung nach Ja.
+Tablet: „Tabletmodus an/aus“ (Lage im Vollbild, Wake-Wort „Ultron“, Hausstand-Server); „Handy koppeln“ zeigt den Koppel-Code, danach gleicht das Handy den Hausstand selbst ab. Standort, Uhrzeit, Akku und Taschenlampe. Lokale WLAN-Steckdosen, wenn eingerichtet; kein SmartThings und keine Tuya-Cloud. Anruf und SMS nach Rückfrage. Telefonbuch nach Ja; die Kontaktliste gibt es auf Zuruf. E-Mail lesen mit App-Passwort; Entwurf erst nach Ja. Antworten: kein stilles WhatsApp-Senden, nur über die sichtbare Meldung nach Ja.
 
 UNTERWEGS
 Fahrmodus, Orte in der Nähe und Taxi-/Bahninformationen. Eine Anfrage bedeutet nicht, dass etwas gebucht wurde.

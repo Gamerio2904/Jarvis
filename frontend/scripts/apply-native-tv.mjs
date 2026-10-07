@@ -62,6 +62,7 @@ const hausSrc = join(root, 'native', 'haus')
 const hausDest = join(android, 'app/src/main/java/app/jarvis/haus')
 mkdirSync(hausDest, { recursive: true })
 copyFileSync(join(hausSrc, 'JarvisHausPlugin.java'), join(hausDest, 'JarvisHausPlugin.java'))
+copyFileSync(join(hausSrc, 'JarvisHausService.java'), join(hausDest, 'JarvisHausService.java'))
 
 const fensterSrc = join(root, 'native', 'fenster')
 const fensterDest = join(android, 'app/src/main/java/app/jarvis/fenster')
@@ -189,6 +190,20 @@ if (!manifest.includes('app.jarvis.fenster.JarvisFensterService')) {
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Kopplung im WLAN" />
+        </service>
+</application>`,
+  )
+}
+if (!manifest.includes('app.jarvis.haus.JarvisHausService')) {
+  manifest = manifest.replace(
+    '</application>',
+    `        <service
+            android:name="app.jarvis.haus.JarvisHausService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Hausstand-Server im WLAN" />
         </service>
 </application>`,
   )

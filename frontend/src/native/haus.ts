@@ -1,6 +1,8 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core'
 
 type HausOffer = { ok: boolean; url?: string; code?: string; message?: string }
+export type HausServer = { ok: boolean; url?: string; port?: number; token?: string; code?: string; message?: string }
+export type HausFound = { ok: boolean; url?: string; host?: string; standAt?: string; message?: string }
 type HausBody = { ok: boolean; json?: string; message?: string }
 
 type NativeHaus = {
@@ -8,6 +10,10 @@ type NativeHaus = {
   pull(opts: { url: string }): Promise<HausBody>
   push(opts: { url: string; json: string }): Promise<HausBody>
   stop(): Promise<{ ok: boolean }>
+  serverStart(opts: { json: string; standAt: string; rotate?: boolean }): Promise<HausServer>
+  serverUpdate(opts: { json: string; standAt: string }): Promise<{ ok: boolean; message?: string }>
+  serverStop(): Promise<{ ok: boolean }>
+  discover(opts: { token: string; hint?: string; port?: number }): Promise<HausFound>
   ensureCamera(): Promise<{ ok: boolean; message?: string }>
   addListener(event: 'incoming', cb: (ev: { json?: string }) => void): Promise<PluginListenerHandle>
 }
@@ -78,5 +84,41 @@ export function watchHausIncoming(onJson: (json: string) => void): () => void {
   return () => {
     dead = true
     void handle?.remove()
+  }
+}
+
+export async function hausServerStart(json: string, standAt: string, rotate = false): Promise<HausServer> {
+  if (!native) return { ok: false, message: 'Der Server läuft nur in der App.' }
+  try {
+    return await native.serverStart({ json, standAt, rotate })
+  } catch {
+    return { ok: false, message: 'Der Hausstand-Server startet nicht.' }
+  }
+}
+
+export async function hausServerUpdate(json: string, standAt: string): Promise<boolean> {
+  if (!native) return false
+  try {
+    return Boolean((await native.serverUpdate({ json, standAt })).ok)
+  } catch {
+    return false
+  }
+}
+
+export async function hausServerStop(): Promise<void> {
+  if (!native) return
+  try {
+    await native.serverStop()
+  } catch {
+    /* Server ist schon aus */
+  }
+}
+
+export async function hausDiscover(token: string, hint = '', port = 8765): Promise<HausFound> {
+  if (!native) return { ok: false, message: 'Die Suche läuft nur in der App.' }
+  try {
+    return await native.discover({ token, hint, port })
+  } catch {
+    return { ok: false, message: 'Die Suche im WLAN ging schief.' }
   }
 }

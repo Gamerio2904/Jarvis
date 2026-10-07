@@ -23,6 +23,7 @@ import {
   normalizeIdeaRow,
   replaceStore,
   saveSettings,
+  standAt,
   type CalendarEvent,
   type Conversation,
   type MemoryItem,
@@ -58,6 +59,9 @@ export function isImportJunkMemory(row: { key?: string; value?: string }): boole
 
 /** Nur Lauf-Cache, keine dauerhaften Einstellungen. Keys, Hosts, HUD, Stecker bleiben. */
 const EPHEMERAL: Array<keyof Settings> = [
+  'tablet_mode',
+  'sync_url',
+  'sync_token',
   'last_fuel_json',
   'last_poi_json',
   'last_comm_json',
@@ -142,6 +146,7 @@ const KEY_FIELDS: Array<keyof Settings> = [
 export type HausBackup = {
   backup_version: number
   exported_at: string
+  stand_at?: string
   settings: Partial<Settings>
   memory: MemoryItem[]
   reminders: Reminder[]
@@ -251,6 +256,7 @@ export function asBackup(raw: unknown): HausBackup | null {
   return {
     backup_version: 1,
     exported_at: String(o.exported_at || ''),
+    stand_at: String(o.stand_at || ''),
     settings: o.settings as Partial<Settings>,
     memory: arr(o.memory),
     reminders: arr(o.reminders),
@@ -394,6 +400,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
   return {
     backup_version: BACKUP_VERSION,
     exported_at: new Date().toISOString(),
+    stand_at: standAt(),
     settings,
     memory: await listMemory(),
     reminders: await listReminders(),
@@ -563,7 +570,7 @@ export async function handleBackup(
     return {
       handled: true,
       reply:
-        'Automatische Synchronisierung gibt es noch nicht. Manuell: Beide Geräte ins gleiche WLAN bringen, unter Einstellungen → Hausstand auf einem Gerät den Code anzeigen, auf dem anderen scannen und die Importvorschau bestätigen.',
+        'Auf dem Tablet „Tabletmodus an“, dann „Handy koppeln“ und den Code mit „Scanne QR Code“ auf dem Handy scannen. Danach sucht das Handy beim Öffnen den Tablet-Server im WLAN und gleicht den Hausstand ab; der neuere Stand gewinnt. Ohne Kopplung geht es manuell: Einstellungen → Hausstand.',
       tool: { tool_status: 'executed', tool: 'backup', action: 'sync_unavailable', label: 'Hausstand' },
     }
   }

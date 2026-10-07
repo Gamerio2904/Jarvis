@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import jsQR from 'jsqr'
 import { applyBackup, buildBackup, parseImportPayload } from '../engine/backup.ts'
 import { parseHausQr } from '../engine/haus-link.ts'
+import { parsePairCode, savePairing } from '../engine/tablet-sync.ts'
 import { hausEnsureCamera, hausPull, hausPush } from '../native/haus.ts'
 
 type Dir = 'to-phone' | 'to-tablet'
@@ -46,6 +47,8 @@ export function HausScan(p: Props) {
   const streamRef = useRef<MediaStream | null>(null)
   const loopRef = useRef(0)
   const busyRef = useRef(false)
+  const propsRef = useRef(p)
+  propsRef.current = p
   const [url, setUrl] = useState<string | null>(null)
   const [dir, setDir] = useState<Dir | null>(null)
   const [msg, setMsg] = useState('Kamera auf den Code am anderen Gerät.')
@@ -53,6 +56,16 @@ export function HausScan(p: Props) {
 
   const take = useCallback((raw: string) => {
     if (busyRef.current) return
+    const pair = parsePairCode(raw)
+    if (pair) {
+      savePairing(pair.url, pair.token)
+      streamRef.current?.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+      propsRef.current.onDone('Mit dem Tablet gekoppelt. Hausstand wird abgeglichen.')
+      propsRef.current.onClose()
+      window.dispatchEvent(new Event('jarvis-sync-now'))
+      return
+    }
     const next = parseHausQr(raw)
     if (!next) {
       setMsg('Das ist kein Hausstand-Code.')
