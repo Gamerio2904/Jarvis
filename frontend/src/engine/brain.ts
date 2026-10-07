@@ -104,3 +104,37 @@ export async function completeBrain(
   }
   throw new Error(noBrainLine())
 }
+
+export async function completeBrainWithFallback(
+  messages: Array<{ role: string; content: string }>,
+  onToken?: (piece: string, full: string) => void,
+  opts?: { search?: boolean; maxOutputTokens?: number; timeoutMs?: number; voice?: boolean },
+): Promise<BrainComplete> {
+  const preferred = brainKind()
+  const ready: BrainKind[] = [
+    preferred,
+    ...(geminiReady() && !quotaBlocked('gemini') ? ['gemini' as const] : []),
+    ...(groqReady() && !quotaBlocked('groq') ? ['groq' as const] : []),
+    ...(isModelReady() ? ['local' as const] : []),
+  ]
+  const candidates = [...new Set(ready)].filter((kind) => kind !== 'none')
+  if (!candidates.length) throw new Error(noBrainLine())
+  const failures: string[] = []
+  for (const kind of candidates) {
+    try {
+      if (kind === 'gemini') {
+        const result = await completeGemini(messages, onToken, {
+          search: opts?.search,
+          maxOutputTokens: opts?.maxOutputTokens,
+          timeoutMs: opts?.timeoutMs,
+        })
+        return { text: result.text, research: result.research, via: kind }
+      }
+      if (kind === 'groq') return { text: await completeGroq(messages, onToken), via: kind }
+      return { text: await completeChat(messages, onToken), via: kind }
+    } catch (error) {
+      failures.push(`${kind}: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+  throw new Error(`Alle verfügbaren Planungsmodelle sind fehlgeschlagen. ${failures.join(' | ')}`)
+}

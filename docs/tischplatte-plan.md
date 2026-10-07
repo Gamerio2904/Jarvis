@@ -1,4 +1,9 @@
-# Tischplatte lesbar
+# Tischplatte lesbar — in `100-next.md` integriert
+
+> Historischer Teilplan. Seine Karten-/Lesbarkeitsanforderungen werden in
+> Sprint 448 behandelt; gezielte Rückfragen in 450–451. Die separate
+> Sprintfolge S1–S4 ist aufgehoben. Maßgeblich für den Rework ist
+> [`100-next.md`](./100-next.md), Sprints 444–466.
 
 Plan nach [`plan-vorlage.md`](./plan-vorlage.md). Er kommt nach dem Stand `18.25.13`. Noch nichts davon ist gebaut. Ein Sprint wird erst gebaut, wenn jemand `Umsetzen` sagt.
 

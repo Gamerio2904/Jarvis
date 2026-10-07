@@ -11,6 +11,7 @@ export type BoardIntent =
   | { kind: 'on' }
   | { kind: 'off' }
   | { kind: 'view'; view: TischplatteView; sim?: HomeAppId }
+  | { kind: 'workflow_sim'; query?: string }
   | { kind: 'catalog'; mode: 'planned' | 'can' | 'area' | 'docs'; area?: string }
   | { kind: 'jobs'; research?: string; planIndex?: number; planQuery?: string }
   | { kind: 'proposal'; accept: boolean }
@@ -48,6 +49,10 @@ const VIEW_RES = new RegExp(
   'i',
 )
 const SIM = new RegExp(String.raw`^\s*simulier(?:e|en)?(?:\s+die)?\s+(?:die\s+)?(.+?)(?:-?gui)?\s*` + END, 'i')
+const WORKFLOW_SIM = new RegExp(
+  String.raw`^\s*(?:simulier(?:e|en)?|spiel(?:e)?\s+durch|geh(?:e)?\s+durch)\s+(?:(?:den|einen)\s+)?(?:ablauf|workflow|prozess)(?:\s+von\s+(.+?))?\s*` + END,
+  'i',
+)
 const THEME = new RegExp(String.raw`^\s*(?:neuer\s+hintergrund|hintergrund\s+neu)\s*` + END, 'i')
 const THEME_NAMED = new RegExp(String.raw`^\s*hintergrund\s+(?!neu\b)(\S(?:.{0,42}\S)?)\s*` + END, 'i')
 const STOP = new RegExp(String.raw`^\s*(?:stopp(?:e)?\s+(?:die\s+)?jobs?|jobs?\s+stopp)\s*` + END, 'i')
@@ -191,6 +196,11 @@ export function parseBoardIntent(text: string): BoardIntent | null {
     }
   }
 
+  const workflow = WORKFLOW_SIM.exec(t)
+  if (workflow) {
+    const query = (workflow[1] || '').trim().replace(/^(?:(?:zu|für|fuer|von)\s+)?(?:projekt\s+)?/i, '')
+    return query ? { kind: 'workflow_sim', query } : { kind: 'workflow_sim' }
+  }
   const pending = Boolean(loadSettings().proposal_pending)
   if (pending) {
     if (/^(?:ja(?:\s+bitte)?|merken|merk(?:e)?\s+dir(?:\s+den)?\s+vorschlag)\s*[.!?]?$/i.test(t)) {

@@ -5,8 +5,10 @@ import { parseBoardJobs, serializeBoardJobs, stopJobs, type BoardJob } from '../
 import { wireFor, type WireFrame } from '../engine/board-wire.ts'
 import { expandEvents } from '../engine/calendar-occur.ts'
 import { acceptProposal, pendingProposals, rejectProposal } from '../engine/memory-propose.ts'
-import { listEvents, listIdeas, loadSettings, saveSettings, type Idea, type MemoryProposal } from '../engine/store.ts'
+import { listEvents, listIdeas, loadSettings, newId, putIdea, saveSettings, type Idea, type MemoryProposal } from '../engine/store.ts'
 import type { ResearchSource } from '../engine/research-parse.ts'
+import { savePlanRevision, type IdeaSimulation } from '../engine/idea-plan.ts'
+import { parseProjectFile } from '../engine/project-docs.ts'
 import { ScriptStage } from './ScriptStage.tsx'
 
 function lastResearch(): ResearchSource[] {
@@ -40,23 +42,27 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
   const [planId, setPlanId] = useState('')
   const [scriptAt, setScriptAt] = useState(0)
   const [sprintSide, setSprintSide] = useState<'left' | 'right'>('left')
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     let dead = false
     const load = () => {
       void listIdeas()
         .then((rows) => {
-          if (!dead) setIdeas(rows)
+          if (!dead) {
+            setIdeas(rows)
+            setLoadError('')
+          }
         })
-        .catch(() => {
-          if (!dead) setIdeas([])
+        .catch((error: unknown) => {
+          if (!dead) setLoadError(`Projekte konnten nicht geladen werden: ${error instanceof Error ? error.message : String(error)}`)
         })
       void pendingProposals()
         .then((rows) => {
           if (!dead) setProposals(rows)
         })
-        .catch(() => {
-          if (!dead) setProposals([])
+        .catch((error: unknown) => {
+          if (!dead) setLoadError(`Vorschläge konnten nicht geladen werden: ${error instanceof Error ? error.message : String(error)}`)
         })
       void listEvents()
         .then((rows) => {
@@ -113,10 +119,46 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
       .catch(() => setWire(null))
   }, [vis, focus])
 
-  const active =
-    phase === 'live' || phase === 'go'
-      ? ideas.find((i) => i.id === planId) || ideas.find((i) => i.status === 'open') || ideas[0]
-      : undefined
+  const active = planId ? ideas.find((idea) => idea.id === planId && idea.status !== 'done') : undefined
+  const evidenceSources = active?.plan?.evidence?.filter((item) => item.kind === 'research') || []
+  const displayedSources = evidenceSources.length
+    ? evidenceSources.map((source) => `${source.title} · ${source.url || source.text}`)
+    : sources.map((source) => `${source.title.slice(0, 48)} · ${hostOf(source.url)}`)
+
+  async function updateSimulation(simulation: IdeaSimulation | null): Promise<void> {
+    if (!active) throw new Error('Es ist kein aktives Projekt ausgewählt.')
+    const plan = active.plan
+    if (!plan) throw new Error('Das Projekt hat keinen gespeicherten Plan.')
+    const withRevision = savePlanRevision(plan, 'Vorschau angepasst', newId())
+    const updated = { ...active, plan: { ...withRevision, simulation: simulation || undefined } }
+    await putIdea(updated)
+    setIdeas((rows) => rows.map((row) => (row.id === updated.id ? updated : row)))
+  }
+
+  async function importProject(raw: unknown): Promise<string> {
+    const imported = parseProjectFile(raw)
+    const rows = await listIdeas()
+    const existing = rows.find((row) => row.id === imported.ideaId) || rows.find((row) => row.title === imported.projekt)
+    if (existing && !window.confirm(`„${existing.title}“ ersetzen? Der vorhandene Plan wird überschrieben.`)) {
+      return 'Import abgebrochen; der vorhandene Plan blieb unverändert.'
+    }
+    const id = existing?.id || newId()
+    const now = new Date().toISOString()
+    const next: Idea = {
+      id,
+      title: imported.projekt,
+      body: imported.notiz,
+      status: existing?.status || 'open',
+      plan: { ...imported.plan, ideaId: id },
+      source_conversation_id: existing?.source_conversation_id || null,
+      created_at: existing?.created_at || now,
+      updated_at: now,
+    }
+    await putIdea(next)
+    setIdeas((current) => [...current.filter((row) => row.id !== id), next])
+    saveSettings({ plan_idea_id: id, workbench_open: true, tischplatte_on: true, tischplatte_view: 'psp' })
+    return `Projekt „${next.title}“ wurde importiert.`
+  }
 
   function stop() {
     const next = stopJobs(jobs)
@@ -128,12 +170,14 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
     <div className="workbench" data-board-view={vis} aria-label="Werkbank">
       <ScriptStage
         view={vis}
+        focus={focus}
         idea={active}
         termin={termin}
         jobs={jobs.map((j) => j.label)}
-        sources={sources.map((s) => `${s.title.slice(0, 48)} · ${hostOf(s.url)}`)}
+        sources={displayedSources}
         modules={HOME_APPS.map((a) => a.label)}
         wire={wire?.lines || []}
+        loadError={loadError}
         proposals={proposals}
         phase={phase}
         scriptAt={scriptAt}
@@ -141,6 +185,8 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
         onStop={stop}
         onYes={(id) => void acceptProposal(id)}
         onNo={(id) => void rejectProposal(id)}
+        onSimulationChange={updateSimulation}
+        onImportProject={importProject}
       />
     </div>
   )

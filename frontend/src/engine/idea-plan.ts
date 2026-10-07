@@ -21,6 +21,28 @@ export type IdeaTask = {
   anleitung: string
 }
 
+function parseEvidence(raw: unknown): PlanEvidence[] {
+  if (!Array.isArray(raw)) return []
+  return raw.slice(0, 80).flatMap((item, index) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return []
+    const row = item as Record<string, unknown>
+    if (!['local', 'research', 'test', 'hypothesis'].includes(String(row.kind))) return []
+    const title = asText(row.title)
+    const text = asText(row.text)
+    const url = asText(row.url)
+    if (!title || !text) return []
+    if (url && !/^https?:\/\//i.test(url)) return []
+    return [{
+      id: asText(row.id) || `EVID-${index + 1}`,
+      kind: row.kind as PlanEvidence['kind'],
+      title: title.slice(0, 200),
+      text: text.slice(0, 1000),
+      ...(url ? { url: url.slice(0, 1000) } : {}),
+      ...(asText(row.requirementId) ? { requirementId: asText(row.requirementId) } : {}),
+    }]
+  })
+}
+
 export type IdeaSprint = {
   n: string
   title: string
@@ -59,6 +81,7 @@ export type PlanGap = {
 }
 
 export type IdeaPlan = {
+  schemaVersion?: number
   ideaId: string
   bedingung: string
   rahmen: string[]
@@ -69,7 +92,45 @@ export type IdeaPlan = {
   go_wenn: string
   nogo_wenn: string
   sprints: IdeaSprint[]
+  simulation?: IdeaSimulation
+  revisions?: IdeaPlanRevision[]
+  evidence?: PlanEvidence[]
 }
+
+export type IdeaSimulationElement =
+  | { type: 'heading'; text: string }
+  | { type: 'text'; text: string }
+  | { type: 'list'; title: string; items: string[] }
+  | { type: 'card'; title: string; body: string }
+  | { type: 'button'; label: string }
+  | { type: 'tabs'; labels: string[]; selected: number }
+
+export type IdeaSimulation = {
+  version: 1
+  kind: 'gui' | 'workflow'
+  title: string
+  elements: IdeaSimulationElement[]
+  assumptions: string[]
+  createdAt: string
+}
+
+export type IdeaPlanRevision = {
+  id: string
+  at: string
+  summary: string
+  snapshot: string
+}
+
+export type PlanEvidence = {
+  id: string
+  kind: 'local' | 'research' | 'test' | 'hypothesis'
+  title: string
+  text: string
+  url?: string
+  requirementId?: string
+}
+
+export type PlanValidation = { ok: boolean; errors: string[] }
 
 function asText(v: unknown): string {
   return typeof v === 'string' ? v.trim() : ''
@@ -83,7 +144,7 @@ function asList(v: unknown): string[] {
   return v.map((x) => asText(x)).filter(Boolean)
 }
 
-function asTasks(v: unknown): IdeaTask[] {
+function asTasks(v: unknown, sprintId: string): IdeaTask[] {
   if (!Array.isArray(v)) return []
   const out: IdeaTask[] = []
   for (const row of v) {
@@ -93,7 +154,7 @@ function asTasks(v: unknown): IdeaTask[] {
     if (!task) continue
     const anleitung = asText(o.anleitung) || asText(o.fertig_wenn) || asText(o.hint)
     out.push({
-      id: asText(o.id) || `S${out.length + 1}`,
+      id: asText(o.id) || `S${sprintId}-${out.length + 1}`,
       task,
       anleitung: anleitung && anleitung !== task ? anleitung : 'Der Satz ist die Quelle.',
     })
@@ -147,6 +208,7 @@ function sprintGate(raw: string, sprint: Pick<IdeaSprint, 'anforderungen' | 'go_
 
 export function emptyPlan(ideaId: string, bedingung = ''): IdeaPlan {
   return {
+    schemaVersion: 2,
     ideaId,
     bedingung,
     rahmen: [...PLAN_RAHMEN],
@@ -228,7 +290,7 @@ export function parsePlan(raw: unknown, ideaId = ''): IdeaPlan | null {
       title,
       ziel,
       anforderungen: asList(s.anforderungen),
-      lieferumfang: asTasks(s.lieferumfang),
+      lieferumfang: asTasks(s.lieferumfang, n),
       wont: asWont(s.wont),
       gateway: 'offen',
       go_wenn: asText(s.go_wenn),
@@ -250,7 +312,8 @@ export function parsePlan(raw: unknown, ideaId = ''): IdeaPlan | null {
     go_wenn: asText(o.go_wenn),
     abbruch: asText(o.nogo_wenn) || asText(o.go_wenn),
   })
-  return {
+  const parsed: IdeaPlan = {
+    schemaVersion: 2,
     ideaId: asText(o.ideaId) || ideaId,
     bedingung: asText(o.bedingung),
     rahmen: asList(o.rahmen).length ? asList(o.rahmen) : [...PLAN_RAHMEN],
@@ -261,6 +324,153 @@ export function parsePlan(raw: unknown, ideaId = ''): IdeaPlan | null {
     go_wenn: asText(o.go_wenn),
     nogo_wenn: asText(o.nogo_wenn),
     sprints: sprints.sort((a, b) => a.n.localeCompare(b.n, undefined, { numeric: true })),
+    simulation: parseSimulation(o.simulation) || undefined,
+    revisions: parseRevisions(o.revisions),
+    evidence: parseEvidence(o.evidence),
+  }
+  if (o.simulation !== undefined && !parsed.simulation) return null
+  return validatePlan(parsed).ok ? parsed : null
+}
+
+function parseSimulation(raw: unknown): IdeaSimulation | null | undefined {
+  if (raw === undefined) return undefined
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const row = raw as Record<string, unknown>
+  if (row.version !== 1 || (row.kind !== 'gui' && row.kind !== 'workflow')) return null
+  if (!Array.isArray(row.elements) || !Array.isArray(row.assumptions)) return null
+  const elements: IdeaSimulationElement[] = []
+  for (const item of row.elements.slice(0, 32)) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return null
+    const el = item as Record<string, unknown>
+    const text = asText(el.text)
+    if (el.type === 'heading' && text) elements.push({ type: 'heading', text: text.slice(0, 160) })
+    else if (el.type === 'text' && text) elements.push({ type: 'text', text: text.slice(0, 400) })
+    else if (el.type === 'list' && Array.isArray(el.items)) {
+      elements.push({
+        type: 'list',
+        title: asText(el.title).slice(0, 120),
+        items: el.items.map(asText).filter(Boolean).slice(0, 12).map((v) => v.slice(0, 160)),
+      })
+    } else if (el.type === 'card' && asText(el.title)) {
+      elements.push({ type: 'card', title: asText(el.title).slice(0, 120), body: asText(el.body).slice(0, 300) })
+    } else if (el.type === 'button' && asText(el.label)) {
+      elements.push({ type: 'button', label: asText(el.label).slice(0, 80) })
+    } else if (el.type === 'tabs' && Array.isArray(el.labels)) {
+      const labels = el.labels.map(asText).filter(Boolean).slice(0, 8).map((v) => v.slice(0, 80))
+      if (labels.length) {
+        const selected = Number.isInteger(el.selected) ? Number(el.selected) : 0
+        elements.push({ type: 'tabs', labels, selected: Math.max(0, Math.min(selected, labels.length - 1)) })
+      }
+    }
+  }
+  if (!elements.length || elements.length !== row.elements.length) return null
+  return {
+    version: 1,
+    kind: row.kind,
+    title: asText(row.title).slice(0, 120) || 'Vorschau',
+    elements,
+    assumptions: row.assumptions.map(asText).filter(Boolean).slice(0, 12).map((v) => v.slice(0, 200)),
+    createdAt: asText(row.createdAt) || new Date(0).toISOString(),
+  }
+}
+
+function parseRevisions(raw: unknown): IdeaPlanRevision[] {
+  if (!Array.isArray(raw)) return []
+  return raw.slice(-10).flatMap((item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return []
+    const row = item as Record<string, unknown>
+    const id = asText(row.id)
+    const snapshot = asText(row.snapshot)
+    if (!id || !snapshot || snapshot.length > 100_000) return []
+    return [{
+      id,
+      at: asText(row.at) || new Date(0).toISOString(),
+      summary: asText(row.summary).slice(0, 160),
+      snapshot,
+    }]
+  })
+}
+
+export function validatePlan(plan: IdeaPlan): PlanValidation {
+  const errors: string[] = []
+  const ids = new Set<string>()
+  const addId = (id: string, where: string) => {
+    if (!id.trim()) errors.push(`${where}: Kennung fehlt.`)
+    else if (ids.has(id)) errors.push(`Kennung „${id}“ kommt mehrfach vor.`)
+    else ids.add(id)
+  }
+  const sprintById = new Map<string, IdeaSprint>()
+  for (const need of plan.anforderungen) addId(need.id, `Anforderung ${need.satz}`)
+  for (const cut of plan.entscheidungen) addId(cut.id, `Entscheidung ${cut.schnitt}`)
+  for (const gap of plan.luecken) addId(gap.id, `Lücke ${gap.name}`)
+  for (const sprint of plan.sprints) {
+    addId(sprint.n, `Sprint ${sprint.n}`)
+    sprintById.set(sprint.n.toUpperCase(), sprint)
+    if (!sprint.title.trim() && !sprint.ziel.trim()) errors.push(`Sprint ${sprint.n}: Titel oder Ziel fehlt.`)
+    if (sprint.gateway === 'go' && (!sprint.anforderungen.length || !spoken(sprint.go_wenn) || !spoken(sprint.abbruch))) {
+      errors.push(`Sprint ${sprint.n}: Go braucht Anforderungen, eine Go-Bedingung und einen Abbruchpunkt.`)
+    }
+    const needIds = new Set(plan.anforderungen.map((need) => need.id))
+    for (const evidence of plan.evidence || []) {
+      addId(evidence.id, `Beleg ${evidence.title}`)
+      if (evidence.requirementId && !needIds.has(evidence.requirementId)) {
+        errors.push(`Beleg „${evidence.title}“ verweist auf eine unbekannte Anforderung.`)
+      }
+    }
+    if (sprint.gateway === 'nogo' && !spoken(sprint.nogo_wenn)) {
+      errors.push(`Sprint ${sprint.n}: No-Go braucht eine Begründung.`)
+    }
+    for (const task of sprint.lieferumfang) addId(task.id, `Aufgabe in Sprint ${sprint.n}`)
+  }
+  const edges = new Map<string, string[]>()
+  for (const sprint of plan.sprints) {
+    const source = sprint.n.toUpperCase()
+    const deps = sprint.haengt_an.map((dependency) => dependency.toUpperCase())
+    edges.set(source, deps)
+    for (const dependency of deps) {
+      if (!sprintById.has(dependency)) errors.push(`Sprint ${sprint.n}: Abhängigkeit „${dependency}“ existiert nicht.`)
+      if (dependency === source) errors.push(`Sprint ${sprint.n}: darf nicht von sich selbst abhängen.`)
+    }
+  }
+  const visiting = new Set<string>()
+  const visited = new Set<string>()
+  const visit = (node: string, trail: string[]) => {
+    if (visiting.has(node)) {
+      errors.push(`Abhängigkeitsschleife: ${[...trail, node].join(' → ')}.`)
+      return
+    }
+    if (visited.has(node)) return
+    visiting.add(node)
+    for (const next of edges.get(node) || []) if (sprintById.has(next)) visit(next, [...trail, node])
+    visiting.delete(node)
+    visited.add(node)
+  }
+  for (const sprint of plan.sprints) visit(sprint.n.toUpperCase(), [])
+  if (plan.gateway === 'go' && (!plan.sprints.length || plan.sprints.some((sprint) => sprint.gateway !== 'go'))) {
+    errors.push('Projekt-Gateway kann nur Go sein, wenn alle Sprints Go haben.')
+  }
+  return { ok: errors.length === 0, errors: [...new Set(errors)] }
+}
+
+export function savePlanRevision(plan: IdeaPlan, summary: string, id: string, at = new Date()): IdeaPlan {
+  const snapshot = JSON.stringify({ ...plan, revisions: [] })
+  const revision: IdeaPlanRevision = {
+    id,
+    at: at.toISOString(),
+    summary: summary.slice(0, 160),
+    snapshot,
+  }
+  return { ...plan, revisions: [...(plan.revisions || []), revision].slice(-10) }
+}
+
+export function restorePlanRevision(plan: IdeaPlan, id: string): IdeaPlan | null {
+  const revision = plan.revisions?.find((item) => item.id === id)
+  if (!revision) return null
+  try {
+    const parsed = parsePlan(JSON.parse(revision.snapshot), plan.ideaId)
+    return parsed ? { ...parsed, revisions: plan.revisions } : null
+  } catch {
+    return null
   }
 }
 

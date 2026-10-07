@@ -688,6 +688,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S69.6 | Als Nutzer will ich fällige Aufgaben über alle Listen abfragen. | Must | idea | Sprint 442; „bis morgen“ filtert offene Todos nach Deadline |
 | S69.7 | Als Nutzer will ich, dass Deadline und Listenmigration zuverlässig getestet sind. | Must | idea | Sprint 443; Release-Gate vor `18.27.0` |
 
+### E70 — Tischplatte: Planungsmodus-Rework `18.28`–`18.31` [`100-next.md`](./100-next.md) **PLAN**
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S70.1 | Als Nutzer will ich, dass Projekt, Plan, Phase und Bestätigung immer zur aktiven Idee gehören. | Must | ready | Sprint 445; Wechsel/Resume ohne Cross-Project-Leak |
+| S70.2 | Als Nutzer will ich PSP und Sprintansicht klar getrennt sehen. | Must | ready | Sprint 448; PSP zeigt keine Sprintliste |
+| S70.3 | Als Nutzer will ich eine Projektidee schrittweise klären, ohne dass ein einzelnes „Ja“ ungefragte Aktionen freigibt. | Must | ready | Sprints 450–451; bestätigungsgebundener Pending-Zustand |
+| S70.4 | Als Nutzer will ich externe Recherche nur nach Zustimmung und mit sichtbaren Quellen nutzen. | Must | ready | Sprints 452–454; kein Bypass von Zugriffssperren |
+| S70.5 | Als Nutzer will ich GUI und Ablauf gefahrlos simulieren. | Must | ready | Sprints 455–460; keine ausführbare Modell-HTML/Side Effects |
+| S70.6 | Als Nutzer will ich eine prüfbare WBS und konsistente Projektdateien erhalten. | Must | ready | Sprints 461–466; Exporte aus demselben IdeaPlan |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)

@@ -1,4 +1,8 @@
-# 99 — Mehrere Todo-Listen, Deadline und Sprachsteuerung **PLAN** (`18.27`)
+# 99 — Mehrere Todo-Listen, Deadline und Sprachsteuerung **CODE; RELEASE-GATE OFFEN** (`18.27`)
+
+> Die Umsetzung aus Sprints 437–443 ist im lokalen Test-Build `18.25.15`
+> enthalten. Die Versionsanhebung auf `18.27.0` / `182700` und QA-Freigabe
+> stehen aus; dieser Plan bleibt die fachliche Abnahmegrundlage.
 
 **Bedingung:** Ich möchte eine Todoliste mit derselben Bedienung wie die
 Einkaufslisten. Ich kann Listen wie Allgemein, Uni und Haushalt erstellen und
@@ -8,10 +12,9 @@ per GUI und Sprachbefehl vollständig steuern und auf Fragen wie „Was muss ich
 bis morgen noch erledigen?“ passende offene Aufgaben nennen. Auf dem
 Homescreen soll es einen Shortcut geben.
 
-**Planungsstand:** Noch nicht gebaut. Sprints **437–443**. Die vorherige
-geplante Schiene ist Notizen `18.26.0` / Sprints 431–436. Geplante
-Todo-Schiene: App-Version **`18.27.0`**, versionCode **`182700`**. Kein APK
-und keine Codeänderung in diesem Plan.
+**Planungsstand:** Code im lokalen Test-Build; QA/Release-Gate offen. Sprints
+**437–443**. Die vorherige Schiene ist Notizen `18.26.0` / Sprints 431–436.
+Geplante Release-Version: **`18.27.0`**, versionCode **`182700`**.
 
 ## 1. Ziel
 

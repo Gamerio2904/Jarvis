@@ -1,12 +1,15 @@
-# 42 — Alles geplant (Stand Code und Sideload `18.25.13`)
+# 42 — Alles geplant (Sideload `18.25.13`, lokaler Test-Build `18.25.15`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.25.13`**, versionCode `182513`:
+**Zuletzt veröffentlichter Sideload:** **`18.25.13`**, versionCode `182513`:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Der lokale Test-Build `18.25.15` enthält den implementierten Notes-/Todo-Code
+aus Sprints 431–443. Die Release-Gates `18.26.0`/`18.27.0` sind davon
+getrennt und bleiben offen.
 Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.25.md`](./TEST-18.25.md), [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md), [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md).
 
-Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
+Hirn = Handy. PC = Werkzeug. **Aktuell konfigurierte Provider-Policy:** `engine/brain.ts`; Planungsaufrufe dürfen keine eigene, abweichende Kaskade fest verdrahten. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
@@ -16,12 +19,14 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 0-plan. **`18.22` Tafel** [`94-next.md`](./94-next.md) — Sprints **404–409 CODE**. Sprintliste und PSP liegen mit Uhr, Quellen, Termin und Jobs auf der Tischplatte. Finger und Jarvis schieben jedes Stück, auch aus dem Bild. Kein WebGL, keine Fremdbilder. App-Code **`18.22.0`**.
 0-plan. **`18.23` Ablauf** [`95-next.md`](./95-next.md) — Sprints **410–416 CODE**. `Plane das` öffnet ein Fenster über der Tafel. Das Modell schreibt, welcher Agent was tut. `So` führt unabhängige Schritte gleichzeitig aus. Jede Sprintvorlage und jeder Ablauf gehen in denselben Hausstand. Kein neuer Agent. App-Code **`18.23.0`**. Test: [`TEST-18.23.md`](./TEST-18.23.md).
 0-plan. **`18.24` Portfolio** [`96-next.md`](./96-next.md) — Sprints **417–423 CODE**. Der jetzige Tischplatten-Modus bleibt die Planung. `Go` speichert das Projekt im Portfolio. Der Hauptbildschirm zeigt die Karten mit Shredder. Tipp oder Satz öffnet die Dateien. Beispiele liegen im Unterordner und im Hausstand. Kein neues Bildmodell. App-Code **`18.24.8`**. Die laufende Sideload ist **`18.25.13`**. Test: [`TEST-AB-18.23.12.md`](./TEST-AB-18.23.12.md), [`TEST-18.24.md`](./TEST-18.24.md), [`TEST-18.24.6.md`](./TEST-18.24.6.md).
-0-plan. **`18.25` Entwurf** [`97-next.md`](./97-next.md) — Sprints **424–430 CODE**. `Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel. `Die zweite` merkt die Wahl. Inspiration zeigt drei feste Muster eines Bausteins. Kein neuer Agent, keine laufende Funktion. Scan und Portfolio bleiben. App-Code **`18.25.0`**. **430 ist die letzte Sprintnummer.** Test: [`TEST-18.25.md`](./TEST-18.25.md).
-0-plan. **`18.25.1`–`18.25.13`** [`09-versioning.md`](./09-versioning.md) — **CODE + APK**, keine neue Sprintnummer. `18.25.1` Projekt anlegen und löschen. `18.25.2` Planungsbildschirm. `18.25.3` Plane eine App. `18.25.4` ein Plan. `18.25.5` Bild aus der Zwischenablage. `18.25.6` Leerlauf. `18.25.7` Gruß. `18.25.8` Glaskarte. `18.25.9` Gewohnheit. `18.25.10` Ich bin Ultron. `18.25.11` Intro. `18.25.12` zwei Fenster, [`handy-flaeche-plan.md`](./handy-flaeche-plan.md) S1–S3. `18.25.13` Kopplung im Hintergrund. Die laufende Sideload ist **`18.25.13`**.
-0-plan. **Tischplatte lesbar** [`tischplatte-plan.md`](./tischplatte-plan.md) — **PLAN**, noch nicht gebaut. S1 Karten, die man vorliest. S2 Das bauen wir nicht. S3 Eine Frage, wenn der Satz dünn ist. S4 Zwei Sichten.
+0-plan. **`18.25` Entwurf** [`97-next.md`](./97-next.md) — Sprints **424–430 CODE**. `Entwirf eine App` legt bis zu drei stumme Bildschirme auf die Tafel. `Die zweite` merkt die Wahl. Inspiration zeigt drei feste Muster eines Bausteins. Kein neuer Agent, keine laufende Funktion. Scan und Portfolio bleiben. App-Code **`18.25.0`**. Test: [`TEST-18.25.md`](./TEST-18.25.md).
+0-plan. **`18.25.1`–`18.25.15`** [`09-versioning.md`](./09-versioning.md) — Code-Hotfixes und lokaler Debug-Build, ohne Sprintnummer. Der veröffentlichte APK-Stand bleibt `18.25.13`; der neue Test-Build ist `18.25.15`.
+0-plan. **`18.26` Notizen** [`98-next.md`](./98-next.md) — Sprints **431–436 implementiert im lokalen Test-Build**; Release `18.26.0` nach Gold-Gate.
+0-plan. **`18.27` Todo-Listen** [`99-next.md`](./99-next.md) — Sprints **437–443 implementiert im lokalen Test-Build**; Release `18.27.0` nach Gold-Gate.
+0-plan. **Tischplatte-Rework** [`100-next.md`](./100-next.md) — Sprints **444–466 PLAN**, Versionen `18.28.0`–`18.31.0`. Erst Zustand/Parser und getrennte PSP-/Sprintansicht, danach Intake/Research, Simulationen und Exporte.
 0-plan. **Hausstand nach dem Koppeln** [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) — **PLAN**, noch nicht gebaut. S1 Vergleich nach dem Koppeln. S2 Der neuere Stand, dann die Frage. S3 Ja überschreibt den älteren.
 0-plan. **Formulierung egal** [`formulierung-plan.md`](./formulierung-plan.md) — **PLAN**, noch nicht gebaut. S1 Kopplung, egal wie gesagt. S2 Jede vorhandene Aktion. S3 Unbekannt bleibt unbekannt.
-0-plan. **Flächen-Bugs** [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md) — S438 Kopplung. S439 Termin-Name und Knopf. S440 Planungsmodus. S441 Tokio. S442 Flächen per Satz. S443 Watchliste.
+0-plan. **Flächen-Bugs** [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md) — historischer Plan; seine Nummern 438–443 wurden später für Todos belegt. Planungsmodus-Regression siehe Sprint 448 in [`100-next.md`](./100-next.md).
 0a. **`18.18` Homescreen** [`90-next.md`](./90-next.md) — Sprints **382–384 CODE + APK**. App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel. In Sideload **`18.19.0`**.
 0a. **`18.17` Kalender Alltag** [`89-next.md`](./89-next.md) — Sprints **377–381 CODE + APK**. Hausstand-Termine + ICS, Serie, Konflikt. Sideload **`18.17.0`**.
 0a. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE + APK**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname. Sideload **`18.16.0`**.

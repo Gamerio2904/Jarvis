@@ -30,14 +30,15 @@ import {
   nextSprintN,
   parsePlan,
   planHasBody,
+  savePlanRevision,
   PLAN_BEDINGUNG,
   PLAN_RAHMEN,
   WEG_ANLEITUNG,
   type IdeaPlan,
 } from './idea-plan.ts'
+import { isTooShortPlanAnswer, parsePlanQuestion, serializePlanQuestion } from './idea-question.ts'
 import { parseBoardJobs, serializeBoardJobs, stopJobs } from './board-jobs.ts'
-import { completeGroq, groqReady } from './groq.ts'
-import { completeGemini, geminiReady } from './gemini.ts'
+import { completeBrainWithFallback } from './brain.ts'
 import type { ToolMeta } from './tools.ts'
 
 const FILL_SYSTEM = `${PLAN_BEDINGUNG}
@@ -95,8 +96,7 @@ function extractJson(text: string): unknown {
   }
 }
 
-export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
-  if (!groqReady() && !geminiReady()) return null
+export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan> {
   const skeleton = emptyPlan(idea.id, idea.body || idea.title)
   const messages = [
     { role: 'system', content: FILL_SYSTEM },
@@ -105,21 +105,32 @@ export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
       content: `Bedingung: ${skeleton.bedingung}\nRahmen: ${skeleton.rahmen.join(' | ')}\nHülle: ${JSON.stringify(blankSprint('1'))}`,
     },
   ]
-  const runs: Array<() => Promise<string>> = []
-  if (groqReady()) runs.push(() => completeGroq(messages, undefined, 1600))
-  if (geminiReady()) {
-    runs.push(async () => (await completeGemini(messages, undefined, { thinking: false, maxOutputTokens: 2000, timeoutMs: 25_000 })).text)
+  const result = await completeBrainWithFallback(messages, undefined, { maxOutputTokens: 2200, timeoutMs: 25_000 })
+  const raw = extractJson(result.text)
+  if (!raw) throw new Error('Die Planungs-KI hat kein lesbares JSON geliefert. Der vorhandene Plan bleibt unverändert.')
+  const plan = parsePlan(raw, idea.id)
+  if (!plan) throw new Error('Der erzeugte Plan ist unvollständig oder widersprüchlich. Der vorhandene Plan bleibt unverändert.')
+  if (!planHasBody(plan)) throw new Error('Die Planungs-KI hat keinen konkreten Sprintinhalt geliefert. Der vorhandene Plan bleibt unverändert.')
+  plan.ideaId = idea.id
+  plan.bedingung = idea.plan?.bedingung || idea.body || idea.title
+  plan.evidence = [...(idea.plan?.evidence || []), ...(plan.evidence || [])]
+  return plan
+}
+
+export function askPlanQuestion(idea: Idea, conversationId: string): string | null {
+  const plan = idea.plan
+  const need = plan?.anforderungen.find((row) => row.satz.trim() && !row.abnahme.trim())
+  if (!plan || !need || !conversationId) return null
+  const question = {
+    id: newId(),
+    ideaId: idea.id,
+    conversationId,
+    requirementId: need.id,
+    question: `Woran erkennst du konkret, dass „${need.satz}“ erfüllt ist?`,
+    createdAt: Date.now(),
   }
-  for (const run of runs) {
-    try {
-      const text = await run()
-      const plan = parsePlan(extractJson(text), idea.id)
-      if (plan && planHasBody(plan)) return plan
-    } catch {
-      /* nächster Slot */
-    }
-  }
-  return null
+  saveSettings({ plan_question_json: serializePlanQuestion(question) })
+  return question.question
 }
 
 function fillFromClauses(plan: IdeaPlan, parts: string[], title: string) {
@@ -160,6 +171,7 @@ function clearShownPlan(): string {
     plan_phase: '',
     plan_script_at: 0,
     plan_idea_id: '',
+    workbench_open: false,
     board_jobs_json: serializeBoardJobs(jobs),
   })
   if (phase === 'live' || phase === 'go') return 'Der Plan ist von der Tischplatte weg.'
@@ -206,6 +218,7 @@ async function planOntoTable(intent: AblaufIntent, raw = ''): Promise<string> {
   saveSettings({
     tischplatte_on: true,
     tischplatte_view: 'psp',
+    workbench_open: true,
     ablauf_status: '',
     ablauf_id: '',
     bot_ask_json: '',
@@ -220,7 +233,7 @@ async function planOntoTable(intent: AblaufIntent, raw = ''): Promise<string> {
 
 async function revealPlanningScreen(): Promise<string> {
   let hit = await ideaOnTable()
-  if (!hit) {
+  if (!hit && !loadSettings().plan_idea_id) {
     const ideas = await listIdeas()
     hit = ideas.find((row) => row.status !== 'done') || ideas[0]
   }
@@ -233,15 +246,17 @@ async function revealPlanningScreen(): Promise<string> {
     plan_script_at: Date.now(),
     tischplatte_on: true,
     tischplatte_view: 'psp',
+    workbench_open: true,
   })
   return 'Der Planungsbildschirm ist offen.'
 }
 
 async function closePlanningScreen(raw: string): Promise<string> {
   if (/^\s*fenster\s+zu\b/i.test(raw.trim())) await closeDraftRow()
-  const phase = loadSettings().plan_phase
-  if (phase === 'live' || phase === 'go') {
-    saveSettings({ plan_phase: '', plan_script_at: 0, tischplatte_on: true })
+  const settings = loadSettings()
+  const phase = settings.plan_phase
+  if (phase === 'live' || phase === 'go' || settings.workbench_open) {
+    saveSettings({ plan_phase: '', plan_script_at: 0, tischplatte_on: true, workbench_open: false })
     return 'Der Planungsbildschirm ist zu. Der Plan bleibt.'
   }
   return 'Das Planfenster ist zu. Die Sprints bleiben auf der Tischplatte.'
@@ -284,9 +299,21 @@ function dropCannedRoster(plan: IdeaPlan): void {
   plan.sprints = plan.sprints.filter((sprint) => !cannedPlanLine(sprint.ziel || '') && !cannedPlanLine(sprint.title || ''))
 }
 
+function keepOriginalIntake(plan: IdeaPlan, idea: Idea, original: string): void {
+  const text = (plan.bedingung || original).replace(/\s+/g, ' ').trim()
+  if (!text) return
+  plan.bedingung = text
+  plan.evidence = plan.evidence || []
+  const id = `intake-${idea.id}`
+  if (!plan.evidence.some((row) => row.id === id)) {
+    plan.evidence.push({ id, kind: 'local', title: 'Ursprünglicher Projektwunsch', text })
+  }
+}
+
 async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
   const plan = idea.plan || emptyPlan(idea.id, work || idea.body || idea.title)
   const source = (work || plan.bedingung || idea.body || idea.title).trim()
+  keepOriginalIntake(plan, idea, idea.body || source || idea.title)
   const parts = clausesOf(source)
   if (!plan.anforderungen.length && parts.length) {
     plan.anforderungen = parts.map((satz, i) => ({
@@ -337,6 +364,7 @@ async function showPlanning(idea: Idea): Promise<void> {
     plan_idea_id: idea.id,
     tischplatte_on: true,
     tischplatte_view: 'psp',
+    workbench_open: true,
   })
 }
 
@@ -413,8 +441,13 @@ async function writeProject(work: string): Promise<string> {
   const title = planTitle(work)
   const rows = await listIdeas()
   let hit = rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
+  if (hit?.plan) {
+    await showPlanning(hit)
+    return `Das vorhandene Projekt „${hit.title}“ ist geöffnet. Der gespeicherte Plan und der ursprüngliche Wunsch wurden nicht überschrieben.`
+  }
   if (!hit) hit = await addIdea(title, work)
   const plan = emptyPlan(hit.id, work)
+  keepOriginalIntake(plan, hit, work)
   fillFromClauses(plan, parts, title)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
@@ -424,6 +457,7 @@ async function writeProject(work: string): Promise<string> {
     plan_idea_id: hit.id,
     tischplatte_on: true,
     tischplatte_view: 'psp',
+    workbench_open: true,
   })
   return `${formatPlan(plan, hit.title)}\n\nDas Skript läuft live auf der Tischplatte. Sag Go, dann ist der Export bereit. Sag: Lade den PSP runter. Oder: Lade alles zu Projekt ${hit.title}.`
 }
@@ -431,8 +465,7 @@ async function writeProject(work: string): Promise<string> {
 async function reviseProject(text: string): Promise<string> {
   const line = text.replace(/\s+/g, ' ').trim()
   if (line.length < 2) return 'Die Zeile ist leer.'
-  const rows = await listIdeas()
-  const hit = rows.find((r) => r.status === 'open') || rows[0]
+  const hit = await ideaOnTable()
   if (!hit) return 'Noch kein Projekt auf der Tischplatte.'
   const plan = hit.plan || emptyPlan(hit.id, hit.body || '')
   const sprint = findSprint(plan, '1')
@@ -440,7 +473,7 @@ async function reviseProject(text: string): Promise<string> {
   const k = sprint.lieferumfang.length + 1
   sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: WEG_ANLEITUNG })
   await putIdea({ ...hit, plan })
-  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), plan_idea_id: hit.id, tischplatte_on: true })
+  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), plan_idea_id: hit.id, tischplatte_on: true, workbench_open: true })
   return formatPlan(plan, hit.title)
 }
 
@@ -448,8 +481,7 @@ async function ideaOnTable(): Promise<Idea | undefined> {
   const pinned = loadSettings().plan_idea_id
   if (pinned) {
     const ideas = await listIdeas()
-    const hit = ideas.find((r) => r.id === pinned && r.status !== 'done')
-    if (hit) return hit
+    return ideas.find((r) => r.id === pinned && r.status !== 'done')
   }
   return currentIdeaForTable()
 }
@@ -458,6 +490,45 @@ export async function handleIdea(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const question = parsePlanQuestion(loadSettings().plan_question_json)
+  if (
+    question &&
+    question.conversationId === conversationId &&
+    !parsePortfolioIntent(text) &&
+    !parseBoardIntent(text) &&
+    !parseAblaufIntent(text) &&
+    !parseIdeaIntent(text)
+  ) {
+    if (/^\s*(?:nein|abbrechen|stopp)\s*[.!?]*$/i.test(text)) {
+      saveSettings({ plan_question_json: '' })
+      return pack('Die Rückfrage ist abgebrochen. Am Plan wurde nichts geändert.', 'plan_question_cancel')
+    }
+    if (isTooShortPlanAnswer(text)) {
+      return pack(`${question.question} Bitte beschreibe ein konkretes, prüfbares Ergebnis.`, 'plan_question_clarify')
+    }
+    const rows = await listIdeas()
+    const hit = rows.find((row) => row.id === question.ideaId && row.status !== 'done')
+    const need = hit?.plan?.anforderungen.find((row) => row.id === question.requirementId)
+    if (!hit?.plan || !need) {
+      saveSettings({ plan_question_json: '' })
+      return pack('Das zugehörige Projekt oder die Anforderung ist nicht mehr vorhanden. Es wurde nichts geändert.', 'plan_question_stale')
+    }
+    const prior = savePlanRevision(hit.plan, 'Vor Rückfrage-Antwort', newId())
+    need.abnahme = text.replace(/\s+/g, ' ').trim().slice(0, 400)
+    need.gateway = 'offen'
+    const plan = {
+      ...hit.plan,
+      revisions: prior.revisions,
+      evidence: [
+        ...(hit.plan.evidence || []),
+        { id: newId(), kind: 'local' as const, title: 'Antwort auf Rückfrage', text: need.abnahme, requirementId: need.id },
+      ],
+    }
+    await putIdea({ ...hit, plan })
+    saveSettings({ plan_question_json: '' })
+    return pack(`Danke. Ich habe die prüfbare Abnahme für „${need.satz}“ im Projekt ${hit.title} ergänzt. Go bleibt offen, bis der Plan geprüft wurde.`, 'plan_question_answer')
+  }
+
   const portfolio = parsePortfolioIntent(text)
   if (portfolio) {
     if (portfolio.kind === 'create') return pack(await layNewProject(portfolio.work), 'portfolio')
@@ -525,11 +596,17 @@ export async function handleIdea(
     const rows = await listIdeas()
     const hit = pickIdea(rows, intent.query, intent.index)
     if (!hit) return pack('Die Idee finde ich nicht.', 'miss')
-    const filled = await fillPlanWithModel(hit)
-    if (!filled) return pack('Plan nicht übernommen.', 'plan_fail', hit.title)
+    let filled: IdeaPlan
+    try {
+      filled = await fillPlanWithModel(hit)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      return pack(message, 'plan_fail', hit.title)
+    }
     await putIdea({ ...hit, plan: filled })
     persistLastList('idea', [hit.title])
-    return pack(formatPlan(filled, hit.title), 'plan_fill', hit.title)
+    const questionText = askPlanQuestion({ ...hit, plan: filled }, conversationId)
+    return pack(`${formatPlan(filled, hit.title)}${questionText ? `\n\nRückfrage: ${questionText}` : ''}`, 'plan_fill', hit.title)
   }
 
   if (intent.kind === 'add_line') {

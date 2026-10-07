@@ -1,5 +1,10 @@
 # Flächen, Kopplung, Kalender, Kugel, Watchliste
 
+> Historischer Fehlerplan. Die dortigen Nummern S438–S443 sind nicht mehr
+> gültig: Sie wurden später für die Todo-Schiene verwendet und dürfen nicht
+> erneut vergeben werden. Der Planungsmodus-Fehler bleibt als PSP-/Sprints-
+> Regression in Sprint 448 von [`100-next.md`](./100-next.md) erhalten.
+
 Plan nach [`plan-vorlage.md`](./plan-vorlage.md). Die Sprints sind die gemeldeten Bugs. In diesem Stand ist der Code dazu gebaut, weil die Meldung beides verlangt hat: analysieren, fixen, und als Sprints in die Planung.
 
 ## Bedingung

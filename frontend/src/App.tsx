@@ -2513,6 +2513,7 @@ function App() {
             hint={liveHud.tischplatte_hint || ''}
             seed={liveHud.tischplatte_seed || 0}
             planPhase={liveHud.plan_phase || ''}
+            workbenchOpen={Boolean(liveHud.workbench_open)}
           />
         ) : null}
         {calendarLayer.shown ? (

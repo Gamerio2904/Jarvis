@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
 import { parseIdeaIntent, dueFromRel } from '../src/engine/idea-parse.ts'
-import { blankSprint, emptyPlan, parsePlan, formatPlan, nextSprintN, planFromSources, planHasBody, sprintPrompt } from '../src/engine/idea-plan.ts'
+import { blankSprint, emptyPlan, parsePlan, formatPlan, nextSprintN, planFromSources, planHasBody, sprintPrompt, savePlanRevision, restorePlanRevision, validatePlan } from '../src/engine/idea-plan.ts'
 import { addIdea, listIdeas } from '../src/engine/store.ts'
 import { handleIdea } from '../src/engine/idea.ts'
 import { parseReminderIntent } from '../src/engine/remind-parse.ts'
@@ -14,6 +14,38 @@ assert.match(formatPlan(plan, 'Test'), /Sprints: noch keine/)
 plan.sprints.push(blankSprint('1', 'Punkte', 'Ein Raum liegt als Datei'))
 assert.match(formatPlan(plan, 'Test'), /Sprint 1 — Punkte/)
 assert.doesNotMatch(formatPlan(plan, 'Test'), /Härten|Probe/)
+
+{
+  const invalidDependency = parsePlan({
+    sprints: [{ n: '1', title: 'Basis', ziel: 'Basis erstellen', haengt_an: ['7'] }],
+  })
+  assert.equal(invalidDependency, null)
+  const cycle = parsePlan({
+    sprints: [
+      { n: '1', title: 'Eins', ziel: 'Erster Schritt', haengt_an: ['2'] },
+      { n: '2', title: 'Zwei', ziel: 'Zweiter Schritt', haengt_an: ['1'] },
+    ],
+  })
+  assert.equal(cycle, null)
+  const duplicateIds = parsePlan({
+    anforderungen: [{ id: 'A1', satz: 'Anforderung eins' }],
+    sprints: [{ n: '1', title: 'Eins', ziel: 'Erster Schritt', lieferumfang: [{ id: 'A1', task: 'Arbeit' }] }],
+  })
+  assert.equal(duplicateIds, null)
+  const projectGoWithoutSprintGo = { ...emptyPlan('x'), gateway: 'go', sprints: [blankSprint('1', 'Noch offen', 'Arbeit')] }
+  assert.equal(validatePlan(projectGoWithoutSprintGo).ok, false)
+  assert.equal(parsePlan({
+    sprints: [{ n: '1', title: 'GUI', ziel: 'Vorschau' }],
+    simulation: { version: 1, kind: 'gui', title: 'Preview', elements: [{ type: 'script', code: 'run()' }], assumptions: [] },
+  }), null)
+  const original = emptyPlan('revision')
+  original.sprints.push(blankSprint('1', 'Alt', 'Alter Stand'))
+  const revised = savePlanRevision(original, 'Vorschau angepasst', 'rev-1')
+  revised.sprints[0].title = 'Neu'
+  const restored = restorePlanRevision(revised, 'rev-1')
+  assert.equal(restored?.sprints[0].title, 'Alt')
+  assert.equal(restored?.revisions?.length, 1)
+}
 
 {
   const ok = parsePlan(

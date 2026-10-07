@@ -411,6 +411,7 @@ export type Settings = {
   last_desk_on: boolean
   tischplatte_on: boolean
   tischplatte_view: string
+  workbench_open: boolean
   tischplatte_focus: string
   tischplatte_seed: number
   tischplatte_hint: string
@@ -430,6 +431,7 @@ export type Settings = {
   plan_script_at: number
   /** Idee, die gerade auf der Tischplatte liegt. `Go` nimmt diese, nicht die neueste. */
   plan_idea_id: string
+  plan_question_json: string
   /** Offenes Projekt auf dem Portfolio. Leer heißt die Kartenliste. */
   portfolio_focus: string
   /** Geöffnete Datei in der Liste. */
@@ -636,6 +638,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_desk_on: false,
   tischplatte_on: false,
   tischplatte_view: 'sprints',
+  workbench_open: false,
   tischplatte_focus: '',
   tischplatte_seed: 0,
   tischplatte_hint: '',
@@ -648,6 +651,7 @@ export const DEFAULT_SETTINGS: Settings = {
   script_sprint_side: 'left',
   plan_script_at: 0,
   plan_idea_id: '',
+  plan_question_json: '',
   portfolio_focus: '',
   portfolio_file: '',
   board_jobs_json: '',

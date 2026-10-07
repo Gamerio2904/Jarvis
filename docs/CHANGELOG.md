@@ -5,7 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Noch nicht im Code: Tischplatte lesbar, [`tischplatte-plan.md`](./tischplatte-plan.md), S1–S4. Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md), S1–S3. Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md), S1–S3.
+Der Teilplan „Tischplatte lesbar“ ist in [`100-next.md`](./100-next.md), Sprints 444–466, integriert. Hausstand nach dem Koppeln ([`hausstand-sync-plan.md`](./hausstand-sync-plan.md)) und Formulierung egal ([`formulierung-plan.md`](./formulierung-plan.md)) bleiben getrennte offene Schienen.
 
 ### `18.25.15` — Blackscreen Kaltstart — *CODE + APK*
 

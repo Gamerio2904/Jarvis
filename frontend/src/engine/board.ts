@@ -4,16 +4,15 @@ import { parseThemeHint, serializeTheme, nextTheme, motifLabel, themeFromWords, 
 import { parseBoardJobs, serializeBoardJobs, upsertJob, stopJobs, type BoardJob } from './board-jobs.ts'
 import { catalogByArea, catalogPlanned, FEATURE_CATALOG, formatCatalog } from './feature-catalog.ts'
 import { fillDeepResearchLinks } from './web-search.ts'
-import { geminiReady } from './gemini.ts'
-import { groqReady } from './groq.ts'
 import { githubToken } from './github-search.ts'
 import { pieceLabel } from './board-pieces.ts'
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
 import { emptyPlan, formatPlan, planFromSources, planHasBody } from './idea-plan.ts'
-import { fillPlanWithModel, pickIdea } from './idea.ts'
+import { askPlanQuestion, fillPlanWithModel, pickIdea } from './idea.ts'
 import { fileFor, saveProjectJson } from './project-docs.ts'
 import { acceptProposal, pendingProposals, proposalLine, proposeMemory, rejectProposal } from './memory-propose.ts'
 import { handleEntwurf, finishScan, hideDraftFrames } from './entwurf.ts'
+import { workflowDryRun } from './idea-simulation.ts'
 
 export { parseBoardIntent } from './board-parse.ts'
 
@@ -102,7 +101,9 @@ export async function handleBoard(conversationId: string, text: string): Promise
     const pinned = loadSettings().plan_idea_id
     const hit = intent.query
       ? pickIdea(rows, intent.query)
-      : rows.find((r) => r.id === pinned) || pickIdea(rows)
+      : pinned
+        ? rows.find((r) => r.id === pinned)
+        : pickIdea(rows)
     if (!hit) return pack('Das Projekt finde ich nicht.', 'download')
     const file = fileFor(hit, intent.which)
     const saved = await saveProjectJson(file.name, file.data)
@@ -181,6 +182,7 @@ export async function handleBoard(conversationId: string, text: string): Promise
       saveSettings({
         tischplatte_on: true,
         tischplatte_view: intent.view,
+        workbench_open: true,
         tischplatte_focus: intent.sim || '',
         ...(intent.view === 'sprints' ? { ablauf_list_id: '' } : {}),
       })
@@ -198,6 +200,29 @@ export async function handleBoard(conversationId: string, text: string): Promise
       return pack(line, 'view', { view: intent.view })
     }
     return pack(`Sicht ${intent.view}.`, 'view', { view: intent.view })
+  }
+  if (intent.kind === 'workflow_sim') {
+    const rows = await listIdeas()
+    const pinned = loadSettings().plan_idea_id
+    const hit = intent.query
+      ? pickIdea(rows, intent.query)
+      : pinned
+        ? rows.find((row) => row.id === pinned && row.status !== 'done')
+        : pickIdea(rows.filter((row) => row.status !== 'done'))
+    if (!hit) return pack('Ich finde kein offenes Projekt für den Probelauf. Öffne zuerst ein Projekt.', 'workflow_sim')
+    const preview = workflowDryRun(hit.plan || emptyPlan(hit.id, hit.body || hit.title), hit.title)
+    saveSettings({
+      tischplatte_on: true,
+      tischplatte_view: 'workflow',
+      plan_idea_id: hit.id,
+      tischplatte_focus: hit.id,
+      workbench_open: true,
+    })
+    return pack(
+      `Gedanklicher Probelauf für ${hit.title}. Nichts wurde ausgeführt oder geändert. Öffne die Werkbank-Sicht „workflow“ für die Schritte.`,
+      'workflow_sim',
+      { version: preview.version, steps: preview.elements.length },
+    )
   }
   if (intent.kind === 'catalog') {
     if (intent.mode === 'planned') {
@@ -274,7 +299,13 @@ export async function handleBoard(conversationId: string, text: string): Promise
         planJob.label = 'Idee fehlt'
         planLine = 'Die Idee finde ich nicht.'
       } else {
-        let filled = await fillPlanWithModel(hit)
+        let filled: ReturnType<typeof planFromSources> = null
+        let fillError = ''
+        try {
+          filled = await fillPlanWithModel(hit)
+        } catch (error) {
+          fillError = error instanceof Error ? error.message : String(error)
+        }
         let fromHits = false
         if (!filled || !planHasBody(filled)) {
           const planTitles = (bucket.code.length ? bucket.code : bucket.ordered.filter((s) => isProjectDir(s.url))).map(
@@ -291,15 +322,24 @@ export async function handleBoard(conversationId: string, text: string): Promise
           await putIdea({ ...hit, plan: empty })
           planJob.status = 'failed'
           planJob.label = 'Plan-Vorlage leer'
-          planLine =
-            groqReady() || geminiReady()
-              ? 'Plan nicht übernommen.'
-              : 'Kein Cloud-Key — Vorlage liegt, ohne erfundene Repos.'
+          planLine = fillError || 'Plan nicht übernommen. Der gespeicherte Plan wurde nicht verändert.'
         } else {
+          filled.evidence = [
+            ...(hit.plan?.evidence || []),
+            ...(filled.evidence || []),
+            ...bucket.ordered.slice(0, 30).map((source) => ({
+              id: newId(),
+              kind: 'research' as const,
+              title: source.title || source.url,
+              text: source.snippet || `Abgerufen über ${source.provider} am ${source.retrieved_at}.`,
+              url: source.url,
+            })),
+          ]
           await putIdea({ ...hit, plan: filled })
+          const question = askPlanQuestion({ ...hit, plan: filled }, conversationId)
           planJob.status = 'done'
           planJob.label = fromHits ? 'Plan aus Treffern' : 'Plan liegt'
-          planLine = fromHits ? 'Plan aus den Treffern, ohne Modell.' : formatPlan(filled, hit.title)
+          planLine = `${fromHits ? 'Plan aus den Treffern, ohne Modell.' : formatPlan(filled, hit.title)}${question ? `\nRückfrage: ${question}` : ''}`
         }
       }
       jobs = upsertJob(jobs, planJob)

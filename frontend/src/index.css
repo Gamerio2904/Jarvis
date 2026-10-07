@@ -9311,6 +9311,143 @@ html.theme-wipe-dark::before {
   color: rgba(215, 246, 255, 0.78);
 }
 
+.script-wbs,
+.script-wbs ul {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.script-wbs ul {
+  margin: 3px 0 3px 14px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(154, 239, 255, 0.25);
+}
+
+.script-wbs li {
+  display: block;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 90, 98, 0.08);
+  color: rgba(231, 247, 255, 0.86);
+  overflow-wrap: anywhere;
+}
+
+.script-wbs > li > span {
+  color: #9aefff;
+  font-weight: 700;
+}
+
+.script-wbs [data-wbs-kind='gap'] > span {
+  color: #ffcf8a;
+}
+
+.script-simulation {
+  display: grid;
+  gap: 8px;
+  color: rgba(231, 247, 255, 0.9);
+}
+
+.script-simulation-badge {
+  margin: 8px 0 0;
+  color: #ffcf8a;
+  font-size: 0.78rem;
+}
+
+.script-preview {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(154, 239, 255, 0.24);
+  border-radius: 12px;
+}
+
+.script-preview > * {
+  margin: 0;
+}
+
+.script-preview article {
+  padding: 10px;
+  border: 1px solid rgba(154, 239, 255, 0.22);
+  border-radius: 10px;
+}
+
+.script-preview button:disabled {
+  opacity: 0.8;
+}
+
+.script-assumptions,
+.script-preview-edit {
+  font-size: 0.84rem;
+}
+
+.script-preview-edit {
+  display: grid;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.script-preview-edit label {
+  display: grid;
+  gap: 4px;
+}
+
+.script-preview-edit input,
+.script-preview-edit select {
+  width: 100%;
+  border: 1px solid rgba(154, 239, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(4, 15, 24, 0.9);
+  color: #e7f7ff;
+  font: inherit;
+}
+
+.script-preview-edit > button,
+.script-preview-proposal button {
+  justify-self: start;
+  border: 1px solid rgba(255, 90, 98, 0.35);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: transparent;
+  color: #d7f6ff;
+  font: inherit;
+}
+
+.script-preview-proposal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.script-preview-proposal p {
+  width: 100%;
+  margin: 0;
+  color: #ffcf8a;
+}
+
+.script-error {
+  padding: 8px 16px;
+  color: #ffc2c5;
+}
+
+.script-import {
+  display: grid;
+  gap: 4px;
+  max-width: 220px;
+  border: 1px solid rgba(255, 90, 98, 0.35);
+  border-radius: 12px;
+  padding: 6px 10px;
+  color: #d7f6ff;
+  font-size: 0.8rem;
+}
+
+.script-import input {
+  max-width: 100%;
+  color: rgba(215, 246, 255, 0.8);
+  font: inherit;
+}
+
 .script-export-note,
 .script-foot p,
 .script-stand {

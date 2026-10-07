@@ -147,6 +147,7 @@ export const HomeScreen = memo(function HomeScreen({
   hint,
   seed,
   planPhase,
+  workbenchOpen,
 }: {
   face: 'ultron'
   onOpen: (id: HomeAppId) => void
@@ -156,6 +157,7 @@ export const HomeScreen = memo(function HomeScreen({
   hint: string
   seed: number
   planPhase: '' | 'live' | 'go'
+  workbenchOpen: boolean
 }) {
   const [now, setNow] = useState(() => new Date())
   const [scan, setScan] = useState(() => scanPhase())
@@ -216,7 +218,11 @@ export const HomeScreen = memo(function HomeScreen({
       </header>
       {tischplatteOn && scan === 'off' ? (
         <div className="table-under" inert={frames}>
-          {planPhase === 'live' ? <Workbench view={view} focus={focus} /> : <PortfolioStage />}
+          {planPhase === 'live' || planPhase === 'go' || workbenchOpen || view === 'sim' || view === 'workflow' ? (
+            <Workbench view={view} focus={focus} />
+          ) : (
+            <PortfolioStage />
+          )}
         </div>
       ) : null}
       {tischplatteOn && scan !== 'off' ? <ScanStage phase={scan} /> : null}

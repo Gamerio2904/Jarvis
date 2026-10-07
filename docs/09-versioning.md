@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code und Sideload **`18.25.13`**, versionCode `182513`: https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk. Schiene [`92-next.md`](./92-next.md) 392–397 **CODE + APK** (YouTube-Highlights, Schnitt nur auf dem PC). Tablet-Layout und Kopierboxen: [`TEST-18.20.md`](./TEST-18.20.md). [`91-next.md`](./91-next.md) 385–391 **CODE + APK**. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Stände:** Zuletzt veröffentlichter Sideload **`18.25.13`**, versionCode `182513`. Lokaler Debug-/Test-Build **`18.25.15`** enthält den implementierten Notes-/Todo-Code aus Sprints 431–443, aber noch nicht die Release-Versionen `18.26.0`/`18.27.0`. Der nächste geplante Tischplatten-Rework ist [`100-next.md`](./100-next.md), Sprints 444–466, Versionen `18.28.0`–`18.31.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1015,48 +1015,70 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.25.11` | Intro, eine Sekunde | keine Nummer, CODE |
 | `18.25.12` | Zwei Fenster, Plan S1–S3 | keine Nummer, CODE |
 | `18.25.13` | Kopplung im Hintergrund | keine Nummer, CODE |
-| nach `18.25.13` | Tischplatte lesbar | PLAN S1–S4, [`tischplatte-plan.md`](./tischplatte-plan.md) |
+| nach `18.25.13` | Tischplatte lesbar | in `100-next.md` Sprints 448, 450–451 integriert |
 | nach `18.25.13` | Hausstand nach dem Koppeln | PLAN S1–S3, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) |
 | nach `18.25.13` | Formulierung egal | PLAN S1–S3, [`formulierung-plan.md`](./formulierung-plan.md) |
 
-### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **PLAN**
+### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**
 
-Geplant: eigene Notes-GUI, Shortcut am Homescreen, Sprachzugriff zum Anlegen,
-Öffnen, Bearbeiten und bestätigten Löschen sowie belegter Recall aus
-Gedächtnis, Wissen und Notizen. Bestehende Notizen bleiben lokal und erhalten.
+Im lokalen Test-Build umgesetzt: eigene Notes-GUI, Shortcut am Homescreen,
+Sprachzugriff zum Anlegen, Öffnen, Bearbeiten und bestätigten Löschen sowie
+Recall aus Gedächtnis, Wissen und Notizen. QA und Release-Gate stehen noch aus;
+bestehende Notizen bleiben lokal und erhalten.
 
 **Geplante App-Version:** `18.26.0`, versionCode `182600`. Sprints 431–436;
 erst Sprint 436 setzt die Versionsnummer nach bestandener Gold-Spur.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.26.0` | Lokaler Notiz-Store CRUD | 431 PLAN |
-| `18.26.0` | Notizen-GUI | 432 PLAN |
-| `18.26.0` | Homescreen-Shortcut | 433 PLAN |
-| `18.26.0` | Notizen per Sprache | 434 PLAN |
-| `18.26.0` | Belegbarer Recall | 435 PLAN |
-| `18.26.0` | Gold und Release-Gate, versionCode `182600` | 436 PLAN |
+| `18.26.0` | Lokaler Notiz-Store CRUD | 431 CODE* |
+| `18.26.0` | Notizen-GUI | 432 CODE* |
+| `18.26.0` | Homescreen-Shortcut | 433 CODE* |
+| `18.26.0` | Notizen per Sprache | 434 CODE* |
+| `18.26.0` | Belegbarer Recall | 435 CODE* |
+| `18.26.0` | Gold und Release-Gate, versionCode `182600` | 436 GATE OFFEN* |
 
-### `18.27` — Todo-Listen mit Deadline [`99-next.md`](./99-next.md) **PLAN**
+### `18.27` — Todo-Listen mit Deadline [`99-next.md`](./99-next.md) **CODE; RELEASE-GATE OFFEN**
 
-Geplant: mehrere lokale Todo-Listen, Bedienung nach Einkaufslisten-Muster,
-optionale Deadlines, vollständige GUI-/Sprachsteuerung, Abfrage fälliger
-Aufgaben und ein Homescreen-Shortcut. Alte globale Todos werden nach
-`Allgemein` migriert. Deadline-Abfragen arbeiten lokal und lösen keinen
-Cloud-Aufruf aus.
+Im lokalen Test-Build umgesetzt: mehrere lokale Todo-Listen, Bedienung nach
+Einkaufslisten-Muster, optionale Deadlines, GUI-/Sprachsteuerung, Abfrage
+fälliger Aufgaben und Homescreen-Shortcut. QA und Release-Gate stehen noch
+aus. Alte globale Todos werden nach `Allgemein` migriert. Deadline-Abfragen
+arbeiten lokal und lösen keinen Cloud-Aufruf aus.
 
 **Geplante App-Version:** `18.27.0`, versionCode `182700`. Sprints 437–443;
 erst Sprint 443 setzt die Versionsnummer nach bestandener Gold-Spur.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.27.0` | Todo-Listen-Store und Migration | 437 PLAN |
-| `18.27.0` | Todo-Listen-GUI und Swipe-Aktionen | 438 PLAN |
-| `18.27.0` | Optionale Deadline | 439 PLAN |
-| `18.27.0` | Homescreen-Shortcut Todos | 440 PLAN |
-| `18.27.0` | Sprachsteuerung für Listen und Aufgaben | 441 PLAN |
-| `18.27.0` | Fälligkeitsabfrage über Listen | 442 PLAN |
-| `18.27.0` | Gold und Release-Gate, versionCode `182700` | 443 PLAN |
+| `18.27.0` | Todo-Listen-Store und Migration | 437 CODE* |
+| `18.27.0` | Todo-Listen-GUI und Swipe-Aktionen | 438 CODE* |
+| `18.27.0` | Optionale Deadline | 439 CODE* |
+| `18.27.0` | Homescreen-Shortcut Todos | 440 CODE* |
+| `18.27.0` | Sprachsteuerung für Listen und Aufgaben | 441 CODE* |
+| `18.27.0` | Fälligkeitsabfrage über Listen | 442 CODE* |
+| `18.27.0` | Gold und Release-Gate, versionCode `182700` | 443 GATE OFFEN* |
+
+`CODE*` bezeichnet Implementierung im lokalen Debug-/Test-Build `18.25.15`;
+QA-Abnahme und Produktversionsfreigabe sind noch offen.
+
+### `18.28`–`18.31` — Tischplatte: Planungsmodus-Rework [`100-next.md`](./100-next.md) **PLAN**
+
+Der Rework verwendet den vorhandenen Idea-/IdeaPlan-/Workbench-Stack. Er
+beginnt nach den Release-Gates von `18.26.0` und `18.27.0`; Sprintnummern
+431–443 sind vergeben und werden nicht wiederverwendet. Die vier Stufen sind
+separat abnehmbar:
+
+| Version | Ziel | Sprints |
+|---------|------|---------|
+| `18.28.0` (`182800`) | Zustands-/Routing-Stabilität, getrennte PSP-/Sprintansicht | 444–449 PLAN |
+| `18.29.0` (`182900`) | Intake, gezielte Klärung, zustimmungsbasierte Research-Provenienz | 450–454 PLAN |
+| `18.30.0` (`183000`) | Deklarative SIM-GUI und nebenwirkungsfreier Workflow-Dry-Run | 455–460 PLAN |
+| `18.31.0` (`183100`) | Validierte WBS, PRD, Mermaid, versioniertes JSON und Prompt-Leitfaden | 461–466 PLAN |
+
+Versionen werden erst nach jeweiligem Gold-Gate erhöht. Das genaue
+Architekturziel, kritische Abweichungen vom Gemini-Vorschlag und
+Abnahmekriterien stehen in [`100-next.md`](./100-next.md).
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

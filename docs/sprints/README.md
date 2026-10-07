@@ -412,23 +412,53 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 428 | [`sprint-428.md`](./sprint-428.md) | `18.25.0` | Wahl, Ablauf und Scan gewinnen | **CODE** Must |
 | 429 | [`sprint-429.md`](./sprint-429.md) | `18.25.0` | Entwürfe im Hausstand | **CODE** Must |
 | 430 | [`sprint-430.md`](./sprint-430.md) | `18.25.0` | Gold, Testkarten | **CODE** Must |
-| 431 | [`sprint-431.md`](./sprint-431.md) | `18.26.0` | Notiz-Store CRUD | **PLAN** Must |
-| 432 | [`sprint-432.md`](./sprint-432.md) | `18.26.0` | Notizen-GUI | **PLAN** Must |
-| 433 | [`sprint-433.md`](./sprint-433.md) | `18.26.0` | Homescreen-Shortcut | **PLAN** Must |
-| 434 | [`sprint-434.md`](./sprint-434.md) | `18.26.0` | Notizen per Sprache | **PLAN** Must |
-| 435 | [`sprint-435.md`](./sprint-435.md) | `18.26.0` | Belegbarer Notiz-Recall | **PLAN** Must |
-| 436 | [`sprint-436.md`](./sprint-436.md) | `18.26.0` | Gold und Release-Gate | **PLAN** Must |
-| 437 | [`sprint-437.md`](./sprint-437.md) | `18.27.0` | Todo-Listen-Store und Migration | **PLAN** Must |
-| 438 | [`sprint-438.md`](./sprint-438.md) | `18.27.0` | Todo-Listen-GUI | **PLAN** Must |
-| 439 | [`sprint-439.md`](./sprint-439.md) | `18.27.0` | Deadline UI | **PLAN** Must |
-| 440 | [`sprint-440.md`](./sprint-440.md) | `18.27.0` | Homescreen-Shortcut Todos | **PLAN** Must |
-| 441 | [`sprint-441.md`](./sprint-441.md) | `18.27.0` | Sprachsteuerung Todo-Listen | **PLAN** Must |
-| 442 | [`sprint-442.md`](./sprint-442.md) | `18.27.0` | Abfrage nach Deadline | **PLAN** Must |
-| 443 | [`sprint-443.md`](./sprint-443.md) | `18.27.0` | Todo-Gold und Release-Gate | **PLAN** Must |
+| 431 | [`sprint-431.md`](./sprint-431.md) | `18.26.0` | Notiz-Store CRUD | **CODE*** Must |
+| 432 | [`sprint-432.md`](./sprint-432.md) | `18.26.0` | Notizen-GUI | **CODE*** Must |
+| 433 | [`sprint-433.md`](./sprint-433.md) | `18.26.0` | Homescreen-Shortcut | **CODE*** Must |
+| 434 | [`sprint-434.md`](./sprint-434.md) | `18.26.0` | Notizen per Sprache | **CODE*** Must |
+| 435 | [`sprint-435.md`](./sprint-435.md) | `18.26.0` | Belegbarer Notiz-Recall | **CODE*** Must |
+| 436 | [`sprint-436.md`](./sprint-436.md) | `18.26.0` | Gold und Release-Gate | **GATE OFFEN*** Must |
+| 437 | [`sprint-437.md`](./sprint-437.md) | `18.27.0` | Todo-Listen-Store und Migration | **CODE*** Must |
+| 438 | [`sprint-438.md`](./sprint-438.md) | `18.27.0` | Todo-Listen-GUI | **CODE*** Must |
+| 439 | [`sprint-439.md`](./sprint-439.md) | `18.27.0` | Deadline UI | **CODE*** Must |
+| 440 | [`sprint-440.md`](./sprint-440.md) | `18.27.0` | Homescreen-Shortcut Todos | **CODE*** Must |
+| 441 | [`sprint-441.md`](./sprint-441.md) | `18.27.0` | Sprachsteuerung Todo-Listen | **CODE*** Must |
+| 442 | [`sprint-442.md`](./sprint-442.md) | `18.27.0` | Abfrage nach Deadline | **CODE*** Must |
+| 443 | [`sprint-443.md`](./sprint-443.md) | `18.27.0` | Todo-Gold und Release-Gate | **GATE OFFEN*** Must |
+| 444 | [`sprint-444.md`](./sprint-444.md) | `18.28.0` | Tischplatten-Baseline | **PLAN** Must |
+| 445 | [`sprint-445.md`](./sprint-445.md) | `18.28.0` | Planungszustand an Projekt binden | **PLAN** Must |
+| 446 | [`sprint-446.md`](./sprint-446.md) | `18.28.0` | Planungsbefehle eindeutig routen | **PLAN** Must |
+| 447 | [`sprint-447.md`](./sprint-447.md) | `18.28.0` | IdeaPlan validieren | **PLAN** Must |
+| 448 | [`sprint-448.md`](./sprint-448.md) | `18.28.0` | PSP-/Sprintansicht trennen | **PLAN** Must |
+| 449 | [`sprint-449.md`](./sprint-449.md) | `18.28.0` | Stabilitäts-Gate | **PLAN** Must |
+| 450 | [`sprint-450.md`](./sprint-450.md) | `18.29.0` | Intake-Bedingung erhalten | **PLAN** Must |
+| 451 | [`sprint-451.md`](./sprint-451.md) | `18.29.0` | Klärung und Bestätigung | **PLAN** Must |
+| 452 | [`sprint-452.md`](./sprint-452.md) | `18.29.0` | Lokales Wissen zuordnen | **PLAN** Must |
+| 453 | [`sprint-453.md`](./sprint-453.md) | `18.29.0` | Research-Zustimmung und Provenienz | **PLAN** Must |
+| 454 | [`sprint-454.md`](./sprint-454.md) | `18.29.0` | Research-Gate | **PLAN** Must |
+| 455 | [`sprint-455.md`](./sprint-455.md) | `18.30.0` | Simulationsdatenvertrag | **PLAN** Must |
+| 456 | [`sprint-456.md`](./sprint-456.md) | `18.30.0` | Deklarative SIM-GUI | **PLAN** Must |
+| 457 | [`sprint-457.md`](./sprint-457.md) | `18.30.0` | Vorschau-Diffs und Undo | **PLAN** Must |
+| 458 | [`sprint-458.md`](./sprint-458.md) | `18.30.0` | Workflow-Dry-Run | **PLAN** Must |
+| 459 | [`sprint-459.md`](./sprint-459.md) | `18.30.0` | Simulationsevidenz | **PLAN** Must |
+| 460 | [`sprint-460.md`](./sprint-460.md) | `18.30.0` | Simulations-Gate | **PLAN** Must |
+| 461 | [`sprint-461.md`](./sprint-461.md) | `18.31.0` | WBS aus IdeaPlan | **PLAN** Must |
+| 462 | [`sprint-462.md`](./sprint-462.md) | `18.31.0` | Gates und Dependencies validieren | **PLAN** Must |
+| 463 | [`sprint-463.md`](./sprint-463.md) | `18.31.0` | PRD und Mermaid exportieren | **PLAN** Must |
+| 464 | [`sprint-464.md`](./sprint-464.md) | `18.31.0` | Versioniertes JSON | **PLAN** Must |
+| 465 | [`sprint-465.md`](./sprint-465.md) | `18.31.0` | Implementierungsleitfaden | **PLAN** Must |
+| 466 | [`sprint-466.md`](./sprint-466.md) | `18.31.0` | Gesamt-Gold und Release-Gate | **PLAN** Must |
 
-**443 ist die letzte geplante Nummer.** `18.25.1` bis `18.25.13` sind im Code und haben keine Sprintnummer. Offen danach: [`../tischplatte-plan.md`](../tischplatte-plan.md), S1 Karten, S2 Grenze, S3 eine Frage, S4 zwei Sichten. Dazu [`../hausstand-sync-plan.md`](../hausstand-sync-plan.md), S1 Vergleich, S2 Frage, S3 Ja überschreibt den älteren. Dazu [`../formulierung-plan.md`](../formulierung-plan.md), S1 Kopplung egal wie gesagt, S2 jede vorhandene Aktion, S3 Unbekannt bleibt unbekannt.
+Sprints 431–443 sind mit der Implementierung im lokalen Test-Build belegt;
+deren Release-Versionen `18.26.0`/`18.27.0` bleiben eigene Gates.
+**466 ist die letzte Sprintnummer dieser Planungsreihe.** Der frühere
+[`../tischplatte-plan.md`](../tischplatte-plan.md) ist in 444–466 integriert;
+er ist keine parallele Sprintreihe.
 
-**Aktuell:** App-Code und Sideload **`18.25.13`**, versionCode `182513`. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). 398–403 **CODE** ([`93-next.md`](../93-next.md)), 404–409 **CODE** ([`94-next.md`](../94-next.md)). 410–416 **CODE** ([`95-next.md`](../95-next.md)). 417–423 **CODE** ([`96-next.md`](../96-next.md)). 424–430 **CODE + APK** ([`97-next.md`](../97-next.md)). 431–436 **PLAN** ([`98-next.md`](../98-next.md)); 437–443 **PLAN** ([`99-next.md`](../99-next.md)). Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
+`CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
+abgenommen oder als jeweilige Produktversion freigegeben.
+
+**Stände:** Letzter veröffentlichter Sideload `18.25.13`, versionCode `182513`; lokaler Test-Build `18.25.15`. Sprints 431–443 sind implementiert, ihre abschließenden Release-Versionen bleiben offen. Rework-Plan 444–466: [`../100-next.md`](../100-next.md). Ältere Sprintfolgen bleiben historisch.
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

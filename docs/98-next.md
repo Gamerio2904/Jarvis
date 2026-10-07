@@ -1,13 +1,16 @@
-# 98 — Notizen: eigene Fläche und belegbarer Rückruf **PLAN** (`18.26`)
+# 98 — Notizen: eigene Fläche und belegbarer Rückruf **CODE; RELEASE-GATE OFFEN** (`18.26`)
+
+> Die Umsetzung aus Sprints 431–436 ist im lokalen Test-Build `18.25.15`
+> enthalten. Die Versionsanhebung auf `18.26.0` / `182600` und QA-Freigabe
+> stehen aus; dieser Plan bleibt die fachliche Abnahmegrundlage.
 
 **Bedingung:** Ich möchte Notizen erstellen. Dafür eine neue GUI und einen
 Shortcut auf dem Homescreen. Ultron soll diese Notizen frei steuern, bearbeiten
 und aufrufen können. Ich kann zum Beispiel fragen: „Was war nochmal meine
 Matrikelnummer?“ Dann durchsucht Ultron Wissen, Gedächtnis und Notizen.
 
-**Planungsstand:** Noch nicht gebaut. Sprints **431–436**. Letzter nummerierter
-Sprint im bestehenden Plan: 430. Geplante App-Version **`18.26.0`**,
-versionCode **`182600`**. Kein APK und keine Codeänderung in diesem Plan.
+**Planungsstand:** Code im lokalen Test-Build; QA/Release-Gate offen. Sprints
+**431–436**. Geplante Release-Version **`18.26.0`**, versionCode **`182600`**.
 
 ## 1. Ziel
 

@@ -27,6 +27,7 @@
     "test:film-taste": "node --experimental-strip-types scripts/test-film-taste.mjs",
     "test:idea": "node --experimental-strip-types scripts/test-idea.mjs",
     "test:idea-plan": "node --experimental-strip-types scripts/test-idea-plan.mjs",
+    "test:project-docs": "node --experimental-strip-types scripts/test-project-docs.mjs",
     "test:watchlist": "node --experimental-strip-types scripts/test-watchlist.mjs",
     "test:knowledge-11": "node --experimental-strip-types scripts/test-knowledge-11.mjs",
     "test:presence-12": "node --experimental-strip-types scripts/test-presence-12.mjs",
