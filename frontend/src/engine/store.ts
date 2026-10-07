@@ -88,10 +88,20 @@ export type Note = {
   updated_at: string
 }
 
+export type TodoList = {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+}
+
 export type Todo = {
   id: string
   title: string
   status: 'open' | 'done' | string
+  list_id?: string
+  deadline_date?: string | null
+  deadline_time?: string | null
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -294,6 +304,7 @@ export type Settings = {
   last_step_utterance: string
   last_medium: string
   last_list_json: string
+  shopping_list_id: string
   hud_force: boolean
   hud_hidden: boolean
   hud_accent: 'green' | 'amber'
@@ -525,6 +536,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_step_utterance: '',
   last_medium: '',
   last_list_json: '',
+  shopping_list_id: '',
   hud_force: false,
   hud_hidden: false,
   hud_accent: 'green',
@@ -652,7 +664,7 @@ export const DEFAULT_SETTINGS: Settings = {
   body_view: 'agents',
   show_agent_network: false,
   brain_v2: true,
-  brain_primary: 'groq',
+  brain_primary: 'gemini',
   brain_gemini_roles_vision: true,
   brain_gemini_roles_grounding: true,
   brain_micro_llm_clarify: true,
@@ -832,9 +844,10 @@ let dbPromise: Promise<IDBDatabase> | null = null
 function openDb(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise
   dbPromise = new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 16)
-    req.onupgradeneeded = () => {
+    const req = indexedDB.open('jarvis-ondevice', 17)
+    req.onupgradeneeded = (evt) => {
       const db = req.result
+      const oldVersion = (evt.oldVersion as number) || 0
       for (const name of [
         'conversations',
         'messages',
@@ -859,10 +872,27 @@ function openDb(): Promise<IDBDatabase> {
         'knowledge_packs',
         'rm_scene_skills',
         'memory_proposals',
+        'todo_lists',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
           db.createObjectStore(name, { keyPath: key })
+        }
+      }
+      if (oldVersion < 17) {
+        const tx = req.transaction
+        if (tx) {
+          const now = nowIso()
+          const lists = tx.objectStore('todo_lists')
+          lists.put({ id: 'todo-list-general', name: 'Allgemein', created_at: now, updated_at: now })
+          const cursorRequest = tx.objectStore('todos').openCursor()
+          cursorRequest.onsuccess = () => {
+            const cursor = cursorRequest.result
+            if (!cursor) return
+            const todo = cursor.value as Todo
+            if (!todo.list_id) cursor.update({ ...todo, list_id: 'todo-list-general' })
+            cursor.continue()
+          }
         }
       }
     }
@@ -1096,18 +1126,66 @@ export async function clearMemory(): Promise<void> {
 export async function listTodos(conversationId?: string): Promise<Todo[]> {
   const rows = await getAll<Todo>('todos')
   return rows
+    .map((t) => ({ ...t, list_id: t.list_id || 'todo-list-general', deadline_date: t.deadline_date || null, deadline_time: t.deadline_time || null }))
     .filter((t) => !conversationId || t.source_conversation_id === conversationId)
     .sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
 }
 
-export async function addTodo(title: string, conversationId?: string): Promise<Todo> {
+export async function listTodoLists(): Promise<TodoList[]> {
+  const rows = await getAll<TodoList>('todo_lists')
+  if (!rows.some((row) => row.id === 'todo-list-general')) {
+    const now = nowIso()
+    const general = { id: 'todo-list-general', name: 'Allgemein', created_at: now, updated_at: now }
+    await put('todo_lists', general)
+    rows.push(general)
+  }
+  return rows.sort((a, b) =>
+    a.id === 'todo-list-general' ? -1 : b.id === 'todo-list-general' ? 1 : a.name.localeCompare(b.name),
+  )
+}
+
+export async function createTodoList(name: string): Promise<TodoList> {
+  const normalized = name.trim()
+  if (!normalized) throw new Error('Der Listenname darf nicht leer sein.')
+  const lists = await listTodoLists()
+  const existing = lists.find((row) => row.name.toLocaleLowerCase() === normalized.toLocaleLowerCase())
+  if (existing) return existing
+  const now = nowIso()
+  const row = { id: newId(), name: normalized, created_at: now, updated_at: now }
+  await put('todo_lists', row)
+  return row
+}
+
+export async function deleteTodoList(id: string): Promise<void> {
+  if (id === 'todo-list-general') throw new Error('Die Liste Allgemein kann nicht gelöscht werden.')
+  const list = await get<TodoList>('todo_lists', id)
+  if (!list) throw new Error('Die Todo-Liste existiert nicht mehr.')
+  const todos = (await getAll<Todo>('todos')).filter((todo) => todo.list_id === id)
+  for (const todo of todos) await put('todos', { ...todo, list_id: 'todo-list-general', updated_at: nowIso() })
+  await del('todo_lists', id)
+}
+
+export async function addTodo(
+  title: string,
+  conversationId?: string,
+  opts: { listId?: string; deadlineDate?: string | null; deadlineTime?: string | null } = {},
+): Promise<Todo> {
+  const cleanTitle = title.trim()
+  if (!cleanTitle) throw new Error('Die Todo-Aufgabe darf nicht leer sein.')
+  const listId = opts.listId || 'todo-list-general'
+  if (!(await get<TodoList>('todo_lists', listId))) throw new Error('Die ausgewählte Todo-Liste existiert nicht.')
+  validateTodoDeadline(opts.deadlineDate, opts.deadlineTime)
+  const now = nowIso()
   const row: Todo = {
     id: newId(),
-    title,
+    title: cleanTitle,
     status: 'open',
+    list_id: listId,
+    deadline_date: opts.deadlineDate || null,
+    deadline_time: opts.deadlineTime || null,
     source_conversation_id: conversationId || null,
-    created_at: nowIso(),
-    updated_at: nowIso(),
+    created_at: now,
+    updated_at: now,
   }
   await put('todos', row)
   return row
@@ -1115,11 +1193,37 @@ export async function addTodo(title: string, conversationId?: string): Promise<T
 
 export async function setTodoStatus(id: string, status: string): Promise<void> {
   const row = await get<Todo>('todos', id)
-  if (!row) return
+  if (!row) throw new Error('Das Todo existiert nicht mehr.')
   await put('todos', { ...row, status, updated_at: nowIso() })
 }
 
+export async function updateTodo(
+  id: string,
+  patch: { title?: string; listId?: string; deadlineDate?: string | null; deadlineTime?: string | null },
+): Promise<Todo> {
+  const row = await get<Todo>('todos', id)
+  if (!row) throw new Error('Das Todo existiert nicht mehr.')
+  const title = patch.title === undefined ? row.title : patch.title.trim()
+  if (!title) throw new Error('Die Todo-Aufgabe darf nicht leer sein.')
+  const listId = patch.listId || row.list_id || 'todo-list-general'
+  if (!(await get<TodoList>('todo_lists', listId))) throw new Error('Die ausgewählte Todo-Liste existiert nicht.')
+  const deadlineDate = patch.deadlineDate === undefined ? row.deadline_date || null : patch.deadlineDate
+  const deadlineTime = patch.deadlineTime === undefined ? row.deadline_time || null : patch.deadlineTime
+  validateTodoDeadline(deadlineDate, deadlineTime)
+  const updated = {
+    ...row,
+    title,
+    list_id: listId,
+    deadline_date: deadlineDate,
+    deadline_time: deadlineTime,
+    updated_at: nowIso(),
+  }
+  await put('todos', updated)
+  return updated
+}
+
 export async function deleteTodo(id: string): Promise<void> {
+  if (!(await get<Todo>('todos', id))) throw new Error('Das Todo existiert nicht mehr.')
   await del('todos', id)
 }
 
@@ -1138,15 +1242,46 @@ export async function listNotes(conversationId?: string): Promise<Note[]> {
 }
 
 export async function addNote(body: string, conversationId?: string): Promise<Note> {
+  const cleanBody = body.trim()
+  if (!cleanBody) throw new Error('Eine Notiz darf nicht leer sein.')
   const row: Note = {
     id: newId(),
-    body,
+    body: cleanBody,
     source_conversation_id: conversationId || null,
     created_at: nowIso(),
     updated_at: nowIso(),
   }
   await put('notes', row)
   return row
+}
+
+export async function updateNote(id: string, body: string): Promise<Note> {
+  const row = await get<Note>('notes', id)
+  if (!row) throw new Error('Die Notiz existiert nicht mehr.')
+  const cleanBody = body.trim()
+  if (!cleanBody) throw new Error('Eine Notiz darf nicht leer sein.')
+  const updated = { ...row, body: cleanBody, updated_at: nowIso() }
+  await put('notes', updated)
+  return updated
+}
+
+export async function deleteNote(id: string): Promise<void> {
+  if (!(await get<Note>('notes', id))) throw new Error('Die Notiz existiert nicht mehr.')
+  await del('notes', id)
+}
+
+function validateTodoDeadline(date?: string | null, time?: string | null): void {
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Das Fälligkeitsdatum ist ungültig.')
+  if (date) {
+    const [year, month, day] = date.split('-').map(Number)
+    const parsed = new Date(year, month - 1, day)
+    if (parsed.getFullYear() !== year || parsed.getMonth() !== month - 1 || parsed.getDate() !== day) {
+      throw new Error('Das Fälligkeitsdatum ist ungültig.')
+    }
+  }
+  if (time && (!date || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time))) {
+    throw new Error('Eine gültige Uhrzeit benötigt ein gültiges Datum.')
+  }
 }
 
 export async function listIdeas(status?: IdeaStatus): Promise<Idea[]> {

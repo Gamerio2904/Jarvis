@@ -29,17 +29,18 @@ export function primaryChatModel(settings: {
   gemini_api_key: string
   groq_api_key: string
 }): 'groq' | 'gemini' | 'local' {
+  const geminiReady = settings.gemini_enabled && settings.gemini_api_key.trim()
+  const groqReady = settings.groq_api_key.trim()
+
   if (!settings.brain_v2) {
-    if (settings.gemini_enabled && settings.gemini_api_key.trim()) return 'gemini'
-    if (settings.groq_api_key.trim()) return 'groq'
+    if (geminiReady) return 'gemini'
+    if (groqReady) return 'groq'
     return 'local'
   }
-  if (settings.brain_primary === 'gemini' && settings.gemini_enabled && settings.gemini_api_key.trim()) {
-    return 'gemini'
-  }
+
   if (settings.brain_primary === 'local') return 'local'
-  if (settings.groq_api_key.trim()) return 'groq'
-  if (settings.gemini_enabled && settings.gemini_api_key.trim()) return 'gemini'
+  if (geminiReady) return 'gemini'
+  if (groqReady) return 'groq'
   return 'local'
 }
 

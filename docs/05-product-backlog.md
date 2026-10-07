@@ -665,6 +665,29 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S67.4 | Als Nutzer will ich hören, wenn OpenSky tot oder am Limit ist, statt einer stillen leeren Kugel. | Must | done | Sprint 356; 429-Text |
 | S67.5 | Als Nutzer will ich, dass die Schicht nachzieht, solange sie an und die Lage offen ist. | Must | done | Sprint 360; Poll ≥ 10 s; Lage-Start ohne Satz holt nichts |
 
+### E68 — Notizen und belegbarer Rückruf `18.26` [`98-next.md`](./98-next.md) **PLAN**
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S68.1 | Als Nutzer will ich Notizen lokal anlegen, bearbeiten und löschen. | Must | idea | Sprint 431; bestehende Note-IDs bleiben stabil |
+| S68.2 | Als Nutzer will ich Notizen suchen und in einer eigenen GUI öffnen. | Must | idea | Sprint 432; lokal, Tastatur-fest |
+| S68.3 | Als Nutzer will ich Notizen direkt vom Homescreen öffnen. | Must | idea | Sprint 433; neue `Notizen`-Kachel |
+| S68.4 | Als Nutzer will ich Notizen per Sprache aufrufen und ändern. | Must | idea | Sprint 434; stabile Ziele, Rückfrage bei Mehrdeutigkeit |
+| S68.5 | Als Nutzer will ich persönliche Fakten über Wissen, Gedächtnis und Notizen zurückrufen. | Must | idea | Sprint 435; Herkunft, kein Raten, deterministisch lokal |
+| S68.6 | Als Nutzer will ich keine falsche Matrikelnummer als sichere Antwort hören. | Must | idea | Sprint 436; Gold für Leerfall und Widerspruch |
+
+### E69 — Todo-Listen mit Deadline `18.27` [`99-next.md`](./99-next.md) **PLAN**
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S69.1 | Als Nutzer will ich mehrere Todo-Listen wie Allgemein, Uni und Haushalt führen. | Must | idea | Sprint 437; Altbestand verlustfrei nach Allgemein migriert |
+| S69.2 | Als Nutzer will ich Todos in einer listenbasierten GUI wie beim Einkauf bedienen. | Must | idea | Sprint 438; Swipe, Erledigt, Mehrfachauswahl abgeschlossener Todos |
+| S69.3 | Als Nutzer will ich jedem Todo optional eine Deadline geben. | Must | idea | Sprint 439; erstellen, ändern, entfernen, lokale Zeitzone |
+| S69.4 | Als Nutzer will ich die Todo-Oberfläche vom Homescreen öffnen. | Must | idea | Sprint 440; Shortcut `Todos` |
+| S69.5 | Als Nutzer will ich Listen und Todos per Sprachbefehl verwalten. | Must | idea | Sprint 441; gleicher Store, Rückfrage bei Mehrdeutigkeit |
+| S69.6 | Als Nutzer will ich fällige Aufgaben über alle Listen abfragen. | Must | idea | Sprint 442; „bis morgen“ filtert offene Todos nach Deadline |
+| S69.7 | Als Nutzer will ich, dass Deadline und Listenmigration zuverlässig getestet sind. | Must | idea | Sprint 443; Release-Gate vor `18.27.0` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)

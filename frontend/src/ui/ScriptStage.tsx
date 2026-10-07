@@ -191,6 +191,44 @@ export function ScriptStage({
                 <li key={s}>{s}</li>
               ))}
             </ul>
+          ) : view === 'psp' ? (
+            <>
+              {wege.length ? (
+                <ol className="script-wege">
+                  {wege.map((weg, i) => (
+                    <li key={weg.id}>
+                      <span>W{i + 1}</span>
+                      <strong>{weg.task}</strong>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+              <ol className="script-psp">
+                {sprints.length ? (
+                  sprints.map((s) => (
+                    <li key={s.n}>
+                      <span>{s.n}</span>
+                      <strong>{s.title}</strong>
+                      <em>{s.ziel?.trim() || 'Noch leer.'}</em>
+                      {s.prompt ? (
+                        <div className="script-prompt">
+                          <p>{s.prompt}</p>
+                          <button type="button" onClick={() => void copyPrompt(s.n, s.prompt)}>
+                            {copied === s.n ? 'Kopiert' : 'Prompt kopieren'}
+                          </button>
+                        </div>
+                      ) : null}
+                    </li>
+                  ))
+                ) : idea?.plan?.sprints?.length ? null : (
+                  <li>
+                    <span>—</span>
+                    <strong>Leer</strong>
+                    <em>Plane das: … schreibt das Skript.</em>
+                  </li>
+                )}
+              </ol>
+            </>
           ) : (
             <>
               {wege.length ? (
@@ -204,30 +242,30 @@ export function ScriptStage({
                 </ol>
               ) : null}
               <ol className="script-psp">
-              {sprints.length ? (
-                sprints.map((s) => (
-                  <li key={s.n}>
-                    <span>{s.n}</span>
-                    <strong>{s.title}</strong>
-                    <em>{s.ziel?.trim() || 'Noch leer.'}</em>
-                    {s.prompt ? (
-                      <div className="script-prompt">
-                        <p>{s.prompt}</p>
-                        <button type="button" onClick={() => void copyPrompt(s.n, s.prompt)}>
-                          {copied === s.n ? 'Kopiert' : 'Prompt kopieren'}
-                        </button>
-                      </div>
-                    ) : null}
+                {sprints.length ? (
+                  sprints.map((s) => (
+                    <li key={s.n}>
+                      <span>{s.n}</span>
+                      <strong>{s.title}</strong>
+                      <em>{s.ziel?.trim() || 'Noch leer.'}</em>
+                      {s.prompt ? (
+                        <div className="script-prompt">
+                          <p>{s.prompt}</p>
+                          <button type="button" onClick={() => void copyPrompt(s.n, s.prompt)}>
+                            {copied === s.n ? 'Kopiert' : 'Prompt kopieren'}
+                          </button>
+                        </div>
+                      ) : null}
+                    </li>
+                  ))
+                ) : idea?.plan?.sprints?.length ? null : (
+                  <li>
+                    <span>—</span>
+                    <strong>Leer</strong>
+                    <em>Plane das: … schreibt das Skript.</em>
                   </li>
-                ))
-              ) : idea?.plan?.sprints?.length ? null : (
-                <li>
-                  <span>—</span>
-                  <strong>Leer</strong>
-                  <em>Plane das: … schreibt das Skript.</em>
-                </li>
-              )}
-            </ol>
+                )}
+              </ol>
             </>
           )}
           <div className="script-export">

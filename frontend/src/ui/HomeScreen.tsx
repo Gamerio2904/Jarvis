@@ -109,6 +109,21 @@ function AppGlyph({ id }: { id: HomeAppId }) {
       </svg>
     )
   }
+  if (id === 'notes') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" d="M5 3.8h10l4 4v12.4H5V3.8Z" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M8.5 11h7M8.5 14.5h7M15 4v4h4" />
+      </svg>
+    )
+  }
+  if (id === 'todos') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="m4 7 1.5 1.5L8 6M11 7h9M4 15l1.5 1.5L8 14M11 15h9" />
+      </svg>
+    )
+  }
   return (
     <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
       <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.8" />

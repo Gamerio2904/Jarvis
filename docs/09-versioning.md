@@ -1019,6 +1019,45 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | nach `18.25.13` | Hausstand nach dem Koppeln | PLAN S1–S3, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) |
 | nach `18.25.13` | Formulierung egal | PLAN S1–S3, [`formulierung-plan.md`](./formulierung-plan.md) |
 
+### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **PLAN**
+
+Geplant: eigene Notes-GUI, Shortcut am Homescreen, Sprachzugriff zum Anlegen,
+Öffnen, Bearbeiten und bestätigten Löschen sowie belegter Recall aus
+Gedächtnis, Wissen und Notizen. Bestehende Notizen bleiben lokal und erhalten.
+
+**Geplante App-Version:** `18.26.0`, versionCode `182600`. Sprints 431–436;
+erst Sprint 436 setzt die Versionsnummer nach bestandener Gold-Spur.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.26.0` | Lokaler Notiz-Store CRUD | 431 PLAN |
+| `18.26.0` | Notizen-GUI | 432 PLAN |
+| `18.26.0` | Homescreen-Shortcut | 433 PLAN |
+| `18.26.0` | Notizen per Sprache | 434 PLAN |
+| `18.26.0` | Belegbarer Recall | 435 PLAN |
+| `18.26.0` | Gold und Release-Gate, versionCode `182600` | 436 PLAN |
+
+### `18.27` — Todo-Listen mit Deadline [`99-next.md`](./99-next.md) **PLAN**
+
+Geplant: mehrere lokale Todo-Listen, Bedienung nach Einkaufslisten-Muster,
+optionale Deadlines, vollständige GUI-/Sprachsteuerung, Abfrage fälliger
+Aufgaben und ein Homescreen-Shortcut. Alte globale Todos werden nach
+`Allgemein` migriert. Deadline-Abfragen arbeiten lokal und lösen keinen
+Cloud-Aufruf aus.
+
+**Geplante App-Version:** `18.27.0`, versionCode `182700`. Sprints 437–443;
+erst Sprint 443 setzt die Versionsnummer nach bestandener Gold-Spur.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.27.0` | Todo-Listen-Store und Migration | 437 PLAN |
+| `18.27.0` | Todo-Listen-GUI und Swipe-Aktionen | 438 PLAN |
+| `18.27.0` | Optionale Deadline | 439 PLAN |
+| `18.27.0` | Homescreen-Shortcut Todos | 440 PLAN |
+| `18.27.0` | Sprachsteuerung für Listen und Aufgaben | 441 PLAN |
+| `18.27.0` | Fälligkeitsabfrage über Listen | 442 PLAN |
+| `18.27.0` | Gold und Release-Gate, versionCode `182700` | 443 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.

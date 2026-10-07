@@ -9931,10 +9931,20 @@ html.theme-wipe-dark::before {
   width: 100%;
 }
 
+.shop-overlay > .watch-head {
+  flex: 0 0 auto;
+}
+
 .shop-new-list {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex: 0 0 auto;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(8, 12, 10, 0.96);
+  border: 1px solid var(--border);
+  z-index: 1;
 }
 
 .shop-new-list input {
@@ -9964,6 +9974,29 @@ html.theme-wipe-dark::before {
 
 .shop-card.is-got {
   opacity: 0.45;
+}
+
+.shop-card.is-got {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.shop-card.is-selected {
+  opacity: 0.85;
+  outline: 1px solid var(--accent);
+}
+
+.shop-selection-bar {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.shop-selection-bar span {
+  margin-right: auto;
 }
 
 .shop-card-main {
@@ -10076,6 +10109,122 @@ html.theme-wipe-dark::before {
   height: 40px;
   border-radius: 8px;
   object-fit: cover;
+}
+
+.notes-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notes-toolbar,
+.notes-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.notes-toolbar input {
+  flex: 1;
+  min-width: 150px;
+}
+
+.notes-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.notes-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.notes-card span {
+  opacity: 0.72;
+  white-space: pre-wrap;
+}
+
+.notes-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.notes-editor textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+}
+
+.notes-error {
+  margin: 0;
+  color: #ff9b91;
+  font-size: 0.88rem;
+}
+
+.todo-list-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.todo-list-card .shop-list-card {
+  flex: 1;
+}
+
+.todo-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.todo-card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.todo-card-title {
+  overflow-wrap: anywhere;
+}
+
+.todo-deadline {
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+
+.todo-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.todo-editor label input {
+  width: 100%;
 }
 
 .boot-fallback {

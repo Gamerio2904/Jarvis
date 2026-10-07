@@ -412,10 +412,23 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 428 | [`sprint-428.md`](./sprint-428.md) | `18.25.0` | Wahl, Ablauf und Scan gewinnen | **CODE** Must |
 | 429 | [`sprint-429.md`](./sprint-429.md) | `18.25.0` | Entwürfe im Hausstand | **CODE** Must |
 | 430 | [`sprint-430.md`](./sprint-430.md) | `18.25.0` | Gold, Testkarten | **CODE** Must |
+| 431 | [`sprint-431.md`](./sprint-431.md) | `18.26.0` | Notiz-Store CRUD | **PLAN** Must |
+| 432 | [`sprint-432.md`](./sprint-432.md) | `18.26.0` | Notizen-GUI | **PLAN** Must |
+| 433 | [`sprint-433.md`](./sprint-433.md) | `18.26.0` | Homescreen-Shortcut | **PLAN** Must |
+| 434 | [`sprint-434.md`](./sprint-434.md) | `18.26.0` | Notizen per Sprache | **PLAN** Must |
+| 435 | [`sprint-435.md`](./sprint-435.md) | `18.26.0` | Belegbarer Notiz-Recall | **PLAN** Must |
+| 436 | [`sprint-436.md`](./sprint-436.md) | `18.26.0` | Gold und Release-Gate | **PLAN** Must |
+| 437 | [`sprint-437.md`](./sprint-437.md) | `18.27.0` | Todo-Listen-Store und Migration | **PLAN** Must |
+| 438 | [`sprint-438.md`](./sprint-438.md) | `18.27.0` | Todo-Listen-GUI | **PLAN** Must |
+| 439 | [`sprint-439.md`](./sprint-439.md) | `18.27.0` | Deadline UI | **PLAN** Must |
+| 440 | [`sprint-440.md`](./sprint-440.md) | `18.27.0` | Homescreen-Shortcut Todos | **PLAN** Must |
+| 441 | [`sprint-441.md`](./sprint-441.md) | `18.27.0` | Sprachsteuerung Todo-Listen | **PLAN** Must |
+| 442 | [`sprint-442.md`](./sprint-442.md) | `18.27.0` | Abfrage nach Deadline | **PLAN** Must |
+| 443 | [`sprint-443.md`](./sprint-443.md) | `18.27.0` | Todo-Gold und Release-Gate | **PLAN** Must |
 
-**430 ist die letzte Nummer.** `18.25.1` bis `18.25.13` sind im Code und haben keine Sprintnummer. Offen danach: [`../tischplatte-plan.md`](../tischplatte-plan.md), S1 Karten, S2 Grenze, S3 eine Frage, S4 zwei Sichten. Dazu [`../hausstand-sync-plan.md`](../hausstand-sync-plan.md), S1 Vergleich, S2 Frage, S3 Ja überschreibt den älteren. Dazu [`../formulierung-plan.md`](../formulierung-plan.md), S1 Kopplung egal wie gesagt, S2 jede vorhandene Aktion, S3 Unbekannt bleibt unbekannt.
+**443 ist die letzte geplante Nummer.** `18.25.1` bis `18.25.13` sind im Code und haben keine Sprintnummer. Offen danach: [`../tischplatte-plan.md`](../tischplatte-plan.md), S1 Karten, S2 Grenze, S3 eine Frage, S4 zwei Sichten. Dazu [`../hausstand-sync-plan.md`](../hausstand-sync-plan.md), S1 Vergleich, S2 Frage, S3 Ja überschreibt den älteren. Dazu [`../formulierung-plan.md`](../formulierung-plan.md), S1 Kopplung egal wie gesagt, S2 jede vorhandene Aktion, S3 Unbekannt bleibt unbekannt.
 
-**Aktuell:** App-Code und Sideload **`18.25.13`**, versionCode `182513`. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). 398–403 **CODE** ([`93-next.md`](../93-next.md)), 404–409 **CODE** ([`94-next.md`](../94-next.md)). 410–416 **CODE** ([`95-next.md`](../95-next.md)). 417–423 **CODE** ([`96-next.md`](../96-next.md)). 424–430 **CODE + APK** ([`97-next.md`](../97-next.md)). Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
+**Aktuell:** App-Code und Sideload **`18.25.13`**, versionCode `182513`. 361–397 **CODE + APK** ([`92-next.md`](../92-next.md)). 398–403 **CODE** ([`93-next.md`](../93-next.md)), 404–409 **CODE** ([`94-next.md`](../94-next.md)). 410–416 **CODE** ([`95-next.md`](../95-next.md)). 417–423 **CODE** ([`96-next.md`](../96-next.md)). 424–430 **CODE + APK** ([`97-next.md`](../97-next.md)). 431–436 **PLAN** ([`98-next.md`](../98-next.md)); 437–443 **PLAN** ([`99-next.md`](../99-next.md)). Die Highlight-Datei schreibt der PC. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

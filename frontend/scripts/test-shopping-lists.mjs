@@ -29,8 +29,10 @@ const {
   listShoppingLists,
   markShoppingGotById,
   replaceStore,
+  saveSettings,
   slugShoppingList,
 } = await import('../src/engine/store.ts')
+const { handleShopping } = await import('../src/engine/shopping.ts')
 
 assert.equal(slugShoppingList('Amazon-Liste'), 'amazon')
 assert.equal(slugShoppingList('Hauptliste'), 'haupt')
@@ -38,6 +40,15 @@ assert.equal(slugShoppingList('Hauptliste'), 'haupt')
 const named = parseShopIntent('Airpods zur Amazon-Liste')
 assert.equal(named?.kind, 'add')
 assert.equal(named?.listHint, 'Amazon')
+assert.deepEqual(parseShopIntent('Erstelle eine Einkaufsliste'), { kind: 'create-list' })
+assert.deepEqual(parseShopIntent('Erstelle eine Einkaufsliste für Getränke'), {
+  kind: 'create-list',
+  name: 'Getränke',
+})
+assert.deepEqual(parseShopIntent('Lege eine Einkaufsliste für Getränke an'), {
+  kind: 'create-list',
+  name: 'Getränke',
+})
 
 await replaceStore('shopping', [])
 await replaceStore('shopping_lists', [])
@@ -69,5 +80,17 @@ assert.equal((await listShopping(amazon.id)).length, 0)
 
 const lists = await listShoppingLists()
 assert.ok(lists.length >= 2)
+
+await replaceStore('shopping', [])
+await replaceStore('shopping_lists', [])
+const created = await handleShopping('test', 'Erstelle eine Einkaufsliste für Getränke')
+assert.equal(created.handled, true)
+assert.match(created.reply, /Getränke/)
+const drinkList = (await listShoppingLists()).find((list) => list.name === 'Getränke')
+assert.ok(drinkList)
+saveSettings({ shopping_list_id: drinkList.id })
+await handleShopping('test', 'Cola kaufen')
+assert.equal((await listShopping(drinkList.id)).some((item) => item.title === 'Cola'), true)
+assert.equal((await listShopping()).filter((item) => item.title === 'Cola').length, 1)
 
 console.log('test-shopping-lists.mjs ok')

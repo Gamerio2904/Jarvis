@@ -2,10 +2,14 @@ import { parseShopIntent } from './shopping-parse.ts'
 import {
   addShopping,
   clearGotShopping,
+  createShoppingList,
+  getDefaultShoppingList,
   listShopping,
+  listShoppingLists,
   loadSettings,
   markShoppingGot,
   persistLastList,
+  saveSettings,
 } from './store.ts'
 import { syncGlance } from './glance.ts'
 import type { ToolMeta } from './tools.ts'
@@ -34,10 +38,28 @@ export async function handleShopping(
   }
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'create-list') {
+    const row = intent.name
+      ? await createShoppingList(intent.name)
+      : await getDefaultShoppingList()
+    if (!row) {
+      return { handled: true, reply: 'Der Listenname ist ungültig. Bitte verwende höchstens 64 Zeichen.' }
+    }
+    saveSettings({ shopping_list_id: row.id })
+    return {
+      handled: true,
+      reply: intent.name ? `Die Liste ${row.name} ist bereit.` : `Die Einkaufsliste ${row.name} ist bereit.`,
+      tool: { tool_status: 'executed', tool: 'shopping', action: 'create-list', label: 'Einkauf', preview: row.name },
+      lastTool: 'shopping',
+    }
+  }
+
   if (intent.kind === 'add') {
+    const lists = await listShoppingLists()
+    const active = lists.find((list) => list.id === loadSettings().shopping_list_id)
     const row = await addShopping(intent.item, {
       conversationId,
-      listHint: intent.listHint,
+      ...(intent.listHint ? { listHint: intent.listHint } : active ? { listId: active.id } : {}),
     })
     const open = (await listShopping()).filter((s) => s.status === 'open')
     rememberList(open.map((s) => s.title))

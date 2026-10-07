@@ -104,8 +104,12 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | 94 | [Tafel 18.22](./94-next.md) | **CODE** `18.22.0` — Tischplatte als Tafel: Sprintliste, PSP, Uhr, Quellen, Termin, Jobs. Finger und Jarvis schieben jedes Stück, auch aus dem Bild; Sprints 404–409 |
 | 95 | [Ablauf 18.23](./95-next.md) | **CODE** `18.23.0` — Fenster über der Tafel, Ablauf welcher Agent was tut, nach `So` gleichzeitig, jede Planungsdatei im Hausstand; Sprints 410–416 |
 | 96 | [Portfolio 18.24](./96-next.md) | **CODE** `18.24.0` — `Go` speichert das Projekt, Karten mit Shredder auf dem Hauptbildschirm; Sprints 417–423. Laufende Sideload `18.25.13` |
-| 97 | [Entwurf 18.25](./97-next.md) | **CODE + APK** `18.25.0` — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; Sprints 424–430. Das ist der letzte nummerierte Sprint |
+| 97 | [Entwurf 18.25](./97-next.md) | **CODE + APK** `18.25.0` — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; Sprints 424–430 |
+| 98 | [Notizen 18.26](./98-next.md) | **PLAN** `18.26.0` — Notizen-GUI, Homescreen-Shortcut, Sprache und belegbarer Recall; Sprints 431–436 |
+| 99 | [Todo-Listen 18.27](./99-next.md) | **PLAN** `18.27.0` — mehrere Todo-Listen, Swipe-GUI, optionale Deadlines, Sprachsteuerung und Home-Shortcut; Sprints 437–443 |
 | — | [Stände 18.25.1–18.25.13](./09-versioning.md) | **CODE + APK**, keine Sprintnummer nach 430. Reihe: Projekt, Planungsbildschirm, Plane eine App, ein Plan, Zwischenablage, Leerlauf, Gruß, Glaskarte, Gewohnheit, Ich bin Ultron, Intro, zwei Fenster, Kopplung im Hintergrund |
+| — | [Test 18.26](./TEST-18.26.md) | **PLAN** — Notizen-GUI, Sprachzugriff und belegbarer Rückruf |
+| — | [Test 18.27](./TEST-18.27.md) | **PLAN** — Todo-Listen, Swipe-Aktionen, Deadline und Abfrage bis morgen |
 | — | [Tischplatte lesbar](./tischplatte-plan.md) | **PLAN** nach `18.25.13`. S1 Karten, S2 Grenze, S3 eine Frage, S4 zwei Sichten. Noch nicht gebaut |
 | — | [Hausstand nach dem Koppeln](./hausstand-sync-plan.md) | **PLAN**. S1 Vergleich, S2 neuere Stand und Frage, S3 Ja überschreibt den älteren. Noch nicht gebaut |
 | — | [Formulierung egal](./formulierung-plan.md) | **PLAN**. S1 Kopplung egal wie gesagt, S2 jede vorhandene Aktion, S3 Unbekannt bleibt unbekannt. Noch nicht gebaut |
@@ -354,6 +358,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 410–416 | `18.23.0` | **CODE** (Ablauf, [`95-next.md`](./95-next.md)) |
 | 417–423 | `18.24.0` | **CODE** (Portfolio, [`96-next.md`](./96-next.md)). Sideload damals **`18.24.7`** |
 | 424–430 | `18.25.0` | **CODE + APK** (Entwurf, [`97-next.md`](./97-next.md)). Letzte Sprintnummer |
+| 431–436 | `18.26.0` | **PLAN** (Notizen, [`98-next.md`](./98-next.md)) |
+| 437–443 | `18.27.0` | **PLAN** (Todo-Listen, [`99-next.md`](./99-next.md)) |
 | — | `18.25.1` | **CODE + APK** Projekt anlegen, löschen, Hausstand-QR |
 | — | `18.25.2` | **CODE + APK** Planungsbildschirm für `Plane das Projekt` |
 | — | `18.25.3` | **CODE + APK** `Plane eine App` öffnet denselben Bildschirm |

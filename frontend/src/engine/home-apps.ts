@@ -11,6 +11,8 @@ export const HOME_APP_IDS = [
   'settings',
   'watchlist',
   'shopping',
+  'notes',
+  'todos',
 ] as const
 
 export type HomeAppId = (typeof HOME_APP_IDS)[number]
@@ -32,6 +34,8 @@ export const HOME_APPS: HomeApp[] = [
   { id: 'settings', label: 'Einstellungen', tint: '#9aa7a0' },
   { id: 'watchlist', label: 'Filme', tint: '#f15e6c' },
   { id: 'shopping', label: 'Einkauf', tint: '#5ecf8a' },
+  { id: 'notes', label: 'Notizen', tint: '#d9b76e' },
+  { id: 'todos', label: 'Todos', tint: '#7fc8a0' },
 ]
 
 export function isHomeAppId(id: string): id is HomeAppId {

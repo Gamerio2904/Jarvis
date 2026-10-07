@@ -1,9 +1,12 @@
 export type ShopIntent =
+  | { kind: 'create-list'; name?: string }
   | { kind: 'add'; item: string; listHint?: string }
   | { kind: 'list'; listHint?: string }
   | { kind: 'got'; item: string }
   | { kind: 'clear' }
 
+const CREATE_LIST =
+  /^\s*(?:(?:erstelle|erstell|mach(?:e)?)\s+(?:mir\s+)?(?:eine?\s+)?(?:neue?\s+)?(?:einkaufs)?liste(?:\s+(?:namens|für|mit\s+dem\s+namen)\s+(.+?))?|lege\s+(?:mir\s+)?(?:eine?\s+)?(?:neue?\s+)?(?:einkaufs)?liste(?:\s+(?:namens|für|mit\s+dem\s+namen)\s+(.+?))?\s+an)\s*[.!]?\s*$/i
 const ADD =
   /^\s*(?:einkauf(?:sliste)?\s*[:-]\s*|auf\s+die\s+einkaufsliste\s+|pack(?:e)?\s+(?:auf\s+die\s+liste\s+)?|auch\s+)(.+?)\s*$/i
 const ADD_TAIL = /^\s*(.+?)\s+auf\s+die\s+(?:einkaufs)?liste\s*$/i
@@ -22,6 +25,11 @@ const CLEAR = /^\s*(?:einkauf(?:sliste)?\s+(?:leeren|löschen)|liste\s+leer)\s*$
 export function parseShopIntent(text: string): ShopIntent | null {
   const t = text.trim()
   if (!t || t.length > 120) return null
+  const create = CREATE_LIST.exec(t)
+  if (create) {
+    const name = clean(create[1] || create[2] || '')
+    return { kind: 'create-list', ...(name ? { name } : {}) }
+  }
   if (LIST.test(t)) return { kind: 'list' }
   if (CLEAR.test(t)) return { kind: 'clear' }
   const missing = MISSING.exec(t)

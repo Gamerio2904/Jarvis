@@ -65,6 +65,8 @@ import { applyBackup, parseImportPayload } from './engine/backup.ts'
 import { type HomeAppId } from './engine/home-apps.ts'
 import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { ShoppingListsOverlay } from './ui/ShoppingListsOverlay.tsx'
+import { NotesOverlay } from './ui/NotesOverlay.tsx'
+import { TodoListsOverlay } from './ui/TodoListsOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
 import { PcDashboard } from './ui/PcDashboard.tsx'
 import { VoiceMode } from './ui/VoiceMode.tsx'
@@ -342,6 +344,8 @@ function App() {
   const [watchlistOpen, setWatchlistOpen] = useState(false)
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
   const [shoppingOpen, setShoppingOpen] = useState(false)
+  const [notesOpen, setNotesOpen] = useState(false)
+  const [todosOpen, setTodosOpen] = useState(false)
   const overlayHistRef = useRef(false)
   const tischWasRef = useRef<boolean | null>(null)
   const planAtRef = useRef<number | null>(null)
@@ -465,6 +469,38 @@ function App() {
   function closeShopping() {
     setShoppingOpen(false)
     dropOverlayHistory()
+  }
+
+  function closeNotes() {
+    setNotesOpen(false)
+    dropOverlayHistory()
+  }
+
+  function closeTodos() {
+    setTodosOpen(false)
+    dropOverlayHistory()
+  }
+
+  function openNotesSheet() {
+    setNotesOpen(true)
+    setTodosOpen(false)
+    setShoppingOpen(false)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    setSettingsPanelOpen(false)
+    setSidebarOpen(false)
+    closeVoice()
+  }
+
+  function openTodosSheet() {
+    setTodosOpen(true)
+    setNotesOpen(false)
+    setShoppingOpen(false)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    setSettingsPanelOpen(false)
+    setSidebarOpen(false)
+    closeVoice()
   }
 
   function openShoppingSheet() {
@@ -735,7 +771,7 @@ function App() {
 
   useEffect(() => {
     const overlayOpen =
-      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen
+      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen || notesOpen || todosOpen
     if (!overlayOpen) return
     if (!overlayHistRef.current) {
       window.history.pushState({ jarvisOverlay: true }, '')
@@ -750,6 +786,14 @@ function App() {
       }
       if (shoppingOpen) {
         setShoppingOpen(false)
+        return
+      }
+      if (notesOpen) {
+        setNotesOpen(false)
+        return
+      }
+      if (todosOpen) {
+        setTodosOpen(false)
         return
       }
       if (watchlistOpen) {
@@ -779,7 +823,18 @@ function App() {
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen, shoppingOpen])
+  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen, shoppingOpen, notesOpen, todosOpen])
+
+  useEffect(() => {
+    const onNotes = () => openNotesSheet()
+    const onTodos = () => openTodosSheet()
+    window.addEventListener('jarvis-open-notes', onNotes)
+    window.addEventListener('jarvis-open-todos', onTodos)
+    return () => {
+      window.removeEventListener('jarvis-open-notes', onNotes)
+      window.removeEventListener('jarvis-open-todos', onTodos)
+    }
+  })
 
   useEffect(() => {
     const el = appRef.current
@@ -1913,6 +1968,8 @@ function App() {
   const calendarLayer = useOverlay(calendarOpen)
   const watchlistLayer = useOverlay(watchlistOpen)
   const shoppingLayer = useOverlay(shoppingOpen)
+  const notesLayer = useOverlay(notesOpen)
+  const todosLayer = useOverlay(todosOpen)
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
   const lageOn = !homeOpen && (lageWide
@@ -1925,6 +1982,10 @@ function App() {
   const leisteZu = Boolean(liveHud.leiste_zu)
   const dockId = settingsPanelOpen
     ? 'settings'
+    : notesOpen
+      ? 'notes'
+      : todosOpen
+        ? 'todos'
     : shoppingOpen
       ? 'shopping'
       : watchlistOpen
@@ -2100,6 +2161,14 @@ function App() {
     }
     if (id === 'shopping') {
       openShoppingSheet()
+      return
+    }
+    if (id === 'notes') {
+      openNotesSheet()
+      return
+    }
+    if (id === 'todos') {
+      openTodosSheet()
       return
     }
     openSettings('keys')
@@ -2467,6 +2536,8 @@ function App() {
         {shoppingLayer.shown ? (
           <ShoppingListsOverlay leaving={shoppingLayer.leaving} onClose={closeShopping} />
         ) : null}
+        {notesLayer.shown ? <NotesOverlay leaving={notesLayer.leaving} onClose={closeNotes} /> : null}
+        {todosLayer.shown ? <TodoListsOverlay leaving={todosLayer.leaving} onClose={closeTodos} /> : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {
@@ -2544,7 +2615,7 @@ function App() {
           </div>
         ) : null}
 
-        {lageOn && !voiceOpen && !calendarOpen && !watchlistOpen && !shoppingOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
+        {lageOn && !voiceOpen && !calendarOpen && !watchlistOpen && !shoppingOpen && !notesOpen && !todosOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
           <Lage
             onSend={(text) => void sendMessage(text)}
             draft={draft}
@@ -2645,7 +2716,7 @@ function App() {
           </div>
         </div>
 
-        {!calendarOpen && !watchlistOpen && !shoppingOpen && !settingsLayer.shown && !voiceOpen ? (
+        {!calendarOpen && !watchlistOpen && !shoppingOpen && !notesOpen && !todosOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
           <TimerChip />
           <PcDashboard busy={busy} />
@@ -2906,6 +2977,8 @@ function App() {
           calendarOpen ||
           watchlistOpen ||
           shoppingOpen ||
+          notesOpen ||
+          todosOpen ||
           settingsPanelOpen
         }
         messages={messages}
