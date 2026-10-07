@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Der Tischplatten-Rework 444–466 ist umgesetzt; der Test-Build `18.31.0` ist noch nicht final auf einem Android-Gerät abgenommen. Die nächste geplante Qualitätsschiene 467–482 steht in [`101-next.md`](./101-next.md): geprüftes Routing, sichere Planungsübersetzung, gezielte Rückfragen und kürzere Sprachantworten. Soup wird erst nach messbarem Vergleich eingesetzt. Der Teilplan „Tischplatte lesbar“ ist in [`100-next.md`](./100-next.md) integriert. Hausstand nach dem Koppeln ([`hausstand-sync-plan.md`](./hausstand-sync-plan.md)) und Formulierung egal ([`formulierung-plan.md`](./formulierung-plan.md)) bleiben getrennte offene Schienen.
 
+### `18.31.1` — Hausstand-Import — *CODE + APK*
+
+Ältere oder unvollständige Fachwissens-Packs im Hausstand werden beim Import normalisiert. Fehlende `claims`-Arrays stürzen die Oberfläche nicht mehr ab.
+
+App-Code und Sideload **`18.31.1`** (versionCode `183101`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.25.15` — Blackscreen Kaltstart — *CODE + APK*
 
 Kaltstart landet auf dem Homescreen; `hud_force` ohne Lage-Sitzung wird auf dem Handy zurückgesetzt. Probe-Testgruppen werfen nicht mehr beim App-Import. ErrorBoundary + IndexedDB-Singleton für Einkaufs-Migration.

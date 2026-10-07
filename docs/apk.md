@@ -1,11 +1,13 @@
-# Android-APK — Test-Build `18.31.0`
+# Android-APK — Test-Build `18.31.1`
 
-Test-Build **`18.31.0`** (versionCode `183100`), debug-signiert:
+Test-Build **`18.31.1`** (versionCode `183101`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Die Android-Geräteabnahme steht noch aus. Bis sie bestanden ist, ist diese APK
 nur zum Testen gedacht und keine finale Release-Freigabe. Prüfliste:
 [`TEST-18.31.md`](./TEST-18.31.md).
+
+**Neu in 18.31.1:** Hausstand-Import normalisiert ältere Fachwissens-Packs und stürzt bei fehlenden `claims` nicht mehr ab.
 
 **Neu in 18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
 

@@ -176,9 +176,14 @@ resetKnowledgeMem()
   assert.equal(old.knowledge_packs, undefined)
   const withPacks = asBackup({
     ...old,
-    knowledge_packs: [{ id: 'x', topic: 'x', title: 'X', aliases: [], summary: '', claims: [], sources: [], origin: 'user', taught_at: '', updated_at: '', user_ok: true }],
+    knowledge_packs: [
+      { id: 'x', topic: 'x', title: 'X', aliases: [], summary: '', claims: [], sources: [], origin: 'user', taught_at: '', updated_at: '', user_ok: true },
+      { id: 'legacy', topic: 'legacy', title: 'Legacy', updated_at: '2026-09-03T00:00:00Z' },
+      null,
+    ],
   })
-  assert.equal(withPacks?.knowledge_packs?.length, 1)
+  assert.equal(withPacks?.knowledge_packs?.length, 2)
+  assert.deepEqual(withPacks?.knowledge_packs?.find((pack) => pack.id === 'legacy')?.claims, [])
 }
 
 // Settings IA

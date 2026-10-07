@@ -184,7 +184,7 @@ function FachwissenCard() {
             <li key={p.id} className="memory-item">
               <div className="memory-meta">
                 <span className="memory-cat">{p.topic}</span>
-                <span className="memory-key">{p.claims.length} Sätze</span>
+                <span className="memory-key">{(p.claims || []).length} Sätze</span>
                 <span className="memory-entities">{p.updated_at.slice(0, 10)}</span>
               </div>
               <div className="memory-value">{p.title}</div>

@@ -41,7 +41,7 @@ import {
 import { isPrefValue } from './memory-parse.ts'
 import type { ToolMeta } from './tools.ts'
 import { Capacitor } from '@capacitor/core'
-import { listKnowledgePacks, type KnowledgePack } from './knowledge-store.ts'
+import { listKnowledgePacks, normalizePack, type KnowledgePack } from './knowledge-store.ts'
 import { eventsToIcs, icsToEvents, looksLikeIcs } from './calendar-ics.ts'
 
 export const BACKUP_VERSION = 1
@@ -268,7 +268,7 @@ export function asBackup(raw: unknown): HausBackup | null {
       ? arr(o.shopping_lists)
       : undefined,
     price_watches: o.price_watches ? arr(o.price_watches) : undefined,
-    knowledge_packs: o.knowledge_packs ? arr(o.knowledge_packs) : undefined,
+    knowledge_packs: normalizeBackupPacks(o.knowledge_packs),
     conversations: o.conversations ? arr(o.conversations) : undefined,
     messages: o.messages ? arr(o.messages) : undefined,
     calendar_ics,
@@ -277,6 +277,56 @@ export function asBackup(raw: unknown): HausBackup | null {
 
 function arr<T>(v: unknown): T[] {
   return Array.isArray(v) ? (v as T[]) : []
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function normalizeBackupPacks(value: unknown): KnowledgePack[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  return value
+    .filter(isRecord)
+    .map((row) => {
+      const pack = normalizePack({
+        ...row,
+        topic: typeof row.topic === 'string' ? row.topic : '',
+        title: typeof row.title === 'string' ? row.title : undefined,
+        summary: typeof row.summary === 'string' ? row.summary : '',
+        aliases: Array.isArray(row.aliases)
+          ? row.aliases.filter((alias): alias is string => typeof alias === 'string')
+          : [],
+        claims: Array.isArray(row.claims)
+          ? row.claims
+              .filter(isRecord)
+              .map((claim) => ({
+                ...claim,
+                id: typeof claim.id === 'string' ? claim.id : '',
+                text: typeof claim.text === 'string' ? claim.text : '',
+                source_urls: Array.isArray(claim.source_urls)
+                  ? claim.source_urls.filter((url): url is string => typeof url === 'string')
+                  : [],
+                user_ok: claim.user_ok !== false,
+              }))
+          : [],
+        sources: Array.isArray(row.sources)
+          ? row.sources.filter(isRecord).map((source) => ({
+              title: typeof source.title === 'string' ? source.title : '',
+              url: typeof source.url === 'string' ? source.url : '',
+              snippet: typeof source.snippet === 'string' ? source.snippet : '',
+              provider: typeof source.provider === 'string' ? source.provider : '',
+              retrieved_at: typeof source.retrieved_at === 'string' ? source.retrieved_at : '',
+            }))
+          : [],
+        links: Array.isArray(row.links) ? row.links.filter((link): link is string => typeof link === 'string') : [],
+      })
+      return {
+        ...pack,
+        id: typeof row.id === 'string' && row.id ? row.id : pack.id,
+        taught_at: typeof row.taught_at === 'string' ? row.taught_at : pack.taught_at,
+        updated_at: typeof row.updated_at === 'string' ? row.updated_at : pack.updated_at,
+      }
+    })
 }
 
 export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
