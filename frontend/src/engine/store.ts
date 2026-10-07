@@ -4,10 +4,10 @@ import { kindFromCategory, pruneMemoryItems, confidenceFor } from './memory-laye
 import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
 import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
-import type { IdeaPlan } from './idea-plan.ts'
+import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.31.2'
+export const APP_VERSION = '18.31.3'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -1288,9 +1288,29 @@ function validateTodoDeadline(date?: string | null, time?: string | null): void 
   }
 }
 
+export function normalizeIdeaRow(value: unknown): Idea | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const row = value as Record<string, unknown>
+  if (typeof row.id !== 'string' || !row.id) return null
+  const parsedPlan = row.plan == null ? null : parsePlan(row.plan, row.id)
+  if (parsedPlan) parsedPlan.ideaId = row.id
+  return {
+    id: row.id,
+    title: typeof row.title === 'string' ? row.title : '',
+    body: typeof row.body === 'string' ? row.body : '',
+    status: row.status === 'parked' || row.status === 'done' ? row.status : 'open',
+    plan: parsedPlan,
+    source_conversation_id: typeof row.source_conversation_id === 'string' ? row.source_conversation_id : null,
+    created_at: typeof row.created_at === 'string' ? row.created_at : '',
+    updated_at: typeof row.updated_at === 'string' ? row.updated_at : '',
+  }
+}
+
 export async function listIdeas(status?: IdeaStatus): Promise<Idea[]> {
   const rows = await getAll<Idea>('ideas')
   return rows
+    .map(normalizeIdeaRow)
+    .filter((row): row is Idea => row !== null)
     .filter((r) => !status || r.status === status)
     .sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
 }

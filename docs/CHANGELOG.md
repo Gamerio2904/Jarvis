@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Der Tischplatten-Rework 444–466 ist umgesetzt; der Test-Build `18.31.2` ist noch nicht final auf einem Android-Gerät abgenommen. Die nächste geplante Qualitätsschiene 467–482 steht in [`101-next.md`](./101-next.md): geprüftes Routing, sichere Planungsübersetzung, gezielte Rückfragen und kürzere Sprachantworten. Soup wird erst nach messbarem Vergleich eingesetzt. Der Teilplan „Tischplatte lesbar“ ist in [`100-next.md`](./100-next.md) integriert. Hausstand nach dem Koppeln ([`hausstand-sync-plan.md`](./hausstand-sync-plan.md)) und Formulierung egal ([`formulierung-plan.md`](./formulierung-plan.md)) bleiben getrennte offene Schienen.
 
+### `18.31.3` — Hausstand-Import — *CODE + APK*
+
+Ältere oder beschädigte Projektpläne werden beim Hausstand-Import und beim späteren Laden validiert. Fehlende Planlisten werden ergänzt; unlesbare Pläne können die Tischplatte nicht mehr durch fehlende Listen zum Absturz bringen.
+
+App-Code und Sideload **`18.31.3`** (versionCode `183103`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.31.2` — Hausstand-Import — *CODE + APK*
 
 Fehlende oder ungültige Kalender-Erinnerungslisten sowie Watchlisten-Listen und Genres werden beim Import bereinigt. Die Kalenderansicht ist zusätzlich gegen fehlerhafte Erinnerungslisten abgesichert.

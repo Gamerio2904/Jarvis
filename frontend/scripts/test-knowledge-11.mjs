@@ -1,5 +1,6 @@
 // @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import assert from 'node:assert/strict'
+import 'fake-indexeddb/auto'
 import { APP_VERSION } from '../src/engine/store.ts'
 import { PKG_VERSION } from './app-version.mjs'
 import { parseTeachIntent } from '../src/engine/teach-parse.ts'
@@ -198,6 +199,40 @@ resetKnowledgeMem()
   assert.deepEqual(backup?.watch_movies?.[0]?.lists, [])
   assert.deepEqual(backup?.watch_movies?.[0]?.genres, [])
   assert.deepEqual(backup?.watched_movies?.[0]?.genres, [])
+}
+
+{
+  const backup = asBackup({
+    backup_version: 1,
+    settings: {},
+    ideas: [
+      {
+        id: 'legacy-plan',
+        title: 'Älterer Plan',
+        status: 'open',
+        plan: { sprints: [{ n: '1', title: 'Sprint', ziel: 'Ziel' }] },
+      },
+      { id: 'broken-plan', title: 'Unvollständiger Plan', plan: { anforderungen: null } },
+      null,
+    ],
+  })
+  assert.equal(backup?.ideas?.length, 2)
+  assert.deepEqual(backup?.ideas?.[0]?.plan?.anforderungen, [])
+  assert.equal(backup?.ideas?.[0]?.plan?.sprints.length, 1)
+  assert.equal(backup?.ideas?.[1]?.plan, null)
+
+  const { listIdeas, replaceStore } = await import('../src/engine/store.ts')
+  await replaceStore('ideas', [
+    {
+      id: 'stored-legacy-plan',
+      title: 'Gespeicherter älterer Plan',
+      status: 'open',
+      plan: { sprints: [{ n: '1', title: 'Sprint', ziel: 'Ziel' }] },
+    },
+  ])
+  const [stored] = await listIdeas()
+  assert.deepEqual(stored?.plan?.anforderungen, [])
+  assert.equal(stored?.plan?.sprints.length, 1)
 }
 
 // Settings IA

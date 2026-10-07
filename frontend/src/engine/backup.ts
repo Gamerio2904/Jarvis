@@ -20,6 +20,7 @@ import {
   listWatchMovies,
   listWatchedMovies,
   loadSettings,
+  normalizeIdeaRow,
   replaceStore,
   saveSettings,
   type CalendarEvent,
@@ -257,7 +258,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     events,
     notes: arr(o.notes),
     todos: arr(o.todos),
-    ideas: arr(o.ideas),
+    ideas: normalizeBackupIdeas(o.ideas),
     plans: Object.prototype.hasOwnProperty.call(o, 'plans') ? arr(o.plans) : undefined,
     portfolio: Object.prototype.hasOwnProperty.call(o, 'portfolio') ? arr(o.portfolio) : undefined,
     drafts: Object.prototype.hasOwnProperty.call(o, 'drafts') ? arr(o.drafts) : undefined,
@@ -273,6 +274,14 @@ export function asBackup(raw: unknown): HausBackup | null {
     messages: o.messages ? arr(o.messages) : undefined,
     calendar_ics,
   }
+}
+
+function normalizeBackupIdeas(value: unknown): Idea[] {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((row) => {
+    const idea = normalizeIdeaRow(row)
+    return idea ? [idea] : []
+  })
 }
 
 function arr<T>(v: unknown): T[] {
