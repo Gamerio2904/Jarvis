@@ -1,7 +1,13 @@
 # Test 18.31 — WBS, Exporte und Gesamtplanung
 
-**Status:** PLAN. Mit validem, minimalem, großem und absichtlich fehlerhaftem
-Plan testen.
+**Status:** Test-APK `18.31.0` / `183100` gebaut; automatisierte Teilprüfungen
+grün. Die vollständige Android-Geräteabnahme steht noch aus, daher ist dies
+ein Test-Build und keine final freigegebene Geräteversion.
+
+Testdatei: [`../releases/Jarvis.apk`](../releases/Jarvis.apk).
+SHA-256: `f75ab171b7ec61c75d2417cb2e86d5c9beab8b862095a08b5cc4136173b1b8b5`.
+Es wurde kein Android-Gerät bereitgestellt; die folgenden manuellen Abläufe
+müssen vor einer endgültigen Release-Freigabe noch auf dem Gerät durchlaufen.
 
 ## Planstruktur
 
@@ -31,4 +37,5 @@ Export einmal vollständig durchspielen. Danach normale Ideen-/Entwurf-,
 Ablauf-, Portfolio-, Research-, Memory-, Notes-, Todo- und Einkaufslisten-
 Fälle wiederholen.
 
-Erst nach vollständiger Geräteabnahme `18.31.0` / `183100` setzen.
+Die App-Version des Test-Builds ist `18.31.0` / `183100`. Die finale
+Release-Freigabe erfolgt erst nach vollständiger Geräteabnahme.

@@ -29,7 +29,9 @@ function isProjectDir(url: string): boolean {
   return /libhunt\.com|github\.io|awesome-/i.test(url)
 }
 
-function preferCode(sources: Array<{ url: string; title?: string; snippet?: string }>) {
+function preferCode(
+  sources: Array<{ url: string; title?: string; snippet?: string; provider?: string; retrieved_at?: string }>,
+) {
   const rows = sources.filter((s) => s.url)
   const code = rows.filter((s) => isCodeHost(s.url))
   const rest = rows.filter((s) => !isCodeHost(s.url))
@@ -331,7 +333,7 @@ export async function handleBoard(conversationId: string, text: string): Promise
               id: newId(),
               kind: 'research' as const,
               title: source.title || source.url,
-              text: source.snippet || `Abgerufen über ${source.provider} am ${source.retrieved_at}.`,
+              text: source.snippet || `Quelle: ${source.url}`,
               url: source.url,
             })),
           ]

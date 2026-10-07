@@ -1,7 +1,11 @@
-# Android-APK — App-Code `18.25.15`
+# Android-APK — Test-Build `18.31.0`
 
-App-Code und Sideload **`18.25.15`** (versionCode `182515`):
+Test-Build **`18.31.0`** (versionCode `183100`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Die Android-Geräteabnahme steht noch aus. Bis sie bestanden ist, ist diese APK
+nur zum Testen gedacht und keine finale Release-Freigabe. Prüfliste:
+[`TEST-18.31.md`](./TEST-18.31.md).
 
 **Neu in 18.25.15:** Kaltstart zeigt wieder den Homescreen (Blackscreen-Fix), ErrorBoundary statt leerer WebView, stabilere IndexedDB/Einkaufs-Migration.
 

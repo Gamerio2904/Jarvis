@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import http from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
+import { PKG_VERSION } from './app-version.mjs'
 import { buildAss, extractWords, handleClip as pcClip, renderLocal } from '../../desktop/clip-job.mjs'
 
 const mem = Object.create(null)
@@ -30,7 +31,7 @@ const { APP_VERSION, loadSettings, saveSettings } = await import('../src/engine/
 
 const GOLD = 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ'
 
-assert.equal(APP_VERSION, '18.25.13')
+assert.equal(APP_VERSION, PKG_VERSION)
 assert.equal(routeForEval(GOLD), 'clip')
 assert.equal(routeForEval('Clip-Status'), 'clip')
 assert.equal(routeForEval('YouTube auf dem Fernseher Rick and Morty'), 'tv')

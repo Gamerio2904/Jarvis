@@ -4,6 +4,7 @@ import {
   getPending,
   listIdeas,
   loadSettings,
+  newId,
   persistLastList,
   putIdea,
   readLastList,
@@ -138,6 +139,13 @@ function fillFromClauses(plan: IdeaPlan, parts: string[], title: string) {
   const ziel = (body.join('. ') || parts.join('. ') || title).slice(0, 220)
   const first = blankSprint('1', title.slice(0, 48), ziel)
   const tasks = parts.length ? parts : [title]
+  plan.anforderungen = tasks.map((satz, i) => ({
+    id: `A${i + 1}`,
+    satz,
+    abnahme: '',
+    gateway: 'offen',
+  }))
+  first.anforderungen = plan.anforderungen.map((need) => need.id)
   first.lieferumfang = tasks.map((task, i) => ({
     id: `S1-${i + 1}`,
     task: task.slice(0, 160),

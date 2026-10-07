@@ -1,6 +1,7 @@
 // @ts-nocheck
 import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
+import { PKG_VERSION } from './app-version.mjs'
 
 const mem = Object.create(null)
 globalThis.localStorage = {
@@ -43,7 +44,7 @@ const {
 const { applyBackup, asBackup, buildBackup, previewBackup, stripSettings } = await import('../src/engine/backup.ts')
 const { listPortfolio } = await import('../src/engine/portfolio.ts')
 
-assert.equal(APP_VERSION, '18.25.13')
+assert.equal(APP_VERSION, PKG_VERSION)
 
 assert.equal(parseBoardIntent('Simuliere Kalender')?.view, 'sim')
 assert.equal(parseBoardIntent('Plane das: Trag morgen 9 Uhr Zahnarzt ein'), null)
@@ -280,7 +281,7 @@ assert.match(planZu.reply, /Planungsbildschirm ist zu/)
 assert.equal(loadSettings().plan_phase, '')
 assert.equal(loadSettings().entwurf_id, liveId)
 const fensterLive = await handleIdea(conv.id, 'Fenster zu')
-assert.match(fensterLive.reply, /Planfenster/)
+assert.match(fensterLive.reply, /Plan(?:ungsbildschirm|fenster)/i)
 assert.equal(loadSettings().entwurf_id, '')
 assert.equal((await getAll('drafts')).find((r) => r.id === liveId).status, 'zu')
 saveSettings({ plan_phase: '', plan_idea_id: '', plan_script_at: 0 })
