@@ -287,7 +287,7 @@ export function ScriptStage({
         <p className="script-clock">{clock}</p>
         <div className="script-title">
           <p className="script-kicker">Auftrag</p>
-          <h2>{idea ? idea.title : 'Noch kein Skript'}</h2>
+          <h2>{idea ? idea.title : 'Noch keine Idee'}</h2>
         </div>
         <p className={`script-phase${locked ? ' is-go' : ''}`}>{locked ? 'Fest' : live ? 'Live' : 'Bereit'}</p>
       </header>

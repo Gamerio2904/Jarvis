@@ -10389,3 +10389,44 @@ html.theme-wipe-dark::before {
   max-width: 28rem;
   word-break: break-word;
 }
+
+/* Geräteklassen: data-device="phone|tablet|desktop" (device-class.ts) */
+html[data-device='phone'] .app {
+  grid-template-columns: 1fr;
+}
+html[data-device='phone'] .messages {
+  padding-left: max(10px, env(safe-area-inset-left));
+  padding-right: max(10px, env(safe-area-inset-right));
+}
+html[data-device='phone'] .composer-wrap {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+html[data-device='phone'] button,
+html[data-device='phone'] .icon-btn {
+  min-height: 44px;
+}
+html[data-device='tablet'] .app {
+  grid-template-columns: 240px 1fr;
+}
+html[data-device='tablet'][data-orient='portrait'] .app {
+  grid-template-columns: 200px 1fr;
+}
+html[data-device='tablet'] .messages {
+  max-width: 900px;
+  margin-inline: auto;
+  width: 100%;
+}
+html[data-device='tablet'] .composer-wrap {
+  max-width: 900px;
+  margin-inline: auto;
+  width: 100%;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+html[data-device='tablet'] button,
+html[data-device='tablet'] .icon-btn {
+  min-height: 40px;
+}
+html[data-device='desktop'] .messages {
+  max-width: 1100px;
+  margin-inline: auto;
+}

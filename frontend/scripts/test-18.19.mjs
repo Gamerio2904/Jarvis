@@ -81,7 +81,8 @@ assert.match(app, /jarvis-settings/)
 assert.doesNotMatch(app, /tldraw|@xyflow/)
 
 const bench = src('src/ui/Workbench.tsx')
-assert.match(bench, /Kein Auftrag|Idee/)
 assert.doesNotMatch(bench, /Gesicht|portrait|hologram/i)
+const stage = src('src/ui/ScriptStage.tsx')
+assert.match(stage, /Noch keine Idee|Kein Auftrag|Idee/)
 
 console.log('ok 18.19 tischplatte')

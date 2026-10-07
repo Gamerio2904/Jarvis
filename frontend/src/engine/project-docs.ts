@@ -211,6 +211,10 @@ export function downloadTextFile(name: string, text: string, mime = 'text/markdo
 }
 
 export function fileFor(idea: Idea, kind: ProjectFileKind): { name: string; data: unknown } {
+  const validation = validatePlan(projectPlan(idea))
+  if (!validation.ok) {
+    throw new Error(`Projektdatei nicht exportiert: ${validation.errors.join(' ')}`)
+  }
   const slug = projectSlug(idea.title)
   if (kind === 'psp') return { name: `${slug}-psp.json`, data: pspDocument(idea) }
   if (kind === 'sprints') return { name: `${slug}-sprints.json`, data: sprintsDocument(idea) }

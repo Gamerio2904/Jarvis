@@ -27,6 +27,23 @@ export async function handleFolder(
       lastTool: 'chat-folder',
     }
   }
+  if (intent.kind === 'current') {
+    const row = (await listConversations()).find((conversation) => conversation.id === conversationId)
+    if (!row) {
+      return {
+        handled: true,
+        reply: 'Das aktuelle Gespräch finde ich nicht.',
+        tool: { tool_status: 'error', tool: 'chat-folder', action: 'missing', label: 'Ordner' },
+        lastTool: 'chat-folder',
+      }
+    }
+    return {
+      handled: true,
+      reply: `Der Chat „${row.title}“ liegt im Ordner ${displayFolder(row.folder_id || 'sonstiges')}.`,
+      tool: { tool_status: 'executed', tool: 'chat-folder', action: 'current', label: 'Ordner' },
+      lastTool: 'chat-folder',
+    }
+  }
   const convs = await listConversations()
   const wanted = intent.folder
   const rows = wanted ? convs.filter((c) => (c.folder_id || 'sonstiges') === wanted) : convs

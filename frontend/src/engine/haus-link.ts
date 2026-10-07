@@ -4,7 +4,7 @@ import type { ChatBlock } from './chat-blocks.ts'
 import { qrImageDataUrl } from './xfer-codec.ts'
 import { hausNative, hausOffer } from '../native/haus.ts'
 
-export type HausLinkIntent = 'offer' | 'scan'
+export type HausLinkIntent = 'offer' | 'scan' | 'sync_unavailable'
 
 const OFFER =
   /^\s*(?:hausstand\s+(?:übertragen|uebertragen)|(?:qr|qe)[\s-]*code\s+für\s+(?:den\s+)?hausstand|hausstand[\s-]*(?:qr|qe)[\s-]*code)\s*[.!]?\s*$/i
@@ -15,6 +15,13 @@ export function parseHausLink(text: string): HausLinkIntent | null {
   const t = text.trim()
   if (!t || t.length > 80) return null
   if (/\b(?:pc|rechner)\b/i.test(t)) return null
+  if (
+    !/\b(?:qr|qe|code)\b/i.test(t) &&
+    /\b(?:synchronisier\w*|verbind\w*|koppel\w*)\b/i.test(t) &&
+    /\b(?:handy|telefon|smartphone|tablet)\b/i.test(t)
+  ) {
+    return 'sync_unavailable'
+  }
   if (OFFER.test(t)) return 'offer'
   if (SCAN.test(t)) return 'scan'
   return null

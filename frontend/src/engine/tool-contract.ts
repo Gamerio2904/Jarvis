@@ -40,11 +40,73 @@ export type ToolContract = {
   agent: string
   description: string
   uses: Array<keyof ToolArgs>
+  /** Required and optional arguments are part of the reviewed action contract. */
+  optional?: Array<keyof ToolArgs>
   /** Der deutsche Satz, den die Parser sehen. `null` = Argumente taugen nicht. */
   render: (args: ToolArgs) => string | null
 }
 
 const CONTROL = /[\u0000-\u001f\u007f]/g
+
+export type MissingActionField = { field: keyof ToolArgs; label: string }
+
+const FIELD_LABELS: Record<keyof ToolArgs, string> = {
+  minutes: 'Dauer in Minuten',
+  time: 'Uhrzeit',
+  date: 'Datum',
+  title: 'Inhalt oder Betreff',
+  state: 'Ein- oder Ausschalten',
+}
+
+export function missingActionFields(contract: ToolContract, args: ToolArgs): MissingActionField[] {
+  const optional = new Set(contract.optional || [])
+  return contract.uses
+    .filter((field) => !optional.has(field) && (args[field] == null || !String(args[field]).trim()))
+    .map((field) => ({ field, label: FIELD_LABELS[field] }))
+}
+
+export function actionFieldAnswer(field: keyof ToolArgs, raw: string): string | null {
+  const text = raw.trim()
+  if (!text || text.length > 120) return null
+  if (field === 'title') return cleanTitle(text)
+  if (field === 'minutes') {
+    const match = /^(\d{1,3})(?:\s*(?:min(?:uten?)?|minutes?))?[.!]?$/i.exec(text)
+    const value = match ? minutesOf(match[1]) : null
+    return value == null ? null : String(value)
+  }
+  if (field === 'time') {
+    const match = /^(?:um\s+)?([01]?\d|2[0-3])(?::([0-5]\d))?(?:\s*uhr)?[.!]?$/i.exec(text)
+    if (!match) return null
+    return `${String(Number(match[1])).padStart(2, '0')}:${match[2] || '00'}`
+  }
+  if (field === 'date') {
+    const day = text.toLowerCase().replace(/[.!]$/, '')
+    if (day === 'heute' || day === 'morgen' || day === 'today' || day === 'tomorrow') return day
+    const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day)
+    if (iso && dayOf(day) != null) return day
+    const german = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(day)
+    if (!german) return null
+    const normalized = `${german[3]}-${german[2].padStart(2, '0')}-${german[1].padStart(2, '0')}`
+    return dayOf(normalized) == null ? null : normalized
+  }
+  if (field === 'state') {
+    if (/^(?:an|ein|einschalten|on)$/i.test(text)) return 'on'
+    if (/^(?:aus|ausschalten|off)$/i.test(text)) return 'off'
+  }
+  return null
+}
+
+export function actionRequirements(): Array<{
+  name: string
+  required: Array<keyof ToolArgs>
+  optional: Array<keyof ToolArgs>
+}> {
+  return TOOL_CONTRACTS.map((contract) => ({
+    name: contract.name,
+    required: contract.uses.filter((field) => !(contract.optional || []).includes(field)),
+    optional: contract.optional || [],
+  }))
+}
 
 /**
  * Freitext aus einer Modellantwort. Er landet in einer Erinnerung oder auf
@@ -98,9 +160,18 @@ function dayOf(raw: string | null): string | null {
   if (near != null) return near === '' ? 'heute' : near
   const hit = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(raw).trim())
   if (!hit) return null
+  const year = Number(hit[1])
   const month = Number(hit[2])
   const day = Number(hit[3])
-  if (month < 1 || month > 12 || day < 1 || day > 31) return null
+  const date = new Date(Date.UTC(year, month - 1, day))
+  if (
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) return null
   return `am ${day}.${month}.`
 }
 
@@ -131,6 +202,7 @@ export const TOOL_CONTRACTS: ToolContract[] = [
     description:
       'Remind the user of something today or tomorrow. Needs a short subject and a time as HH:MM. For a date further out use create_calendar_event.',
     uses: ['title', 'time', 'date'],
+    optional: ['date'],
     render: (a) => {
       const c = clockOf(a.time)
       const title = cleanTitle(a.title)
@@ -226,6 +298,7 @@ export const TOOL_CONTRACTS: ToolContract[] = [
     agent: 'weather',
     description: 'Read the weather forecast. Title is an optional German place name.',
     uses: ['title'],
+    optional: ['title'],
     render: (a) => {
       const place = cleanTitle(a.title)
       return place ? `Wetter heute in ${place}` : 'Wetter heute'
@@ -236,6 +309,7 @@ export const TOOL_CONTRACTS: ToolContract[] = [
     agent: 'sport',
     description: 'Read a German football league table. Title is empty for Bundesliga or names the 2. Liga.',
     uses: ['title'],
+    optional: ['title'],
     render: (a) => {
       const title = (a.title || '').toLowerCase()
       if (/2|zweit/.test(title)) return 'Wie steht die 2. Bundesliga?'

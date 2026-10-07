@@ -73,3 +73,14 @@ assert.ok(groupsForLane('story').some((g) => g.title === '🟢 18.20 Tafel der R
 assert.deepEqual(unassignedCopyTitles(), [])
 
 console.log('ok test-tablet-layout')
+
+const { deviceClassFor } = await import('../src/engine/device-class.ts')
+assert.equal(deviceClassFor(390, 844, true), 'phone')
+assert.equal(deviceClassFor(844, 390, true), 'phone')
+assert.equal(deviceClassFor(820, 1180, true), 'tablet')
+assert.equal(deviceClassFor(1180, 820, true), 'tablet')
+assert.equal(deviceClassFor(1600, 900, false), 'desktop')
+assert.match(css, /html\[data-device='phone'\] \.app/)
+assert.match(css, /html\[data-device='tablet'\] \.messages/)
+assert.match(app, /watchDeviceClass/)
+console.log('ok device-class')

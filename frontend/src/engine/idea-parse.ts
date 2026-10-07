@@ -5,6 +5,9 @@ import { isMemoryWrite } from './memory-parse.ts'
 import { parseReminderIntent } from './remind-parse.ts'
 
 export type IdeaIntent =
+  | { kind: 'blank' }
+  | { kind: 'delete_unsupported' }
+  | { kind: 'table_lookup'; query: string }
   | { kind: 'create'; title: string; body: string }
   | { kind: 'list'; all?: boolean }
   | { kind: 'park'; query?: string; index?: number }
@@ -62,6 +65,13 @@ export function parseIdeaIntent(text: string): IdeaIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t) return null
   if (SKIP_NOTE.test(t) || SKIP_MEM.test(t) || SKIP_TEACH.test(t)) return null
+  if (
+    /^\s*(?:ich\s+)?(?:möchte|will)\s+(?:eine\s+)?(?:neue\s+)?app\s+planen[,. ]+(?:öffne(?:\s+mir)?|mach(?:e)?)\s+(?:ein\s+)?leeres?\s+(?:dokument|projekt)\s*$/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'blank' }
+  }
   if (parseToolIntent(t)) return null
   if (parseTeachIntent(t)) return null
   if (isMemoryWrite(t) && !/\bidee\b/i.test(t)) return null
@@ -85,6 +95,16 @@ export function parseIdeaIntent(text: string): IdeaIntent | null {
   }
 
   if (parseReminderIntent(t)) return null
+
+  if (/^\s*(?:lösche|entferne)\s+(?:alle\s+)?(?:projektdateien|projektdateien|ideen|projekte)\s*[.!?]*$/i.test(t)) {
+    return { kind: 'delete_unsupported' }
+  }
+  const tableLookup =
+    /^\s*(?:was\s+(?:ist|liegt)\s+(?:mit\s+)?|wo\s+ist\s+)(.+?)\s+(?:auf|an)\s+(?:der\s+)?(?:tischplatte|planungsbildschirm)\s*[?!]*$/i.exec(
+      t,
+    ) ||
+    /^\s*was\s+ist\s+mit\s+(.+?)\s+(?:das\s+)?(?:auf|an)\s+(?:der\s+)?(?:tischplatte|planungsbildschirm)\b.*$/i.exec(t)
+  if (tableLookup) return { kind: 'table_lookup', query: tableLookup[1].trim() }
 
   const todoSprint = /^\s*mach(?:e)?\s+sprint\s+(\d+)\s+zum\s+todo\s*$/i.exec(t)
   if (todoSprint) return { kind: 'todo_sprint', n: Number(todoSprint[1]) }

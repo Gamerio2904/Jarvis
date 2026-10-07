@@ -121,6 +121,7 @@ import {
 import { ReplyOrb } from './ui/ReplyOrb.tsx'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session.ts'
 import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate.ts'
+import { watchDeviceClass } from './engine/device-class.ts'
 
 function opensDriveOverlay(tool?: ToolMeta | null): boolean {
   if (!tool) return false
@@ -683,6 +684,8 @@ function App() {
     window.addEventListener('ultron-fenster-status', onFenster)
     return () => window.removeEventListener('ultron-fenster-status', onFenster)
   }, [])
+
+  useEffect(() => watchDeviceClass(window), [])
 
   useEffect(() => {
     /** Kaltstart: Homescreen statt leerer Lage/Chat-Schicht (Blackscreen-Falle). */
@@ -2315,7 +2318,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div className="brand-copy">
             <h1>Ultron</h1>
-            <p>Handy · v{APP_VERSION}</p>
+            <p>{window.matchMedia('(min-width: 700px)').matches ? 'Tablet' : 'Handy'} · v{APP_VERSION}</p>
           </div>
           <button
             type="button"

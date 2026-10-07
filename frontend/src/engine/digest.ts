@@ -1,6 +1,4 @@
-import { completeGemini, geminiReady } from './gemini.ts'
 import { listMessages, addNote } from './store.ts'
-import { loadWorkingMemory } from './working-memory.ts'
 import type { ToolMeta } from './tools.ts'
 import { parseDigestIntent } from './digest-parse.ts'
 
@@ -33,9 +31,6 @@ export async function handleDigest(
   }
 
   const history = await listMessages(conversationId)
-  const work = loadWorkingMemory()
-    .map((r) => r.line)
-    .join('\n')
   const slice = history.slice(-8)
   if (slice.length < 2) {
     return {
@@ -45,38 +40,11 @@ export async function handleDigest(
       lastTool: 'digest',
     }
   }
-  const blob = [work && `Arbeitsgedächtnis:\n${work}`, slice.map((m) => `${m.role === 'assistant' ? 'Ultron' : 'Sie'}: ${m.content}`).join('\n')]
-    .filter(Boolean)
-    .join('\n\n')
-  let line = ''
-  if (geminiReady()) {
-    try {
-      const out = await completeGemini(
-        [
-          {
-            role: 'system',
-            content:
-              'Siezen. Kurz. Drei Sätze: worum ging es, was merken, was offen. Kein Umsatz-Coach, kein Sales. Deutsch.',
-          },
-          { role: 'user', content: blob.slice(0, 6000) },
-        ],
-        undefined,
-        { maxOutputTokens: 280, timeoutMs: 8_000 },
-      )
-      line = (out.text || '').trim()
-    } catch {
-      line = ''
-    }
-  }
-  if (!line) {
-    line = localDigest(
-      slice.filter((m) => !/als notiz gelegt|kein sales-coach/i.test(m.content)),
-    )
-  }
+  const line = localDigest(slice)
   await addNote(line, conversationId)
   return {
     handled: true,
-    reply: `${line} Als Notiz gelegt. Kein Sales-Coach.`,
+    reply: `${line} Als Notiz gespeichert.`,
     tool: { tool_status: 'executed', tool: 'digest', action: 'summary', label: 'Gespräch', preview: line.slice(0, 80) },
     lastTool: 'digest',
   }
@@ -90,7 +58,7 @@ async function lastUserLine(conversationId: string): Promise<string> {
   return ''
 }
 
-function localDigest(msgs: { role: string; content: string }[]): string {
+export function localDigest(msgs: { role: string; content: string }[]): string {
   const topics: string[] = []
   for (const m of msgs) {
     if (m.role !== 'user') continue

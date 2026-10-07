@@ -12,6 +12,16 @@ export function parseRecallIntent(text: string): string | null {
     /^\s*wann\s+ist\s+(?:der\s+|die\s+)?(.+?)(?:'?s)?\s+geburtstag\s*$/i.exec(t)
   if (whenBday) return whenBday[1].replace(/[.!?]+$/g, '').replace(/^der\s+|^die\s+/i, '').trim()
   if (/^\s*was\s+war\s+(gestern|heute)\b/i.test(t)) return 'episode'
+  const personalValue =
+    /^\s*(?:was\s+ist|wie\s+(?:lautet|war|heißt))\s+(?:nochmal\s+)?mein(?:e|en|em|er)?\s+(.+?)\s*$/i.exec(t) ||
+    /^\s*was\s+habe\s+ich\s+(?:als|für)\s+(.+?)\s+(?:gespeichert|notiert)\s*$/i.exec(t)
+  if (personalValue) {
+    const q = personalValue[1]
+      .replace(/[.!?]+$/g, '')
+      .replace(/^(?:der|die|das|den|dem)\s+/i, '')
+      .trim()
+    if (q.length >= 3 && !/^(?:du|ich|mich|dir|mir|man|heute|gestern)$/i.test(q)) return q
+  }
   const a = /^\s*was\s+weißt\s+du\s+über\s+(?:den\s+|die\s+|das\s+)?(.+?)\s*$/i.exec(t)
   if (a) return a[1].replace(/[.!?]+$/g, '').trim()
   /** Dieselbe Frage ans Gedächtnis, nur aus Nutzersicht gesprochen. */

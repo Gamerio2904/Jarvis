@@ -12,7 +12,13 @@ import { agentById, fromHandler, weatherLast } from './agents/catalog.ts'
 import { runAgent } from './agents/runner.ts'
 import { curatorPreflight } from './agents/curator.ts'
 import { beginAgentTurn, pushAgentTrace, setLastUserFacts, setPolicyAsk } from './agents/trace-store.ts'
-import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract.ts'
+import {
+  actionFieldAnswer,
+  confirmedUtterance,
+  contractOf,
+  looksCommandish,
+  missingActionFields,
+} from './tool-contract.ts'
 import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
@@ -109,6 +115,90 @@ async function answerProposal(
   pending: ToolPending,
   text: string,
 ): Promise<DirectorTurn | null> {
+  if (pending.args?.stage === 'missing_field') {
+    if (NO.test(text)) {
+      await clearPending(conversationId)
+      const reply = 'Okay, nicht gemacht.'
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: pending.action || PROPOSAL_TOOL }, userFacts: reply }
+    }
+    const competing = decideTurn(makeDirectorCtx(conversationId, text))
+    if (competing.pick.kind === 'run' && competing.pick.id !== pending.action) {
+      await clearPending(conversationId)
+      return null
+    }
+    const name = String(pending.args.tool_name || '')
+    const field = pending.args.field
+    const contract = contractOf(name)
+    const rawArgs = pending.args.tool_args
+    if (
+      !contract ||
+      !rawArgs ||
+      typeof rawArgs !== 'object' ||
+      Array.isArray(rawArgs) ||
+      typeof field !== 'string' ||
+      !contract.uses.includes(field as keyof import('./tool-contract.ts').ToolArgs)
+    ) {
+      await clearPending(conversationId)
+      const reply = 'Die offene Rückfrage ist ungültig. Ich habe nichts ausgeführt.'
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: pending.action || PROPOSAL_TOOL }, userFacts: reply }
+    }
+    const typedField = field as keyof import('./tool-contract.ts').ToolArgs
+    const value = actionFieldAnswer(typedField, text)
+    const args = { ...(rawArgs as import('./tool-contract.ts').ToolArgs) }
+    if (value == null) {
+      const label = missingActionFields(contract, args).find((item) => item.field === typedField)?.label || 'Angabe'
+      const reply = `Bitte nenne ${label} eindeutig. Ich habe noch nichts ausgeführt.`
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: PROPOSAL_TOOL }, userFacts: reply }
+    }
+    args[typedField] = value
+    const missing = missingActionFields(contract, args)
+    if (missing.length) {
+      const next = missing[0]
+      await setPending({
+        ...pending,
+        args: { stage: 'missing_field', tool_name: name, tool_args: args, field: next.field },
+        preview: name,
+        created_at: new Date().toISOString(),
+      })
+      const reply = `Welche ${next.label} soll ich verwenden?`
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: PROPOSAL_TOOL }, userFacts: reply }
+    }
+    const proposal = { tool: name, args }
+    const utterance = confirmedUtterance(proposal, (value) => {
+      const decision = decideTurn(makeDirectorCtx(conversationId, value))
+      return decision.pick.kind === 'run' ? decision.pick.id : null
+    })
+    if (!utterance) {
+      await clearPending(conversationId)
+      const reply = 'Die Angaben passen nicht eindeutig zu einer Aktion. Ich habe nichts ausgeführt.'
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: pending.action || PROPOSAL_TOOL }, userFacts: reply }
+    }
+    if (agentById(contract.agent)?.sideEffect !== 'read') {
+      await setPending({
+        ...pending,
+        action: contract.agent,
+        args: { stage: 'confirmation', utterance },
+        preview: utterance,
+        created_at: new Date().toISOString(),
+      })
+      const reply = `Verstanden als „${utterance}". Soll ich?`
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: PROPOSAL_TOOL }, userFacts: reply }
+    }
+    await clearPending(conversationId)
+    const decision = decideTurn(makeDirectorCtx(conversationId, utterance))
+    if (decision.pick.kind !== 'run' || decision.pick.id !== contract.agent) {
+      const reply = 'Die Aktion ist nicht mehr eindeutig. Ich habe nichts ausgeführt.'
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: PROPOSAL_TOOL }, userFacts: reply }
+    }
+    return runPicked(contract.agent, decision.ctx, conversationId, utterance)
+  }
   const utterance = String(pending.args?.utterance || '')
   if (NO.test(text)) {
     await clearPending(conversationId)
@@ -165,6 +255,36 @@ async function rescueByProposal(conversationId: string, ctx: RouteCtx): Promise<
   if (!looksCommandish(ctx.text) || !proposeReady()) return null
   const t0 = performance.now()
   const proposal = await proposeTool(ctx.text)
+  const contract = proposal ? contractOf(proposal.tool) : null
+  if (proposal && contract) {
+    const missing = missingActionFields(contract, proposal.args)
+    if (missing.length) {
+      const first = missing[0]
+      await setPending({
+        conversation_id: conversationId,
+        tool: PROPOSAL_TOOL,
+        action: contract.agent,
+        args: {
+          stage: 'missing_field',
+          tool_name: proposal.tool,
+          tool_args: proposal.args,
+          field: first.field,
+        },
+        preview: proposal.tool,
+        created_at: new Date().toISOString(),
+      })
+      pushAgentTrace({
+        agentId: 'propose',
+        phase: 'parse',
+        ms: Math.round(performance.now() - t0),
+        ok: false,
+        detail: `Rückfrage ${proposal.tool}: ${first.field}`,
+      })
+      const reply = `Welche ${first.label} soll ich verwenden?`
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: PROPOSAL_TOOL }, userFacts: reply }
+    }
+  }
   let decision: (ReturnType<typeof decideTurn>) | null = null
   const utterance = proposal
     ? confirmedUtterance(proposal, (text) => {
@@ -172,7 +292,6 @@ async function rescueByProposal(conversationId: string, ctx: RouteCtx): Promise<
         return decision.pick.kind === 'run' ? decision.pick.id : null
       })
     : null
-  const contract = proposal ? contractOf(proposal.tool) : null
   pushAgentTrace({
     agentId: 'propose',
     phase: 'parse',
@@ -221,9 +340,19 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
 
   const pending = await getPending(conversationId)
   if (pending?.tool === PROPOSAL_TOOL) {
+    const age = Date.now() - Date.parse(pending.created_at)
+    if (!Number.isFinite(age) || age > 24 * 60 * 60 * 1000) {
+      await clearPending(conversationId)
+      if (YES.test(text)) {
+        const reply = 'Die offene Aktion ist abgelaufen. Ich habe nichts ausgeführt.'
+        setLastUserFacts(reply)
+        return { hit: { reply, lastTool: PROPOSAL_TOOL }, userFacts: reply }
+      }
+    } else {
     const answered = await answerProposal(conversationId, pending, text)
     if (answered) return answered
     await clearPending(conversationId)
+    }
   } else if (pending?.tool === APP_FLAG_TOOL) {
     const answered = await answerFlag(conversationId, pending, text)
     if (answered) return answered

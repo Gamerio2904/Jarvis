@@ -12,6 +12,8 @@ const FAKE_WATCH_ACCESS =
   /kein(?:en)?\s+(?:direkten?\s+)?zugriff\s+auf\s+(?:ihre\s+)?(?:film|watch)?liste|den\s+film\s+nicht\s+in\s+ihrer\s+liste\s+gespeichert|nicht\s+in\s+ihrer\s+liste\s+gespeichert|keine\s+bestätigung.{0,80}(?:entfernt|gelöscht|duplikat)/i
 const FAKE_DONE =
   /aus\s+dem\s+kalender\s+entfernt|die\s+erinnerungen\s+sind\s+gelöscht|keinen\s+zugriff\s+auf\s+die\s+aktuelle\s+anzeige|keine\s+aktionen\s+auf\s+dem\s+display/i
+const FAKE_UNVERIFIED_ACTION =
+  /\b(?:alle\s+(?:projektdateien|ideen|dateien)\s+(?:im\s+.+?\s+)?(?:sind|wurden)\s+gelöscht|(?:der\s+)?(?:harte\s+)?neustart\s+(?:der\s+)?(?:oberfläche|anzeige|display)\s+(?:ist\s+)?(?:eingeleitet|erzwungen)|(?:erzwinge|erzwingen)\s+(?:ich\s+)?(?:den\s+)?(?:harten\s+)?neustart|(?:auf\s+der\s+)?tischplatte\s+(?:wird|ist)\s+.+?\s+angezeigt|(?:das\s+)?(?:projekt|dokument)\s+(?:ist|wurde)\s+(?:geöffnet|angelegt|gelöscht)\b)/i
 
 const ACTION_VERB =
   /\b(?:verschoben|hinzugefügt|gespeichert|erledigt|angelegt|gelöscht|gestartet|geöffnet|verbunden|bestellt|geschickt|gesendet|kopiert|umbenannt|eingetragen|ausgeführt|gekoppelt|aufgenommen)\b/i
@@ -91,7 +93,12 @@ export function scrubReply(text: string, opts?: { searched?: boolean; names?: st
   if (INJECT.test(out)) {
     return 'Netter Versuch. Weiter im Chat?'
   }
-  if (FAKE_CLAIM.test(out) || FAKE_WATCH_ACCESS.test(out) || FAKE_DONE.test(out)) {
+  if (
+    FAKE_CLAIM.test(out) ||
+    FAKE_WATCH_ACCESS.test(out) ||
+    FAKE_DONE.test(out) ||
+    FAKE_UNVERIFIED_ACTION.test(out)
+  ) {
     return 'Das habe ich nicht ausgeführt. Den Befehl bitte klar sagen.'
   }
   if (FAKE_CARPLAY.test(out)) {
@@ -213,13 +220,45 @@ export function isHelpCommand(text: string): boolean {
 export function isPersonaAsk(text: string): boolean {
   const t = text.trim()
   if (!t || t.length > 80) return false
-  return /^\s*(?:bist\s+du\s+(?:chatgpt|claude|grok|alexa|siri|eine\s+ki|ein\s+(?:ki|assistent|sprachassistent))|wie\s+heißt\s+du)\s*\??\s*$/i.test(
+  return /^\s*(?:wer\s+bist\s+du|bist\s+du\s+(?:chatgpt|claude|grok|alexa|siri|eine\s+ki|ein\s+(?:ki|assistent|sprachassistent))|wie\s+heißt\s+du)\s*\??\s*$/i.test(
     t,
   )
 }
 
 export const PERSONA_ASK_TEXT =
-  'Ultron auf diesem Handy. Kein ChatGPT, kein Claude. Hirn: Gemini wenn ein Key da ist, sonst Groq, sonst das kleine lokale 0,5B. Timer, Kugel und Wetter laufen über Parser, auch ohne Modell.'
+  `Ich bin Ultron, Version ${APP_VERSION}. Ich laufe lokal in dieser App. Für Chat nutze ich Gemini oder Groq, wenn eingerichtet, sonst das lokale Modell. Timer, Wetter und weitere feste Befehle laufen über lokale Funktionen.`
 
 export const HELP_TEXT =
-  `Ultron auf diesem Handy, Version ${APP_VERSION}. Smalltalk, merken/vergessen (Widerspruch gilt auch im Plaudern; Quelle nennen, Unsicheres fliegt beim Aufräumen), Einkaufsliste, Todos, Notizen, Erinnerungen mit Zeit — ohne Zeit fragt Ultron wann. Wecker, Timer (spricht), lokaler Kalender, Losgehen, Fahrmodus intern nicht Apple: Straße aus dem Router, Overlay ist die Karte außer bei Spotify. Lautstärke am Steuer ist Spotify, am Fernseher nur mit „Fernseher“. Stopp trifft das letzte Medium, nicht alles — während der Welt-Tour bricht Stopp die Kette. Standort, Uhrzeit, Akku, Taschenlampe. WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN, Broadlink), ohne Tuya-Cloud. Anruf und SMS nach Nachfrage. Telefonbuch nach Ja, Liste auf Zuruf. E-Mail lesen mit App-Passwort, Entwurf nach Ja — nie still gesendet. Mail von Hand wie Tel. Sprachnachricht geht als SMS-Text, keine Voice-Note. Bar in der Nähe. Taxi nach Ja: Anruf oder App, nie „ist bestellt“. Bahn nur wenn Sie Bahn sagen. Wetter nur Open-Meteo, Luft und Sonne nur auf Nachfrage. Unwetter DWD, Schulferien, EZB-Kurs. Nachrichten Tagesschau, sonst Netz, nichts erfinden. Weltlage auf Nachfrage: zitierte Meldungen, Serie wenn Quelle da, Szenario kein Orakel. Welt-Tour: „Was ist heute so auf der Welt passiert“ öffnet die Kugel, Länder leuchten, Seite erklärt, Zoom nacheinander — Tagesschau und DW, kein Geheim-Feed. Hirn: Gemini zuerst wenn Key da, sonst Groq, sonst 0,5B. Mit Gemini sucht Ultron von selbst, wenn Zahlen fehlen — Wikipedia und Destatis zuerst. Feiertage DE. Gespräch suchen und in der Liste löschen. Filme: IMDb über OMDb, wo gratis JustWatch; Spiel … Film öffnet den Fernseher. PC: JarvisPC.bat, QR aus dem Fenster scannen, Capability-Levels vom Agent, unbekanntes Starten erst nach Ja, Bild echt, Klick gesendet nicht ausgeführt; PC live ist LAN-Einzelbilder, WebRTC nur wenn der Peer steht; PC-IP nur 192.168 oder 10, Keys nicht im Chat; Traceroute am PC, vom Handy kein ICMP. Datei-Knopf: PDF und Text lokal, Foto/OCR nur mit Gemini. Word und Excel nicht. Gescannte PDFs als Foto der Seite. LocateAnything am PC nur wenn JarvisSee da ist, sonst ehrlich aus — keine erfundenen Boxen. Bundesliga OpenLigaDB, ISS, Mond lokal, Open Food Facts, Open Library, OpenSky, Gesetze mit Link ohne Rat, Schach im Chat und in der Tablet-Lage. Lage: Kacheln, Körper-Schema oder virtueller Globus (Zoom in NASA-Satellitenfoto Stunden alt, Zeig London, Was ist das für eine Stadt — kein Live-Video). Stehend: Gemini-Stimme Algieba wenn der Key da ist, Fahrt Native ohne Stille. Am Steuer stört HUD plus Notify, kein Fake-Anruf. Hausstand unter Einstellungen exportieren — Datei enthält Keys. Ein Name: Ultron. Wake-Word „Ultron“, nicht Freitag. Widget: Fläche hören, Mikrofon schaltet Wake an/aus. Fernseher Tizen plus Fire TV. App-Start nur nach Registry und Native-OK, Schirm sehe ich nicht. Kein SmartThings. Ventilator über Brücke oder ehrlich fehlt. Optional Gemini. Rabatt-Suche unter Einstellungen zuschaltbar. Debug: Kategorien, neues Gespräch, JSON-Download. Spur Probe: jeder Prompt einzeln kopieren. Kein Apple CarPlay, kein stilles WhatsApp — Antwort nur über die sichtbare Meldung nach Ja, sonst Chat-Link. Kein Play Store.`
+  `Ultron · Version ${APP_VERSION}
+
+GEDÄCHTNIS
+Merken und vergessen; Notizen und gespeicherte Angaben wiederfinden. Fragen Sie zum Beispiel: „Was ist meine Matrikelnummer?“ Quelle nennen; Unsicheres bleibt als unsicher markiert.
+
+ORGANISATION
+Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer und lokaler Kalender. Bei fehlenden Pflichtangaben frage ich nach. Widget: Fläche hören; Mikrofon schaltet Wake an/aus.
+
+INFORMATION
+Wetter (Open-Meteo), Unwetterwarnungen (DWD), Nachrichten mit Quellen, Weltlage auf Nachfrage, EZB-Kurse, Schulferien, Bundesliga, ISS und Mond. Weltlage mit zitierten Meldungen, kein Orakel.
+
+MEDIEN
+Filme suchen und Watchlist verwalten. Fernseher (Tizen/Fire TV) und Spotify steuern, wenn eingerichtet. „Stopp“ stoppt das zuletzt verwendete Medium.
+
+GERÄT UND HAUS
+Standort, Uhrzeit, Akku und Taschenlampe. Lokale WLAN-Steckdosen, wenn eingerichtet; kein SmartThings und keine Tuya-Cloud. Anruf und SMS nach Rückfrage. Telefonbuch nach Ja; die Kontaktliste gibt es auf Zuruf. E-Mail lesen mit App-Passwort; Entwurf erst nach Ja. Antworten: kein stilles WhatsApp-Senden, nur über die sichtbare Meldung nach Ja.
+
+UNTERWEGS
+Fahrmodus, Orte in der Nähe und Taxi-/Bahninformationen. Eine Anfrage bedeutet nicht, dass etwas gebucht wurde.
+
+TISCHPLATTE UND LAGE
+Ideen und Projekte planen, Pläne prüfen und exportieren. Lage mit Kacheln, Körperschema und virtuellem Globus.
+
+PC
+JarvisPC.bat starten und QR aus dem Fenster scannen. Capability-Levels begrenzen die Befehle. WebRTC nur wenn der Peer steht; Keys nicht im Chat. Ein gesendeter Befehl ist nicht automatisch ein bestätigter Erfolg.
+
+DATEIEN UND DATEN
+Datei-Knopf: PDF und Text lokal lesen; Bilder/OCR benötigen Gemini. Hausstand in Einstellungen exportieren oder manuell per QR übertragen; der Export kann Zugangsschlüssel enthalten. Keine Word-/Excel-Auswertung.
+
+GRENZEN
+Keine automatische Tablet-Handy-Synchronisierung. Aktionen mit Folgen brauchen Bestätigung; bei fehlendem Zugriff sage ich es ausdrücklich. Gemini-Stimme Algieba, wenn eingerichtet. kein Fake-Anruf und kein Apple CarPlay. Spur Probe: jeden Prompt einzeln kopieren.
+
+Schreiben Sie /hilfe für diese Übersicht.`

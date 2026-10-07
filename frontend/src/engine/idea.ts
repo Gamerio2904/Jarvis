@@ -557,6 +557,38 @@ export async function handleIdea(
     return { handled: false }
   }
 
+  if (intent.kind === 'delete_unsupported') {
+    return pack(
+      'Eine geprüfte Funktion zum Löschen aller Projektdateien gibt es nicht. Es wurde nichts gelöscht.',
+      'delete_unsupported',
+    )
+  }
+
+  if (intent.kind === 'table_lookup') {
+    const rows = await listIdeas()
+    const query = intent.query.toLowerCase()
+    const hit = rows.find((row) => `${row.title} ${row.body} ${JSON.stringify(row.plan || {})}`.toLowerCase().includes(query))
+    return pack(
+      hit
+        ? `„${intent.query}“ steht im gespeicherten Inhalt des Projekts „${hit.title}“. Die aktuelle Bildschirmdarstellung kann ich nicht live auslesen.`
+        : `Im gespeicherten Inhalt der Projekte finde ich „${intent.query}“ nicht. Die aktuelle Bildschirmdarstellung kann ich nicht live auslesen.`,
+      'table_lookup',
+      hit?.title,
+    )
+  }
+
+  if (intent.kind === 'blank') {
+    saveSettings({
+      plan_phase: 'live',
+      plan_script_at: Date.now(),
+      plan_idea_id: '',
+      tischplatte_on: true,
+      tischplatte_view: 'psp',
+      workbench_open: true,
+    })
+    return pack('Die leere Planung ist geöffnet. Welche App möchten Sie planen?', 'blank')
+  }
+
   if (intent.kind === 'create') {
     const row = await addIdea(intent.title, intent.body, conversationId)
     const plan = emptyPlan(row.id, row.body || row.title)

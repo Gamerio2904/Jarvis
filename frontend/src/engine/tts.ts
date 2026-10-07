@@ -1,6 +1,7 @@
 import { postJson } from './http-json.ts'
 import { markSkip, parseSkipMap } from './cloud-errors.ts'
 import { isGeminiConfigured, loadSettings, saveSettings } from './store.ts'
+import { preservesVoiceFacts } from './voice-facts.ts'
 
 const TTS_MODELS = [
   'gemini-2.5-flash-preview-tts',
@@ -63,7 +64,8 @@ export function spokenForGemini(text: string): string {
   if (spoken.length <= 720) return spoken
   const cut = spoken.slice(0, 720)
   const last = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '))
-  return last > 80 ? cut.slice(0, last + 1).trim() : cut.trim()
+  const shortened = last > 80 ? cut.slice(0, last + 1).trim() : cut.trim()
+  return preservesVoiceFacts(spoken, shortened) ? shortened : spoken
 }
 
 export function ttsModelsToTry(cached?: string, skipRaw?: string): string[] {

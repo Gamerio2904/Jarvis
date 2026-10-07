@@ -134,7 +134,6 @@ const KEY_FIELDS: Array<keyof Settings> = [
   'opensky_client_secret',
   'opensky_access',
   'outlook_fred_key',
-  'carto_api_key',
   'tv_token',
   'mail_user',
   'mail_pass',
@@ -545,7 +544,7 @@ export async function shareOrDownloadBackup(includeChats: boolean): Promise<stri
   return native.message || 'Datei nicht in Downloads geschrieben. Ordner Downloads prüfen oder nochmal.'
 }
 
-export function parseBackupIntent(text: string): 'export' | 'import' | 'offer' | 'scan' | null {
+export function parseBackupIntent(text: string): 'export' | 'import' | 'offer' | 'scan' | 'sync_unavailable' | null {
   const link = parseHausLink(text)
   if (link) return link
   const t = text.trim()
@@ -560,6 +559,14 @@ export async function handleBackup(
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; blocks?: ChatBlock[] }> {
   const intent = parseBackupIntent(text)
   if (!intent) return { handled: false }
+  if (intent === 'sync_unavailable') {
+    return {
+      handled: true,
+      reply:
+        'Automatische Synchronisierung gibt es noch nicht. Manuell: Beide Geräte ins gleiche WLAN bringen, unter Einstellungen → Hausstand auf einem Gerät den Code anzeigen, auf dem anderen scannen und die Importvorschau bestätigen.',
+      tool: { tool_status: 'executed', tool: 'backup', action: 'sync_unavailable', label: 'Hausstand' },
+    }
+  }
   if (intent === 'scan') {
     openHausScan()
     return {

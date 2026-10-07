@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.31.3'
+export const APP_VERSION = '18.31.4'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(

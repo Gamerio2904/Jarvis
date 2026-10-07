@@ -6,6 +6,7 @@ export type FolderId = (typeof FOLDER_IDS)[number]
 export type FolderIntent =
   | { kind: 'move'; folder: FolderId }
   | { kind: 'list'; folder?: FolderId }
+  | { kind: 'current' }
 
 export function normalizeFolder(raw: string): FolderId | null {
   const t = raw.trim().toLowerCase()
@@ -39,6 +40,8 @@ export function parseFolderIntent(text: string): FolderIntent | null {
     const folder = normalizeFolder(list[1])
     return { kind: 'list', folder: folder || undefined }
   }
-  if (/^\s*(?:chat[- ]?ordner|ordner(?:liste)?)\s*$/i.test(t)) return { kind: 'list' }
+  if (/^\s*chat\s+ordner\s*$/i.test(t)) return { kind: 'current' }
+  if (/^\s*chat-ordner\s*$/i.test(t)) return { kind: 'list' }
+  if (/^\s*ordner(?:liste)?\s*$/i.test(t)) return { kind: 'list' }
   return null
 }
