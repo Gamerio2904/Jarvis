@@ -4,6 +4,11 @@
 grün. Die vollständige Android-Geräteabnahme steht noch aus, daher ist dies
 ein Test-Build und keine final freigegebene Geräteversion.
 
+Bestanden: Frontend-Build, Idea/IdeaPlan, Projektdateien, Board, App-UI,
+Keyboard-Inset, Entwurf, Rest-/Wissensregression sowie Android
+`testDebugUnitTest` und `assembleDebug`. Der Clip-Test blieb mangels `ffmpeg`
+außen vor.
+
 Testdatei: [`../releases/Jarvis.apk`](../releases/Jarvis.apk).
 SHA-256: `f75ab171b7ec61c75d2417cb2e86d5c9beab8b862095a08b5cc4136173b1b8b5`.
 Es wurde kein Android-Gerät bereitgestellt; die folgenden manuellen Abläufe
