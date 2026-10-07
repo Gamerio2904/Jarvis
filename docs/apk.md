@@ -1,13 +1,19 @@
-# Android-APK — Test-Build `18.31.3`
+# Android-APK — Test-Build `18.31.5`
 
-Test-Build **`18.31.3`** (versionCode `183103`), debug-signiert:
+Test-Build **`18.31.5`** (versionCode `183105`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-Die Android-Geräteabnahme steht noch aus. Bis sie bestanden ist, ist diese APK
-nur zum Testen gedacht und keine finale Release-Freigabe. Prüfliste:
-[`TEST-18.31.md`](./TEST-18.31.md).
+Die Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
+keine finale Release-Freigabe. Die Änderungen seit 18.31.3 und die Testschritte
+für 18.31.4/18.31.5 stehen in der
+[detaillierten Testanleitung](./testanleitung-18-31-4-5.md).
 
-**Neu in 18.31.3:** Hausstand-Import und Laden normalisieren ältere oder beschädigte Projektpläne, damit die Tischplatte bei fehlenden Plan-Listen nicht abstürzt.
+**Neu seit 18.31.3:** 18.31.4 ergänzt Review-Fixes, Pflichtfeld-Rückfragen,
+responsive Geräteklassen und Datensatz-Governance. 18.31.5 ergänzt Tabletmodus,
+Wake-Wort und Hausstand-Server mit automatischem WLAN-Abgleich sowie Echo-Theme.
+
+**18.31.3:** Hausstand-Import und Laden normalisieren ältere oder beschädigte
+Projektpläne, damit die Tischplatte bei fehlenden Plan-Listen nicht abstürzt.
 
 **Neu in 18.31.2:** Hausstand-Import normalisiert fehlende Kalender-Erinnerungs- und Film-Listen; Kalenderansicht toleriert ungültige Erinnerungslisten.
 
