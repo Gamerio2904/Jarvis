@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Stände:** Zuletzt veröffentlichter Sideload `18.25.13` (versionCode `182513`). Lokaler Test-Build `18.25.15` enthält die implementierten Notes-/Todo-Änderungen aus Sprints 431–443; deren Release-Versionen `18.26.0`/`18.27.0` benötigen noch ihre dokumentierten Gates. Die nächste geplante Schiene ist der Tischplatten-Rework [`100-next.md`](./100-next.md), Sprints 444–466, Versionen `18.28.0`–`18.31.0`. Diese Aussage bezeichnet Planung, nicht bereits freigegebenen Code.
+**Stände:** Der Test-Build `18.31.0` / versionCode `183100` ist gebaut und enthält den Tischplatten-Rework; finale Geräteabnahme und Release-Freigabe sind offen. Notizen/Todos (Sprints 431–443) sowie Tischplatten-Rework (444–466) sind lokal umgesetzt. Nächste geplante Schiene: [`101-next.md`](./101-next.md), Sprints 467–482, Versionen `18.32.0`–`18.35.0`; Soup bleibt eine zu prüfende Option, kein vorausgesetzter App-Bestandteil.
 
 Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Zwei Fenster, Handy per Satz: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md), gebaut in `18.25.12`, Kopplung im Hintergrund in `18.25.13`. Der alte Teilplan „Tischplatte lesbar“ ist in den Tischplatten-Rework [`100-next.md`](./100-next.md) integriert. Hausstand nach dem Koppeln: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Formulierung egal: [`formulierung-plan.md`](./formulierung-plan.md). Historische Flächen-Bugs: [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
 
@@ -107,14 +107,15 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | 97 | [Entwurf 18.25](./97-next.md) | **CODE + APK** `18.25.0` — stumme App-Entwürfe auf der Tafel, drei Rahmen, Wahl per Satz; Sprints 424–430 |
 | 98 | [Notizen 18.26](./98-next.md) | **CODE im lokalen Test-Build; Release-Gate offen** `18.26.0` — Notizen-GUI, Shortcut, Sprache und Recall; Sprints 431–436 |
 | 99 | [Todo-Listen 18.27](./99-next.md) | **CODE im lokalen Test-Build; Release-Gate offen** `18.27.0` — mehrere Listen, Swipe-GUI, Deadlines und Sprachsteuerung; Sprints 437–443 |
-| 100 | [Tischplatte-Rework](./100-next.md) | **PLAN** `18.28.0`–`18.31.0` — Stabilität, Intake/Research, sichere Simulationen, WBS und Exporte; Sprints 444–466 |
-| — | [Stände 18.25.1–18.25.15](./09-versioning.md) | **CODE + lokaler Test-APK**, keine Sprintnummer; veröffentlichter Sideload bleibt `18.25.13` |
+| 100 | [Tischplatte-Rework](./100-next.md) | **CODE; Geräte-Gate offen** `18.28.0`–`18.31.0` — Stabilität, Intake/Research, sichere Simulationen, WBS und Exporte; Sprints 444–466 |
+| 101 | [Ultron, Soup und Modellqualität](./101-next.md) | **PLAN** `18.32.0`–`18.35.0` — Routing, Planung, Rückfragen und Sprachantworten; Sprints 467–482 |
+| — | [Stände 18.25.1–18.31.0](./09-versioning.md) | **CODE + Test-APK** `18.31.0`, Geräte-Gate offen |
 | — | [Test 18.26](./TEST-18.26.md) | **PLAN** — Notizen-GUI, Sprachzugriff und belegbarer Rückruf |
 | — | [Test 18.27](./TEST-18.27.md) | **PLAN** — Todo-Listen, Swipe-Aktionen, Deadline und Abfrage bis morgen |
 | — | [Test 18.28](./TEST-18.28.md) | **PLAN** — Projektzustand, Routing, PSP/Sprints und Resume |
 | — | [Test 18.29](./TEST-18.29.md) | **PLAN** — Intake, bestätigte Recherche, Provenienz und Datenschutz |
 | — | [Test 18.30](./TEST-18.30.md) | **PLAN** — deklarative GUI- und Workflow-Simulation |
-| — | [Test 18.31](./TEST-18.31.md) | **PLAN** — WBS, Export-Roundtrip und End-to-End |
+| — | [Test 18.31](./TEST-18.31.md) | **Test-Build; Geräte-Gate offen** — WBS, Export-Roundtrip und End-to-End |
 | — | [Tischplatte lesbar](./tischplatte-plan.md) | Historischer Teilplan; in [`100-next.md`](./100-next.md), Sprints 444–466 integriert |
 | — | [Hausstand nach dem Koppeln](./hausstand-sync-plan.md) | **PLAN**. S1 Vergleich, S2 neuere Stand und Frage, S3 Ja überschreibt den älteren. Noch nicht gebaut |
 | — | [Formulierung egal](./formulierung-plan.md) | **PLAN**. S1 Kopplung egal wie gesagt, S2 jede vorhandene Aktion, S3 Unbekannt bleibt unbekannt. Noch nicht gebaut |
@@ -124,7 +125,7 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | — | [Test 18.24](./TEST-18.24.md) | Portfolio-Sätze, in der App ab `18.24.0` |
 | — | [Test 18.24.6](./TEST-18.24.6.md) | Raum- und Objekt-Scan, Sideload `18.24.7` |
 | — | [Test 18.25](./TEST-18.25.md) | Entwurf-Sätze, in der App ab `18.25.0` |
-| — | [APK](./apk.md) | Sideload `18.25.13`; Test: [`TEST-18.25.md`](./TEST-18.25.md) |
+| — | [APK](./apk.md) | Test-Build `18.31.0`; Geräte-Gate: [`TEST-18.31.md`](./TEST-18.31.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -368,7 +369,11 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 444–449 | `18.28.0` | **PLAN** (Tischplatte stabilisieren, [`100-next.md`](./100-next.md)) |
 | 450–454 | `18.29.0` | **PLAN** (Intake und Research, [`100-next.md`](./100-next.md)) |
 | 455–460 | `18.30.0` | **PLAN** (Simulationen, [`100-next.md`](./100-next.md)) |
-| 461–466 | `18.31.0` | **PLAN** (WBS und Export, [`100-next.md`](./100-next.md)) |
+| 461–466 | `18.31.0` | **CODE; Geräte-Gate offen** (WBS und Export, [`100-next.md`](./100-next.md)) |
+| 467–470 | `18.32.0` | **PLAN** (Befehlsverständnis und Soup-Vergleich, [`101-next.md`](./101-next.md)) |
+| 471–474 | `18.33.0` | **PLAN** (Planwunsch in sichere Vorschau und Export, [`101-next.md`](./101-next.md)) |
+| 475–478 | `18.34.0` | **PLAN** (fehlende Angaben gezielt klären, [`101-next.md`](./101-next.md)) |
+| 479–482 | `18.35.0` | **PLAN** (kurze, natürliche Sprachantworten, [`101-next.md`](./101-next.md)) |
 | — | `18.25.1` | **CODE + APK** Projekt anlegen, löschen, Hausstand-QR |
 | — | `18.25.2` | **CODE + APK** Planungsbildschirm für `Plane das Projekt` |
 | — | `18.25.3` | **CODE + APK** `Plane eine App` öffnet denselben Bildschirm |
@@ -386,4 +391,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | — | nach `18.25.13` | **PLAN** Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) S1–S3 |
 | — | nach `18.25.13` | **PLAN** Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md) S1–S3 |
 
-**Stände:** Zuletzt veröffentlichter Sideload `18.25.13`, lokaler Test-Build `18.25.15`. Sprints 431–443 sind im Test-Build enthalten; Versionsfreigabe `18.26.0`/`18.27.0` bleibt offen. Rework-Plan 444–466: [`100-next.md`](./100-next.md). Die Lesbarkeitsplanung ist dort integriert; Hausstand- und Formulierungspläne bleiben getrennt. Index: [`42-planned.md`](./42-planned.md).
+**Stände:** Test-Build `18.31.0` / `183100`; finale Geräteabnahme offen. Umsetzung Tischplatte 444–466 liegt vor. Neue Folgeschiene 467–482 ist PLAN: [`101-next.md`](./101-next.md). Vorheriger Plan: [`100-next.md`](./100-next.md). Hausstand- und Formulierungspläne bleiben getrennt. Index: [`42-planned.md`](./42-planned.md).

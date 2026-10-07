@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** Zuletzt veröffentlichter Sideload **`18.25.13`**, versionCode `182513`. Lokaler Debug-/Test-Build **`18.25.15`** enthält den implementierten Notes-/Todo-Code aus Sprints 431–443, aber noch nicht die Release-Versionen `18.26.0`/`18.27.0`. Der nächste geplante Tischplatten-Rework ist [`100-next.md`](./100-next.md), Sprints 444–466, Versionen `18.28.0`–`18.31.0`.
+> **Stände:** Test-Build **`18.31.0`**, versionCode `183100`; die finale Android-Geräteabnahme ist offen. Die Tischplatten-Umsetzung 444–466 ist enthalten. Nächste Planung: [`101-next.md`](./101-next.md), Sprints 467–482, Versionen `18.32.0`–`18.35.0`. Ein Test-Build ist keine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1059,26 +1059,40 @@ erst Sprint 443 setzt die Versionsnummer nach bestandener Gold-Spur.
 | `18.27.0` | Fälligkeitsabfrage über Listen | 442 CODE* |
 | `18.27.0` | Gold und Release-Gate, versionCode `182700` | 443 GATE OFFEN* |
 
-`CODE*` bezeichnet Implementierung im lokalen Debug-/Test-Build `18.25.15`;
-QA-Abnahme und Produktversionsfreigabe sind noch offen.
+`CODE*` bezeichnet Implementierung im lokalen Test-Build `18.31.0`;
+Android-Geräteabnahme und finale Produktversionsfreigabe sind noch offen.
 
-### `18.28`–`18.31` — Tischplatte: Planungsmodus-Rework [`100-next.md`](./100-next.md) **PLAN**
+### `18.28`–`18.31` — Tischplatte: Planungsmodus-Rework [`100-next.md`](./100-next.md) **CODE*; Geräte-Gate offen**
 
-Der Rework verwendet den vorhandenen Idea-/IdeaPlan-/Workbench-Stack. Er
-beginnt nach den Release-Gates von `18.26.0` und `18.27.0`; Sprintnummern
-431–443 sind vergeben und werden nicht wiederverwendet. Die vier Stufen sind
-separat abnehmbar:
+Der Rework verwendet den vorhandenen Idea-/IdeaPlan-/Workbench-Stack. Sprints
+444–466 sind im Test-Build `18.31.0` enthalten. Die finale manuelle
+Android-Abnahme ist offen; deshalb ist keine endgültige Gerätefreigabe
+behauptet. Sprintnummern 431–443 bleiben belegt.
 
 | Version | Ziel | Sprints |
 |---------|------|---------|
-| `18.28.0` (`182800`) | Zustands-/Routing-Stabilität, getrennte PSP-/Sprintansicht | 444–449 PLAN |
-| `18.29.0` (`182900`) | Intake, gezielte Klärung, zustimmungsbasierte Research-Provenienz | 450–454 PLAN |
-| `18.30.0` (`183000`) | Deklarative SIM-GUI und nebenwirkungsfreier Workflow-Dry-Run | 455–460 PLAN |
-| `18.31.0` (`183100`) | Validierte WBS, PRD, Mermaid, versioniertes JSON und Prompt-Leitfaden | 461–466 PLAN |
+| `18.28.0` (`182800`) | Zustands-/Routing-Stabilität, getrennte PSP-/Sprintansicht | 444–449 CODE* |
+| `18.29.0` (`182900`) | Intake, gezielte Klärung, zustimmungsbasierte Research-Provenienz | 450–454 CODE* |
+| `18.30.0` (`183000`) | Deklarative SIM-GUI und nebenwirkungsfreier Workflow-Dry-Run | 455–460 CODE* |
+| `18.31.0` (`183100`) | Validierte WBS, PRD, Mermaid, versioniertes JSON und Prompt-Leitfaden | 461–466 CODE* |
 
-Versionen werden erst nach jeweiligem Gold-Gate erhöht. Das genaue
-Architekturziel, kritische Abweichungen vom Gemini-Vorschlag und
-Abnahmekriterien stehen in [`100-next.md`](./100-next.md).
+`CODE*` bedeutet Test-Build vorhanden, nicht finale Geräteabnahme oder
+Release-Freigabe. Architekturziel, kritische Abweichungen und Abnahmekriterien
+stehen in [`100-next.md`](./100-next.md).
+
+### `18.32`–`18.35` — Ultron: Verstehen, Planen und Sprechen [`101-next.md`](./101-next.md) **PLAN**
+
+Sprints 467–482 prüfen Sprachrouting, sichere Planungsübersetzung,
+kontextgebundene Rückfragen und kurze Sprachantworten. Soup ist ein optionales
+Trainingswerkzeug; Qualitäts-, Lizenz-, Datenschutz- und Geräteprüfung gehen
+einem möglichen Einbau voraus.
+
+| Version | Ziel | Sprints |
+|---------|------|---------|
+| `18.32.0` (`183200`) | Befehle erkennen; geprüfte Daten und Soup-Vergleich | 467–470 PLAN |
+| `18.33.0` (`183300`) | Planwunsch in validierte Vorschau und Exporte übersetzen | 471–474 PLAN |
+| `18.34.0` (`183400`) | Eindeutigen Kontext nutzen, fehlende Pflichtangaben erfragen | 475–478 PLAN |
+| `18.35.0` (`183500`) | Faktengetreue kurze Sprachantworten und Gesamt-Gate | 479–482 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

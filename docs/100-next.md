@@ -1,4 +1,4 @@
-# 100 — Tischplatte: Planungsmodus-Rework **PLAN** (`18.28`–`18.31`)
+# 100 — Tischplatte: Planungsmodus-Rework **CODE; Geräte-Gate offen** (`18.28`–`18.31`)
 
 **Bedingung:** Der Planungsmodus soll aus einer Projektidee einen prüfbaren,
 interaktiven und exportierbaren Plan machen. Intake, Rückfragen, optionale
@@ -6,15 +6,17 @@ Recherche, Simulation, Sprintplanung und Exporte müssen als nachvollziehbarer
 Arbeitsgang zusammenhängen, ohne bestehende Projekt-, Ablauf-, Entwurfs- oder
 Portfoliofunktionen zu beschädigen.
 
-**Planungsstand:** PLAN; noch nicht umgesetzt. Sprints **444–466**. Die
+**Planungsstand:** Die Umsetzung und der Test-Build `18.31.0` liegen vor;
+Geräteabnahme und finale Freigabe sind offen. Die ursprünglichen Sprints
+**444–466** sind umgesetzt. Die
 Versionen `18.26.0` / `18.27.0` sind für die bereits angelegten Notiz- und
 Todo-Schienen vorgesehen. Dieser Rework beginnt daher nach deren Release-Gates
 mit `18.28.0`. Keine Kalenderdaten werden angenommen.
 
-**Ausgangslage:** Der lokale Code-Stand ist `18.25.15`; der Test-APK-Build
-enthält bereits die Arbeit aus Sprints 431–443. Versionierung und Freigabe für
-`18.26.0` / `18.27.0` sind davon getrennte Release-Schritte. Sprintnummern
-431–443 bleiben belegt.
+**Ausgangslage zur Planung:** Die Planung entstand auf Basis von
+`18.25.15`; inzwischen enthält der Test-Build `18.31.0` die umgesetzten
+Arbeiten aus Sprints 431–466. Der Test-Build ist noch nicht final auf einem
+Android-Gerät abgenommen. Sprintnummern 431–443 bleiben belegt.
 
 ## 1. Zielbild
 
@@ -221,3 +223,12 @@ Die bereits vorhandene Lesbarkeitsplanung
 Der alte Fehlerplan [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md) ist
 historisch; seine Sprintnummern 438–443 wurden inzwischen für die
 Todo-Schiene vergeben und werden hier nicht wiederverwendet.
+
+## 10. Folgeschiene
+
+Die nächste geplante Fähigkeitsreihe baut nach bestandenem
+`18.31.0`-Geräte-/Release-Gate auf dieser Tischplatte auf:
+[`101-next.md`](./101-next.md), Sprints 467–482, `18.32.0`–`18.35.0`.
+Sie prüft kontrolliert Soup für Routing, Planübersetzung, gezielte
+Rückfragen und kurze Sprachantworten; ein Soup-Einbau ist nicht vorab
+beschlossen.

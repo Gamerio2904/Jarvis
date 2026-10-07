@@ -688,7 +688,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S69.6 | Als Nutzer will ich fällige Aufgaben über alle Listen abfragen. | Must | idea | Sprint 442; „bis morgen“ filtert offene Todos nach Deadline |
 | S69.7 | Als Nutzer will ich, dass Deadline und Listenmigration zuverlässig getestet sind. | Must | idea | Sprint 443; Release-Gate vor `18.27.0` |
 
-### E70 — Tischplatte: Planungsmodus-Rework `18.28`–`18.31` [`100-next.md`](./100-next.md) **PLAN**
+### E70 — Tischplatte: Planungsmodus-Rework `18.28`–`18.31` [`100-next.md`](./100-next.md) **CODE*; Geräte-Gate offen**
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
@@ -698,6 +698,16 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S70.4 | Als Nutzer will ich externe Recherche nur nach Zustimmung und mit sichtbaren Quellen nutzen. | Must | ready | Sprints 452–454; kein Bypass von Zugriffssperren |
 | S70.5 | Als Nutzer will ich GUI und Ablauf gefahrlos simulieren. | Must | ready | Sprints 455–460; keine ausführbare Modell-HTML/Side Effects |
 | S70.6 | Als Nutzer will ich eine prüfbare WBS und konsistente Projektdateien erhalten. | Must | ready | Sprints 461–466; Exporte aus demselben IdeaPlan |
+
+### E71 — Ultron: Verstehen, Planen und Sprechen `18.32`–`18.35` [`101-next.md`](./101-next.md) **PLAN**
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S71.1 | Als Nutzer will ich, dass Ultron Sprachbefehle zuverlässig der richtigen vorhandenen Funktion zuordnet. | Must | idea | 467–470; Goldfälle, Vergleich zur Baseline, unsichere Zuordnung fragt nach |
+| S71.2 | Als Nutzer will ich, dass Ultron natürliche Planungswünsche sicher in Plan, Vorschau und Projektdateien übersetzt. | Must | idea | 471–474; IdeaPlan-Validierung, Vorschau und Export aus derselben Quelle |
+| S71.3 | Als Nutzer will ich bei fehlenden Angaben gezielt gefragt werden oder eine eindeutige passende Information aus dem Kontext nutzen lassen. | Must | idea | 475–478; kein Raten, keine Aktion vor Pflichtangaben |
+| S71.4 | Als Nutzer will ich beim Sprechen kurze, natürliche Antworten hören, ohne dass Fakten verloren gehen. | Must | idea | 479–482; Zahlen, Namen, Zeiten, Status und Quellen bleiben unverändert |
+| S71.5 | Als Nutzer will ich, dass Soup nur verwendet wird, wenn Daten, Qualität, Lizenz und Gerätetauglichkeit geprüft sind. | Must | idea | Soup bleibt optional; keine privaten Trainingsdaten oder unbestätigte Modellaktionen |
 
 ---
 

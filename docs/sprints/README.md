@@ -425,40 +425,59 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 441 | [`sprint-441.md`](./sprint-441.md) | `18.27.0` | Sprachsteuerung Todo-Listen | **CODE*** Must |
 | 442 | [`sprint-442.md`](./sprint-442.md) | `18.27.0` | Abfrage nach Deadline | **CODE*** Must |
 | 443 | [`sprint-443.md`](./sprint-443.md) | `18.27.0` | Todo-Gold und Release-Gate | **GATE OFFEN*** Must |
-| 444 | [`sprint-444.md`](./sprint-444.md) | `18.28.0` | Tischplatten-Baseline | **PLAN** Must |
-| 445 | [`sprint-445.md`](./sprint-445.md) | `18.28.0` | Planungszustand an Projekt binden | **PLAN** Must |
-| 446 | [`sprint-446.md`](./sprint-446.md) | `18.28.0` | Planungsbefehle eindeutig routen | **PLAN** Must |
-| 447 | [`sprint-447.md`](./sprint-447.md) | `18.28.0` | IdeaPlan validieren | **PLAN** Must |
-| 448 | [`sprint-448.md`](./sprint-448.md) | `18.28.0` | PSP-/Sprintansicht trennen | **PLAN** Must |
-| 449 | [`sprint-449.md`](./sprint-449.md) | `18.28.0` | Stabilitäts-Gate | **PLAN** Must |
-| 450 | [`sprint-450.md`](./sprint-450.md) | `18.29.0` | Intake-Bedingung erhalten | **PLAN** Must |
-| 451 | [`sprint-451.md`](./sprint-451.md) | `18.29.0` | Klärung und Bestätigung | **PLAN** Must |
-| 452 | [`sprint-452.md`](./sprint-452.md) | `18.29.0` | Lokales Wissen zuordnen | **PLAN** Must |
-| 453 | [`sprint-453.md`](./sprint-453.md) | `18.29.0` | Research-Zustimmung und Provenienz | **PLAN** Must |
-| 454 | [`sprint-454.md`](./sprint-454.md) | `18.29.0` | Research-Gate | **PLAN** Must |
-| 455 | [`sprint-455.md`](./sprint-455.md) | `18.30.0` | Simulationsdatenvertrag | **PLAN** Must |
-| 456 | [`sprint-456.md`](./sprint-456.md) | `18.30.0` | Deklarative SIM-GUI | **PLAN** Must |
-| 457 | [`sprint-457.md`](./sprint-457.md) | `18.30.0` | Vorschau-Diffs und Undo | **PLAN** Must |
-| 458 | [`sprint-458.md`](./sprint-458.md) | `18.30.0` | Workflow-Dry-Run | **PLAN** Must |
-| 459 | [`sprint-459.md`](./sprint-459.md) | `18.30.0` | Simulationsevidenz | **PLAN** Must |
-| 460 | [`sprint-460.md`](./sprint-460.md) | `18.30.0` | Simulations-Gate | **PLAN** Must |
-| 461 | [`sprint-461.md`](./sprint-461.md) | `18.31.0` | WBS aus IdeaPlan | **PLAN** Must |
-| 462 | [`sprint-462.md`](./sprint-462.md) | `18.31.0` | Gates und Dependencies validieren | **PLAN** Must |
-| 463 | [`sprint-463.md`](./sprint-463.md) | `18.31.0` | PRD und Mermaid exportieren | **PLAN** Must |
-| 464 | [`sprint-464.md`](./sprint-464.md) | `18.31.0` | Versioniertes JSON | **PLAN** Must |
-| 465 | [`sprint-465.md`](./sprint-465.md) | `18.31.0` | Implementierungsleitfaden | **PLAN** Must |
-| 466 | [`sprint-466.md`](./sprint-466.md) | `18.31.0` | Gesamt-Gold und Release-Gate | **PLAN** Must |
+| 444 | [`sprint-444.md`](./sprint-444.md) | `18.28.0` | Tischplatten-Baseline | **CODE*** Must |
+| 445 | [`sprint-445.md`](./sprint-445.md) | `18.28.0` | Planungszustand an Projekt binden | **CODE*** Must |
+| 446 | [`sprint-446.md`](./sprint-446.md) | `18.28.0` | Planungsbefehle eindeutig routen | **CODE*** Must |
+| 447 | [`sprint-447.md`](./sprint-447.md) | `18.28.0` | IdeaPlan validieren | **CODE*** Must |
+| 448 | [`sprint-448.md`](./sprint-448.md) | `18.28.0` | PSP-/Sprintansicht trennen | **CODE*** Must |
+| 449 | [`sprint-449.md`](./sprint-449.md) | `18.28.0` | Stabilitäts-Gate | **CODE*; Geräte-Gate offen** Must |
+| 450 | [`sprint-450.md`](./sprint-450.md) | `18.29.0` | Intake-Bedingung erhalten | **CODE*** Must |
+| 451 | [`sprint-451.md`](./sprint-451.md) | `18.29.0` | Klärung und Bestätigung | **CODE*** Must |
+| 452 | [`sprint-452.md`](./sprint-452.md) | `18.29.0` | Lokales Wissen zuordnen | **CODE*** Must |
+| 453 | [`sprint-453.md`](./sprint-453.md) | `18.29.0` | Research-Zustimmung und Provenienz | **CODE*** Must |
+| 454 | [`sprint-454.md`](./sprint-454.md) | `18.29.0` | Research-Gate | **CODE*; Geräte-Gate offen** Must |
+| 455 | [`sprint-455.md`](./sprint-455.md) | `18.30.0` | Simulationsdatenvertrag | **CODE*** Must |
+| 456 | [`sprint-456.md`](./sprint-456.md) | `18.30.0` | Deklarative SIM-GUI | **CODE*** Must |
+| 457 | [`sprint-457.md`](./sprint-457.md) | `18.30.0` | Vorschau-Diffs und Undo | **CODE*** Must |
+| 458 | [`sprint-458.md`](./sprint-458.md) | `18.30.0` | Workflow-Dry-Run | **CODE*** Must |
+| 459 | [`sprint-459.md`](./sprint-459.md) | `18.30.0` | Simulationsevidenz | **CODE*** Must |
+| 460 | [`sprint-460.md`](./sprint-460.md) | `18.30.0` | Simulations-Gate | **CODE*; Geräte-Gate offen** Must |
+| 461 | [`sprint-461.md`](./sprint-461.md) | `18.31.0` | WBS aus IdeaPlan | **CODE*** Must |
+| 462 | [`sprint-462.md`](./sprint-462.md) | `18.31.0` | Gates und Dependencies validieren | **CODE*** Must |
+| 463 | [`sprint-463.md`](./sprint-463.md) | `18.31.0` | PRD und Mermaid exportieren | **CODE*** Must |
+| 464 | [`sprint-464.md`](./sprint-464.md) | `18.31.0` | Versioniertes JSON | **CODE*** Must |
+| 465 | [`sprint-465.md`](./sprint-465.md) | `18.31.0` | Implementierungsleitfaden | **CODE*** Must |
+| 466 | [`sprint-466.md`](./sprint-466.md) | `18.31.0` | Gesamt-Gold und Release-Gate | **CODE*; Geräte-Gate offen** Must |
+| 467 | [`sprint-467.md`](./sprint-467.md) | `18.32.0` | Befehlsbereiche und Grenzen | **PLAN** Must |
+| 468 | [`sprint-468.md`](./sprint-468.md) | `18.32.0` | Geprüfte Routing-Beispiele | **PLAN** Must |
+| 469 | [`sprint-469.md`](./sprint-469.md) | `18.32.0` | Routing-Daten erweitern und trennen | **PLAN** Must |
+| 470 | [`sprint-470.md`](./sprint-470.md) | `18.32.0` | Router-Baseline und Soup-Vergleich | **PLAN** Must |
+| 471 | [`sprint-471.md`](./sprint-471.md) | `18.33.0` | Planungswunsch auf Planfelder abbilden | **PLAN** Must |
+| 472 | [`sprint-472.md`](./sprint-472.md) | `18.33.0` | Sichere GUI-Vorschau | **PLAN** Must |
+| 473 | [`sprint-473.md`](./sprint-473.md) | `18.33.0` | Geprüfte Planung exportieren | **PLAN** Must |
+| 474 | [`sprint-474.md`](./sprint-474.md) | `18.33.0` | Planungs-Gold und Release-Gate | **PLAN** Must |
+| 475 | [`sprint-475.md`](./sprint-475.md) | `18.34.0` | Pflichtangaben pro Aktion | **PLAN** Must |
+| 476 | [`sprint-476.md`](./sprint-476.md) | `18.34.0` | Eindeutigen Kontext prüfen | **PLAN** Must |
+| 477 | [`sprint-477.md`](./sprint-477.md) | `18.34.0` | Rückfrage sicher fortsetzen | **PLAN** Must |
+| 478 | [`sprint-478.md`](./sprint-478.md) | `18.34.0` | Nicht-Raten- und Release-Gate | **PLAN** Must |
+| 479 | [`sprint-479.md`](./sprint-479.md) | `18.35.0` | Sprach- und Chat-Antwort trennen | **PLAN** Must |
+| 480 | [`sprint-480.md`](./sprint-480.md) | `18.35.0` | Fakten beim Kürzen schützen | **PLAN** Must |
+| 481 | [`sprint-481.md`](./sprint-481.md) | `18.35.0` | Natürlichkeit und Rückfall testen | **PLAN** Must |
+| 482 | [`sprint-482.md`](./sprint-482.md) | `18.35.0` | Gesamt-Gold und Release-Gate | **PLAN** Must |
 
-Sprints 431–443 sind mit der Implementierung im lokalen Test-Build belegt;
-deren Release-Versionen `18.26.0`/`18.27.0` bleiben eigene Gates.
-**466 ist die letzte Sprintnummer dieser Planungsreihe.** Der frühere
+Sprints 431–466 sind im Test-Build `18.31.0` enthalten; die finale
+Geräte-/Release-Freigabe steht noch aus. Die Folgeschiene 467–482 ist in
+[`../101-next.md`](../101-next.md) geplant. Der frühere
 [`../tischplatte-plan.md`](../tischplatte-plan.md) ist in 444–466 integriert;
 er ist keine parallele Sprintreihe.
 
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Letzter veröffentlichter Sideload `18.25.13`, versionCode `182513`; lokaler Test-Build `18.25.15`. Sprints 431–443 sind implementiert, ihre abschließenden Release-Versionen bleiben offen. Rework-Plan 444–466: [`../100-next.md`](../100-next.md). Ältere Sprintfolgen bleiben historisch.
+**Stände:** Test-Build `18.31.0` / versionCode `183100`; finale Geräteabnahme
+offen. Rework 444–466: [`../100-next.md`](../100-next.md). Folgeschiene
+467–482: [`../101-next.md`](../101-next.md). Ältere Sprintfolgen bleiben
+historisch.
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
