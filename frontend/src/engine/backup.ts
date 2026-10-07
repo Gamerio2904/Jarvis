@@ -246,7 +246,7 @@ export function asBackup(raw: unknown): HausBackup | null {
   if (ver !== 1) return null
   if (!o.settings || typeof o.settings !== 'object') return null
   const calendar_ics = typeof o.calendar_ics === 'string' ? o.calendar_ics : undefined
-  let events = arr<CalendarEvent>(o.events)
+  let events = normalizeBackupEvents(o.events)
   if (!events.length && calendar_ics) events = icsToEvents(calendar_ics)
   return {
     backup_version: 1,
@@ -261,8 +261,8 @@ export function asBackup(raw: unknown): HausBackup | null {
     plans: Object.prototype.hasOwnProperty.call(o, 'plans') ? arr(o.plans) : undefined,
     portfolio: Object.prototype.hasOwnProperty.call(o, 'portfolio') ? arr(o.portfolio) : undefined,
     drafts: Object.prototype.hasOwnProperty.call(o, 'drafts') ? arr(o.drafts) : undefined,
-    watch_movies: arr(o.watch_movies),
-    watched_movies: arr(o.watched_movies),
+    watch_movies: normalizeBackupWatchMovies(o.watch_movies),
+    watched_movies: normalizeBackupWatchedMovies(o.watched_movies),
     shopping: arr(o.shopping),
     shopping_lists: Object.prototype.hasOwnProperty.call(o, 'shopping_lists')
       ? arr(o.shopping_lists)
@@ -281,6 +281,48 @@ function arr<T>(v: unknown): T[] {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function normalizeBackupEvents(value: unknown): CalendarEvent[] {
+  if (!Array.isArray(value)) return []
+  return value.filter(isRecord).map((row) => ({
+    ...row,
+    id: typeof row.id === 'string' ? row.id : '',
+    title: typeof row.title === 'string' ? row.title : '',
+    start_at: typeof row.start_at === 'string' ? row.start_at : '',
+    created_at: typeof row.created_at === 'string' ? row.created_at : '',
+    updated_at: typeof row.updated_at === 'string' ? row.updated_at : '',
+    remind_offsets_min: Array.isArray(row.remind_offsets_min)
+      ? row.remind_offsets_min.filter((minute): minute is number => typeof minute === 'number' && Number.isFinite(minute))
+      : undefined,
+  }))
+}
+
+function normalizeBackupWatchMovies(value: unknown): WatchMovie[] {
+  if (!Array.isArray(value)) return []
+  return value.filter(isRecord).map((row) => ({
+    ...row,
+    id: typeof row.id === 'string' ? row.id : '',
+    title: typeof row.title === 'string' ? row.title : '',
+    lists: Array.isArray(row.lists)
+      ? row.lists.filter((list): list is 'watch' | 'favorite' => list === 'watch' || list === 'favorite')
+      : [],
+    genres: Array.isArray(row.genres) ? row.genres.filter((genre): genre is string => typeof genre === 'string') : [],
+    created_at: typeof row.created_at === 'string' ? row.created_at : '',
+    updated_at: typeof row.updated_at === 'string' ? row.updated_at : '',
+  }))
+}
+
+function normalizeBackupWatchedMovies(value: unknown): WatchedMovie[] {
+  if (!Array.isArray(value)) return []
+  return value.filter(isRecord).map((row) => ({
+    ...row,
+    id: typeof row.id === 'string' ? row.id : '',
+    title: typeof row.title === 'string' ? row.title : '',
+    watched_at: typeof row.watched_at === 'string' ? row.watched_at : '',
+    from_watchlist: true,
+    genres: Array.isArray(row.genres) ? row.genres.filter((genre): genre is string => typeof genre === 'string') : [],
+  }))
 }
 
 function normalizeBackupPacks(value: unknown): KnowledgePack[] | undefined {

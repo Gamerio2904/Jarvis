@@ -186,6 +186,20 @@ resetKnowledgeMem()
   assert.deepEqual(withPacks?.knowledge_packs?.find((pack) => pack.id === 'legacy')?.claims, [])
 }
 
+{
+  const backup = asBackup({
+    backup_version: 1,
+    settings: {},
+    events: [{ id: 'legacy-event', title: 'Termin', start_at: '2026-10-08T12:00:00.000Z', remind_offsets_min: null }],
+    watch_movies: [{ id: 'legacy-movie', title: 'Film', lists: null, genres: null }],
+    watched_movies: [{ id: 'legacy-watched', title: 'Film', watched_at: '2026-10-07T12:00:00.000Z', genres: null }],
+  })
+  assert.equal(backup?.events[0]?.remind_offsets_min, undefined)
+  assert.deepEqual(backup?.watch_movies?.[0]?.lists, [])
+  assert.deepEqual(backup?.watch_movies?.[0]?.genres, [])
+  assert.deepEqual(backup?.watched_movies?.[0]?.genres, [])
+}
+
 // Settings IA
 {
   assert.ok(filterTopics('Fachwissen').includes('daten'))

@@ -89,7 +89,9 @@ function remindLabel(e: CalendarEvent): string | undefined {
   const series = recurLabel(e)
   let remind: string | undefined
   if (e.remind_offsets_min === undefined) remind = 'Erinnerung am Termin'
-  else if (e.remind_offsets_min.length) remind = `Erinnerung: ${formatRemindOffsets(e.remind_offsets_min)}`
+  else if (Array.isArray(e.remind_offsets_min) && e.remind_offsets_min.length) {
+    remind = `Erinnerung: ${formatRemindOffsets(e.remind_offsets_min)}`
+  }
   if (series && remind) return `${series} · ${remind}`
   return series || remind
 }
@@ -799,7 +801,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
     )
     setThemePick(eventTheme(master))
-    setChipMins(master.remind_offsets_min === undefined ? [0] : [...master.remind_offsets_min])
+    setChipMins(Array.isArray(master.remind_offsets_min) ? [...master.remind_offsets_min] : [0])
     setErr(null)
     setSheetOpen(true)
   }
