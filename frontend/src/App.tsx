@@ -85,7 +85,7 @@ import { saveLastEyeImage } from './engine/agent-session.ts'
 import { useOverlay } from './overlay.ts'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm.ts'
 import { closeDrive, subscribeDrive } from './engine/drive.ts'
-import { addMessage, deleteMessage, loadSettings, patchMessage, saveSettings } from './engine/store.ts'
+import { addMessage, deleteMessage, listTodos, loadSettings, patchMessage, saveSettings } from './engine/store.ts'
 import { truncateSpoken } from './engine/turn-detect.ts'
 import { warmCloud } from './engine/cloud-warm.ts'
 import { syncGlance } from './engine/glance.ts'
@@ -98,7 +98,7 @@ import { FOLDER_IDS } from './engine/folder-parse.ts'
 import { setHeardNames } from './engine/heard.ts'
 import { pickAlarmTone } from './native/notify.ts'
 import { setPresenceChatHandler, syncPresenceBind } from './native/presence.ts'
-import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice.ts'
+import { beginVoiceSession, endVoiceSession, listenOnce, speakText, consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice.ts'
 import { bindChromeFx, prefersReducedMotion } from './fx.ts'
 import { bindKeyboardInset } from './engine/keyboard-inset.ts'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify.ts'
@@ -122,7 +122,8 @@ import { ReplyOrb } from './ui/ReplyOrb.tsx'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session.ts'
 import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate.ts'
 import { watchDeviceClass } from './engine/device-class.ts'
-import { TabletShell } from './ui/TabletShell.tsx'
+import { TabletShell, TABLET_HEARD, TABLET_SHOW_TODOS } from './ui/TabletShell.tsx'
+import { isTodoQuery, todoSpeech, wakeAck } from './engine/tablet-todos.ts'
 import { useTabletRuntime } from './ui/useTabletRuntime.ts'
 import { enterTabletMode, leaveTabletMode } from './engine/tablet-runtime.ts'
 
@@ -398,6 +399,7 @@ function App() {
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
+  const tabletWakeBusyRef = useRef(false)
   const voiceCutsRef = useRef(new Map<string, string>())
   const voiceReqRef = useRef<string | null>(null)
   const [voiceSeed, setVoiceSeed] = useState('')
@@ -540,6 +542,38 @@ function App() {
     wakeGateRef.current = closeWake(wakeGateRef.current)
     if (wasOpen && !fromPop) dropOverlayHistory()
     if (wasOpen) void tickEpisodeMemory()
+  }
+
+  /** Tablet: Weckwort antwortet kurz und lässt das Overlay stehen; Todo-Fragen werden dort angezeigt. */
+  async function handleTabletWake(utt: string) {
+    if (tabletWakeBusyRef.current) return
+    tabletWakeBusyRef.current = true
+    const heard = (text: string) => window.dispatchEvent(new CustomEvent(TABLET_HEARD, { detail: text }))
+    try {
+      let text = utt.trim()
+      if (!text) {
+        heard('Ja, Sir?')
+        await beginVoiceSession()
+        await speakText(wakeAck())
+        const res = await listenOnce((partial) => heard(partial))
+        text = res.ok ? res.text.trim() : ''
+      }
+      if (isTodoQuery(text)) {
+        const todos = await listTodos()
+        window.dispatchEvent(new CustomEvent(TABLET_SHOW_TODOS, { detail: todos }))
+        heard('')
+        await speakText(todoSpeech(todos))
+      } else if (text) {
+        heard('')
+        openVoiceMode(text)
+      }
+    } catch {
+      /* Mikro/TTS nicht verfügbar: Overlay bleibt stehen */
+    } finally {
+      heard('')
+      await endVoiceSession()
+      tabletWakeBusyRef.current = false
+    }
   }
 
   function openVoiceMode(seed = '', compact = false) {
@@ -971,7 +1005,10 @@ function App() {
   }, [settings?.wake_word])
 
   useEffect(() => {
-    const off = onWakeHit((utt) => openVoiceMode(utt || ''))
+    const off = onWakeHit((utt) => {
+      if (loadSettings().tablet_mode && !voiceOpenRef.current) void handleTabletWake(utt || '')
+      else openVoiceMode(utt || '')
+    })
     let hideTimer = 0
     const vis = () => {
       window.clearTimeout(hideTimer)

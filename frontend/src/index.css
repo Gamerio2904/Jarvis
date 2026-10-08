@@ -10430,3 +10430,19 @@ html[data-device='desktop'] .messages {
   max-width: 1100px;
   margin-inline: auto;
 }
+
+.notes-card-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.notes-card-row .notes-card {
+  flex: 1;
+  min-width: 0;
+}
+
+.notes-del {
+  flex: none;
+  min-width: 44px;
+}

@@ -7,7 +7,6 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
   const [body, setBody] = useState('')
   const [editing, setEditing] = useState<Note | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState('')
 
   const refresh = useCallback(async () => {
@@ -29,14 +28,12 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
   function startEdit(note?: Note) {
     setEditing(note || null)
     setBody(note?.body || '')
-    setConfirmDelete(false)
     setEditorOpen(true)
   }
 
   function closeEditor() {
     setEditing(null)
     setBody('')
-    setConfirmDelete(false)
     setEditorOpen(false)
   }
 
@@ -51,13 +48,10 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
     }
   }
 
-  async function remove() {
-    if (!editing || !confirmDelete) {
-      setConfirmDelete(true)
-      return
-    }
+  async function remove(id = editing?.id) {
+    if (!id) return
     try {
-      await deleteNote(editing.id)
+      await deleteNote(id)
       closeEditor()
       await refresh()
     } catch (cause) {
@@ -86,9 +80,7 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
             <button type="button" className="ghost-btn" onClick={closeEditor}>Abbrechen</button>
             <button type="button" className="ghost-btn" onClick={() => void save()}>Speichern</button>
             {editing ? (
-              <button type="button" className="ghost-btn" onClick={() => void remove()}>
-                {confirmDelete ? 'Löschen bestätigen' : 'Löschen'}
-              </button>
+              <button type="button" className="ghost-btn" onClick={() => void remove()}>Löschen</button>
             ) : null}
           </div>
         </section>
@@ -100,10 +92,13 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
           </div>
           <div className="notes-list">
             {filtered.map((note) => (
-              <button key={note.id} type="button" className="notes-card workbench-card" onClick={() => startEdit(note)}>
-                <strong>{note.body.split('\n')[0] || 'Leere Notiz'}</strong>
-                {note.body.includes('\n') ? <span>{note.body.slice(note.body.indexOf('\n') + 1)}</span> : null}
-              </button>
+              <div key={note.id} className="notes-card-row">
+                <button type="button" className="notes-card workbench-card" onClick={() => startEdit(note)}>
+                  <strong>{note.body.split('\n')[0] || 'Leere Notiz'}</strong>
+                  {note.body.includes('\n') ? <span>{note.body.slice(note.body.indexOf('\n') + 1)}</span> : null}
+                </button>
+                <button type="button" className="ghost-btn notes-del" aria-label="Notiz löschen" onClick={() => void remove(note.id)}>✕</button>
+              </div>
             ))}
             {!filtered.length ? <p className="watch-empty">{query ? 'Keine passenden Notizen.' : 'Noch keine Notizen.'}</p> : null}
           </div>

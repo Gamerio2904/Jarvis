@@ -150,7 +150,83 @@ textarea:focus-visible {
   align-items: center;
   padding: max(28px, env(safe-area-inset-top)) 32px max(28px, env(safe-area-inset-bottom));
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 55%, rgba(2, 6, 15, 0) 30%, rgba(2, 6, 15, 0.55) 100%);
+  background: #010103;
+  overflow: hidden;
+}
+
+.tablet-shell > :not(.tablet-backdrop) {
+  position: relative;
+  z-index: 1;
+}
+
+.tablet-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.tablet-orb.is-heard {
+  filter: hue-rotate(150deg) brightness(1.3);
+}
+
+.tablet-todos {
+  pointer-events: auto;
+  width: min(640px, 92vw);
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: 18px 22px;
+  border: 1px solid rgba(255, 70, 70, 0.45);
+  border-radius: 18px;
+  background: rgba(14, 2, 5, 0.72);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 40px rgba(255, 40, 50, 0.25);
+}
+
+.tablet-todos header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tablet-todos h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ff6b6b;
+}
+
+.tablet-todos header button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.3rem;
+  padding: 6px 10px;
+}
+
+.tablet-todos ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.tablet-todos li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid #ff3a40;
+  background: rgba(255, 60, 60, 0.07);
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+}
+
+.tablet-todos li small {
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .tablet-clock {
@@ -162,7 +238,7 @@ textarea:focus-visible {
 .tablet-clock strong {
   font: 650 clamp(3.5rem, 12vw, 8rem) / 1 var(--font-display);
   letter-spacing: 0.02em;
-  text-shadow: 0 0 40px rgba(25, 211, 255, 0.45);
+  text-shadow: 0 0 40px rgba(255, 50, 60, 0.55);
 }
 
 .tablet-clock span {
@@ -179,9 +255,9 @@ textarea:focus-visible {
   border-radius: 50%;
   padding: 0;
   cursor: pointer;
-  background: conic-gradient(from 0deg, #19d3ff, #1a5cff, #7a3cff, #19d3ff);
-  animation: echo-spin 9s linear infinite;
-  box-shadow: 0 0 60px rgba(25, 211, 255, 0.45);
+  background: transparent;
+  animation: none;
+  box-shadow: none;
 }
 
 .tablet-orb::before {
@@ -189,7 +265,7 @@ textarea:focus-visible {
   position: absolute;
   inset: -14px;
   border-radius: 50%;
-  border: 2px solid rgba(25, 211, 255, 0.5);
+  border: 2px solid rgba(255, 70, 70, 0.5);
   animation: echo-ring 2.6s ease-out infinite;
 }
 
@@ -197,7 +273,7 @@ textarea:focus-visible {
   position: absolute;
   inset: 9px;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #0b1a33, #02060f 70%);
+  background: transparent;
   animation: echo-breathe 4s ease-in-out infinite;
 }
 
