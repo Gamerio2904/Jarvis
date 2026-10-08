@@ -35,6 +35,7 @@ const now = {
   hitRate: all.hitRate,
   askRate: all.askRate,
   noneRate: all.noneRate,
+  wrongActionRate: all.wrongActionRate,
   byTag: Object.fromEntries(Object.entries(tags).map(([k, m]) => [k, m.hitRate])),
   promptSystemTokens: budget.systemTokens,
   promptVariableTokens: budget.variableTokens,
@@ -63,6 +64,7 @@ console.log('|------|-----------:|------:|----------:|')
 console.log(`| Trefferquote | ${base ? pct(base.hitRate) : '–'} | ${pct(all.hitRate)} | ${diff(all.hitRate, base?.hitRate)} |`)
 console.log(`| Rückfrage-Quote | ${base ? pct(base.askRate) : '–'} | ${pct(all.askRate)} | ${diff(all.askRate, base?.askRate)} |`)
 console.log(`| Ohne Kandidat | ${base ? pct(base.noneRate) : '–'} | ${pct(all.noneRate)} | ${diff(all.noneRate, base?.noneRate)} |`)
+console.log(`| Falsche ausführbare Route | ${base?.wrongActionRate == null ? '–' : pct(base.wrongActionRate)} | ${pct(all.wrongActionRate)} | ${diff(all.wrongActionRate, base?.wrongActionRate)} |`)
 
 console.log('\n### Je Gruppe\n')
 console.log('| Gruppe | Fälle | Grundlinie | Jetzt | Differenz |')
@@ -96,6 +98,8 @@ if (base) {
   if (all.hitRate < base.hitRate - EPS) broken.push(`Trefferquote gefallen: ${pct(base.hitRate)} → ${pct(all.hitRate)}`)
   if (all.askRate > base.askRate + EPS) broken.push(`Rückfrage-Quote gestiegen: ${pct(base.askRate)} → ${pct(all.askRate)}`)
   if (all.noneRate > base.noneRate + EPS) broken.push(`Ohne Kandidat gestiegen: ${pct(base.noneRate)} → ${pct(all.noneRate)}`)
+  if (base.wrongActionRate != null && all.wrongActionRate > base.wrongActionRate + EPS)
+    broken.push(`Falsche ausführbare Route gestiegen: ${pct(base.wrongActionRate)} → ${pct(all.wrongActionRate)}`)
   if (budget.systemTokens + budget.variableTokens > base.promptSystemTokens + base.promptVariableTokens)
     broken.push('Prompt ist länger geworden — das kostet Kontingent.')
   for (const [tag, m] of Object.entries(tags)) {

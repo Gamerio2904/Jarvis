@@ -1,6 +1,19 @@
 // @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
+
+if (!globalThis.localStorage) {
+  const memory = new Map()
+  globalThis.localStorage = {
+    getItem: (key) => memory.get(key) ?? null,
+    setItem: (key, value) => memory.set(String(key), String(value)),
+    removeItem: (key) => memory.delete(key),
+    clear: () => memory.clear(),
+    key: (index) => [...memory.keys()][index] ?? null,
+    get length() { return memory.size },
+  }
+}
+
 import { APP_VERSION } from '../src/engine/store.ts'
 import { PKG_VERSION } from './app-version.mjs'
 import { parseTeachIntent } from '../src/engine/teach-parse.ts'

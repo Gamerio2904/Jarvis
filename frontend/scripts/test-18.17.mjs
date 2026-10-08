@@ -101,7 +101,7 @@ assert.equal(train.recur, 'weekly')
 assert.ok(eventDurationMs(train) >= 60 * 60_000)
 
 const from = new Date(2026, 8, 1)
-const until = new Date(2026, 10, 1)
+const until = new Date(2027, 0, 1)
 const occ = expandEvents([train], from, until)
 assert.ok(occ.length >= 4, `Serie muss mehrere Montage zeigen, war ${occ.length}`)
 

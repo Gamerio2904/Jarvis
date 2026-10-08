@@ -1,4 +1,7 @@
+import { evalCases } from '../../src/engine/eval/corpus.ts'
+
 export const ROUTING_DATASET_SCHEMA = 'jarvis-routing-gold-v1'
+export const ROUTING_LABELS = new Set([...evalCases().map((row) => row.expect), 'ask', 'none'])
 
 const PERSONAL_DATA = [
   /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
@@ -21,14 +24,21 @@ function similarity(left, right) {
   return shared / (a.size + b.size - shared)
 }
 
+function personalDataReasons(text) {
+  return PERSONAL_DATA.flatMap((pattern) => {
+    pattern.lastIndex = 0
+    return pattern.test(text) ? ['personal data pattern'] : []
+  })
+}
+
 export function validateReviewedCases(cases) {
   const errors = []
   const seen = new Map()
   for (const [index, row] of cases.entries()) {
     const where = `case ${index + 1}`
     if (!row || typeof row.text !== 'string' || !row.text.trim()) errors.push(`${where}: empty text`)
-    if (!row || typeof row.expect !== 'string' || !row.expect.trim()) errors.push(`${where}: missing target`)
-    if (!row || !Array.isArray(row.tags) || row.tags.some((tag) => typeof tag !== 'string')) {
+    if (!row || typeof row.expect !== 'string' || !ROUTING_LABELS.has(row.expect)) errors.push(`${where}: unknown or missing target`)
+    if (!row || !Array.isArray(row.tags) || row.tags.length === 0 || row.tags.some((tag) => !['gold', 'lock', 'stt', 'regress', 'ambiguous', 'negative'].includes(tag))) {
       errors.push(`${where}: invalid tags`)
     }
     if (!row || typeof row.source !== 'string' || !row.source.trim()) errors.push(`${where}: missing provenance`)
@@ -37,7 +47,7 @@ export function validateReviewedCases(cases) {
     const prior = seen.get(key)
     if (prior && prior.expect !== row.expect) errors.push(`${where}: conflicting label with ${prior.source}`)
     else if (!prior) seen.set(key, { expect: row.expect, source: where })
-    if (PERSONAL_DATA.some((pattern) => pattern.test(row.text))) errors.push(`${where}: personal data pattern`)
+    if (personalDataReasons(row.text).length) errors.push(`${where}: personal data pattern`)
     for (const other of cases.slice(0, index)) {
       if (other.expect !== row.expect && similarity(row.text, other.text) >= 0.85) {
         errors.push(`${where}: near-duplicate crosses route labels`)
@@ -48,13 +58,32 @@ export function validateReviewedCases(cases) {
   return errors
 }
 
+/** Keep privacy-flagged examples available for local eval but out of training. */
+export function partitionTrainingCases(cases) {
+  const eligible = []
+  const excluded = []
+  for (const [index, row] of cases.entries()) {
+    const reasons = typeof row?.text === 'string' ? personalDataReasons(row.text) : []
+    if (reasons.length) {
+      excluded.push({ index: index + 1, source: row.source || 'unknown', reasons })
+    } else {
+      eligible.push(row)
+    }
+  }
+  return { eligible, excluded }
+}
+
 export function withReviewedVariants(cases, variants) {
   const baseByText = new Map(cases.map((row) => [normalized(row.text), row]))
   const additions = variants.map((variant, index) => {
     const parent = baseByText.get(normalized(variant.parentText))
     if (!parent) throw new Error(`Variant ${index + 1} has no reviewed parent case.`)
-    if (!variant.text?.trim() || normalized(variant.text) === normalized(parent.text)) {
+    if (typeof variant.text !== 'string' || !variant.text.trim() || normalized(variant.text) === normalized(parent.text)) {
       throw new Error(`Variant ${index + 1} is empty or duplicates its parent.`)
+    }
+    if (cases.some((row) => normalized(row.text) === normalized(variant.text)) ||
+        variants.slice(0, index).some((row) => normalized(row.text) === normalized(variant.text))) {
+      throw new Error(`Variant ${index + 1} duplicates an existing case.`)
     }
     return {
       text: variant.text.trim(),
@@ -72,8 +101,10 @@ export function withReviewedVariants(cases, variants) {
 
 export function splitByFamily(cases, testRatio = 0.2) {
   if (!(testRatio > 0 && testRatio < 1)) throw new Error('testRatio must be between 0 and 1.')
-  const families = [...new Set(cases.map((row) => row.family || normalized(row.text)))]
-  const testFamilies = new Set(families.filter((_, index) => index % Math.round(1 / testRatio) === 0))
+  const families = [...new Set(cases.map((row) => row.family || normalized(row.text)))].sort()
+  if (families.length < 2) throw new Error('At least two distinct case families are required for a train/test split.')
+  const testCount = Math.max(1, Math.min(families.length - 1, Math.round(families.length * testRatio)))
+  const testFamilies = new Set(families.slice(0, testCount))
   return {
     train: cases.filter((row) => !testFamilies.has(row.family || normalized(row.text))),
     test: cases.filter((row) => testFamilies.has(row.family || normalized(row.text))),
@@ -83,7 +114,13 @@ export function splitByFamily(cases, testRatio = 0.2) {
 export function trainingJsonl(cases) {
   const issues = validateReviewedCases(cases)
   if (issues.length) throw new Error(`Dataset blocked: ${issues.join('; ')}`)
-  return cases.map(({ text, expect }) => JSON.stringify({ text, label: expect })).join('\n')
+  return cases.map(({ text, expect, source, tags }) => JSON.stringify({
+    schema: ROUTING_DATASET_SCHEMA,
+    text,
+    label: expect,
+    source,
+    tags,
+  })).join('\n')
 }
 
 export function routeCounts(results) {
@@ -96,5 +133,25 @@ export function routeCounts(results) {
     else stats.incorrect += 1
     counts.set(row.expect, stats)
   }
+
   return Object.fromEntries([...counts.entries()].sort(([a], [b]) => a.localeCompare(b)))
+}
+
+export function routeReport(results) {
+  const counts = routeCounts(results)
+  let falseActions = 0
+  let totalActions = 0
+  for (const row of results) {
+    const safeTarget = row.expect === 'ask' || row.expect === 'none'
+    const safeActual = row.actual === 'ask' || row.actual === 'none' || row.actual === 'llm'
+    if (!safeActual) totalActions += 1
+    if (safeTarget && !safeActual) falseActions += 1
+  }
+  return {
+    total: results.length,
+    byExpectedRoute: counts,
+    falseActionCount: falseActions,
+    actionCount: totalActions,
+    falseActionRate: results.length ? falseActions / results.length : 0,
+  }
 }

@@ -32,7 +32,11 @@ export function routeCtx(text: string, ctx: EvalCtx = {}): RouteCtx {
 }
 
 /** Der Agent, der den Zug übernimmt. `todo` und `tools` sind derselbe Agent. */
-export function routeForEval(text: string, ctx: EvalCtx = {}): string {
+export function routeForEval(
+  text: string,
+  ctx: EvalCtx = {},
+  decision?: PolicyPick,
+): string {
   const norm = normalizeUtterance(text)
   if (!norm.trim()) return 'llm'
   if (isHelpCommand(norm)) return 'help'
@@ -40,7 +44,7 @@ export function routeForEval(text: string, ctx: EvalCtx = {}): string {
   if (parseOrdinalFollowUp(norm) && !(draftFramesOpen() && parseEntwurfIntent(norm)?.kind === 'draft_pick')) {
     return 'ordinal'
   }
-  const pick = decideRoute(routeCtx(text, ctx))
+  const pick = decision ?? decideRoute(routeCtx(text, ctx))
   const id = pick.kind === 'run' ? pick.id : pick.kind === 'ask' ? pick.a : null
   if (id === 'todo') return 'tools'
   if (id) return id

@@ -1,6 +1,7 @@
 import {
   addIdea,
   addReminder,
+  clearPending,
   getPending,
   listIdeas,
   loadSettings,
@@ -32,6 +33,7 @@ import {
   parsePlan,
   planHasBody,
   savePlanRevision,
+  validatePlan,
   PLAN_BEDINGUNG,
   PLAN_RAHMEN,
   WEG_ANLEITUNG,
@@ -40,6 +42,7 @@ import {
 import { isTooShortPlanAnswer, parsePlanQuestion, serializePlanQuestion } from './idea-question.ts'
 import { parseBoardJobs, serializeBoardJobs, stopJobs } from './board-jobs.ts'
 import { completeBrainWithFallback } from './brain.ts'
+import { pendingYields } from './pending-yield.ts'
 import type { ToolMeta } from './tools.ts'
 
 const FILL_SYSTEM = `${PLAN_BEDINGUNG}
@@ -643,10 +646,19 @@ export async function handleIdea(
       const message = error instanceof Error ? error.message : String(error)
       return pack(message, 'plan_fail', hit.title)
     }
-    await putIdea({ ...hit, plan: filled })
-    persistLastList('idea', [hit.title])
-    const questionText = askPlanQuestion({ ...hit, plan: filled }, conversationId)
-    return pack(`${formatPlan(filled, hit.title)}${questionText ? `\n\nRückfrage: ${questionText}` : ''}`, 'plan_fill', hit.title)
+    await setPending({
+      conversation_id: conversationId,
+      tool: 'idea',
+      action: 'plan_confirm',
+      args: { ideaId: hit.id, plan: filled },
+      preview: hit.title,
+      created_at: new Date().toISOString(),
+    })
+    return pack(
+      `${formatPlan(filled, hit.title)}\n\nDas ist ein Vorschlag und noch nicht gespeichert. Antworte genau „bestätigen“ zum Übernehmen oder „verwerfen“ zum Ablehnen.`,
+      'plan_proposal',
+      hit.title,
+    )
   }
 
   if (intent.kind === 'add_line') {
@@ -712,6 +724,7 @@ export async function handleIdea(
     if (pending?.tool === 'todo') {
       return { handled: false }
     }
+
     const rows = await listIdeas()
     const hit = pickIdea(rows)
     if (!hit?.plan) return pack('Kein Plan, den ich zum Todo machen kann.', 'miss')
@@ -730,4 +743,60 @@ export async function handleIdea(
   }
 
   return { handled: false }
+}
+
+/** Model-generated plans are persisted only after an explicit confirmation. */
+export async function handlePendingPlanProposal(
+  conversationId: string,
+  text: string,
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta } | null> {
+  const pending = await getPending(conversationId)
+  if (pending?.tool !== 'idea' || pending.action !== 'plan_confirm') return null
+  const age = Date.now() - Date.parse(pending.created_at)
+  if (!Number.isFinite(age) || age < 0 || age > 15 * 60_000) {
+    await clearPending(conversationId)
+    return null
+  }
+  if (/^\s*(?:verwerfen|ablehnen|nein|abbrechen|stopp)\s*[.!?]*$/i.test(text)) {
+    await clearPending(conversationId)
+    return pack('Der Planvorschlag wurde verworfen. Der gespeicherte Plan blieb unverändert.', 'plan_proposal_decline')
+  }
+  if (!/^\s*(?:bestätigen|übernehmen|ja)\s*[.!?]*$/i.test(text)) {
+    const isNewPlanCommand =
+      parsePortfolioIntent(text) ||
+      parseBoardIntent(text) ||
+      parseAblaufIntent(text) ||
+      parseIdeaIntent(text)
+    if (isNewPlanCommand || pendingYields(text, 'idea')) {
+      await clearPending(conversationId)
+      return null
+    }
+    return pack('Der Vorschlag ist noch nicht gespeichert. Antworte genau „bestätigen“ zum Übernehmen oder „verwerfen“ zum Ablehnen.', 'plan_proposal_confirm')
+  }
+
+  const ideaId = typeof pending.args.ideaId === 'string' ? pending.args.ideaId : ''
+  const rows = await listIdeas()
+  const hit = rows.find((row) => row.id === ideaId && row.status !== 'done')
+  const proposal = parsePlan(pending.args.plan, ideaId)
+  const validation = proposal ? validatePlan(proposal) : { ok: false, errors: ['Planvorschlag fehlt oder ist beschädigt.'] }
+  if (!hit || !proposal || !validation.ok || !planHasBody(proposal)) {
+    await clearPending(conversationId)
+    return pack('Der Planvorschlag ist ungültig oder das Projekt fehlt. Es wurde nichts geändert.', 'plan_proposal_invalid')
+  }
+
+  const revisions = hit.plan
+    ? savePlanRevision(hit.plan, 'Vor bestätigtem Planvorschlag', newId()).revisions
+    : []
+  proposal.ideaId = hit.id
+  proposal.bedingung = hit.plan?.bedingung || hit.body || hit.title
+  proposal.revisions = revisions
+  await putIdea({ ...hit, plan: proposal })
+  await clearPending(conversationId)
+  persistLastList('idea', [hit.title])
+  const questionText = askPlanQuestion({ ...hit, plan: proposal }, conversationId)
+  return pack(
+    `Planvorschlag übernommen.${questionText ? `\n\nRückfrage: ${questionText}` : ''}`,
+    'plan_proposal_accept',
+    hit.title,
+  )
 }

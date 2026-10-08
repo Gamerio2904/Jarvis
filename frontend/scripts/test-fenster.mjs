@@ -1,5 +1,6 @@
 // @ts-nocheck
 import assert from 'node:assert/strict'
+import 'fake-indexeddb/auto'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,6 +26,7 @@ const { parseFensterConnect, parseFensterShow } = await import('../src/engine/fe
 const {
   acceptJa,
   commitFensterGrant,
+  claimFensterRequest,
   grantFromConfirm,
   handleFensterCommand,
   needLanReply,
@@ -33,13 +35,28 @@ const {
   otherKindReply,
   readFensterGrant,
   requestFromBody,
+  readFensterPair,
+  stampFensterBody,
+  fensterVersionOk,
   resetFensterOut,
   saveFensterRequest,
   sentReply,
   shownReply,
   surfaceAllowed,
+  validateFensterProjectTarget,
 } = await import('../src/engine/fenster.ts')
-const { loadSettings, saveSettings } = await import('../src/engine/store.ts')
+const { loadSettings, saveSettings, putIdea, listIdeas } = await import('../src/engine/store.ts')
+const { APP_VERSION } = await import('../src/engine/store.ts')
+const peerFingerprint = 'a'.repeat(64)
+const peer = (host, kind) => ({
+  host,
+  port: 18792,
+  name: 'Ultron',
+  kind,
+  fingerprint: peerFingerprint,
+  appVersion: APP_VERSION,
+  protocolVersion: 1,
+})
 
 assert.equal(parseFensterConnect('Verbinde das Handy'), 'handy')
 assert.equal(parseFensterConnect('Verbinde das Tablet'), 'tablet')
@@ -49,6 +66,8 @@ assert.equal(parseFensterShow('Zeig die Tischplatte auf dem Handy')?.kind, 'hand
 assert.equal(parseFensterShow('Öffne auf dem Tablet die Lage')?.surface, 'lage')
 assert.equal(parseFensterShow('Öffne auf dem Tablet die Lage')?.kind, 'tablet')
 assert.equal(parseFensterShow('Zeig die Lage'), null)
+assert.equal(parseFensterShow('Zeig die Sprints auf dem Handy')?.surface, 'sprints')
+assert.equal(parseFensterShow('Öffne die Planung auf dem Tablet')?.surface, 'planning')
 
 const none = await handleFensterCommand('Verbinde das Handy', { seek: async () => [], post: async () => false })
 assert.match(none, /Kein Handy antwortet/)
@@ -56,12 +75,12 @@ assert.equal(none, noPeerReply('handy'))
 
 const posted = []
 const seek = async () => [
-  { host: '8.8.8.8', port: 18792, name: 'Ultron', kind: 'handy' },
-  { host: '10.0.0.5', port: 18792, name: 'Ultron', kind: 'handy' },
-  { host: '10.0.0.8', port: 18792, name: 'Ultron', kind: 'tablet' },
+  peer('8.8.8.8', 'handy'),
+  peer('10.0.0.5', 'handy'),
+  peer('10.0.0.8', 'tablet'),
 ]
-const post = async (peer, body) => {
-  posted.push({ peer, body })
+const post = async (peer, body, authorizationToken) => {
+  posted.push({ peer, body, authorizationToken })
   return true
 }
 resetFensterOut()
@@ -72,7 +91,7 @@ const blocked = await handleFensterCommand('Verbinde das Handy', {
 assert.equal(blocked, needLanReply())
 resetFensterOut()
 const tabletOnly = await handleFensterCommand('Verbinde das Handy', {
-  seek: async () => [{ host: '10.0.0.8', port: 18792, name: 'Ultron', kind: 'tablet' }],
+  seek: async () => [peer('10.0.0.8', 'tablet')],
   post: async () => true,
 })
 assert.equal(tabletOnly, otherKindReply('tablet'))
@@ -82,25 +101,32 @@ assert.equal(sent, sentReply('handy'))
 assert.equal(posted.length, 1)
 assert.equal(posted[0].peer.host, '10.0.0.5')
 assert.equal(posted[0].body.op, 'anfrage')
+assert.equal(posted[0].body.token, undefined)
 
 const unpaired = await handleFensterCommand('Zeig die Tischplatte auf dem Handy', { seek, post })
 assert.match(unpaired, /Noch nicht gekoppelt/)
 assert.equal(unpaired, needPairReply())
 
-const bad = requestFromBody({ op: 'anfrage', nonce: 'abcdef1234567890', fromKind: 'handy', fromName: 'Ultron' }, '8.8.8.8')
+assert.equal(fensterVersionOk(stampFensterBody({ op: 'zeig' })), true)
+assert.equal(fensterVersionOk({ op: 'zeig' }), false)
+assert.equal(fensterVersionOk({ ...stampFensterBody({}), appVersion: '0.0.0' }), false)
+assert.equal(fensterVersionOk({ ...stampFensterBody({}), proto: 9 }), false)
+const bad = requestFromBody({ op: 'anfrage', nonce: 'abcdef1234567890', fromKind: 'handy', fromName: 'Ultron' }, '8.8.8.8', peerFingerprint)
 assert.equal(bad, null)
-const good = requestFromBody({ op: 'anfrage', nonce: 'abcdef1234567890', fromKind: 'tablet', fromName: 'Ultron' }, '192.168.1.20')
+const good = requestFromBody({ op: 'anfrage', nonce: 'abcdef1234567890', fromKind: 'tablet', fromName: 'Ultron' }, '192.168.1.20', peerFingerprint)
 assert.equal(good?.fromHost, '192.168.1.20')
 assert.equal(good?.fromKind, 'tablet')
 
 resetFensterOut()
 posted.length = 0
 await handleFensterCommand('Verbinde das Handy', { seek, post })
-assert.equal(acceptJa({ op: 'ja', nonce: 'falsch', token: 'tokentokentoken', kind: 'handy' }, '10.0.0.5'), null)
-assert.equal(acceptJa({ op: 'ja', nonce: posted[0].body.nonce, token: 'tokentokentoken', kind: 'tablet' }, '10.0.0.5'), null)
-const pair = acceptJa({ op: 'ja', nonce: posted[0].body.nonce, token: 'tokentokentoken', kind: 'handy' }, '10.0.0.5')
+assert.equal(await acceptJa({ op: 'ja', nonce: 'falsch', kind: 'handy' }, '10.0.0.5', peerFingerprint, 'tokentokentoken'), null)
+assert.equal(await acceptJa({ op: 'ja', nonce: posted[0].body.nonce, kind: 'tablet' }, '10.0.0.5', peerFingerprint, 'tokentokentoken'), null)
+const pair = await acceptJa({ op: 'ja', nonce: posted[0].body.nonce, kind: 'handy' }, '10.0.0.5', peerFingerprint, 'tokentokentoken')
 assert.equal(pair?.host, '10.0.0.5')
 assert.equal(pair?.token, 'tokentokentoken')
+assert.equal(JSON.stringify(loadSettings().fenster_pair_json).includes(pair.token), false)
+assert.equal((await readFensterPair())?.token, pair.token)
 
 const wrongKind = await handleFensterCommand('Zeig die Lage auf dem Tablet', { seek, post })
 assert.match(wrongKind, /Gekoppelt ist ein Handy/)
@@ -110,7 +136,8 @@ const shown = await handleFensterCommand('Zeig die Tischplatte auf dem Handy', {
 assert.equal(shown, shownReply('handy', 'tisch'))
 assert.equal(posted[0].body.op, 'zeig')
 assert.equal(posted[0].body.surface, 'tisch')
-assert.equal(posted[0].body.token, 'tokentokentoken')
+assert.equal(posted[0].body.token, undefined)
+assert.equal(posted[0].authorizationToken, 'tokentokentoken')
 
 const request = {
   nonce: 'abcdef1234567890',
@@ -118,19 +145,57 @@ const request = {
   fromPort: 18792,
   fromName: 'Ultron',
   fromKind: 'handy',
+  fromFingerprint: peerFingerprint,
   at: Date.now(),
 }
 const prepared = await grantFromConfirm(request, 'handy')
 assert.ok(prepared)
 assert.equal(prepared.body.op, 'ja')
-assert.ok(!JSON.stringify(loadSettings().fenster_grant_json || '').includes(prepared.body.token))
+assert.equal(prepared.authorizationToken.length >= 8, true)
+assert.ok(!JSON.stringify(loadSettings().fenster_grant_json || '').includes(prepared.authorizationToken))
 commitFensterGrant(prepared.grant)
 const stored = readFensterGrant()
 assert.equal(stored.tokenHash, prepared.grant.tokenHash)
-assert.ok(!JSON.stringify(loadSettings().fenster_grant_json).includes(prepared.body.token))
-assert.equal(await surfaceAllowed('falsch', 'tisch'), null)
-assert.equal(await surfaceAllowed(prepared.body.token, 'tisch'), 'tisch')
-assert.equal(await surfaceAllowed(prepared.body.token, 'tischlage'), null)
+assert.ok(!JSON.stringify(loadSettings().fenster_grant_json).includes(prepared.authorizationToken))
+assert.equal(await surfaceAllowed('falsch', 'tisch', peerFingerprint), null)
+assert.equal(await surfaceAllowed(prepared.authorizationToken, 'tisch', peerFingerprint), 'tisch')
+assert.equal(await surfaceAllowed(prepared.authorizationToken, 'tisch', 'b'.repeat(64)), null)
+assert.equal(await surfaceAllowed(prepared.authorizationToken, 'tischlage', peerFingerprint), null)
+const stamped = stampFensterBody({ op: 'zeig' })
+assert.equal(fensterVersionOk(stamped), true)
+assert.equal(claimFensterRequest(stamped.requestId), true)
+assert.equal(claimFensterRequest(stamped.requestId), false)
+assert.equal(fensterVersionOk({ ...stamped, expiresAt: Date.now() - 1 }), false)
+
+const { emptyPlan } = await import('../src/engine/idea-plan.ts')
+const projectPlan = emptyPlan('project-1', 'Projektplan')
+await putIdea({
+  id: 'project-1',
+  title: 'Projekt',
+  body: '',
+  status: 'open',
+  plan: projectPlan,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+})
+saveSettings({ plan_idea_id: 'project-1' })
+const target = await validateFensterProjectTarget({
+  projectId: 'project-1',
+  planRevision: await (await import('../src/engine/sync-revisions.ts')).contentHash(
+    (await listIdeas()).find((idea) => idea.id === 'project-1').plan,
+  ),
+})
+assert.equal(target?.projectId, 'project-1')
+assert.equal(
+  await validateFensterProjectTarget({ projectId: 'project-1', planRevision: 'f'.repeat(64) }),
+  null,
+)
+posted.length = 0
+const projectShown = await handleFensterCommand('Zeig die Sprints auf dem Handy', { seek, post })
+assert.equal(projectShown, shownReply('handy', 'sprints'))
+assert.equal(posted[0].body.projectId, 'project-1')
+assert.equal(posted[0].body.planRevision, target.planRevision)
+assert.equal(posted[0].authorizationToken, 'tokentokentoken')
 
 saveSettings({ fenster_pair_json: '' })
 saveFensterRequest(null)
@@ -143,8 +208,14 @@ const css = src('src/ultron-shell.css')
 const app = src('src/App.tsx')
 assert.match(main, /JarvisFensterPlugin/)
 assert.match(apply, /JarvisFensterPlugin\.java/)
-assert.match(java, /ServerSocket/)
-assert.doesNotMatch(java, /0\.0\.0\.0/)
+assert.match(java, /SSLServerSocket/)
+assert.match(java, /DeviceTls\.serverSocket/)
+assert.match(java, /DeviceTls\.clientSocket/)
+assert.match(java, /peerFingerprint/)
+assert.match(java, /Authorization: Bearer/)
+assert.match(java, /payload\.contains\("\\\"token\\\""\)/)
+assert.match(src('native/device/DeviceTls.java'), /setNeedClientAuth\(true\)/)
+assert.match(src('native/device/JarvisDevicePlugin.java'), /AES\/GCM\/NoPadding/)
 assert.match(java, /18792/)
 assert.match(java, /ACCESS_LOCAL_NETWORK/)
 assert.match(src('native/fenster/JarvisFensterService.java'), /JarvisFensterService/)

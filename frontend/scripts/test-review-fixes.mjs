@@ -1,3 +1,4 @@
+// @ts-nocheck — Test-Skript mit losen Literalen/Mocks; Laufzeit wird vom Test selbst geprüft.
 import assert from 'node:assert/strict'
 import { HELP_TEXT, isPersonaAsk, scrubReply } from '../src/engine/guards.ts'
 import { parseIdeaIntent } from '../src/engine/idea-parse.ts'

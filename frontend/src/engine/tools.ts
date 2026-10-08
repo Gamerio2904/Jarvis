@@ -181,8 +181,18 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
   }
 
   if (intent.kind === 'note_delete') {
-    const hits = await noteTargets(intent.query)
-    if (hits.length !== 1) return { handled: true, reply: hits.length ? `Welche Notiz meinst du: ${hits.map((note) => note.body.slice(0, 100)).join(' · ')}?` : `Keine Notiz zu „${intent.query}“.` }
+    const hits = intent.query ? await noteTargets(intent.query) : await listNotes()
+    if (!intent.query && hits.length > 1) {
+      return { handled: true, reply: `Welche Notiz meinst du: ${hits.map((note) => note.body.slice(0, 100)).join(' · ')}?` }
+    }
+    if (hits.length !== 1) {
+      return {
+        handled: true,
+        reply: hits.length
+          ? `Welche Notiz meinst du: ${hits.map((note) => note.body.slice(0, 100)).join(' · ')}?`
+          : intent.query ? `Keine Notiz zu „${intent.query}“.` : 'Es gibt keine Notiz zum Löschen.',
+      }
+    }
     const note = hits[0]
     const row = pendingRow(conversationId, 'notes', 'delete', { id: note.id }, `Notiz löschen: ${note.body.slice(0, 120)}`)
     await setPending(row)

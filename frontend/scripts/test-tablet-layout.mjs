@@ -1,3 +1,4 @@
+// @ts-nocheck — Test-Skript mit losen Literalen/Mocks; Laufzeit wird vom Test selbst geprüft.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -8,6 +9,9 @@ const css = readFileSync(join(here, '../src/index.css'), 'utf8')
 const app = readFileSync(join(here, '../src/App.tsx'), 'utf8')
 const lage = readFileSync(join(here, '../src/ui/lage/Lage.tsx'), 'utf8')
 const blocks = readFileSync(join(here, '../src/engine/chat-blocks.ts'), 'utf8')
+const alexaTheme = readFileSync(join(here, '../src/theme-alexa.css'), 'utf8')
+const notesOverlay = readFileSync(join(here, '../src/ui/NotesOverlay.tsx'), 'utf8')
+const tools = readFileSync(join(here, '../src/engine/tools.ts'), 'utf8')
 
 assert.match(css, /min-width:\s*900px[\s\S]*\.main\.is-lage:not\(\.is-lage-sidechat\) \.messages/)
 assert.match(css, /\.main\.is-lage\.is-lage-sidechat/)
@@ -75,6 +79,7 @@ assert.deepEqual(unassignedCopyTitles(), [])
 console.log('ok test-tablet-layout')
 
 const { deviceClassFor } = await import('../src/engine/device-class.ts')
+const { isTodoQuery, openTodos, todoSpeech, wakeAck } = await import('../src/engine/tablet-todos.ts')
 assert.equal(deviceClassFor(390, 844, true), 'phone')
 assert.equal(deviceClassFor(844, 390, true), 'phone')
 assert.equal(deviceClassFor(820, 1180, true), 'tablet')
@@ -83,4 +88,27 @@ assert.equal(deviceClassFor(1600, 900, false), 'desktop')
 assert.match(css, /html\[data-device='phone'\] \.app/)
 assert.match(css, /html\[data-device='tablet'\] \.messages/)
 assert.match(app, /watchDeviceClass/)
+assert.match(app, /await speakText\(wakeAck\(\)\)/)
+assert.match(app, /const reply = await sendVoiceTurn\(text\)/)
+assert.match(app, /!tabletOn && !voiceOpen/)
+assert.match(alexaTheme, /\.tablet-backdrop[\s\S]*position:\s*absolute/)
+assert.match(lage, /lage-stage/)
+assert.equal(isTodoQuery('Was hab ich für Todos?'), true)
+const todoRows = Array.from({ length: 15 }, (_, i) => ({
+  id: `todo-${i}`,
+  title: `Aufgabe ${i + 1}`,
+  status: 'open',
+  created_at: new Date(i).toISOString(),
+}))
+assert.equal(openTodos(todoRows).length, 15)
+assert.match(todoSpeech(todoRows), /Aufgabe 15/)
+assert.equal(wakeAck(0), 'Ja, Sir?')
+const shell = readFileSync(new URL('../src/ui/TabletShell.tsx', import.meta.url), 'utf8')
+assert.match(shell, /todos\.map\(/)
+assert.doesNotMatch(shell, /todos\.slice\(/)
+assert.match(notesOverlay, /await deleteNote\(id\)/)
+assert.match(notesOverlay, /setNotes\(\(current\) => current\.filter\(\(note\) => note\.id !== id\)\)/)
+assert.match(notesOverlay, /aria-label=\{`Notiz löschen:/)
+assert.match(tools, /intent\.query \? await noteTargets\(intent\.query\) : await listNotes\(\)/)
+console.log('ok tablet wake, backdrop and complete todo list')
 console.log('ok device-class')

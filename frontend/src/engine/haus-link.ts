@@ -27,21 +27,24 @@ export function parseHausLink(text: string): HausLinkIntent | null {
   return null
 }
 
-export function hausCode(url: string): string {
-  return `jarvis-haus:v1|${url}`
+export type HausQr = { url: string; token: string; fingerprint: string }
+
+export function hausCode(house: HausQr): string {
+  return `jarvis-haus:v3|${house.url}|${house.token}|${house.fingerprint}`
 }
 
-/** Adresse aus dem gescannten Code. Fremde Codes bleiben draußen. */
-export function parseHausQr(raw: string): string | null {
+/** Ein gescannter Exportcode ist akzeptiert, wenn TLS und QR-verteiltes Pairing-Pin vorhanden sind. */
+export function parseHausQr(raw: string): HausQr | null {
   const t = raw.trim()
-  const m = /^jarvis-haus:v1\|(https?:\/\/\S+)$/i.exec(t)
+  const m = /^jarvis-haus:v3\|(https:\/\/[^|\s]+)\|([0-9a-f]{16,64})\|([0-9a-f]{64})$/i.exec(t)
   if (!m) return null
   try {
     const url = new URL(m[1])
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
-    if (!url.pathname.startsWith('/hausstand')) return null
-    if (!url.searchParams.get('t')) return null
-    return url.toString()
+    const host = url.hostname
+    const privateHost = /^10\.(?:\d{1,3}\.){2}\d{1,3}$/.test(host)
+      || /^192\.168\.(?:\d{1,3}\.)\d{1,3}$/.test(host)
+    if (url.protocol !== 'https:' || !privateHost || url.username || url.password || url.search || url.hash || url.pathname !== '/') return null
+    return { url: `https://${url.host}`, token: m[2], fingerprint: m[3].toLowerCase() }
   } catch {
     return null
   }
@@ -56,18 +59,14 @@ export async function offerHausQr(json: string): Promise<{ reply: string; blocks
   const live = await hausOffer(json)
   if (!live.ok || !live.url) {
     if (!hausNative()) {
-      const src = qrImageDataUrl(hausCode('http://192.168.0.2/hausstand?t=vorschau'))
-      const blocks: ChatBlock[] = src
-        ? [{ kind: 'image', src, alt: 'Hausstand-Code', source: 'Vorschau' }]
-        : []
       return {
-        reply: 'Vorschau. Auf Tablet und Handy im selben WLAN entsteht der echte Code. Dann: Scanne QR Code.',
-        blocks,
+        reply: 'Der geschützte Hausstand-Transfer braucht die native App und ein bestätigtes TLS-Gerät.',
       }
     }
     return { reply: live.message || 'Kein WLAN. Beide Geräte ins selbe Netz, dann den Satz nochmal.' }
   }
-  const src = qrImageDataUrl(live.code || hausCode(live.url))
+  if (!live.code) return { reply: 'Der sichere Kopplungs-Code fehlt.' }
+  const src = qrImageDataUrl(live.code)
   if (!src) return { reply: 'Der Code fehlt.' }
   return {
     reply: 'Hausstand-Code. Gleiches WLAN. Ohne Gespräche. Keys sind drin. Auf dem anderen Gerät: Scanne QR Code.',

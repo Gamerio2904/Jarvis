@@ -1,3 +1,4 @@
+// @ts-nocheck — Test-Skript mit losen Literalen/Mocks; Laufzeit wird vom Test selbst geprüft.
 import puppeteer from 'puppeteer-core'
 import { mkdirSync } from 'node:fs'
 

@@ -8,6 +8,7 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
   const [editing, setEditing] = useState<Note | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
   const [error, setError] = useState('')
+  const [deletingId, setDeletingId] = useState('')
 
   const refresh = useCallback(async () => {
     try {
@@ -49,13 +50,17 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
   }
 
   async function remove(id = editing?.id) {
-    if (!id) return
+    if (!id || deletingId) return
+    setDeletingId(id)
     try {
       await deleteNote(id)
-      closeEditor()
+      setNotes((current) => current.filter((note) => note.id !== id))
+      if (editing?.id === id) closeEditor()
       await refresh()
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Notiz konnte nicht gelöscht werden.')
+    } finally {
+      setDeletingId('')
     }
   }
 
@@ -80,7 +85,9 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
             <button type="button" className="ghost-btn" onClick={closeEditor}>Abbrechen</button>
             <button type="button" className="ghost-btn" onClick={() => void save()}>Speichern</button>
             {editing ? (
-              <button type="button" className="ghost-btn" onClick={() => void remove()}>Löschen</button>
+              <button type="button" className="ghost-btn" disabled={deletingId === editing.id} onClick={() => void remove()}>
+                {deletingId === editing.id ? 'Wird gelöscht…' : 'Löschen'}
+              </button>
             ) : null}
           </div>
         </section>
@@ -97,7 +104,15 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
                   <strong>{note.body.split('\n')[0] || 'Leere Notiz'}</strong>
                   {note.body.includes('\n') ? <span>{note.body.slice(note.body.indexOf('\n') + 1)}</span> : null}
                 </button>
-                <button type="button" className="ghost-btn notes-del" aria-label="Notiz löschen" onClick={() => void remove(note.id)}>✕</button>
+                <button
+                  type="button"
+                  className="ghost-btn notes-del"
+                  aria-label={`Notiz löschen: ${note.body.slice(0, 80)}`}
+                  disabled={deletingId === note.id}
+                  onClick={() => void remove(note.id)}
+                >
+                  {deletingId === note.id ? '…' : 'Löschen'}
+                </button>
               </div>
             ))}
             {!filtered.length ? <p className="watch-empty">{query ? 'Keine passenden Notizen.' : 'Noch keine Notizen.'}</p> : null}

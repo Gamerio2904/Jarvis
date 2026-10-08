@@ -465,6 +465,8 @@ assert.equal(parseReminderIntent('erinner mich an Steuer')?.kind, 'ask')
 assert.equal(parseToolIntent('erledige das erste')?.kind, 'todo_done_first')
 assert.equal(parseToolIntent('was steht an')?.kind, 'todo_list')
 assert.equal(parseToolIntent('Was soll ich kaufen?'), null)
+assert.deepEqual(parseToolIntent('Lösche die Notiz'), { kind: 'note_delete', query: '' })
+assert.deepEqual(parseToolIntent('Lösche die Notiz Milch kaufen'), { kind: 'note_delete', query: 'Milch kaufen' })
 
 assert.ok(isHelpCommand('/hilfe'))
 assert.match(scrubReply('Du bist toll und dein Hund auch'), /Sie/)

@@ -6,10 +6,29 @@ Angaben gezielt klären und beim Sprechen kürzer und natürlicher antworten.
 Soup soll dafür als mögliches Werkzeug geprüft werden, nicht als vorab
 beschlossene Laufzeit-Abhängigkeit.
 
-**Planungsstand:** PLAN. Sprints **467–482**, aufgeteilt in vier
-Release-Gates `18.32.0`–`18.35.0`. Start erst nach abgeschlossener
-18.31.0-Geräteabnahme. Das Vorliegen eines Test-Builds oder grüner Unit-Tests
-allein gilt nicht als Release-Freigabe.
+**Planungsstand:** Sprints **467–482**, aufgeteilt in vier
+Release-Gates `18.32.0`–`18.35.0`. Die Gerätebasis `18.31.5` ist laut
+Nutzerabnahme erfüllt; die nachfolgenden Geräte-/Release-Gates bleiben
+weiterhin Voraussetzung für eine Freigabe. Unit-Tests oder ein Test-Build
+allein ersetzen sie nicht.
+
+**Ist-Stand im Arbeitsbaum (Code-Vorbereitung, keine Release-Abnahme):**
+
+| Sprints | Im Code vorhanden und geprüft | Noch offen |
+|---|---|---|
+| 467–470 | Der Eval-Runner misst 530 Routingfälle; aktuelle Trefferquote 100 %, Rückfragequote 0 % und aktuell 0 falsche schreibende/Geräte-Routen. Explizite Mehrdeutigkeiten mit `oder` werden bei passendem Parser-Kandidaten nicht ausgeführt; Governance prüft Labels, Datenschutzmuster, Varianten und Familien-Splits. Datenschutztreffer werden aus dem Trainingssplit ausgeschlossen; der verbleibende Korpus wird sauber in Train/Test geteilt. | Vollständige kuratierte Verwechslungs-Goldfälle, dokumentierte Soup-/Shadow-Auswertung und Android-Laufzeitmessung. Der neue Messwert falscher ausführbarer Routen hat keine historische Baseline. |
+| 471–474 | Planvalidator und Import-/Exporttests prüfen Planstruktur und Anforderungen-/Sprintreferenzen. Planvorschläge werden zunächst als Pending abgelegt und erst nach expliziter Bestätigung übernommen; Verwerfen/Ablauf/ungültige Vorschläge überschreiben keinen gespeicherten Plan. | Vollständiger Wunsch→Klärung→Vorschau→Bestätigung→Export-E2E über Browser/Android-Gate und abschließende Release-Abnahme fehlen. |
+| 475–478 | Eine fehlende Erinnerungszeit wird gespeichert, auf dieselbe Unterhaltung gebunden, nach 15 Minuten verworfen, bei Abbruch entfernt und über Chat mit einer Zeitantwort fortgesetzt. | Pflichtfeld-Inventar und Goldabdeckung anderer Aktionen, Kontext-/Konfliktfälle sowie Datenschutz- und Android-Neustart-Gate fehlen. |
+| 479–482 | TTS-Faktenprüfung vor Kürzung und Regressionstest für Faktenwahrung sind vorhanden. | Natürlichkeitsvergleich, hörbare Goldfälle, Messung auf Zielgeräten, Latenz-/Speicherwerte und durchgängiges Release-Gate fehlen. |
+
+Die gezielten Routing-, Governance-, Plan-, Projektdatei-, Voice-Fact- und
+Reminder-Follow-up-Tests bestehen. `eval:report` bestätigt 100 % Routingtreffer
+auf 530 vorhandenen Korpusfällen; der Bericht zeigt für den noch nicht historisch
+erfassten Messwert „Falsche ausführbare Route“ bewusst keine erfundene
+Grundlinie. `tsc:scripts` meldet weiterhin Fehler in bestehenden
+Test-/GUI-Skripten; der Produktionsbuild und die übrigen Release-Gates sind
+separat zu prüfen. Soup bleibt ohne geprüften Modell-/Lizenz-/Gerätenachweis
+außerhalb der App. Kein Gate `18.32.0`–`18.35.0` ist freigegeben.
 
 ## 1. Zielbild und Reihenfolge
 
@@ -98,7 +117,7 @@ vorherigen.
 
 | Sprint | Ergebnis | Abhängigkeit |
 |---:|---|---|
-| [467](./sprints/sprint-467.md) | Intent-Kategorien, Grenzen und Goldfälle festlegen | 466 / 18.31.0 Gate |
+| [467](./sprints/sprint-467.md) | Intent-Kategorien, Grenzen und Goldfälle festlegen | 466 / 18.31.5 Gate |
 | [468](./sprints/sprint-468.md) | Geprüfte, nicht private Ausgangsdaten erzeugen | 467 |
 | [469](./sprints/sprint-469.md) | Formulierungsvarianten, Datensatzprüfung und Trennung erzeugen | 468 |
 | [470](./sprints/sprint-470.md) | Ist-Verhalten messen und Soup im Vergleich bewerten | 469 |

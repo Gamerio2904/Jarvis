@@ -1,3 +1,4 @@
+// @ts-nocheck — Test-Skript mit losen Literalen/Mocks; Laufzeit wird vom Test selbst geprüft.
 import assert from 'node:assert/strict'
 
 const { addYearsKeepDay, expandEvents, recurLabel } = await import('../src/engine/calendar-occur.ts')

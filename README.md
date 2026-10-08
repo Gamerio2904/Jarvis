@@ -1,4 +1,4 @@
-Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.20.1`**. Sideload-APK **`18.20.1`** (versionCode `182001`). PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
+Privater Assistant. Die aktuelle App-Version ist **`18.31.5`** (versionCode `183105`). Sie läuft als Android-App; zusätzlich gibt es eine Browser-Dev-Oberfläche. Der Stand ist ein Test-Build, keine finale Geräte- oder Release-Freigabe. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
 
 **Hirn:** **Groq primär** (API-Key). **Gemini Spezialist** (Vision, Deep Research). Lokales 0,5B **Fallback**. Agenten-Netzwerk: Director + 60 Domänen-Agenten, Agenten-Karte in Lage. Parser wählen Geräte; Groq/Gemini formuliert Smalltalk.
 
@@ -12,9 +12,11 @@ npm run dev
 
 Browser: http://localhost:5173 — Groq-Key für Smalltalk. Gemini für Vision/Deep. Lokales 0,5B Backup (~470 MB).
 
-## Android-APK
+## Android-App und Tablet
 
-Sideload **`Jarvis.apk` `18.20.1`** (versionCode `182001`):  
+Die Android-App enthält Notizen/Todos, die überarbeitete Tischplatte, Echo-Theme und Tabletmodus. Der Tabletmodus zeigt die Lage im Vollbild; der Hausstand-Server wird separat und ausdrücklich gestartet. Die Hausstand-Kopplung nutzt TLS mit Geräte-Zertifikat-Pinning und blockiert Sync bei abweichender App-/Protokollversion. Hausstand-Abgleich beruht derzeit noch auf Zeitstempeln, nicht auf kausalen Revisionen.
+
+Der neueste lokale Test-Build heißt **`Jarvis.apk` `18.31.5`** (versionCode `183105`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat
@@ -28,6 +30,8 @@ PC-Test: [`docs/TEST-PC.md`](docs/TEST-PC.md) · Seit 1.16: [`docs/TEST-1.16-plu
 1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
 2. **Groq-Key** eintragen (Smalltalk). Optional **Gemini** (Vision/Research).
 3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
+
+Die nächsten geplanten Stufen sind in [`docs/101-next.md`](docs/101-next.md) (Sprints 467–482, `18.32.0`–`18.35.0`) und [`docs/102-next.md`](docs/102-next.md) (Sprints 483–494, `18.36.0`–`18.38.0`) dokumentiert. Vorhandener Code in der Arbeitskopie gilt nicht automatisch als abgenommenes Release.
 
 ## Prüfen
 

@@ -1,6 +1,12 @@
 # Zwei Fenster
 
-Plan nach [`plan-vorlage.md`](./plan-vorlage.md). S1, S2 und S3 sind in App-Code `18.25.12` gebaut. Ab `18.25.13` hört die Kopplung weiter, wenn die Fläche nicht vorn liegt. Der Vergleich der Hausstände nach dem Koppeln steht in [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) und ist noch nicht gebaut.
+Die bestätigte Kopplung und der begrenzte Oberflächenbefehl sind bereits als
+Basis vorhanden. Der ursprüngliche Plantext unten dokumentiert die
+Anforderungen dieser Lieferung. Der sichere Ausbau für denselben
+Hausstand-/App-Versionsstand, expliziten Serverstart und Projekt-/Sprintansicht
+steht in [`102-next.md`](./102-next.md), Sprints 483–494.
+
+Plan nach [`plan-vorlage.md`](./plan-vorlage.md). S1, S2 und S3 sind in App-Code `18.25.12` gebaut. Ab `18.25.13` hört die Kopplung weiter, wenn die Fläche nicht vorn liegt. Der Hausstand-Abgleich ist teilweise in Test-APK `18.31.5` enthalten; sichere Weiterentwicklung und Projekt-/Sprintansicht stehen in [`102-next.md`](./102-next.md).
 
 ## Bedingung
 

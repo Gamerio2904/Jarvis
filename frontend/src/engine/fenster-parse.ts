@@ -1,6 +1,16 @@
 export type FensterKind = 'handy' | 'tablet'
 
-export const FENSTER_SURFACES = ['home', 'tisch', 'lage', 'chat', 'calendar', 'watchlist', 'voice'] as const
+export const FENSTER_SURFACES = [
+  'home',
+  'tisch',
+  'lage',
+  'chat',
+  'calendar',
+  'watchlist',
+  'voice',
+  'planning',
+  'sprints',
+] as const
 
 export type FensterSurface = (typeof FENSTER_SURFACES)[number]
 
@@ -12,6 +22,8 @@ const SURFACE_WORD: Array<[RegExp, FensterSurface]> = [
   [/kalender/, 'calendar'],
   [/filme|watchliste|watchlist/, 'watchlist'],
   [/hören|hoeren|horen|sprache/, 'voice'],
+  [/planung|planungsmodus|projektplanung/, 'planning'],
+  [/sprints?/, 'sprints'],
 ]
 
 export function parseFensterConnect(text: string): FensterKind | null {
@@ -48,5 +60,6 @@ export function fensterSurfaceLabel(surface: FensterSurface): string {
   if (surface === 'chat') return 'Chat'
   if (surface === 'calendar') return 'Kalender'
   if (surface === 'watchlist') return 'Filme'
-  return 'Hören'
+  if (surface === 'voice') return 'Hören'
+  return surface === 'planning' ? 'Planung' : 'Sprints'
 }

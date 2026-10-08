@@ -1831,20 +1831,23 @@ textarea {
 .messages {
   flex: 1 1 0;
   min-height: 0;
+  min-width: 0;
   overflow: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
-  padding: 24px 16px 20px 16px;
+  padding: clamp(14px, 2.4vw, 28px) clamp(12px, 2vw, 24px) 20px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
 .messages-inner {
   width: min(820px, 100%);
+  min-width: 0;
   min-height: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: clamp(14px, 2vw, 22px);
 }
 
 .messages-inner.thread-slide {
@@ -1902,10 +1905,10 @@ textarea {
 
 .row {
   display: flex;
-  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  gap: clamp(8px, 1.2vw, 12px);
   align-items: flex-start;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 84px;
 }
 
 .row.enter-user {
@@ -1949,12 +1952,14 @@ textarea {
 }
 
 .bubble {
-  max-width: min(680px, 85%);
-  padding: 12px 14px;
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(680px, 100%);
+  padding: clamp(12px, 1.5vw, 16px) clamp(14px, 1.8vw, 20px);
   border-radius: var(--radius);
   line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: anywhere;
   transition:
     transform var(--motion-med) var(--ease-spring),
     box-shadow var(--motion-med) ease,
@@ -1962,8 +1967,29 @@ textarea {
 }
 
 .bubble-text {
+  min-width: 0;
+  max-width: 100%;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
   font-variant-numeric: tabular-nums;
+}
+
+.row.assistant .bubble {
+  max-width: min(680px, calc(100% - 44px));
+}
+
+.row.user .bubble {
+  max-width: min(680px, 92%);
+}
+
+.bubble > *,
+.chat-blocks,
+.sources-block,
+.tool-chip-wrap,
+.kicker-table-wrap {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .sources-block {
@@ -2311,12 +2337,11 @@ button.linkish {
 }
 
 .row.assistant .bubble {
-  background: transparent;
-  padding-left: 0;
+  padding-left: clamp(14px, 1.8vw, 20px);
 }
 
 .row.assistant:hover .bubble {
-  transform: translateX(3px);
+  transform: translateY(-1px);
 }
 
 .row.user .bubble {
@@ -2328,7 +2353,7 @@ button.linkish {
 }
 
 .row.user:hover .bubble {
-  transform: translateY(-3px) rotate(-0.5deg);
+  transform: translateY(-1px);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(228, 195, 106, 0.2);
 }
 
@@ -8354,6 +8379,15 @@ html.theme-wipe-dark::before {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+}
+
+.xfer-copy > :first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.xfer-copy > :last-child {
+  flex: 0 0 auto;
 }
 
 .xfer-note {

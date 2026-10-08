@@ -62,6 +62,8 @@ import {
   addResearchAudit,
   createConversation as storeCreate,
   deleteConversation as storeDelete,
+  clearPending,
+  getPending,
   get as storeGet,
   listConversations as storeListConv,
   listMemory,
@@ -78,6 +80,7 @@ import {
   type Settings,
 } from './store.ts'
 import { handlePlaces } from './places.ts'
+import { handleReminders } from './reminders.ts'
 import { handlePc } from './pc.ts'
 import { handleClip } from './clip.ts'
 import { handleTaxi } from './taxi.ts'
@@ -90,6 +93,7 @@ import { handleFuelOrdinal } from './fuel.ts'
 import { handlePoiOrdinal } from './poi.ts'
 import { draftFramesOpen, parseEntwurfIntent } from './entwurf-parse.ts'
 import { handleEntwurf } from './entwurf.ts'
+import { handlePendingPlanProposal } from './idea.ts'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal.ts'
 import { type ToolMeta } from './tools.ts'
 import { routeRegistry, type RouteHit } from './registry.ts'
@@ -186,6 +190,23 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: HELP_TEXT,
       lastTool: 'help',
       tool: { tool_status: 'executed', tool: 'help', action: 'catalog', label: 'Hilfe' },
+    }
+  }
+
+  const planProposalHit = await handlePendingPlanProposal(conversationId, content)
+  if (planProposalHit?.handled && planProposalHit.reply) {
+    return { reply: planProposalHit.reply, tool: planProposalHit.tool, lastTool: 'idea' }
+  }
+
+  const pendingReminder = await getPending(conversationId)
+  if (pendingReminder?.tool === 'reminder' && pendingReminder.action === 'ask_time') {
+    if (pendingYields(content, 'reminder')) {
+      await clearPending(conversationId)
+    } else {
+      const hit = await handleReminders(conversationId, content)
+      if (hit.handled && hit.reply) {
+        return { reply: hit.reply, tool: hit.tool, lastTool: 'reminder' }
+      }
     }
   }
 

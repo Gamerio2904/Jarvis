@@ -57,7 +57,7 @@ export function TabletShell(p: Props) {
           </header>
           {todos.length ? (
             <ul>
-              {todos.slice(0, 12).map((t) => (
+              {todos.map((t) => (
                 <li key={t.id}>
                   <span>{t.title}</span>
                   {t.deadline_date ? <small>{t.deadline_date.split('-').reverse().join('.')}{t.deadline_time ? ` ${t.deadline_time}` : ''}</small> : null}

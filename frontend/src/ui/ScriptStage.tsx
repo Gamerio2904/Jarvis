@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { CATALOG_STAND } from '../engine/feature-catalog.ts'
+import { isTischplatteView } from '../engine/board-types.ts'
 import {
   downloadTextFile,
   fileFor,
@@ -12,8 +13,20 @@ import {
 } from '../engine/project-docs.ts'
 import { cannedPlanLine, planDeskLines } from '../engine/plan-desk.ts'
 import { listPortfolio } from '../engine/portfolio.ts'
-import { saveSettings, type Idea, type MemoryProposal } from '../engine/store.ts'
-import { emptyPlan, restorePlanRevision, type IdeaSimulation, type IdeaSimulationElement, type IdeaSprint } from '../engine/idea-plan.ts'
+import { newId, saveSettings, type Idea, type MemoryProposal } from '../engine/store.ts'
+import {
+  diffPlanRevisions,
+  emptyPlan,
+  moveBacklogItem,
+  parsePlan,
+  restorePlanRevision,
+  type IdeaPlan,
+  type IdeaSimulation,
+  type IdeaSimulationElement,
+  type IdeaSprint,
+  type PlanRisk,
+  type PlanStatus,
+} from '../engine/idea-plan.ts'
 import { guiSimulation, wbsFor, workflowDryRun, type WbsNode } from '../engine/idea-simulation.ts'
 
 function renderSimulationElement(element: IdeaSimulationElement, index: number): ReactNode {
@@ -65,6 +78,7 @@ export function ScriptStage({
   onYes,
   onNo,
   onSimulationChange,
+  onPlanChange,
   onImportProject,
 }: {
   view: string
@@ -84,6 +98,7 @@ export function ScriptStage({
   onYes: (id: string) => void
   onNo: (id: string) => void
   onSimulationChange: (simulation: IdeaSimulation | null) => Promise<void>
+  onPlanChange: (plan: IdeaPlan, summary: string) => Promise<void>
   onImportProject: (raw: unknown) => Promise<string>
 }) {
   const now = useClock()
@@ -122,8 +137,20 @@ export function ScriptStage({
   const [proposedSimulation, setProposedSimulation] = useState<IdeaSimulation | null>(null)
   const [simulationError, setSimulationError] = useState('')
   const [importNote, setImportNote] = useState('')
+  const [planError, setPlanError] = useState('')
+  const [backlogDescription, setBacklogDescription] = useState('')
+  const [backlogRequirement, setBacklogRequirement] = useState('')
+  const [undoBacklogPlan, setUndoBacklogPlan] = useState<IdeaPlan | null>(null)
+  const [riskDescription, setRiskDescription] = useState('')
+  const [riskImpact, setRiskImpact] = useState('')
+  const [riskMitigation, setRiskMitigation] = useState('')
+  const [statusReason, setStatusReason] = useState('')
+  const [statusNextAction, setStatusNextAction] = useState('')
+  const [selectedRevision, setSelectedRevision] = useState('')
+  const [stageView, setStageView] = useState(view)
   const locked = phase === 'go'
   const live = phase === 'live'
+  useEffect(() => setStageView(view), [view])
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -157,7 +184,7 @@ export function ScriptStage({
   const clock = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
   const visible = lines.slice(0, shown)
   const typing = live && shown < lines.length
-  const baseSimulation = view === 'workflow'
+  const baseSimulation = stageView === 'workflow'
     ? workflowDryRun(idea?.plan || emptyPlan(idea?.id || ''), idea?.title || 'Projekt')
     : idea?.plan?.simulation?.kind === 'gui'
       ? idea.plan.simulation
@@ -212,7 +239,7 @@ export function ScriptStage({
   async function undoSimulationChange() {
     const latest = idea?.plan?.revisions?.at(-1)
     if (!latest || !idea?.plan) return
-    const restored = restorePlanRevision(idea.plan, latest.id)
+    const restored = restorePlanRevision(idea.plan, latest.id, newId())
     if (!restored) {
       setSimulationError('Die vorige Vorschau konnte nicht wiederhergestellt werden.')
       return
@@ -223,6 +250,88 @@ export function ScriptStage({
     } catch (error) {
       setSimulationError(error instanceof Error ? error.message : String(error))
     }
+  }
+
+  async function persistPlan(plan: IdeaPlan, summary: string) {
+    try {
+      await onPlanChange(plan, summary)
+      setPlanError('')
+    } catch (error) {
+      setPlanError(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  async function addBacklogItem() {
+    const description = backlogDescription.trim()
+    if (!idea?.plan || !description) return
+    const plan = idea.plan
+    const requirementIds = backlogRequirement.trim() ? [backlogRequirement.trim()] : []
+    await persistPlan({
+      ...plan,
+      backlog: [...(plan.backlog || []), {
+        id: `B-${newId()}`,
+        description,
+        requirementIds,
+        status: 'backlog',
+      }],
+    }, 'Backlog-Eintrag ergänzt')
+    setBacklogDescription('')
+    setBacklogRequirement('')
+  }
+
+  async function moveBacklog(id: string, sprintId?: string) {
+    if (!idea?.plan) return
+    const next = moveBacklogItem(idea.plan, id, sprintId)
+    if (!next) {
+      setPlanError('Der Backlog-Eintrag konnte nicht verschoben werden. Prüfe Ziel-Sprint und Anforderungen.')
+      return
+    }
+    setUndoBacklogPlan(idea.plan)
+    await persistPlan(next, sprintId ? `Backlog-Eintrag in Sprint ${sprintId} verschoben` : 'Eintrag zurück in den Backlog verschoben')
+  }
+
+  async function undoBacklogMove() {
+    if (!undoBacklogPlan) return
+    await persistPlan(undoBacklogPlan, 'Backlog-Verschiebung rückgängig gemacht')
+    setUndoBacklogPlan(null)
+  }
+
+  async function addRisk() {
+    if (!idea?.plan || !riskDescription.trim() || !riskImpact.trim() || !riskMitigation.trim()) return
+    const risk: PlanRisk = {
+      id: `R-${newId()}`,
+      description: riskDescription.trim(),
+      impact: riskImpact.trim(),
+      mitigation: riskMitigation.trim(),
+      status: 'open',
+    }
+    await persistPlan({ ...idea.plan, risks: [...(idea.plan.risks || []), risk] }, 'Risiko erfasst')
+    setRiskDescription('')
+    setRiskImpact('')
+    setRiskMitigation('')
+  }
+
+  async function setRiskStatus(id: string, status: PlanRisk['status']) {
+    if (!idea?.plan) return
+    await persistPlan({
+      ...idea.plan,
+      risks: (idea.plan.risks || []).map((risk) => risk.id === id ? { ...risk, status } : risk),
+    }, status === 'resolved' ? 'Risiko erledigt' : 'Risiko wieder geöffnet')
+  }
+
+  async function addStatusUpdate(status: PlanStatus) {
+    if (!idea?.plan || !statusReason.trim()) return
+    await persistPlan({
+      ...idea.plan,
+      statusUpdates: [...(idea.plan.statusUpdates || []), {
+        status,
+        at: new Date().toISOString(),
+        reason: statusReason.trim(),
+        nextAction: statusNextAction.trim() || undefined,
+      }],
+    }, 'Projektstatus aktualisiert')
+    setStatusReason('')
+    setStatusNextAction('')
   }
 
   function renderWbs(node: WbsNode): ReactNode {
@@ -272,7 +381,20 @@ export function ScriptStage({
   }
 
   function setView(next: string) {
-    saveSettings({ tischplatte_on: true, tischplatte_view: next })
+    setStageView(next)
+    if (isTischplatteView(next)) saveSettings({ tischplatte_on: true, tischplatte_view: next })
+  }
+
+  const revisionRows = idea?.plan?.revisions || []
+  const chosenRevision = revisionRows.find((revision) => revision.id === selectedRevision) || revisionRows.at(-1)
+  let revisionDiff: ReturnType<typeof diffPlanRevisions> = []
+  if (chosenRevision && idea?.plan) {
+    try {
+      const prior = parsePlan(JSON.parse(chosenRevision.snapshot), idea.plan.ideaId)
+      if (prior) revisionDiff = diffPlanRevisions(prior, idea.plan)
+    } catch {
+      revisionDiff = []
+    }
   }
 
   return (
@@ -302,29 +424,170 @@ export function ScriptStage({
         </ol>
         <aside className="script-side" aria-label="Plan">
           <div className="script-focus" role="group" aria-label="Sicht">
-            <button type="button" className={view === 'sprints' ? 'is-on' : ''} onClick={() => setView('sprints')}>
+            <button type="button" aria-pressed={stageView === 'sprints'} className={stageView === 'sprints' ? 'is-on' : ''} onClick={() => setView('sprints')}>
               Sprints
             </button>
-            <button type="button" className={view === 'psp' ? 'is-on' : ''} onClick={() => setView('psp')}>
+            <button type="button" aria-pressed={stageView === 'psp'} className={stageView === 'psp' ? 'is-on' : ''} onClick={() => setView('psp')}>
               PSP
             </button>
-            <button type="button" className={view === 'research' ? 'is-on' : ''} onClick={() => setView('research')}>
+            <button type="button" aria-pressed={stageView === 'research'} className={stageView === 'research' ? 'is-on' : ''} onClick={() => setView('research')}>
               Quellen
             </button>
-            <button type="button" className={view === 'sim' ? 'is-on' : ''} onClick={() => setView('sim')}>Vorschau</button>
-            <button type="button" className={view === 'workflow' ? 'is-on' : ''} onClick={() => setView('workflow')}>Probelauf</button>
+            <button type="button" aria-pressed={stageView === 'backlog'} className={stageView === 'backlog' ? 'is-on' : ''} onClick={() => setView('backlog')}>Backlog</button>
+            <button type="button" aria-pressed={stageView === 'dependencies'} className={stageView === 'dependencies' ? 'is-on' : ''} onClick={() => setView('dependencies')}>Abhängigkeiten</button>
+            <button type="button" aria-pressed={stageView === 'timeline'} className={stageView === 'timeline' ? 'is-on' : ''} onClick={() => setView('timeline')}>Zeitplan</button>
+            <button type="button" aria-pressed={stageView === 'risks'} className={stageView === 'risks' ? 'is-on' : ''} onClick={() => setView('risks')}>Risiken & Status</button>
+            <button type="button" aria-pressed={stageView === 'revisions'} className={stageView === 'revisions' ? 'is-on' : ''} onClick={() => setView('revisions')}>Revisionen</button>
+            <button type="button" aria-pressed={stageView === 'sim'} className={stageView === 'sim' ? 'is-on' : ''} onClick={() => setView('sim')}>Vorschau</button>
+            <button type="button" aria-pressed={stageView === 'workflow'} className={stageView === 'workflow' ? 'is-on' : ''} onClick={() => setView('workflow')}>Probelauf</button>
           </div>
-          {view === 'research' ? (
-            <ul>
-              {sources.length ? (
-                sources.map((s) => <li key={s}>{s}</li>)
-              ) : (
-                <li>Keine Quelle im Store. Die Wege stehen im Satz. Sag Such, dann kommt eine Quelle dazu.</li>
-              )}
-            </ul>
-          ) : view === 'sim' || view === 'workflow' ? (
-            <div className="script-simulation" aria-label={view === 'workflow' ? 'Ablauf-Simulation' : 'Oberflächenvorschau'}>
-              <p className="script-simulation-badge">{view === 'workflow' ? 'Gedankliche Simulation — keine echte Ausführung' : 'Oberflächenvorschau — keine Live-App'}</p>
+          {stageView === 'backlog' ? (
+            idea?.plan ? (
+              <section aria-labelledby="plan-backlog-title">
+                <h3 id="plan-backlog-title">Backlog — ungeplante Arbeit</h3>
+                <p>Ein Eintrag wird erst durch eine ausdrückliche Auswahl einem Sprint zugeordnet; dadurch wird kein Sprint freigegeben.</p>
+                <form onSubmit={(event) => { event.preventDefault(); void addBacklogItem() }}>
+                  <label>Beschreibung<input value={backlogDescription} maxLength={500} onChange={(event) => setBacklogDescription(event.target.value)} /></label>
+                  <label>Anforderungs-ID (optional)<input value={backlogRequirement} maxLength={80} onChange={(event) => setBacklogRequirement(event.target.value)} /></label>
+                  <button type="submit" disabled={!backlogDescription.trim()}>Zum Backlog hinzufügen</button>
+                </form>
+                {idea.plan.backlog?.length ? (
+                  <ul aria-label="Backlog-Einträge">
+                    {idea.plan.backlog.map((item) => (
+                      <li key={item.id}>
+                        <strong>{item.description}</strong>
+                        <span>{item.status === 'planned' ? `Sprint ${item.sprintId}` : item.status === 'done' ? 'Erledigt' : 'Nicht eingeplant'}</span>
+                        {item.requirementIds.length ? <span>Anforderungen: {item.requirementIds.join(', ')}</span> : <span>Keine Anforderung verknüpft</span>}
+                        {item.status !== 'done' ? (
+                          <label>
+                            Ziel-Sprint für {item.description}
+                            <select value={item.status === 'planned' ? item.sprintId : ''} onChange={(event) => void moveBacklog(item.id, event.target.value || undefined)}>
+                              <option value="">Backlog (nicht eingeplant)</option>
+                              {idea.plan?.sprints.map((sprint) => <option key={sprint.n} value={sprint.n}>Sprint {sprint.n} — {sprint.title || sprint.ziel}</option>)}
+                            </select>
+                          </label>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p>Der Backlog ist leer.</p>}
+                {undoBacklogPlan ? <button type="button" onClick={() => void undoBacklogMove()}>Verschiebung rückgängig</button> : null}
+                {planError ? <p role="alert">{planError}</p> : null}
+              </section>
+            ) : <p>Für dieses Projekt gibt es noch keinen Plan.</p>
+          ) : stageView === 'dependencies' ? (
+            idea?.plan ? (
+              <section aria-labelledby="plan-dependencies-title">
+                <h3 id="plan-dependencies-title">Sprintbeziehungen</h3>
+                {idea.plan.sprints.length ? <ul>{idea.plan.sprints.map((sprint) => {
+                  const relations = sprint.relations || sprint.haengt_an.map((targetId) => ({ type: 'depends_on' as const, targetId }))
+                  return <li key={sprint.n}>
+                    <strong>Sprint {sprint.n} — {sprint.title || sprint.ziel}</strong>
+                    {relations.length ? <ul>{relations.map((relation, index) => <li key={`${relation.type}-${relation.targetId}-${index}`}>{relation.type === 'depends_on' ? 'benötigt' : relation.type === 'blocks' ? 'blockiert' : 'verwandt mit'} Sprint {relation.targetId}</li>)}</ul> : <span>Keine Abhängigkeiten</span>}
+                    <span>Gateway: {sprint.gateway}</span>
+                  </li>
+                })}</ul> : <p>Noch keine Sprints vorhanden.</p>}
+              </section>
+            ) : <p>Für dieses Projekt gibt es noch keinen Plan.</p>
+          ) : stageView === 'timeline' ? (
+            idea?.plan ? (
+              <section aria-labelledby="plan-timeline-title">
+                <h3 id="plan-timeline-title">Optionale Zeitplanung</h3>
+                <p>Zeiten behalten ihre angegebene Zeitzone. Leere Daten bleiben ungeplant; Konflikte verschieben nichts automatisch.</p>
+                {idea.plan.sprints.length ? <ol>{[...idea.plan.sprints].sort((a, b) => (a.startAt || '').localeCompare(b.startAt || '') || Number(a.n) - Number(b.n)).map((sprint) => (
+                  <li key={sprint.n}>
+                    <strong>Sprint {sprint.n} — {sprint.title || sprint.ziel}</strong>
+                    <label>Start (ISO-Datum mit Zeitzone)
+                      <input aria-label={`Startdatum Sprint ${sprint.n}`} placeholder="2026-10-08T09:00:00+02:00" defaultValue={sprint.startAt || ''} onBlur={(event) => {
+                        const value = event.target.value.trim()
+                        void persistPlan({ ...idea.plan!, sprints: idea.plan!.sprints.map((item) => item.n === sprint.n ? { ...item, startAt: value || undefined } : item) }, `Startdatum für Sprint ${sprint.n} geändert`)
+                      }} />
+                    </label>
+                    <label>Ende (ISO-Datum mit Zeitzone)
+                      <input aria-label={`Enddatum Sprint ${sprint.n}`} placeholder="2026-10-09T17:00:00+02:00" defaultValue={sprint.endAt || ''} onBlur={(event) => {
+                        const value = event.target.value.trim()
+                        void persistPlan({ ...idea.plan!, sprints: idea.plan!.sprints.map((item) => item.n === sprint.n ? { ...item, endAt: value || undefined } : item) }, `Enddatum für Sprint ${sprint.n} geändert`)
+                      }} />
+                    </label>
+                  </li>
+                ))}</ol> : <p>Es gibt noch keine Sprints zum Einplanen.</p>}
+                {planError ? <p role="alert">{planError}</p> : null}
+              </section>
+            ) : <p>Für dieses Projekt gibt es noch keinen Plan.</p>
+          ) : stageView === 'risks' ? (
+            idea?.plan ? (
+              <section aria-labelledby="plan-status-title">
+                <h3 id="plan-status-title">Risiken und Projektstatus</h3>
+                <form onSubmit={(event) => { event.preventDefault(); void addRisk() }}>
+                  <label>Risiko<input value={riskDescription} maxLength={500} onChange={(event) => setRiskDescription(event.target.value)} /></label>
+                  <label>Auswirkung<input value={riskImpact} maxLength={500} onChange={(event) => setRiskImpact(event.target.value)} /></label>
+                  <label>Gegenmaßnahme<input value={riskMitigation} maxLength={500} onChange={(event) => setRiskMitigation(event.target.value)} /></label>
+                  <button type="submit" disabled={!riskDescription.trim() || !riskImpact.trim() || !riskMitigation.trim()}>Risiko erfassen</button>
+                </form>
+                <ul aria-label="Risiken">{(idea.plan.risks || []).map((risk) => <li key={risk.id}>
+                  <strong>{risk.description}</strong><span>Auswirkung: {risk.impact}</span><span>Gegenmaßnahme: {risk.mitigation}</span><span>Status: {risk.status === 'open' ? 'offen' : 'erledigt'}</span>
+                  <button type="button" onClick={() => void setRiskStatus(risk.id, risk.status === 'open' ? 'resolved' : 'open')}>{risk.status === 'open' ? 'Als erledigt markieren' : 'Wieder öffnen'}</button>
+                </li>)}</ul>
+                <form onSubmit={(event) => { event.preventDefault(); void addStatusUpdate((event.currentTarget.elements.namedItem('status') as HTMLSelectElement).value as PlanStatus) }}>
+                  <label>Status<select name="status" defaultValue="planned"><option value="planned">Im Plan</option><option value="at_risk">Gefährdet</option><option value="blocked">Blockiert</option><option value="completed">Abgeschlossen</option></select></label>
+                  <label>Begründung<input value={statusReason} maxLength={500} onChange={(event) => setStatusReason(event.target.value)} /></label>
+                  <label>Nächste Aktion (optional)<input value={statusNextAction} maxLength={500} onChange={(event) => setStatusNextAction(event.target.value)} /></label>
+                  <button type="submit" disabled={!statusReason.trim()}>Status festhalten</button>
+                </form>
+                <h4>Statusverlauf</h4>
+                {idea.plan.statusUpdates?.length ? <ol>{[...idea.plan.statusUpdates].reverse().map((update, index) => <li key={`${update.at}-${index}`}>
+                  <strong>{({ planned: 'Im Plan', at_risk: 'Gefährdet', blocked: 'Blockiert', completed: 'Abgeschlossen' })[update.status]}</strong>
+                  <time dateTime={update.at}>{new Date(update.at).toLocaleString()}</time><span>{update.reason}</span>{update.nextAction ? <span>Nächste Aktion: {update.nextAction}</span> : null}
+                  {update.sprintId ? <span>Sprint {update.sprintId}</span> : null}{update.requirementId ? <span>Anforderung {update.requirementId}</span> : null}
+                </li>)}</ol> : <p>Es gibt noch keine manuell festgehaltenen Statusmeldungen.</p>}
+                {planError ? <p role="alert">{planError}</p> : null}
+              </section>
+            ) : <p>Für dieses Projekt gibt es noch keinen Plan.</p>
+          ) : stageView === 'revisions' ? (
+            idea?.plan ? (
+              <section aria-labelledby="plan-revisions-title">
+                <h3 id="plan-revisions-title">Revisionen vergleichen</h3>
+                {revisionRows.length ? <>
+                  <label>Vergleichsrevision<select value={chosenRevision?.id || ''} onChange={(event) => setSelectedRevision(event.target.value)}>{revisionRows.map((revision) => <option key={revision.id} value={revision.id}>{new Date(revision.at).toLocaleString()} — {revision.summary || revision.id}</option>)}</select></label>
+                  <ul>{revisionDiff.length ? revisionDiff.map((change) => <li key={change.section}><strong>{change.section}</strong><details><summary>Änderungen anzeigen</summary><h4>Vorher</h4><pre>{change.before}</pre><h4>Nachher</h4><pre>{change.after}</pre></details></li>) : <li>Die gewählte Revision entspricht dem aktuellen Stand.</li>}</ul>
+                  <button type="button" onClick={() => {
+                    if (!chosenRevision) return
+                    const restored = restorePlanRevision(idea.plan!, chosenRevision.id, newId())
+                    if (restored) void persistPlan(restored, `Revision ${chosenRevision.id} wiederhergestellt`)
+                    else setPlanError('Die Revision konnte nicht gelesen werden.')
+                  }}>Revision wiederherstellen (neue Revision wird angelegt)</button>
+                </> : <p>Noch keine gespeicherten Revisionen.</p>}
+                {planError ? <p role="alert">{planError}</p> : null}
+              </section>
+            ) : <p>Für dieses Projekt gibt es noch keinen Plan.</p>
+          ) : stageView === 'research' ? (
+            <>
+              <h3>Belege und Quellen</h3>
+              <ul>
+                {sources.length ? (
+                  sources.map((s) => <li key={s}>{s}</li>)
+                ) : (
+                  <li>Keine Quelle dokumentiert. Fehlende Belege bleiben sichtbar und gelten nicht als bestätigt.</li>
+                )}
+              </ul>
+              {idea?.plan ? <section aria-label="Herkunft von Anforderungen und Entscheidungen">
+                <h4>Anforderungen</h4>
+                <ul>{idea.plan.anforderungen.length ? idea.plan.anforderungen.map((need) => <li key={need.id}>
+                  <strong>{need.id}: {need.satz}</strong>
+                  <span>{need.provenance ? `${need.provenance.kind} · ${need.provenance.confirmation === 'confirmed' ? 'bestätigt' : 'unbestätigt'}` : 'Herkunft nicht dokumentiert'}</span>
+                  {need.provenance?.evidenceIds.length ? <span>Belege: {need.provenance.evidenceIds.join(', ')}</span> : <span>Kein Beleg verknüpft</span>}
+                </li>) : <li>Keine Anforderungen erfasst.</li>}</ul>
+                <h4>Entscheidungen</h4>
+                <ul>{idea.plan.entscheidungen.length ? idea.plan.entscheidungen.map((decision) => <li key={decision.id}>
+                  <strong>{decision.id}: {decision.schnitt}</strong><span>{decision.grund}</span>
+                  <span>{decision.provenance ? `${decision.provenance.kind} · ${decision.provenance.confirmation === 'confirmed' ? 'bestätigt' : 'unbestätigt'}` : 'Herkunft nicht dokumentiert'}</span>
+                  {decision.provenance?.evidenceIds.length ? <span>Belege: {decision.provenance.evidenceIds.join(', ')}</span> : <span>Kein Beleg verknüpft</span>}
+                </li>) : <li>Keine Entscheidungen erfasst.</li>}</ul>
+              </section> : null}
+            </>
+          ) : stageView === 'sim' || stageView === 'workflow' ? (
+            <div className="script-simulation" aria-label={stageView === 'workflow' ? 'Ablauf-Simulation' : 'Oberflächenvorschau'}>
+              <p className="script-simulation-badge">{stageView === 'workflow' ? 'Gedankliche Simulation — keine echte Ausführung' : 'Oberflächenvorschau — keine Live-App'}</p>
               <h3>{shownSimulation.title}</h3>
               <div className="script-preview">
                 {shownSimulation.elements.map((element, index) => renderSimulationElement(element, index))}
@@ -332,7 +595,7 @@ export function ScriptStage({
               {shownSimulation.assumptions.length ? (
                 <ul className="script-assumptions">{shownSimulation.assumptions.map((item) => <li key={item}>{item}</li>)}</ul>
               ) : null}
-              {view === 'sim' && idea?.plan ? (
+              {stageView === 'sim' && idea?.plan ? (
                 <div className="script-preview-edit">
                   <h4>Vorschau anpassen</h4>
                   <label>
@@ -366,13 +629,13 @@ export function ScriptStage({
                 </div>
               ) : null}
             </div>
-          ) : view === 'modules' ? (
+          ) : stageView === 'modules' ? (
             <ul>
               {modules.map((s) => (
                 <li key={s}>{s}</li>
               ))}
             </ul>
-          ) : view === 'psp' ? (
+          ) : stageView === 'psp' ? (
             idea?.plan ? (
               <ul className="script-wbs">{renderWbs(wbsFor(idea, idea.plan))}</ul>
             ) : (

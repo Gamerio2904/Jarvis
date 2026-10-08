@@ -381,7 +381,7 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   if (dateTitle) {
     const day = dateFromParts(now, dateTitle[1], dateTitle[2], dateTitle[3] || undefined)
     const title = cleanTitle(dateTitle[6] || '')
-    if (day && title) {
+    if (day && title && !/^uhr$/i.test(title)) {
       const clock = dateTitle[4] ? parseClock(dateTitle[4], dateTitle[5]) : { h: 10, m: 0 }
       if (clock) {
         const due = atHours(day, clock.h, clock.m)
@@ -406,4 +406,15 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   }
 
   return null
+}
+
+/** Bind a time-only answer to the exact reminder that asked for it. */
+export function resolveReminderTimeAnswer(text: string, title: string, now = new Date()): Extract<ReminderIntent, { kind: 'create' }> | null {
+  const reminderTitle = cleanTitle(title)
+  if (!reminderTitle || !text.trim()) return null
+  const intent = parseReminderIntent(`${text.trim()} ${reminderTitle}`, now)
+  if (intent?.kind !== 'create' || intent.title.toLocaleLowerCase('de-DE') !== reminderTitle.toLocaleLowerCase('de-DE')) {
+    return null
+  }
+  return intent
 }

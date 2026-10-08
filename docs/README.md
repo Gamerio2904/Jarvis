@@ -1,8 +1,8 @@
 # Jarvis — Planungsdokumente
 
-**Stände:** Der Test-Build `18.31.0` / versionCode `183100` ist gebaut und enthält den Tischplatten-Rework; finale Geräteabnahme und Release-Freigabe sind offen. Notizen/Todos (Sprints 431–443) sowie Tischplatten-Rework (444–466) sind lokal umgesetzt. Nächste geplante Schiene: [`101-next.md`](./101-next.md), Sprints 467–482, Versionen `18.32.0`–`18.35.0`; Soup bleibt eine zu prüfende Option, kein vorausgesetzter App-Bestandteil.
+**Stände:** Test-APK `18.31.5` / versionCode `183105`; Android-Geräteabnahme und Release-Freigabe sind offen. Notizen/Todos (431–443), Tischplatten-Rework (444–466) und Tablet-/Hausstand-Basis (18.31.5) sind im Code enthalten. Geplante Reihenfolge: [`101-next.md`](./101-next.md), Sprints 467–482 (`18.32.0`–`18.35.0`); danach [`102-next.md`](./102-next.md), Sprints 483–494 (`18.36.0`–`18.38.0`) für sicheren Tablet-Server, automatischen Hausstand-Abgleich und Planung/Sprints auf zwei Geräten; anschließend Vorschlagsfolge [`103-next.md`](./103-next.md), Sprints 495–502 (`18.39.0`–`18.41.0`) zur robusteren Projektplanung. Keine dieser Planungen ist eine Release-Freigabe.
 
-Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Zwei Fenster, Handy per Satz: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md), gebaut in `18.25.12`, Kopplung im Hintergrund in `18.25.13`. Der alte Teilplan „Tischplatte lesbar“ ist in den Tischplatten-Rework [`100-next.md`](./100-next.md) integriert. Hausstand nach dem Koppeln: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Formulierung egal: [`formulierung-plan.md`](./formulierung-plan.md). Historische Flächen-Bugs: [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
+Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Zwei Fenster, Handy per Satz: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md), bestehende Basis `18.25.12`/`18.25.13`; Ausbau für sichere Projekt-/Sprintansicht: [`102-next.md`](./102-next.md). Bestehende Hausstand-Sync-Basis und Vorgängerplanung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Der alte Teilplan „Tischplatte lesbar“ ist in den Tischplatten-Rework [`100-next.md`](./100-next.md) integriert. [`formulierung-plan.md`](./formulierung-plan.md) bleibt ein unpriorisierter, noch nicht gebauter Plan und muss vor Umsetzung mit dem Routing-Gate 467–470 abgeglichen werden. Historische Flächen-Bugs: [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -52,7 +52,7 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Live-APK **`18.19.0`**, App-Code **`18.20.0`** |
+| 42 | [Alles geplant](./42-planned.md) | Historischer Sammelindex; aktuelle Stände und Pläne stehen oben sowie in 100–102 |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -109,7 +109,8 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | 99 | [Todo-Listen 18.27](./99-next.md) | **CODE im lokalen Test-Build; Release-Gate offen** `18.27.0` — mehrere Listen, Swipe-GUI, Deadlines und Sprachsteuerung; Sprints 437–443 |
 | 100 | [Tischplatte-Rework](./100-next.md) | **CODE; Geräte-Gate offen** `18.28.0`–`18.31.0` — Stabilität, Intake/Research, sichere Simulationen, WBS und Exporte; Sprints 444–466 |
 | 101 | [Ultron, Soup und Modellqualität](./101-next.md) | **PLAN** `18.32.0`–`18.35.0` — Routing, Planung, Rückfragen und Sprachantworten; Sprints 467–482 |
-| — | [Stände 18.25.1–18.31.0](./09-versioning.md) | **CODE + Test-APK** `18.31.0`, Geräte-Gate offen |
+| 102 | [Tablet-Server und zweiter Bildschirm](./102-next.md) | **PLAN** `18.36.0`–`18.38.0` — sicherer Sync, Versionshandshake, Planung/Sprints auf Handy und Tablet; Sprints 483–494 |
+| — | [Stände 18.25.1–18.31.5](./09-versioning.md) | **CODE + Test-APK** `18.31.5`, Geräte-Gate offen |
 | — | [Test 18.26](./TEST-18.26.md) | **PLAN** — Notizen-GUI, Sprachzugriff und belegbarer Rückruf |
 | — | [Test 18.27](./TEST-18.27.md) | **PLAN** — Todo-Listen, Swipe-Aktionen, Deadline und Abfrage bis morgen |
 | — | [Test 18.28](./TEST-18.28.md) | **PLAN** — Projektzustand, Routing, PSP/Sprints und Resume |
@@ -117,15 +118,15 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | — | [Test 18.30](./TEST-18.30.md) | **PLAN** — deklarative GUI- und Workflow-Simulation |
 | — | [Test 18.31](./TEST-18.31.md) | **Test-Build; Geräte-Gate offen** — WBS, Export-Roundtrip und End-to-End |
 | — | [Tischplatte lesbar](./tischplatte-plan.md) | Historischer Teilplan; in [`100-next.md`](./100-next.md), Sprints 444–466 integriert |
-| — | [Hausstand nach dem Koppeln](./hausstand-sync-plan.md) | **PLAN**. S1 Vergleich, S2 neuere Stand und Frage, S3 Ja überschreibt den älteren. Noch nicht gebaut |
-| — | [Formulierung egal](./formulierung-plan.md) | **PLAN**. S1 Kopplung egal wie gesagt, S2 jede vorhandene Aktion, S3 Unbekannt bleibt unbekannt. Noch nicht gebaut |
+| — | [Hausstand nach dem Koppeln](./hausstand-sync-plan.md) | Vorgängerplan; Server/QR-Kopplung/Zeitstempel-Sync teilweise in Test-APK `18.31.5`; Ausbau: [`102-next.md`](./102-next.md) |
+| — | [Formulierung egal](./formulierung-plan.md) | **Unpriorisierter PLAN**; vor Umsetzung mit Routing-Gate 467–470 abgleichen |
 | — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
 | — | [Test 18.22](./TEST-18.22.md) | Tafel-Sätze, in der App ab `18.22.0` |
 | — | [Test 18.23](./TEST-18.23.md) | Ablauf-Sätze, in der App ab `18.23.0` |
 | — | [Test 18.24](./TEST-18.24.md) | Portfolio-Sätze, in der App ab `18.24.0` |
 | — | [Test 18.24.6](./TEST-18.24.6.md) | Raum- und Objekt-Scan, Sideload `18.24.7` |
 | — | [Test 18.25](./TEST-18.25.md) | Entwurf-Sätze, in der App ab `18.25.0` |
-| — | [APK](./apk.md) | Test-Build `18.31.0`; Geräte-Gate: [`TEST-18.31.md`](./TEST-18.31.md) |
+| — | [APK](./apk.md) | Test-Build `18.31.5` / versionCode `183105`; Geräte-Gate offen: [`TEST-18.31.md`](./TEST-18.31.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -366,9 +367,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 424–430 | `18.25.0` | **CODE + APK** (Entwurf, [`97-next.md`](./97-next.md)); letzte Nummer dieser Schiene |
 | 431–436 | `18.26.0` | **CODE im lokalen Test-Build**; Release-Gate/version bump offen |
 | 437–443 | `18.27.0` | **CODE im lokalen Test-Build**; Release-Gate/version bump offen |
-| 444–449 | `18.28.0` | **PLAN** (Tischplatte stabilisieren, [`100-next.md`](./100-next.md)) |
-| 450–454 | `18.29.0` | **PLAN** (Intake und Research, [`100-next.md`](./100-next.md)) |
-| 455–460 | `18.30.0` | **PLAN** (Simulationen, [`100-next.md`](./100-next.md)) |
+| 444–449 | `18.28.0` | **CODE; Geräte-Gate offen** (Tischplatte stabilisieren, [`100-next.md`](./100-next.md)) |
+| 450–454 | `18.29.0` | **CODE; Geräte-Gate offen** (Intake und Research, [`100-next.md`](./100-next.md)) |
+| 455–460 | `18.30.0` | **CODE; Geräte-Gate offen** (Simulationen, [`100-next.md`](./100-next.md)) |
 | 461–466 | `18.31.0` | **CODE; Geräte-Gate offen** (WBS und Export, [`100-next.md`](./100-next.md)) |
 | 467–470 | `18.32.0` | **PLAN** (Befehlsverständnis und Soup-Vergleich, [`101-next.md`](./101-next.md)) |
 | 471–474 | `18.33.0` | **PLAN** (Planwunsch in sichere Vorschau und Export, [`101-next.md`](./101-next.md)) |
@@ -388,7 +389,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | — | `18.25.12` | **CODE + APK** Zwei Fenster, [`handy-flaeche-plan.md`](./handy-flaeche-plan.md) S1–S3 |
 | — | `18.25.13` | **CODE + APK** Kopplung im Hintergrund, Planungsbildschirm |
 | — | — | Tischplatte lesbar: historischer Teilplan, in [`100-next.md`](./100-next.md) Sprints 444–466 integriert |
-| — | nach `18.25.13` | **PLAN** Hausstand nach dem Koppeln, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) S1–S3 |
-| — | nach `18.25.13` | **PLAN** Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md) S1–S3 |
+| — | `18.31.5` | **CODE; Geräteabnahme offen** Tablet-Server, QR-Kopplung und Zeitstempel-Sync; sichere Weiterentwicklung in [`102-next.md`](./102-next.md) |
+| — | unpriorisiert | **PLAN** Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md); vor Start mit 467–470 abgleichen |
 
-**Stände:** Test-Build `18.31.0` / `183100`; finale Geräteabnahme offen. Umsetzung Tischplatte 444–466 liegt vor. Neue Folgeschiene 467–482 ist PLAN: [`101-next.md`](./101-next.md). Vorheriger Plan: [`100-next.md`](./100-next.md). Hausstand- und Formulierungspläne bleiben getrennt. Index: [`42-planned.md`](./42-planned.md).
+**Stände:** Test-APK `18.31.5` / `183105`; finale Geräteabnahme offen. Umsetzung Tischplatte 444–466 und Tablet-/Hausstand-Basis liegen im Code. Folgeschienen 467–482 (`101-next.md`) und 483–494 (`102-next.md`) sind PLAN. Vorheriger Plan: [`100-next.md`](./100-next.md). Historische Hausstand-Planung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Index: [`42-planned.md`](./42-planned.md).

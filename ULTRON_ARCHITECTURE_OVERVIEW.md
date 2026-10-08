@@ -1,6 +1,6 @@
 # Ultron — Architekturüberblick
 
-Stand: App-Code **18.25.13** auf `main`. Eine Spezifikation des Ist-Zustands für die Erweiterung des Planungsmodus. Kein Soll-Entwurf.
+Stand: App-Code **18.31.5**. Diese Datei beschreibt die bestehende Planungsarchitektur und den aktuellen Hausstand-/Tablet-Unterbau, nicht die noch geplanten Ausbaustufen. Der lokale Arbeitsbaum enthält zusätzliche, noch nicht als Release abgenommene Änderungen; maßgeblich für die Folgeschritte ist [`docs/102-next.md`](docs/102-next.md).
 
 Ultron ist eine Android-App (Capacitor-WebView) plus dieselbe Oberfläche im Browser. Es gibt keinen separaten Anwendungs-Server. Hirn, Agenten, Planung und Speicher laufen in TypeScript im Client.
 
@@ -15,6 +15,7 @@ Ultron ist eine Android-App (Capacitor-WebView) plus dieselbe Oberfläche im Bro
 - **CSS:** globales Stylesheet `frontend/src/index.css` (CSS-Variablen, dunkles Schema, Akzent `#ff2a36`) plus `frontend/src/ultron-shell.css`. Schrift: Manrope, Outfit, Cormorant Garamond.
 - **Einzige UI-Abhängigkeit neben React:** `thinking-orbs` (Antwort-Orb). QR: `qrcode` und `jsqr`.
 - **Planungsfläche:** `ScriptStage` (`frontend/src/ui/ScriptStage.tsx`), eingehängt über `HomeScreen`, sobald `plan_phase === 'live'`. Die Tischplatte selbst ist `tischplatte_on` in den Settings.
+- **Tablet:** `TabletShell` und `tablet-runtime.ts` steuern Vollbild-Lage, Wake-Word und Tablet-Bedienung. Der Hausstand-Server ist ein separater, ausdrücklich startbarer nativer Dienst; der Tabletmodus allein startet ihn nicht.
 
 ### Backend und Agenten-Orchestration
 
@@ -106,7 +107,7 @@ Gespeichert wird das als `Idea.plan` (`IdeaPlan` in `idea-plan.ts`) in der Index
 - **Arbeitsgedächtnis:** `working-memory.ts`, höchstens 8 Zeilen, JSON in den Settings. Kein Verlauf für den Planungs-Fill. `fillPlanWithModel` sieht nur Bedingung, Rahmen und eine leere Sprint-Hülle.
 - **Recall:** `retrieve.ts` durchsucht die Stores per Token-Überlappung (`scoreBlob`, `tokenCosine`). Keine Embeddings. Chat hängt Treffer an den Prompt (`chat.ts` importiert `retrieve`). Der Planungs-Fill tut das nicht.
 - **Trace:** nur der laufende Turn, im Speicher, nicht in IndexedDB.
-- **Hausstand:** `backup.ts` serialisiert Settings (ohne flüchtige Felder) plus die Stores zu einem `HausBackup` (`backup_version`, `exported_at`, `settings`, `memory`, `reminders`, `events`, `ideas`, `plans`, `portfolio`, `drafts`, …). Keys liegen in `settings`. Import ersetzt die Stores (`applyBackup`). Ein automatischer Abgleich zweier Geräte ist nicht implementiert.
+- **Hausstand:** `backup.ts` serialisiert Settings (ohne flüchtige Felder) plus die Stores zu einem `HausBackup` (`backup_version`, `exported_at`, `settings`, `memory`, `reminders`, `events`, `ideas`, `plans`, `portfolio`, `drafts`, …). Keys liegen in `settings`. Import ersetzt die Stores (`applyBackup`). Ein Tablet-Server und automatischer WLAN-Abgleich nach `stand_at` sind vorhanden. Der native Hausstand-Kanal nutzt im aktuellen Arbeitsbaum HTTPS mit gepinntem Zertifikat, Bearer-Header sowie App-/Protokollprüfung. Kausale Revisionen und sicherer Konflikterhalt sind noch nicht in den Sync-Pfad eingebunden.
 
 ### Dateien und Export
 
@@ -114,12 +115,12 @@ Gespeichert wird das als `Idea.plan` (`IdeaPlan` in `idea-plan.ts`) in der Index
 - **Dateinamen:** `{slug}-psp.json`, `{slug}-sprints.json`, `{slug}-projekt.json`. Slug aus dem Titel, max. 40 Zeichen.
 - **Wann:** Knöpfe in `ScriptStage` sind nur bei `plan_phase === 'go'` aktiv.
 - **Portfolio:** `frontend/src/engine/portfolio.ts` schreibt zusätzlich `projekt.json`, `wege.json`, `sprints.json`, `psp.json`, `luecken.json` in die Portfolio-Struktur und spiegelt sie in den Hausstand.
-- **Hausstand-Datei:** `jarvis-haus-YYYYMMDD.json` über `backup.ts`. QR-Weg: `haus-link.ts` (`/hausstand?t=…`).
+- **Hausstand-Datei:** `jarvis-haus-YYYYMMDD.json` über `backup.ts`. Der native QR-Weg liefert eine HTTPS-Adresse, ein Kopplungstoken und den Zertifikat-Fingerprint; Nutzdatenzugriff nutzt authentifizierte Header statt eines Tokens in der URL.
 - **Andere Dokumente:** Store `docs` (`DocRecord`: Name, MIME, Text). Kein Projektordner im Sinne eines Workspace-Dateisystems auf dem Gerät, außer dem nativen Download und `saveTreeFile` für einen relativen Pfad unter Downloads.
 
 ## Grenzen für eine Erweiterung des Planungsmodus
 
 - Neue Planungslogik gehört in `idea.ts` / `idea-plan.ts` / `ablauf-parse.ts` / `ScriptStage.tsx`, nicht in ein zweites Agenten-Framework.
 - Der Fill ist ein einzelner JSON-Abschluss. Es gibt keine Kette aus vier Planern und kein Tool-Schema für den Plan.
-- Zustand zwischen den Schritten liegt in `ideas.plan` und `jarvis_settings_v13`. Ein zweites Gerät sieht das erst über Hausstand-Export oder die bestehende Fenster-Kopplung, nicht über einen Sync.
+- Zustand zwischen den Planungsschritten liegt in `ideas.plan` und `jarvis_settings_v13`. Der Hausstand-Sync kann diese Daten übertragen, entscheidet aber noch nach `stand_at`; Projekt-/Sprintansichten werden nicht gezielt auf einem zweiten Gerät geöffnet. Die Fenster-Kopplung bleibt ein separater Kanal.
 - `prompt` ist Text zum Kopieren, kein Start eines Programmier-Agenten in der App.

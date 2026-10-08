@@ -214,6 +214,10 @@ const made = spawnSync(
   ],
   { encoding: 'utf8' },
 )
+if (made.error?.code === 'ENOENT') {
+  console.log('ok test-clip (Render-Teil übersprungen: ffmpeg nicht installiert)')
+  process.exit(0)
+}
 assert.equal(made.status, 0, made.stderr?.slice(-300))
 const rendered = await renderLocal({
   root,

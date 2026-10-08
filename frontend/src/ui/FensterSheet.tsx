@@ -13,7 +13,7 @@ export function FensterSheet({
   onShow,
 }: {
   ownKind: FensterKind
-  onShow: (surface: FensterSurface) => void
+  onShow: (surface: FensterSurface, target?: import('../engine/fenster.ts').FensterProjectTarget) => void
 }) {
   const [request, setRequest] = useState<FensterRequest | null>(null)
   const [busy, setBusy] = useState(false)
@@ -50,9 +50,13 @@ export function FensterSheet({
       setBusy(false)
       return
     }
-    const ok = await postFenster({ host: row.fromHost, port: row.fromPort }, prepared.body)
-    if (!ok) {
-      setNote('Die Bestätigung kam nicht an.')
+    const posted = await postFenster(
+      { host: row.fromHost, port: row.fromPort, fingerprint: row.fromFingerprint },
+      prepared.body,
+      prepared.authorizationToken,
+    )
+    if (typeof posted === 'boolean' ? !posted : !posted.ok) {
+      setNote((typeof posted === 'boolean' ? '' : posted.message) || 'Die Bestätigung kam nicht an.')
       setBusy(false)
       return
     }

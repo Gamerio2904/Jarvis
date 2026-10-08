@@ -45,6 +45,7 @@ import type { ToolMeta } from './tools.ts'
 import { Capacitor } from '@capacitor/core'
 import { listKnowledgePacks, normalizePack, type KnowledgePack } from './knowledge-store.ts'
 import { eventsToIcs, icsToEvents, looksLikeIcs } from './calendar-ics.ts'
+import { parseSyncRevision, revisionFor, type SyncRevision } from './sync-revisions.ts'
 
 export const BACKUP_VERSION = 1
 
@@ -62,6 +63,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'tablet_mode',
   'sync_url',
   'sync_token',
+  'sync_fingerprint',
   'last_fuel_json',
   'last_poi_json',
   'last_comm_json',
@@ -147,6 +149,7 @@ export type HausBackup = {
   backup_version: number
   exported_at: string
   stand_at?: string
+  sync_revision?: SyncRevision
   settings: Partial<Settings>
   memory: MemoryItem[]
   reminders: Reminder[]
@@ -250,6 +253,8 @@ export function asBackup(raw: unknown): HausBackup | null {
   const ver = Number(o.backup_version ?? 1)
   if (ver !== 1) return null
   if (!o.settings || typeof o.settings !== 'object') return null
+  const sync_revision = o.sync_revision === undefined ? undefined : parseSyncRevision(o.sync_revision)
+  if (o.sync_revision !== undefined && !sync_revision) return null
   const calendar_ics = typeof o.calendar_ics === 'string' ? o.calendar_ics : undefined
   let events = normalizeBackupEvents(o.events)
   if (!events.length && calendar_ics) events = icsToEvents(calendar_ics)
@@ -257,6 +262,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     backup_version: 1,
     exported_at: String(o.exported_at || ''),
     stand_at: String(o.stand_at || ''),
+    sync_revision: sync_revision || undefined,
     settings: o.settings as Partial<Settings>,
     memory: arr(o.memory),
     reminders: arr(o.reminders),
@@ -397,7 +403,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     messages = all
   }
   const events = await listEvents()
-  return {
+  const backup: HausBackup = {
     backup_version: BACKUP_VERSION,
     exported_at: new Date().toISOString(),
     stand_at: standAt(),
@@ -422,6 +428,8 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     messages,
     calendar_ics: eventsToIcs(events),
   }
+  backup.sync_revision = await revisionFor(backup)
+  return backup
 }
 
 export async function applyBackup(data: HausBackup): Promise<string> {

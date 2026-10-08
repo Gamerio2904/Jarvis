@@ -177,4 +177,21 @@ assert.ok(searchProbeGroups('Öffne Watchliste').some((g) => g.items.some((i) =>
   assert.match(app, /onDocFile\(file, 'file'\)/)
 }
 
+{
+  const { readFileSync } = await import('node:fs')
+  const { dirname, join } = await import('node:path')
+  const { fileURLToPath } = await import('node:url')
+  const src = join(dirname(fileURLToPath(import.meta.url)), '../src')
+  const css = readFileSync(join(src, 'index.css'), 'utf8')
+  const echo = readFileSync(join(src, 'theme-alexa.css'), 'utf8')
+  const row = css.match(/\.row\s*\{([^}]*)\}/s)?.[1] || ''
+  const bubble = css.match(/\.bubble\s*\{([^}]*)\}/s)?.[1] || ''
+  const bubbleText = css.match(/\.bubble-text\s*\{([^}]*)\}/s)?.[1] || ''
+  assert.match(row, /min-width:\s*0/)
+  assert.doesNotMatch(row, /content-visibility/)
+  assert.match(bubble, /min-width:\s*0/)
+  assert.match(bubbleText, /overflow-wrap:\s*anywhere/)
+  assert.match(echo, /\.row\.assistant \.bubble\s*\{[^}]*backdrop-filter:/s)
+}
+
 console.log('OK test-app-ui')

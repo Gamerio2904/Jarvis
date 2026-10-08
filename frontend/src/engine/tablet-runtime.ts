@@ -1,8 +1,6 @@
 import { loadSettings, saveSettings } from './store.ts'
 import { setLageSession } from './lage-session.ts'
-import { hausServerStop } from '../native/haus.ts'
 import { setKeepScreenOn, startWakeWord, stopWakeWord } from '../native/voice.ts'
-import { startTabletServer } from './tablet-sync.ts'
 
 export type TabletStatus = { running: boolean; url: string; line: string }
 
@@ -14,7 +12,7 @@ async function tryFullscreen(): Promise<void> {
   }
 }
 
-/** Tabletmodus: Lage im Vollbild, Wake-Wort „Ultron“, Bildschirm an, Server auf. */
+/** Tabletmodus ist unabhängig vom ausdrücklich gestarteten Hausstand-Server. */
 export async function enterTabletMode(): Promise<TabletStatus> {
   const cur = loadSettings().hud_view
   saveSettings({
@@ -32,14 +30,11 @@ export async function enterTabletMode(): Promise<TabletStatus> {
   } catch {
     /* nur Android */
   }
-  const made = await startTabletServer(false)
-  if (!made.ok) return { running: false, url: '', line: made.message || 'Server startet nicht.' }
-  return { running: true, url: made.url || '', line: `Hausstand-Server läuft: ${made.url}` }
+  return { running: false, url: '', line: 'Tabletmodus an. Der Hausstand-Server ist noch aus.' }
 }
 
 export async function leaveTabletMode(): Promise<void> {
   saveSettings({ tablet_mode: false })
-  await hausServerStop()
   void setKeepScreenOn(false)
   try {
     await stopWakeWord()

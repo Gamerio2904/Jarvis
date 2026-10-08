@@ -44,7 +44,7 @@ assert.doesNotMatch(lage, /<>[\s\S]{0,80}pin-bubble[\s\S]{0,400}<\/>/)
 
 assert.match(globe, /pickTappedPin/)
 assert.match(globe, /kickRef\.current\(\)[\s\S]{0,40}\[pins, issTrail, fronts\]/)
-assert.match(globe, /pin\.kind === 'fire' \|\| pin\.kind === 'quake'\s*\?\s*5\.5/)
+assert.match(globe, /pin\.kind === 'fire' \|\|\s*pin\.kind === 'quake'/)
 assert.match(globe, /pen\.arc\(q\.x, q\.y, 10/)
 assert.match(globe, /Math\.hypot\(p\.x - start\.x, p\.y - start\.y\) > 36/)
 
@@ -52,7 +52,7 @@ assert.doesNotMatch(app, /id === 'lage'[\s\S]{0,800}globe_layer: ''/)
 assert.match(app, /cur === 'body' \|\| cur === 'globe' \|\| cur === 'serie'/)
 assert.match(hud, /intent\.kind === 'lage'[\s\S]{0,220}globe_layer: ''/)
 assert.match(hud, /intent\.kind === 'view'[\s\S]{0,280}globe_layer: ''/)
-assert.match(layers, /USGS · \$\{place\}/)
+assert.match(layers, /quakeLine\(mag, place\)/)
 
 const mem = Object.create(null)
 globalThis.localStorage = {

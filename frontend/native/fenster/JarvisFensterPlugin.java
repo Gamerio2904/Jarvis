@@ -19,8 +19,11 @@ import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
 import app.jarvis.notify.JarvisNotifyPlugin;
+import app.jarvis.device.DeviceTls;
 
 import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
@@ -29,10 +32,12 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLHandshakeException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +45,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -64,8 +72,14 @@ public class JarvisFensterPlugin extends Plugin {
     private static final int BODY_MAX = 8000;
     private static final String LOCAL_PERM = "android.permission.ACCESS_LOCAL_NETWORK";
 
-    private static final List<ServerSocket> sockets = new ArrayList<>();
+    private static final List<SSLServerSocket> sockets = new ArrayList<>();
     private static final List<DatagramSocket> udpSockets = new ArrayList<>();
+    private static final ThreadPoolExecutor requests = new ThreadPoolExecutor(
+            2, 4, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(16), task -> {
+                Thread thread = new Thread(task, "jarvis-fenster-req");
+                thread.setDaemon(true);
+                return thread;
+            });
     private static final AtomicBoolean running = new AtomicBoolean(false);
     private static final AtomicBoolean front = new AtomicBoolean(false);
     private static final Handler main = new Handler(Looper.getMainLooper());
@@ -73,6 +87,7 @@ public class JarvisFensterPlugin extends Plugin {
     private static volatile String deviceName = "Ultron";
     private static volatile String lastJson = "";
     private static volatile String lastHost = "";
+    private static volatile String lastFingerprint = "";
     private static volatile Context appCtx;
     private static JarvisFensterPlugin live;
     private static WifiManager.MulticastLock multicast;
@@ -171,9 +186,14 @@ public class JarvisFensterPlugin extends Plugin {
         String host = call.getString("host", "");
         Integer port = call.getInt("port", PORT);
         String json = call.getString("json", "");
-        boolean ok = host != null && isLanHost(host) && json != null && sendPost(host, port == null ? PORT : port, json);
+        String fingerprint = call.getString("fingerprint", "");
+        String authorizationToken = call.getString("authorizationToken", "");
+        String error = host == null || !isLanHost(host) || json == null || fingerprint == null
+                ? "Ungültiges Fensterziel oder fehlender Zertifikat-Pin."
+                : sendPost(getContext(), host, port == null ? PORT : port, json, fingerprint, authorizationToken);
         JSObject r = new JSObject();
-        r.put("ok", ok);
+        r.put("ok", error == null);
+        if (error != null) r.put("message", error);
         call.resolve(r);
     }
 
@@ -184,6 +204,7 @@ public class JarvisFensterPlugin extends Plugin {
         r.put("ok", json != null && !json.isEmpty());
         r.put("json", json == null ? "" : json);
         r.put("fromHost", lastHost == null ? "" : lastHost);
+        r.put("peerFingerprint", lastFingerprint == null ? "" : lastFingerprint);
         call.resolve(r);
     }
 
@@ -191,6 +212,7 @@ public class JarvisFensterPlugin extends Plugin {
     public void clearPending(PluginCall call) {
         lastJson = "";
         lastHost = "";
+        lastFingerprint = "";
         try {
             NotificationManager nm = (NotificationManager) getContext().getSystemService(android.content.Context.NOTIFICATION_SERVICE);
             if (nm != null) nm.cancel(NOTE_ID);
@@ -216,9 +238,7 @@ public class JarvisFensterPlugin extends Plugin {
         for (InetAddress addr : addrs) {
             if (!isLan(addr) || addr.isLoopbackAddress()) continue;
             try {
-                ServerSocket ss = new ServerSocket();
-                ss.setReuseAddress(true);
-                ss.bind(new InetSocketAddress(addr, PORT), BACKLOG);
+                SSLServerSocket ss = DeviceTls.serverSocket(appCtx, addr.getHostAddress(), PORT);
                 sockets.add(ss);
                 Thread t = new Thread(() -> acceptLoop(ss), "jarvis-fenster-" + addr.getHostAddress());
                 t.setDaemon(true);
@@ -248,7 +268,7 @@ public class JarvisFensterPlugin extends Plugin {
 
     private static void stopLocked() {
         running.set(false);
-        for (ServerSocket ss : sockets) {
+        for (SSLServerSocket ss : sockets) {
             try {
                 ss.close();
             } catch (Exception ignored) {
@@ -291,7 +311,7 @@ public class JarvisFensterPlugin extends Plugin {
         }
     }
 
-    private static void acceptLoop(ServerSocket ss) {
+    private static void acceptLoop(SSLServerSocket ss) {
         while (running.get() && !ss.isClosed()) {
             try {
                 Socket sock = ss.accept();
@@ -304,9 +324,11 @@ public class JarvisFensterPlugin extends Plugin {
                     }
                     continue;
                 }
-                Thread w = new Thread(() -> handleConn(sock, remote), "jarvis-fenster-req");
-                w.setDaemon(true);
-                w.start();
+                try {
+                    requests.execute(() -> handleConn(sock, remote));
+                } catch (RejectedExecutionException saturated) {
+                    sock.close();
+                }
             } catch (SocketException se) {
                 if (!running.get()) return;
             } catch (Exception ignored) {
@@ -318,8 +340,11 @@ public class JarvisFensterPlugin extends Plugin {
     private static void handleConn(Socket sock, InetAddress remote) {
         try {
             sock.setSoTimeout(4_000);
-            BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream(), StandardCharsets.UTF_8));
-            String requestLine = in.readLine();
+            SSLSocket tls = (SSLSocket) sock;
+            tls.startHandshake();
+            String peerFingerprint = DeviceTls.peerFingerprint(tls);
+            InputStream in = new BufferedInputStream(sock.getInputStream());
+            String requestLine = readHttpLine(in, 2048);
             if (requestLine == null || requestLine.isEmpty()) {
                 writeHttp(sock, 400, "{\"ok\":false}");
                 return;
@@ -329,49 +354,91 @@ public class JarvisFensterPlugin extends Plugin {
             String path = parts.length > 1 ? parts[1] : "/";
             int q = path.indexOf('?');
             if (q >= 0) path = path.substring(0, q);
-            int contentLength = 0;
+            int contentLength = -1;
+            boolean contentLengthSeen = false;
+            int headerBytes = 0;
+            String authToken = "";
             String line;
-            while ((line = in.readLine()) != null && !line.isEmpty()) {
+            while ((line = readHttpLine(in, 2048)) != null && !line.isEmpty()) {
+                headerBytes += line.length();
+                if (headerBytes > 8192) {
+                    writeHttp(sock, 413, "{\"ok\":false}");
+                    return;
+                }
                 int colon = line.indexOf(':');
                 if (colon <= 0) continue;
                 String key = line.substring(0, colon).trim();
                 String val = line.substring(colon + 1).trim();
                 if ("content-length".equalsIgnoreCase(key)) {
+                    if (contentLengthSeen) {
+                        writeHttp(sock, 400, "{\"ok\":false}");
+                        return;
+                    }
+                    contentLengthSeen = true;
                     try {
                         contentLength = Integer.parseInt(val);
                     } catch (NumberFormatException ignored) {
-                        contentLength = 0;
+                        contentLength = -1;
                     }
                 }
+                if ("authorization".equalsIgnoreCase(key) && val.startsWith("Bearer ")) {
+                    authToken = val.substring(7).trim();
+                }
             }
-            if (contentLength > BODY_MAX) contentLength = BODY_MAX;
-            StringBuilder body = new StringBuilder();
-            if (contentLength > 0 && "POST".equalsIgnoreCase(method)) {
-                char[] buf = new char[contentLength];
+            if ("POST".equalsIgnoreCase(method) && (contentLength < 0 || contentLength > BODY_MAX)) {
+                writeHttp(sock, contentLength > BODY_MAX ? 413 : 400, "{\"ok\":false}");
+                return;
+            }
+            String body = "";
+            if ("POST".equalsIgnoreCase(method)) {
+                byte[] buf = new byte[contentLength];
                 int got = 0;
-                while (got < contentLength) {
-                    int n = in.read(buf, got, contentLength - got);
+                while (got < buf.length) {
+                    int n = in.read(buf, got, buf.length - got);
                     if (n < 0) break;
                     got += n;
                 }
-                body.append(buf, 0, got);
+                if (got != buf.length) {
+                    writeHttp(sock, 400, "{\"ok\":false}");
+                    return;
+                }
+                body = new String(buf, StandardCharsets.UTF_8);
             }
             if ("GET".equalsIgnoreCase(method) && "/fenster".equals(path)) {
-                String hello = "{\"ok\":true,\"name\":\"" + escape(deviceName) + "\",\"kind\":\"" + kind + "\"}";
+                String hello = "{\"ok\":true,\"name\":\"" + escape(deviceName) + "\",\"kind\":\"" + kind
+                        + "\",\"proto\":1,\"appVersion\":\"" + appVersion() + "\"}";
                 writeHttp(sock, 200, hello);
                 return;
             }
+            if ("POST".equalsIgnoreCase(method) && (authToken.isEmpty() || authToken.length() < 8)) {
+                writeHttp(sock, 401, "{\"ok\":false}");
+                return;
+            }
             if ("POST".equalsIgnoreCase(method) && "/fenster".equals(path)) {
-                String payload = body.toString();
+                String payload = body;
+                if (payload.contains("\"token\"")) {
+                    writeHttp(sock, 400, "{\"ok\":false}");
+                    return;
+                }
                 String host = remote.getHostAddress();
-                lastJson = payload;
-                lastHost = host;
                 boolean pairing = payload.contains("\"op\":\"anfrage\"");
+                if (pairing) {
+                    lastJson = payload;
+                    lastHost = host;
+                    lastFingerprint = peerFingerprint;
+                } else {
+                    lastJson = "";
+                    lastHost = "";
+                    lastFingerprint = "";
+                }
+                final String tokenForEvent = authToken;
                 main.post(() -> {
                     if (live != null) {
                         JSObject ev = new JSObject();
                         ev.put("json", payload);
                         ev.put("fromHost", host);
+                        ev.put("peerFingerprint", peerFingerprint);
+                        ev.put("token", tokenForEvent);
                         live.notifyListeners("anfrage", ev);
                     }
                     if (!pairing || front.get() || appCtx == null) return;
@@ -475,9 +542,8 @@ public class JarvisFensterPlugin extends Plugin {
                     if (!text.startsWith("ULTRON-JA")) continue;
                     String host = packet.getAddress() == null ? "" : packet.getAddress().getHostAddress();
                     if (host == null || own.contains(host) || !isLanHost(host)) continue;
-                    String peerKind = text.contains("\"tablet\"") ? "tablet" : "handy";
-                    String row = "{\"host\":\"" + host + "\",\"port\":" + PORT + ",\"name\":\"Ultron\",\"kind\":\"" + peerKind + "\"}";
-                    if (!found.contains(row)) found.add(row);
+                    String row = hello(host);
+                    if (row != null && !found.contains(row)) found.add(row);
                 } catch (SocketTimeoutException ignored) {
                     /* weiter warten */
                 }
@@ -537,10 +603,13 @@ public class JarvisFensterPlugin extends Plugin {
     }
 
     private static String hello(String host) {
-        Socket sock = new Socket();
+        SSLSocket sock = null;
         try {
+            sock = DeviceTls.discoverySocket(appCtx);
             sock.connect(new InetSocketAddress(host, PORT), 220);
             sock.setSoTimeout(500);
+            sock.startHandshake();
+            String fingerprint = DeviceTls.peerFingerprint(sock);
             String req = "GET /fenster HTTP/1.1\r\nHost: " + host + "\r\nConnection: close\r\n\r\n";
             OutputStream out = sock.getOutputStream();
             out.write(req.getBytes(StandardCharsets.UTF_8));
@@ -558,7 +627,11 @@ public class JarvisFensterPlugin extends Plugin {
             String json = text.substring(brace);
             if (!json.contains("\"ok\":true") && !json.contains("\"ok\": true")) return null;
             String peerKind = json.contains("\"tablet\"") ? "tablet" : "handy";
-            return "{\"host\":\"" + host + "\",\"port\":" + PORT + ",\"name\":\"Ultron\",\"kind\":\"" + peerKind + "\"}";
+            String version = jsonValue(json, "appVersion");
+            String protocol = jsonNumber(json, "proto");
+            return "{\"host\":\"" + host + "\",\"port\":" + PORT + ",\"name\":\"Ultron\",\"kind\":\""
+                    + peerKind + "\",\"appVersion\":\"" + escape(version) + "\",\"protocolVersion\":"
+                    + protocol + ",\"fingerprint\":\"" + fingerprint + "\"}";
         } catch (Exception ignored) {
             return null;
         } finally {
@@ -570,16 +643,19 @@ public class JarvisFensterPlugin extends Plugin {
         }
     }
 
-    private static boolean sendPost(String host, int port, String json) {
+    private static String sendPost(Context context, String host, int port, String json, String fingerprint, String authorizationToken) {
         if (port < 1 || port > 65535) port = PORT;
-        Socket sock = new Socket();
+        SSLSocket sock = null;
         try {
+            sock = DeviceTls.clientSocket(context, fingerprint);
             sock.connect(new InetSocketAddress(host, port), 1500);
             sock.setSoTimeout(2000);
+            sock.startHandshake();
             byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-            if (bytes.length > BODY_MAX) return false;
+            if (bytes.length > BODY_MAX) return "Fenster-Nachricht überschreitet das Größenlimit.";
             String head = "POST /fenster HTTP/1.1\r\nHost: " + host
-                    + "\r\nContent-Type: application/json; charset=utf-8\r\nConnection: close\r\nContent-Length: "
+                    + "\r\nContent-Type: application/json; charset=utf-8\r\nAuthorization: Bearer "
+                    + escape(authorizationToken) + "\r\nConnection: close\r\nContent-Length: "
                     + bytes.length + "\r\n\r\n";
             OutputStream out = sock.getOutputStream();
             out.write(head.getBytes(StandardCharsets.UTF_8));
@@ -587,9 +663,13 @@ public class JarvisFensterPlugin extends Plugin {
             out.flush();
             BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream(), StandardCharsets.UTF_8));
             String status = in.readLine();
-            return status != null && status.contains("200");
-        } catch (Exception ignored) {
-            return false;
+            return status != null && status.contains("200") ? null : "Das Gegenüber hat die Fenster-Nachricht abgewiesen.";
+        } catch (SSLHandshakeException e) {
+            return "TLS-Pin oder Geräteidentität stimmt nicht. Bitte neu koppeln.";
+        } catch (SocketTimeoutException e) {
+            return "Zeitüberschreitung beim Fenster-Transport.";
+        } catch (Exception e) {
+            return "Fenster-Transport fehlgeschlagen.";
         } finally {
             try {
                 sock.close();
@@ -619,6 +699,21 @@ public class JarvisFensterPlugin extends Plugin {
         out.write(head.getBytes(StandardCharsets.UTF_8));
         out.write(bytes);
         out.flush();
+    }
+
+    private static String readHttpLine(InputStream in, int max) throws Exception {
+        StringBuilder line = new StringBuilder();
+        while (line.length() <= max) {
+            int value = in.read();
+            if (value < 0) return line.length() == 0 ? null : line.toString();
+            if (value == '\n') {
+                int length = line.length();
+                if (length > 0 && line.charAt(length - 1) == '\r') line.setLength(length - 1);
+                return line.toString();
+            }
+            line.append((char) (value & 0xff));
+        }
+        throw new java.io.IOException("HTTP line exceeds limit.");
     }
 
     static boolean isLan(InetAddress addr) {
@@ -669,5 +764,33 @@ public class JarvisFensterPlugin extends Plugin {
     private static String escape(String raw) {
         if (raw == null) return "";
         return raw.replace("\\", "").replace("\"", "").replace("\n", " ").replace("\r", "");
+    }
+
+    private static String jsonValue(String json, String key) {
+        String marker = "\"" + key + "\":\"";
+        int start = json.indexOf(marker);
+        if (start < 0) return "";
+        start += marker.length();
+        int end = json.indexOf('"', start);
+        return end < 0 ? "" : json.substring(start, end);
+    }
+
+    private static String jsonNumber(String json, String key) {
+        String marker = "\"" + key + "\":";
+        int start = json.indexOf(marker);
+        if (start < 0) return "0";
+        start += marker.length();
+        int end = start;
+        while (end < json.length() && Character.isDigit(json.charAt(end))) end++;
+        return end == start ? "0" : json.substring(start, end);
+    }
+
+    private static String appVersion() {
+        try {
+            android.content.pm.PackageInfo info = appCtx.getPackageManager().getPackageInfo(appCtx.getPackageName(), 0);
+            return info.versionName == null ? "" : info.versionName;
+        } catch (Exception e) {
+            return "";
+        }
     }
 }

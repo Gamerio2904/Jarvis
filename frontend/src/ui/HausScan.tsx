@@ -49,7 +49,8 @@ export function HausScan(p: Props) {
   const busyRef = useRef(false)
   const propsRef = useRef(p)
   propsRef.current = p
-  const [url, setUrl] = useState<string | null>(null)
+  const [house, setHouse] = useState<ReturnType<typeof parseHausQr>>(null)
+  const url = house?.url || null
   const [dir, setDir] = useState<Dir | null>(null)
   const [msg, setMsg] = useState('Kamera auf den Code am anderen Gerät.')
   const [busy, setBusy] = useState(false)
@@ -58,12 +59,15 @@ export function HausScan(p: Props) {
     if (busyRef.current) return
     const pair = parsePairCode(raw)
     if (pair) {
-      savePairing(pair.url, pair.token)
-      streamRef.current?.getTracks().forEach((t) => t.stop())
-      streamRef.current = null
-      propsRef.current.onDone('Mit dem Tablet gekoppelt. Hausstand wird abgeglichen.')
-      propsRef.current.onClose()
-      window.dispatchEvent(new Event('jarvis-sync-now'))
+      void savePairing(pair.url, pair.token, pair.fingerprint).then(() => {
+        streamRef.current?.getTracks().forEach((t) => t.stop())
+        streamRef.current = null
+        propsRef.current.onDone('Mit dem Tablet gekoppelt. Hausstand wird abgeglichen.')
+        propsRef.current.onClose()
+        window.dispatchEvent(new Event('jarvis-sync-now'))
+      }).catch((error: unknown) => {
+        setMsg(error instanceof Error ? error.message : 'Kopplung konnte nicht geschützt gespeichert werden.')
+      })
       return
     }
     const next = parseHausQr(raw)
@@ -73,13 +77,13 @@ export function HausScan(p: Props) {
     }
     streamRef.current?.getTracks().forEach((t) => t.stop())
     streamRef.current = null
-    setUrl(next)
+    setHouse(next)
     setMsg('Richtung wählen, dann Export.')
   }, [])
 
   useEffect(() => {
     if (!p.open) {
-      setUrl(null)
+      setHouse(null)
       setDir(null)
       setMsg('Kamera auf den Code am anderen Gerät.')
       return
@@ -149,7 +153,8 @@ export function HausScan(p: Props) {
     setMsg('Übertrage…')
     try {
       if (dir === 'to-phone') {
-        const got = await hausPull(url)
+        if (!house) throw new Error('Der Hausstand-Code ist ungültig.')
+        const got = await hausPull(url, house.token, house.fingerprint)
         const choice = got.ok && got.json ? parseImportPayload(got.json) : null
         if (!choice || choice.kind !== 'haus') {
           setMsg(got.message || 'Das andere Gerät hat keinen Hausstand geschickt.')
@@ -161,7 +166,8 @@ export function HausScan(p: Props) {
         return
       }
       const data = await buildBackup(false)
-      const sent = await hausPush(url, JSON.stringify(data))
+      if (!house) throw new Error('Der Hausstand-Code ist ungültig.')
+      const sent = await hausPush(url, JSON.stringify(data), house.token, house.fingerprint)
       if (!sent.ok) {
         setMsg(sent.message || 'Das Tablet hat nicht angenommen.')
         return

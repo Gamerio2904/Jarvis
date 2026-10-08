@@ -77,8 +77,8 @@ function dayThrough(text: string): { through: string; label: string } | null {
 export function parseToolIntent(text: string): ToolIntent | null {
   const noteUpdate = /^\s*ändere\s+(?:die\s+)?notiz\s+(.+?)\s+(?:zu|auf)\s+(.+)$/is.exec(text)
   if (noteUpdate) return { kind: 'note_update', query: noteUpdate[1].trim(), body: noteUpdate[2].trim() }
-  const noteDelete = /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:die\s+)?notiz\s+(.+)$/is.exec(text)
-  if (noteDelete) return { kind: 'note_delete', query: noteDelete[1].replace(/[.!?]+$/, '').trim() }
+  const noteDelete = /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:die\s+)?notiz(?:\s+(.+?))?\s*[.!?]*$/is.exec(text)
+  if (noteDelete) return { kind: 'note_delete', query: (noteDelete[1] || '').replace(/[.!?]+$/, '').trim() }
   if (/^\s*(?:öffne|zeige)\s+(?:meine\s+)?notizen\s*[.!?]*$/i.test(text)) {
     return { kind: 'note_list' }
   }

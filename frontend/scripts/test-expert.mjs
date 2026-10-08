@@ -1,3 +1,4 @@
+// @ts-nocheck — Test-Skript mit losen Literalen/Mocks; Laufzeit wird vom Test selbst geprüft.
 import assert from 'node:assert/strict'
 import { parseExpertIntent } from '../src/engine/expert-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'

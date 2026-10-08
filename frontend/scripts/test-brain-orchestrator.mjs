@@ -12,6 +12,17 @@ assert.equal(
     gemini_api_key: 'g',
     groq_api_key: 'x',
   }),
+  'gemini',
+)
+
+assert.equal(
+  primaryChatModel({
+    brain_v2: true,
+    brain_primary: 'groq',
+    gemini_enabled: false,
+    gemini_api_key: '',
+    groq_api_key: 'x',
+  }),
   'groq',
 )
 

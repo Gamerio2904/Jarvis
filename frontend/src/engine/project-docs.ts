@@ -5,7 +5,8 @@ import { emptyPlan, parsePlan, type IdeaPlan, type IdeaSprint, validatePlan } fr
 import { wbsFor } from './idea-simulation.ts'
 
 export type ProjectFileKind = 'psp' | 'sprints' | 'all'
-export const PROJECT_FILE_VERSION = 1
+export const PROJECT_FILE_VERSION = 2
+const MAX_PROJECT_FILE_BYTES = 2_000_000
 
 export function projectSlug(title: string): string {
   const slug = title
@@ -95,8 +96,9 @@ export function sprintsDocument(idea: Idea) {
 }
 
 export function projectDocument(idea: Idea) {
-  const plan = projectPlan(idea)
-  return {
+  const rawPlan = projectPlan(idea)
+  const plan = parsePlan(rawPlan, idea.id) || rawPlan
+  const document = {
     schemaVersion: PROJECT_FILE_VERSION,
     ideaId: idea.id,
     projekt: idea.title,
@@ -108,7 +110,9 @@ export function projectDocument(idea: Idea) {
     sprints: sprintsDocument(idea).sprints,
     psp: pspDocument(idea).struktur,
     plan,
+    extensions: plan.extensions?.projectFile || {},
   }
+  return { ...document, contentHash: projectContentHash(document) }
 }
 
 export type ImportedProject = {
@@ -122,23 +126,85 @@ export type ImportedProject = {
 export function parseProjectFile(raw: unknown): ImportedProject {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Die Projektdatei ist kein JSON-Objekt.')
   const row = raw as Record<string, unknown>
-  if (row.schemaVersion !== PROJECT_FILE_VERSION) throw new Error('Diese Projektdatei hat eine unbekannte oder fehlende Formatversion.')
-  const title = typeof row.projekt === 'string' ? row.projekt.trim() : ''
-  if (!title) throw new Error('In der Projektdatei fehlt der Projektname.')
+  let encoded: string
+  try {
+    encoded = JSON.stringify(raw)
+  } catch {
+    throw new Error('Die Projektdatei kann nicht geprüft werden.')
+  }
+  if (!encoded || new TextEncoder().encode(encoded).length > MAX_PROJECT_FILE_BYTES) throw new Error('Die Projektdatei ist größer als 2 MB oder nicht lesbar.')
+  if (row.schemaVersion !== 1 && row.schemaVersion !== PROJECT_FILE_VERSION) throw new Error('Diese Projektdatei hat eine unbekannte oder fehlende Formatversion.')
+  if (Array.isArray(row.requiredFields) && row.requiredFields.some((field) => typeof field !== 'string' || !['plan', 'projekt', 'notiz', 'ideaId'].includes(field))) {
+    throw new Error('Die Projektdatei enthält unbekannte Pflichtfelder; sie kann nicht verlustfrei importiert werden.')
+  }
+  const title = typeof row.projekt === 'string' ? row.projekt : ''
+  if (!title.trim() || title.length > 120) throw new Error('In der Projektdatei fehlt ein gültiger Projektname (höchstens 120 Zeichen).')
   const plan = parsePlan(row.plan)
   if (!plan) throw new Error('Der Plan in der Datei ist beschädigt oder unvollständig.')
+  if (row.schemaVersion === PROJECT_FILE_VERSION) {
+    const rawPlan = row.plan as Record<string, unknown>
+    const planFields = new Set([
+      'schemaVersion', 'ideaId', 'bedingung', 'rahmen', 'anforderungen', 'entscheidungen', 'luecken',
+      'gateway', 'go_wenn', 'nogo_wenn', 'sprints', 'simulation', 'revisions', 'evidence', 'backlog',
+      'risks', 'statusUpdates', 'extensions',
+    ])
+    const unknownPlanFields = Object.fromEntries(Object.entries(rawPlan).filter(([key]) => !planFields.has(key)))
+    const expectedPlan = { ...rawPlan, extensions: { ...((rawPlan.extensions || {}) as Record<string, unknown>), ...unknownPlanFields } }
+    for (const key of Object.keys(unknownPlanFields)) delete (expectedPlan as Record<string, unknown>)[key]
+    if (stableJson(expectedPlan) !== stableJson(plan)) {
+      throw new Error('Der Plan enthält Felder, die sich nicht verlustfrei lesen lassen.')
+    }
+  }
   const validation = validatePlan(plan)
   if (!validation.ok) throw new Error(`Der Plan ist ungültig: ${validation.errors.join(' ')}`)
   if (plan.ideaId && typeof row.ideaId === 'string' && row.ideaId && plan.ideaId !== row.ideaId) {
     throw new Error('Projektkennung und Plankennung passen nicht zusammen.')
   }
+  if (row.notiz !== undefined && typeof row.notiz !== 'string') throw new Error('Die Projektnotiz hat ein ungültiges Format.')
+  const knownRoot = new Set(['schemaVersion', 'ideaId', 'projekt', 'art', 'notiz', 'ziel', 'wege', 'fehlt', 'sprints', 'psp', 'plan', 'extensions', 'contentHash', 'requiredFields'])
+  const rootExtensions = Object.fromEntries(Object.entries(row).filter(([key]) => !knownRoot.has(key)))
+  const fileExtensions = row.extensions === undefined ? {} : row.extensions
+  if (!fileExtensions || typeof fileExtensions !== 'object' || Array.isArray(fileExtensions)) {
+    throw new Error('Die Projekterweiterungen sind beschädigt.')
+  }
+  const projectExtensions = { ...(fileExtensions as Record<string, unknown>), ...rootExtensions }
+  const extensions = {
+    ...plan.extensions,
+    ...(Object.keys(projectExtensions).length ? { projectFile: projectExtensions } : {}),
+  }
+  const importedPlan: IdeaPlan = { ...plan, extensions }
+  if (row.schemaVersion === PROJECT_FILE_VERSION) {
+    const { contentHash, ...content } = row
+    if (typeof contentHash !== 'string' || contentHash !== projectContentHash(content)) {
+      throw new Error('Die Prüfsumme stimmt nicht. Die Projektdatei wurde möglicherweise verändert oder beschädigt.')
+    }
+  }
   return {
     schemaVersion: PROJECT_FILE_VERSION,
     ideaId: typeof row.ideaId === 'string' ? row.ideaId : undefined,
-    projekt: title.slice(0, 120),
+    projekt: title,
     notiz: typeof row.notiz === 'string' ? row.notiz : '',
-    plan,
+    plan: importedPlan,
   }
+}
+
+function stableJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${stableJson(record[key])}`).join(',')}}`
+  }
+  return JSON.stringify(value) ?? 'null'
+}
+
+/** A deterministic corruption check, not a signature or authenticity proof. */
+function projectContentHash(value: unknown): string {
+  let hash = 0xcbf29ce484222325n
+  for (const byte of new TextEncoder().encode(stableJson(value))) {
+    hash ^= BigInt(byte)
+    hash = BigInt.asUintN(64, hash * 0x100000001b3n)
+  }
+  return hash.toString(16).padStart(16, '0')
 }
 
 function mermaidSafe(text: string): string {

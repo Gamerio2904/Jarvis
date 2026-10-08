@@ -21,6 +21,9 @@ export type RouteMetrics = {
   askRate: number
   /** Kein Kandidat über der Schwelle. */
   noneRate: number
+  /** Eine Nicht-Chat-Route gewählt, obwohl Gold eine andere Route erwartet. */
+  wrongActionRate: number
+  wrongActionCount: number
   /** Entscheidungszeit je Fall in Millisekunden. */
   p50: number
   p95: number
@@ -33,10 +36,12 @@ export function measure(cases: EvalCase[]): RouteMetrics {
   let hits = 0
   let asks = 0
   let nones = 0
+  let wrongActions = 0
 
   for (const c of cases) {
     const t0 = performance.now()
-    const got = routeForEval(c.text)
+    const decision = decisionForEval(c.text)
+    const got = decision.kind === 'ask' ? 'ask' : routeForEval(c.text, {}, decision)
     times.push(performance.now() - t0)
 
     if (got === c.expect) hits += 1
@@ -47,9 +52,9 @@ export function measure(cases: EvalCase[]): RouteMetrics {
       else confusion.set(key, { want: c.expect, got, n: 1 })
     }
 
-    const pick = decisionForEval(c.text)
-    if (pick.kind === 'ask') asks += 1
-    if (pick.kind === 'none') nones += 1
+    if (decision.kind === 'ask') asks += 1
+    if (decision.kind === 'none') nones += 1
+    if (got !== c.expect && got !== 'ask' && got !== 'none' && got !== 'llm') wrongActions += 1
   }
 
   const n = cases.length || 1
@@ -59,6 +64,8 @@ export function measure(cases: EvalCase[]): RouteMetrics {
     hitRate: hits / n,
     askRate: asks / n,
     noneRate: nones / n,
+    wrongActionRate: wrongActions / n,
+    wrongActionCount: wrongActions,
     p50: percentile(times, 0.5) ?? 0,
     p95: percentile(times, 0.95) ?? 0,
     confusions: [...confusion.values()].sort((a, b) => b.n - a.n),

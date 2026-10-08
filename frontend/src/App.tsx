@@ -400,6 +400,7 @@ function App() {
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
   const tabletWakeBusyRef = useRef(false)
+  const tabletWakeHandlerRef = useRef<((utterance: string) => Promise<void>) | null>(null)
   const voiceCutsRef = useRef(new Map<string, string>())
   const voiceReqRef = useRef<string | null>(null)
   const [voiceSeed, setVoiceSeed] = useState('')
@@ -550,11 +551,10 @@ function App() {
     tabletWakeBusyRef.current = true
     const heard = (text: string) => window.dispatchEvent(new CustomEvent(TABLET_HEARD, { detail: text }))
     try {
-      let text = utt.trim()
+      await beginVoiceSession()
+      await speakText(wakeAck())
+      let text = utt.trim().replace(/^ultron[\s,:-]*/i, '').trim()
       if (!text) {
-        heard('Ja, Sir?')
-        await beginVoiceSession()
-        await speakText(wakeAck())
         const res = await listenOnce((partial) => heard(partial))
         text = res.ok ? res.text.trim() : ''
       }
@@ -565,7 +565,8 @@ function App() {
         await speakText(todoSpeech(todos))
       } else if (text) {
         heard('')
-        openVoiceMode(text)
+        const reply = await sendVoiceTurn(text)
+        if (reply) await speakText(reply)
       }
     } catch {
       /* Mikro/TTS nicht verfügbar: Overlay bleibt stehen */
@@ -575,6 +576,7 @@ function App() {
       tabletWakeBusyRef.current = false
     }
   }
+  tabletWakeHandlerRef.current = handleTabletWake
 
   function openVoiceMode(seed = '', compact = false) {
     const next = acceptWake(wakeGateRef.current, seed, Date.now())
@@ -1006,7 +1008,10 @@ function App() {
 
   useEffect(() => {
     const off = onWakeHit((utt) => {
-      if (loadSettings().tablet_mode && !voiceOpenRef.current) void handleTabletWake(utt || '')
+      if (loadSettings().tablet_mode && !voiceOpenRef.current) {
+        const handle = tabletWakeHandlerRef.current
+        if (handle) void handle(utt || '')
+      }
       else openVoiceMode(utt || '')
     })
     let hideTimer = 0
@@ -2292,7 +2297,19 @@ function App() {
       <UltronIntro />
       <FensterSheet
         ownKind={ownFensterKind()}
-        onShow={(id) => {
+        onShow={(id, target) => {
+          if (id === 'planning' || id === 'sprints') {
+            if (!target) return
+            saveSettings({
+              plan_phase: 'live',
+              plan_idea_id: target.projectId,
+              workbench_open: true,
+              tischplatte_on: true,
+              tischplatte_view: id === 'sprints' ? 'sprints' : 'psp',
+            })
+            showTischplatte()
+            return
+          }
           if (id === 'watchlist') {
             openWatchlistSheet()
             return
@@ -2701,7 +2718,7 @@ function App() {
           <TabletShell listening={wakeListening} serverLine={tabletLine} onTalk={() => openVoiceMode()} />
         ) : null}
 
-        {lageOn && !voiceOpen && !calendarOpen && !watchlistOpen && !shoppingOpen && !notesOpen && !todosOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
+        {lageOn && !tabletOn && !voiceOpen && !calendarOpen && !watchlistOpen && !shoppingOpen && !notesOpen && !todosOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
           <Lage
             onSend={(text) => void sendMessage(text)}
             draft={draft}

@@ -464,20 +464,58 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 480 | [`sprint-480.md`](./sprint-480.md) | `18.35.0` | Fakten beim Kürzen schützen | **PLAN** Must |
 | 481 | [`sprint-481.md`](./sprint-481.md) | `18.35.0` | Natürlichkeit und Rückfall testen | **PLAN** Must |
 | 482 | [`sprint-482.md`](./sprint-482.md) | `18.35.0` | Gesamt-Gold und Release-Gate | **PLAN** Must |
+| 483 | [`sprint-483.md`](./sprint-483.md) | `18.36.0` | Server ausdrücklich starten | **CODE\*** Must |
+| 484 | [`sprint-484.md`](./sprint-484.md) | `18.36.0` | LAN-Kanal absichern | **PLAN** Must |
+| 485 | [`sprint-485.md`](./sprint-485.md) | `18.36.0` | Versionshandshake erzwingen | **CODE\*** Must |
+| 486 | [`sprint-486.md`](./sprint-486.md) | `18.36.0` | Sicherheits-Gate 18.36 | **PLAN** Must |
+| 487 | [`sprint-487.md`](./sprint-487.md) | `18.37.0` | Hausstandrevisionen kennzeichnen | **CODE\*** Must |
+| 488 | [`sprint-488.md`](./sprint-488.md) | `18.37.0` | Eindeutig neueren Stand übernehmen | **CODE\*** Must |
+| 489 | [`sprint-489.md`](./sprint-489.md) | `18.37.0` | Konflikte sicher erhalten | **CODE\*** Must |
+| 490 | [`sprint-490.md`](./sprint-490.md) | `18.37.0` | Sync-Gold und Release-Gate | **PLAN** Must |
+| 491 | [`sprint-491.md`](./sprint-491.md) | `18.38.0` | Fernflächen versioniert erweitern | **PLAN** Must |
+| 492 | [`sprint-492.md`](./sprint-492.md) | `18.38.0` | Planung und Sprints aufteilen | **PLAN** Must |
+| 493 | [`sprint-493.md`](./sprint-493.md) | `18.38.0` | Geräteziele und Wiederverbindung härten | **CODE\*** Must |
+| 494 | [`sprint-494.md`](./sprint-494.md) | `18.38.0` | Zwei-Bildschirm-Gold und Release-Gate | **PLAN** Must |
+| 495 | [`sprint-495.md`](./sprint-495.md) | `18.39.0` | Backlog und Lieferumfang trennen | **CODE*** Must |
+| 496 | [`sprint-496.md`](./sprint-496.md) | `18.39.0` | Abhängigkeiten sichtbar und typisiert machen | **CODE*** Must |
+| 497 | [`sprint-497.md`](./sprint-497.md) | `18.39.0` | Optionale Zeitplanung ergänzen | **CODE*** Must |
+| 498 | [`sprint-498.md`](./sprint-498.md) | `18.40.0` | Risiken und Projektstatus führen | **CODE*** Must |
+| 499 | [`sprint-499.md`](./sprint-499.md) | `18.40.0` | Planherkunft und Annahmen nachweisen | **CODE*** Must |
+| 500 | [`sprint-500.md`](./sprint-500.md) | `18.40.0` | Revisionen vergleichen und Konflikte lösen | **CODE*** Must |
+| 501 | [`sprint-501.md`](./sprint-501.md) | `18.41.0` | Projektdateien verlustfrei migrieren | **CODE*** Must |
+| 502 | [`sprint-502.md`](./sprint-502.md) | `18.41.0` | Planungsmodus integrieren und abnehmen | **CODE*** Must |
 
-Sprints 431–466 sind im Test-Build `18.31.0` enthalten; die finale
+Sprints 431–466 sind im Test-Build `18.31.5` enthalten; die finale
 Geräte-/Release-Freigabe steht noch aus. Die Folgeschiene 467–482 ist in
 [`../101-next.md`](../101-next.md) geplant. Der frühere
 [`../tischplatte-plan.md`](../tischplatte-plan.md) ist in 444–466 integriert;
 er ist keine parallele Sprintreihe.
 
+Die Folgeschiene 483–494 ist in [`../102-next.md`](../102-next.md) geplant.
+Sie setzt auf dem vorhandenen Fenster-Pairing und Hausstand-Server auf und
+führt erst nach Sicherheits-, Sync- und Android-Geräte-Gates zu `18.36.0`–
+`18.38.0`.
+Im Arbeitsbaum sind einzelne Vorarbeiten sichtbar: 483 (expliziter Server),
+Hausstand-TLS/Versionsprüfung aus 484–485 sowie der noch nicht eingebundene
+Revisionshelfer für 487. Die Sprints bleiben PLAN, bis der jeweilige
+Lieferumfang vollständig, getestet und durch sein Release-Gate freigegeben ist.
+
+Die Vorschlagsfolge 495–502 ist in [`../103-next.md`](../103-next.md)
+beschrieben. Sie baut erst auf der Gerätefreigabe 18.38.0 auf und ergänzt
+Backlog-Trennung, Relations-/Zeitansicht, Risiko-/Statusverlauf,
+Plan-Provenienz, Revisionsvergleich sowie verlustfreie Projektdateien.
+Im Arbeitsbaum sind die Kernbausteine dafür umgesetzt und durch gezielte
+Plan-/Projektdatei-Tests abgedeckt; Zielversionen 18.39.0–18.41.0 bleiben
+dennoch Platzhalter, bis die vollständigen Geräte-/Release-Gates bestanden
+sind.
+
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Test-Build `18.31.0` / versionCode `183100`; finale Geräteabnahme
-offen. Rework 444–466: [`../100-next.md`](../100-next.md). Folgeschiene
-467–482: [`../101-next.md`](../101-next.md). Ältere Sprintfolgen bleiben
-historisch.
+**Stände:** Test-APK `18.31.5` / versionCode `183105`; finale Geräteabnahme
+offen. Rework 444–466: [`../100-next.md`](../100-next.md). Folgeschienen
+467–482: [`../101-next.md`](../101-next.md) und 483–494:
+[`../102-next.md`](../102-next.md). Ältere Sprintfolgen bleiben historisch.
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

@@ -3,19 +3,20 @@ package app.jarvis.haus;
 import android.Manifest;
 import android.content.Context;
 import android.net.wifi.WifiManager;
+import app.jarvis.device.DeviceTls;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionService;
@@ -25,7 +26,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import org.json.JSONObject;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
@@ -43,13 +47,21 @@ public class JarvisHausPlugin extends Plugin {
     private static final int MAX_BODY = 8_000_000;
     private final AtomicReference<String> token = new AtomicReference<>("");
     private final AtomicReference<String> hosted = new AtomicReference<>("");
-    private ServerSocket server;
+    private SSLServerSocket server;
     private Thread loop;
     private volatile boolean alive;
     private volatile int generation;
     private final AtomicReference<String> standAt = new AtomicReference<>("");
     private volatile boolean persistent;
     private static final int HOME_PORT = 8765;
+    private final ConcurrentHashMap<String, IncomingAck> incomingAcks = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> requestIds = new ConcurrentHashMap<>();
+
+    private static final class IncomingAck {
+        final CountDownLatch latch = new CountDownLatch(1);
+        volatile String status = "failed";
+        volatile String syncRevision = "";
+    }
 
     @PluginMethod
     public void offer(PluginCall call) {
@@ -69,11 +81,12 @@ public class JarvisHausPlugin extends Plugin {
         }
         if (persistent && alive && server != null) {
             hosted.set(json);
-            String url = "http://" + ip + ":" + server.getLocalPort() + "/hausstand?t=" + token.get();
+            String url = "https://" + ip + ":" + server.getLocalPort();
+            String fingerprint = DeviceTls.fingerprint(getContext());
             JSObject r = new JSObject();
             r.put("ok", true);
             r.put("url", url);
-            r.put("code", "jarvis-haus:v1|" + url);
+            r.put("code", "jarvis-haus:v3|" + url + "|" + token.get() + "|" + fingerprint);
             call.resolve(r);
             return;
         }
@@ -82,7 +95,7 @@ public class JarvisHausPlugin extends Plugin {
         token.set(next);
         hosted.set(json);
         try {
-            ServerSocket sock = new ServerSocket(0);
+            SSLServerSocket sock = DeviceTls.serverSocket(getContext(), ip, 0);
             sock.setReuseAddress(true);
             server = sock;
             alive = true;
@@ -97,11 +110,12 @@ public class JarvisHausPlugin extends Plugin {
                 }
                 if (generation == gen) stopServer();
             }, "jarvis-haus-stop").start();
-            String url = "http://" + ip + ":" + sock.getLocalPort() + "/hausstand?t=" + next;
+            String url = "https://" + ip + ":" + sock.getLocalPort();
+            String fingerprint = DeviceTls.fingerprint(getContext());
             JSObject r = new JSObject();
             r.put("ok", true);
             r.put("url", url);
-            r.put("code", "jarvis-haus:v1|" + url);
+            r.put("code", "jarvis-haus:v3|" + url + "|" + next + "|" + fingerprint);
             call.resolve(r);
         } catch (Exception e) {
             stopServer();
@@ -128,12 +142,7 @@ public class JarvisHausPlugin extends Plugin {
         try {
             if (!(persistent && alive && server != null)) {
                 stopServer();
-                ServerSocket sock;
-                try {
-                    sock = new ServerSocket(HOME_PORT);
-                } catch (Exception busy) {
-                    sock = new ServerSocket(0);
-                }
+                SSLServerSocket sock = DeviceTls.serverSocket(getContext(), ip, HOME_PORT);
                 sock.setReuseAddress(true);
                 server = sock;
                 alive = true;
@@ -153,13 +162,15 @@ public class JarvisHausPlugin extends Plugin {
             standAt.set(cleanStamp(call.getString("standAt", "")));
             JarvisHausService.start(getContext());
             int port = server.getLocalPort();
-            String base = "http://" + ip + ":" + port;
+            String base = "https://" + ip + ":" + port;
+            String fingerprint = DeviceTls.fingerprint(getContext());
             JSObject r = new JSObject();
             r.put("ok", true);
             r.put("url", base);
             r.put("port", port);
             r.put("token", saved);
-            r.put("code", "jarvis-haus:v2|" + base + "|" + saved);
+            r.put("fingerprint", fingerprint);
+            r.put("code", "jarvis-haus:v3|" + base + "|" + saved + "|" + fingerprint);
             call.resolve(r);
         } catch (Exception e) {
             stopServer();
@@ -206,14 +217,16 @@ public class JarvisHausPlugin extends Plugin {
         final String tok = call.getString("token", "");
         final String hint = call.getString("hint", "");
         final int port = call.getInt("port", HOME_PORT);
-        if (tok == null || tok.length() < 12) {
-            refuse(call, "Noch nicht gekoppelt.");
+        final String fingerprint = call.getString("fingerprint", "");
+        if (tok == null || tok.length() < 12 || fingerprint == null || !fingerprint.matches("(?i)[0-9a-f]{64}")) {
+            refuse(call, "Sichere Kopplung fehlt. Bitte beide Geräte neu koppeln.");
             return;
         }
+        final String ownVersion = appVersion();
         final String own = lanIp();
         new Thread(() -> {
             String[] hit = null;
-            if (hint != null && !hint.isEmpty()) hit = probe(hint, port, tok);
+            if (hint != null && !hint.isEmpty()) hit = probe(hint, port, tok, fingerprint, ownVersion);
             if (hit == null && own != null) {
                 String prefix = own.substring(0, own.lastIndexOf('.') + 1);
                 ExecutorService pool = Executors.newFixedThreadPool(48);
@@ -223,7 +236,7 @@ public class JarvisHausPlugin extends Plugin {
                 for (int i = 1; i < 255; i++) {
                     final String host = prefix + i;
                     if (host.equals(own) || host.equals(hint)) continue;
-                    all.add(cs.submit(() -> probe(host, port, tok)));
+                    all.add(cs.submit(() -> probe(host, port, tok, fingerprint, ownVersion)));
                     count++;
                 }
                 try {
@@ -248,30 +261,57 @@ public class JarvisHausPlugin extends Plugin {
             } else {
                 r.put("ok", true);
                 r.put("host", hit[0]);
-                r.put("url", "http://" + hit[0] + ":" + port);
+                r.put("url", "https://" + hit[0] + ":" + port);
                 r.put("standAt", hit[1]);
+                r.put("appVersion", hit[2]);
+                r.put("protocolVersion", Integer.parseInt(hit[3]));
+                r.put("fingerprint", fingerprint);
+                r.put("syncRevision", hit[4]);
             }
             call.resolve(r);
         }, "jarvis-haus-discover").start();
     }
 
-    private static String[] probe(String host, int port, String tok) {
+    private String[] probe(String host, int port, String tok, String fingerprint, String ownVersion) {
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("http://" + host + ":" + port + "/ping?t=" + tok).openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) new URL("https://" + host + ":" + port + "/ping").openConnection();
+            conn.setSSLSocketFactory(DeviceTls.clientSocketFactory(getContext(), fingerprint));
+            conn.setHostnameVerifier((hostname, session) -> true);
             conn.setConnectTimeout(700);
             conn.setReadTimeout(1500);
             conn.setRequestMethod("GET");
+            conn.setRequestProperty("Authorization", "Bearer " + tok);
+            conn.setRequestProperty("X-Jarvis-App-Version", ownVersion);
+            conn.setRequestProperty("X-Jarvis-Protocol", "3");
+            conn.setRequestProperty("X-Jarvis-Request-ID", java.util.UUID.randomUUID().toString());
+            conn.setRequestProperty("X-Jarvis-Request-Time", Long.toString(System.currentTimeMillis()));
             if (conn.getResponseCode() != 200) {
                 conn.disconnect();
                 return null;
             }
             String text = readStream(conn.getInputStream(), 2000);
             conn.disconnect();
-            if (!text.contains("\"jarvis\":1")) return null;
-            java.util.regex.Matcher m = java.util.regex.Pattern.compile("\"stand_at\":\"([^\"]*)\"").matcher(text);
-            return new String[] {host, m.find() ? m.group(1) : ""};
+            JSONObject ping = new JSONObject(text);
+            if (ping.optInt("jarvis", 0) != 1) return null;
+            JSONObject revision = ping.optJSONObject("sync_revision");
+            return new String[] {
+                    host,
+                    ping.optString("stand_at", ""),
+                    ping.optString("app_version", ""),
+                    Integer.toString(ping.optInt("protocol_version", 0)),
+                    revision == null ? "" : revision.toString()
+            };
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private String appVersion() {
+        try {
+            android.content.pm.PackageInfo info = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+            return info.versionName == null ? "" : info.versionName;
+        } catch (Exception e) {
+            return "";
         }
     }
 
@@ -288,7 +328,7 @@ public class JarvisHausPlugin extends Plugin {
     @PluginMethod
     public void pull(PluginCall call) {
         String url = call.getString("url", "");
-        exchange(call, url, "GET", null);
+        exchange(call, url, call.getString("token", ""), call.getString("fingerprint", ""), "GET", null);
     }
 
     @PluginMethod
@@ -299,7 +339,26 @@ public class JarvisHausPlugin extends Plugin {
             refuse(call, "Hausstand ist leer.");
             return;
         }
-        exchange(call, url, "POST", json);
+        exchange(call, url, call.getString("token", ""), call.getString("fingerprint", ""), "POST", json);
+    }
+
+    @PluginMethod
+    public void acknowledgeIncoming(PluginCall call) {
+        String requestId = call.getString("requestId", "");
+        String status = call.getString("status", "failed");
+        String revision = call.getString("syncRevision", "");
+        IncomingAck ack = incomingAcks.remove(requestId);
+        if (ack == null || !("applied".equals(status) || "same".equals(status)
+                || "conflict".equals(status) || "failed".equals(status))) {
+            refuse(call, "Die Sync-Anfrage ist abgelaufen oder ungültig.");
+            return;
+        }
+        ack.status = status;
+        ack.syncRevision = revision == null ? "" : revision;
+        ack.latch.countDown();
+        JSObject result = new JSObject();
+        result.put("ok", true);
+        call.resolve(result);
     }
 
     @PluginMethod
@@ -330,16 +389,25 @@ public class JarvisHausPlugin extends Plugin {
         call.resolve(r);
     }
 
-    private void exchange(PluginCall call, String url, String method, String json) {
-        if (url == null || !url.startsWith("http://") || !url.contains("/hausstand?t=")) {
+    private void exchange(PluginCall call, String url, String tok, String fingerprint, String method, String json) {
+        if (url == null || !url.startsWith("https://") || url.contains("?")
+                || tok == null || tok.length() < 12
+                || fingerprint == null || !fingerprint.matches("(?i)[0-9a-f]{64}")) {
             refuse(call, "Das ist kein Hausstand-Code.");
             return;
         }
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) new URL(url + "/hausstand").openConnection();
+            conn.setSSLSocketFactory(DeviceTls.clientSocketFactory(getContext(), fingerprint));
+            conn.setHostnameVerifier((hostname, session) -> true);
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(20000);
             conn.setRequestMethod(method);
+            conn.setRequestProperty("Authorization", "Bearer " + tok);
+            conn.setRequestProperty("X-Jarvis-App-Version", appVersion());
+            conn.setRequestProperty("X-Jarvis-Protocol", "3");
+            conn.setRequestProperty("X-Jarvis-Request-ID", java.util.UUID.randomUUID().toString());
+            conn.setRequestProperty("X-Jarvis-Request-Time", Long.toString(System.currentTimeMillis()));
             if (json != null) {
                 byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
                 conn.setDoOutput(true);
@@ -353,6 +421,13 @@ public class JarvisHausPlugin extends Plugin {
             InputStream in = status >= 400 ? conn.getErrorStream() : conn.getInputStream();
             String text = in == null ? "" : readStream(in, MAX_BODY);
             conn.disconnect();
+            if (status == 409 || status == 422) {
+                JSObject r = new JSObject();
+                r.put("ok", true);
+                r.put("json", text);
+                call.resolve(r);
+                return;
+            }
             if (status < 200 || status >= 300) {
                 refuse(call, "Das andere Gerät hat nicht geantwortet.");
                 return;
@@ -368,11 +443,12 @@ public class JarvisHausPlugin extends Plugin {
 
     private void acceptLoop() {
         while (alive) {
-            ServerSocket open = server;
+            SSLServerSocket open = server;
             if (open == null) return;
             try {
                 Socket client = open.accept();
                 client.setSoTimeout(8000);
+                ((javax.net.ssl.SSLSocket) client).startHandshake();
                 handle(client);
             } catch (Exception e) {
                 if (!alive) return;
@@ -408,14 +484,28 @@ public class JarvisHausPlugin extends Plugin {
             String method = req[0];
             String target = req[1];
             String want = token.get();
-            String got = queryToken(target);
+            String authorization = headerValue(lines, "authorization");
+            String got = authorization.startsWith("Bearer ") ? authorization.substring(7) : "";
+            String remoteVersion = headerValue(lines, "x-jarvis-app-version");
+            String remoteProtocol = headerValue(lines, "x-jarvis-protocol");
             boolean ping = target.startsWith("/ping");
-            if ((!ping && !target.startsWith("/hausstand")) || !sameToken(want, got)) {
+            if ((!ping && !"/hausstand".equals(target)) || !sameToken(want, got)) {
                 write(sock, 404, "");
                 return;
             }
             if (ping && "GET".equals(method)) {
-                write(sock, 200, "{\"jarvis\":1,\"stand_at\":\"" + standAt.get() + "\"}");
+                JSONObject backup = new JSONObject(hosted.get());
+                JSONObject pingReply = new JSONObject();
+                pingReply.put("jarvis", 1);
+                pingReply.put("protocol_version", 3);
+                pingReply.put("app_version", appVersion());
+                pingReply.put("stand_at", standAt.get());
+                pingReply.put("sync_revision", backup.optJSONObject("sync_revision"));
+                write(sock, 200, pingReply.toString());
+                return;
+            }
+            if (!appVersion().equals(remoteVersion) || !"3".equals(remoteProtocol)) {
+                write(sock, 409, "{\"ok\":false,\"message\":\"version_mismatch\"}");
                 return;
             }
             if ("GET".equals(method)) {
@@ -423,6 +513,22 @@ public class JarvisHausPlugin extends Plugin {
                 return;
             }
             if ("POST".equals(method)) {
+                String requestId = headerValue(lines, "x-jarvis-request-id");
+                long requestTime;
+                try {
+                    requestTime = Long.parseLong(headerValue(lines, "x-jarvis-request-time"));
+                } catch (NumberFormatException e) {
+                    write(sock, 400, "{\"ok\":false,\"status\":\"failed\"}");
+                    return;
+                }
+                long now = System.currentTimeMillis();
+                requestIds.entrySet().removeIf(entry -> now - entry.getValue() > 120_000L);
+                if (!requestId.matches("(?i)[0-9a-f-]{36}")
+                        || Math.abs(now - requestTime) > 120_000L
+                        || requestIds.putIfAbsent(requestId, requestTime) != null) {
+                    write(sock, 409, "{\"ok\":false,\"status\":\"replay\"}");
+                    return;
+                }
                 int len = contentLength(lines);
                 if (len < 2 || len > MAX_BODY) {
                     write(sock, 413, "");
@@ -436,8 +542,28 @@ public class JarvisHausPlugin extends Plugin {
                 String json = new String(body, StandardCharsets.UTF_8);
                 JSObject ev = new JSObject();
                 ev.put("json", json);
+                ev.put("requestId", requestId);
+                IncomingAck ack = new IncomingAck();
+                incomingAcks.put(requestId, ack);
                 notifyListeners("incoming", ev);
-                write(sock, 200, "{\"ok\":true}");
+                boolean completed;
+                try {
+                    completed = ack.latch.await(20, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    completed = false;
+                }
+                incomingAcks.remove(requestId, ack);
+                if (!completed) {
+                    write(sock, 504, "{\"ok\":false,\"status\":\"timeout\"}");
+                    return;
+                }
+                JSONObject response = new JSONObject();
+                response.put("ok", "applied".equals(ack.status) || "same".equals(ack.status));
+                response.put("status", ack.status);
+                if (!ack.syncRevision.isEmpty()) response.put("sync_revision", new JSONObject(ack.syncRevision));
+                boolean accepted = "applied".equals(ack.status) || "same".equals(ack.status);
+                write(sock, accepted ? 200 : 409, response.toString());
                 return;
             }
             write(sock, 405, "");
@@ -446,12 +572,19 @@ public class JarvisHausPlugin extends Plugin {
         }
     }
 
-    private static String queryToken(String target) {
-        int q = target.indexOf("?t=");
-        if (q < 0) return "";
-        String rest = target.substring(q + 3);
-        int amp = rest.indexOf('&');
-        return amp < 0 ? rest : rest.substring(0, amp);
+    private static String headerValue(String[] lines, String name) {
+        String prefix = name.toLowerCase(java.util.Locale.ROOT) + ":";
+        for (String line : lines) {
+            if (line.toLowerCase(java.util.Locale.ROOT).startsWith(prefix)) {
+                return line.substring(prefix.length()).trim();
+            }
+        }
+        return "";
+    }
+
+    private static String jsonEscape(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
     private static int contentLength(String[] lines) {
@@ -504,7 +637,7 @@ public class JarvisHausPlugin extends Plugin {
 
     private void stopServer() {
         alive = false;
-        ServerSocket open = server;
+        SSLServerSocket open = server;
         server = null;
         if (open != null) {
             try {

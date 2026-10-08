@@ -8,6 +8,18 @@ import { isMemoryWrite } from '../src/engine/memory-parse.ts'
 import { parseTeachIntent } from '../src/engine/teach-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
 
+if (!globalThis.localStorage) {
+  const memory = new Map()
+  globalThis.localStorage = {
+    getItem: (key) => memory.get(key) ?? null,
+    setItem: (key, value) => memory.set(String(key), String(value)),
+    removeItem: (key) => memory.delete(key),
+    clear: () => memory.clear(),
+    key: (index) => [...memory.keys()][index] ?? null,
+    get length() { return memory.size },
+  }
+}
+
 assert.equal(parseIdeaIntent('Idee: Schach gegen den Körper halten')?.kind, 'create')
 assert.equal(parseIdeaIntent('Neue Idee Körper neben dem Chat')?.kind, 'create')
 assert.equal(parseIdeaIntent('Merk dir die Idee Lidl in Stuttgart')?.kind, 'create')

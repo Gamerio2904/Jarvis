@@ -2,7 +2,7 @@
 
 **Version:** `18.32.0` — **PLAN** Must  
 **Plan:** [`../101-next.md`](../101-next.md)  
-**Voraussetzung:** Release-/Geräte-Gate `18.31.0` bestanden.
+**Voraussetzung:** Release-/Geräte-Gate für Test-Build `18.31.5` bestanden.
 
 ## Ziel
 

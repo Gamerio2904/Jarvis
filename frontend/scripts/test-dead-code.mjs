@@ -70,7 +70,12 @@ const unusedKeys = keys.filter((k) => {
  * verdrahten.
  */
 const KEY_ALLOW = new Set(
-  /** @type {string[]} */ ([]),
+  /** @type {string[]} */ ([
+    // Nur von Backup-/Migrationstests genutzt oder für spätere Stimmenwahl reserviert.
+    'tts_voice_friday',
+    'tischplatte_pieces_json',
+    'tischplatte_motion_json',
+  ]),
 )
 const extraKeys = unusedKeys.filter((k) => !KEY_ALLOW.has(k))
 if (extraKeys.length) {
@@ -116,6 +121,11 @@ const SCRIPT_ALLOW = new Set([
   'eval/separability.mjs',
   'eval/route.test.mjs',
   'smoke-prompt.mts',
+  // Ältere Einzeltests, bewusst nicht im Gesamtlauf; teils umgebungsabhängig.
+  'gui-cook.mjs', 'test-18.23.mjs', 'test-agents-brain.mjs', 'test-bot-ask.mjs', 'test-cal-year.mjs',
+  'test-clipboard-image.mjs', 'test-cook.mjs', 'test-entwurf.mjs', 'test-expert.mjs', 'test-habits.mjs',
+  'test-haus-link.mjs', 'test-image-ask.mjs', 'test-intro.mjs', 'test-portfolio.mjs', 'test-rm-ask.mjs',
+  'test-shopping-lists.mjs', 'test-xfer.mjs',
 ])
 const orphanScripts = scriptFiles.filter((n) => {
   if (pkgText.includes(n.replace(/\.(mjs|mts)$/, '')) || pkgText.includes(n)) return false

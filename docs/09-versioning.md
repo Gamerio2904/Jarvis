@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** Test-Build **`18.31.0`**, versionCode `183100`; die finale Android-Geräteabnahme ist offen. Die Tischplatten-Umsetzung 444–466 ist enthalten. Nächste Planung: [`101-next.md`](./101-next.md), Sprints 467–482, Versionen `18.32.0`–`18.35.0`. Ein Test-Build ist keine finale Release-Freigabe.
+> **Stände:** Test-APK **`18.31.5`**, versionCode `183105`; Android-Geräteabnahme offen. Die Sprintfolge 467–482 (`18.32.0`–`18.35.0`) ist in [`101-next.md`](./101-next.md) geplant. Danach ist Tablet-Server, sicherer Hausstand-Sync und Zwei-Bildschirm-Bedienung in [`102-next.md`](./102-next.md) geplant: Sprints 483–494, `18.36.0`–`18.38.0`. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1016,8 +1016,8 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.25.12` | Zwei Fenster, Plan S1–S3 | keine Nummer, CODE |
 | `18.25.13` | Kopplung im Hintergrund | keine Nummer, CODE |
 | nach `18.25.13` | Tischplatte lesbar | in `100-next.md` Sprints 448, 450–451 integriert |
-| nach `18.25.13` | Hausstand nach dem Koppeln | PLAN S1–S3, [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) |
-| nach `18.25.13` | Formulierung egal | PLAN S1–S3, [`formulierung-plan.md`](./formulierung-plan.md) |
+| `18.31.5` | Tablet-Server, QR-Kopplung und Zeitstempel-Sync | CODE + Test-APK; Geräteabnahme offen, Ausbau [`102-next.md`](./102-next.md) |
+| unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**
 
@@ -1093,6 +1093,19 @@ einem möglichen Einbau voraus.
 | `18.33.0` (`183300`) | Planwunsch in validierte Vorschau und Exporte übersetzen | 471–474 PLAN |
 | `18.34.0` (`183400`) | Eindeutigen Kontext nutzen, fehlende Pflichtangaben erfragen | 475–478 PLAN |
 | `18.35.0` (`183500`) | Faktengetreue kurze Sprachantworten und Gesamt-Gate | 479–482 PLAN |
+
+### `18.36`–`18.38` — Sicherer Tablet-Server und zweiter Bildschirm [`102-next.md`](./102-next.md) **PLAN**
+
+Sprints 483–494 bauen auf dem vorhandenen LAN-Pairing, Hausstand-Server und
+Fenster-Protokoll auf. Erst nach gleichem App-/Protokollstand, bestätigtem
+Pairing und verschlüsseltem, gepinntem Transport werden Daten synchronisiert
+oder Ansichten remote geöffnet.
+
+| Version | Ziel | Sprints |
+|---------|------|---------|
+| `18.36.0` (`183600`) | Expliziter Server, geschütztes Pairing/Transport, Versionshandshake | 483–486 PLAN |
+| `18.37.0` (`183700`) | Konfliktsicherer automatischer Hausstand-Abgleich | 487–490 PLAN |
+| `18.38.0` (`183800`) | Planung/Sprints auf zwei Geräten und End-to-End-Gate | 491–494 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

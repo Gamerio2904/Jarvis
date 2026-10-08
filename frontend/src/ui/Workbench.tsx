@@ -7,7 +7,7 @@ import { expandEvents } from '../engine/calendar-occur.ts'
 import { acceptProposal, pendingProposals, rejectProposal } from '../engine/memory-propose.ts'
 import { listEvents, listIdeas, loadSettings, newId, putIdea, saveSettings, type Idea, type MemoryProposal } from '../engine/store.ts'
 import type { ResearchSource } from '../engine/research-parse.ts'
-import { savePlanRevision, type IdeaSimulation } from '../engine/idea-plan.ts'
+import { savePlanRevision, validatePlan, type IdeaPlan, type IdeaSimulation } from '../engine/idea-plan.ts'
 import { parseProjectFile } from '../engine/project-docs.ts'
 import { ScriptStage } from './ScriptStage.tsx'
 
@@ -120,17 +120,27 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
   }, [vis, focus])
 
   const active = planId ? ideas.find((idea) => idea.id === planId && idea.status !== 'done') : undefined
-  const evidenceSources = active?.plan?.evidence?.filter((item) => item.kind === 'research') || []
+  const evidenceSources = active?.plan?.evidence || []
   const displayedSources = evidenceSources.length
-    ? evidenceSources.map((source) => `${source.title} · ${source.url || source.text}`)
+    ? evidenceSources.map((source) => `${source.kind}: ${source.title} · ${source.url || source.text}${source.fetchedAt ? ` · abgerufen ${source.fetchedAt}` : ' · Abrufzeit fehlt'}${source.requirementId ? ` · Anforderung ${source.requirementId}` : ''}`)
     : sources.map((source) => `${source.title.slice(0, 48)} · ${hostOf(source.url)}`)
 
   async function updateSimulation(simulation: IdeaSimulation | null): Promise<void> {
     if (!active) throw new Error('Es ist kein aktives Projekt ausgewählt.')
     const plan = active.plan
     if (!plan) throw new Error('Das Projekt hat keinen gespeicherten Plan.')
-    const withRevision = savePlanRevision(plan, 'Vorschau angepasst', newId())
-    const updated = { ...active, plan: { ...withRevision, simulation: simulation || undefined } }
+    await updatePlan({ ...plan, simulation: simulation || undefined }, 'Vorschau angepasst')
+  }
+
+  async function updatePlan(nextPlan: IdeaPlan, summary: string): Promise<void> {
+    if (!active) throw new Error('Es ist kein aktives Projekt ausgewählt.')
+    const plan = active.plan
+    if (!plan) throw new Error('Das Projekt hat keinen gespeicherten Plan.')
+    const withRevision = savePlanRevision(plan, summary, newId())
+    const planToSave = { ...nextPlan, ideaId: active.id, revisions: withRevision.revisions }
+    const validation = validatePlan(planToSave)
+    if (!validation.ok) throw new Error(validation.errors.join(' '))
+    const updated = { ...active, plan: planToSave }
     await putIdea(updated)
     setIdeas((rows) => rows.map((row) => (row.id === updated.id ? updated : row)))
   }
@@ -186,6 +196,7 @@ export function Workbench({ view, focus }: { view: string; focus: string }) {
         onYes={(id) => void acceptProposal(id)}
         onNo={(id) => void rejectProposal(id)}
         onSimulationChange={updateSimulation}
+        onPlanChange={updatePlan}
         onImportProject={importProject}
       />
     </div>

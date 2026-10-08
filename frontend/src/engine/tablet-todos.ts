@@ -23,9 +23,7 @@ export function todoSpeech(todos: Todo[]): string {
   const open = openTodos(todos)
   if (!open.length) return 'Sir, Sie haben nichts mehr zu erledigen.'
   const head = open.length === 1 ? 'Sir, Sie haben eine offene Aufgabe: ' : `Sir, Sie haben ${open.length} offene Aufgaben: `
-  const names = open.slice(0, 5).map((t) => t.title)
-  const more = open.length > 5 ? ` und ${open.length - 5} weitere.` : '.'
-  return head + names.join(', ') + more
+  return head + open.map((t) => t.title).join(', ') + '.'
 }
 
 const ACKS = ['Ja, Sir?', 'Zu Diensten, Sir.', 'Wie kann ich helfen, Sir?', 'Ich höre, Sir.', 'Sie wünschen, Sir?']

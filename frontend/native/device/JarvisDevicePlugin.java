@@ -20,6 +20,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.util.Base64;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import android.provider.ContactsContract;
@@ -44,8 +47,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 
 @CapacitorPlugin(
         name = "JarvisDevice",
@@ -59,7 +67,102 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class JarvisDevicePlugin extends Plugin {
 
     private static final String SMS_SENT = "app.jarvis.device.SMS_SENT";
+    private static final String SECURE_ALIAS = "jarvis-secure-storage-v1";
+    private static final String SECURE_PREFS = "jarvis_secure_storage_v1";
     private int smsSeq = 0;
+
+    @PluginMethod
+    public void secureGet(PluginCall call) {
+        JSObject out = new JSObject();
+        try {
+            String name = secureName(call.getString("key", ""));
+            String value = getContext().getSharedPreferences(SECURE_PREFS, Context.MODE_PRIVATE).getString(name, null);
+            out.put("ok", true);
+            out.put("value", value == null ? "" : decryptSecure(value));
+            out.put("found", value != null);
+        } catch (Exception e) {
+            out.put("ok", false);
+            out.put("message", "Geschützter Gerätespeicher ist nicht verfügbar.");
+        }
+        call.resolve(out);
+    }
+
+    @PluginMethod
+    public void securePut(PluginCall call) {
+        JSObject out = new JSObject();
+        try {
+            String key = secureName(call.getString("key", ""));
+            String value = call.getString("value", "");
+            if (value == null || value.length() > 16_384) throw new IllegalArgumentException("invalid value");
+            boolean saved = getContext().getSharedPreferences(SECURE_PREFS, Context.MODE_PRIVATE)
+                    .edit().putString(key, encryptSecure(value)).commit();
+            if (!saved) throw new IllegalStateException("secure persistence failed");
+            out.put("ok", true);
+        } catch (Exception e) {
+            out.put("ok", false);
+            out.put("message", "Geschützter Gerätespeicher konnte nicht schreiben.");
+        }
+        call.resolve(out);
+    }
+
+    @PluginMethod
+    public void secureDelete(PluginCall call) {
+        JSObject out = new JSObject();
+        try {
+            String key = secureName(call.getString("key", ""));
+            boolean saved = getContext().getSharedPreferences(SECURE_PREFS, Context.MODE_PRIVATE)
+                    .edit().remove(key).commit();
+            if (!saved) throw new IllegalStateException("secure persistence failed");
+            out.put("ok", true);
+        } catch (Exception e) {
+            out.put("ok", false);
+            out.put("message", "Geschützter Gerätespeicher konnte nicht löschen.");
+        }
+        call.resolve(out);
+    }
+
+    private static String secureName(String raw) {
+        if (raw == null || !raw.matches("[a-zA-Z0-9_.-]{1,80}")) throw new IllegalArgumentException("invalid key");
+        return raw;
+    }
+
+    private SecretKey secureKey() throws Exception {
+        KeyStore store = KeyStore.getInstance("AndroidKeyStore");
+        store.load(null);
+        if (!store.containsAlias(SECURE_ALIAS)) {
+            KeyGenerator generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            generator.init(new KeyGenParameterSpec.Builder(SECURE_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setRandomizedEncryptionRequired(true)
+                    .build());
+            generator.generateKey();
+            store.load(null);
+        }
+        return (SecretKey) store.getKey(SECURE_ALIAS, null);
+    }
+
+    private String encryptSecure(String value) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, secureKey());
+        byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
+        byte[] iv = cipher.getIV();
+        byte[] result = new byte[iv.length + encrypted.length];
+        System.arraycopy(iv, 0, result, 0, iv.length);
+        System.arraycopy(encrypted, 0, result, iv.length, encrypted.length);
+        return Base64.encodeToString(result, Base64.NO_WRAP);
+    }
+
+    private String decryptSecure(String value) throws Exception {
+        byte[] data = Base64.decode(value, Base64.NO_WRAP);
+        if (data.length < 13) throw new SecurityException("invalid secure value");
+        byte[] iv = java.util.Arrays.copyOfRange(data, 0, 12);
+        byte[] encrypted = java.util.Arrays.copyOfRange(data, 12, data.length);
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, secureKey(), new GCMParameterSpec(128, iv));
+        return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
+    }
 
     @PluginMethod
     public void battery(PluginCall call) {

@@ -26,9 +26,37 @@ type NativeDevice = {
     text?: string
     base64?: string
   }): Promise<{ ok: boolean; path?: string; message?: string }>
+  secureGet(opts: { key: string }): Promise<{ ok: boolean; found?: boolean; value?: string; message?: string }>
+  securePut(opts: { key: string; value: string }): Promise<{ ok: boolean; message?: string }>
+  secureDelete(opts: { key: string }): Promise<{ ok: boolean; message?: string }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
+
+export async function secureGet(key: string): Promise<string | null> {
+  if (!native) return localStorage.getItem(`jarvis-secure:${key}`)
+  const result = await native.secureGet({ key })
+  if (!result.ok) throw new Error(result.message || 'Geschützter Gerätespeicher ist nicht verfügbar.')
+  return result.found ? String(result.value || '') : null
+}
+
+export async function securePut(key: string, value: string): Promise<void> {
+  if (!native) {
+    localStorage.setItem(`jarvis-secure:${key}`, value)
+    return
+  }
+  const result = await native.securePut({ key, value })
+  if (!result.ok) throw new Error(result.message || 'Geschützter Gerätespeicher konnte nicht schreiben.')
+}
+
+export async function secureDelete(key: string): Promise<void> {
+  if (!native) {
+    localStorage.removeItem(`jarvis-secure:${key}`)
+    return
+  }
+  const result = await native.secureDelete({ key })
+  if (!result.ok) throw new Error(result.message || 'Geschützter Gerätespeicher konnte nicht löschen.')
+}
 
 export async function readBattery(): Promise<{
   ok: boolean

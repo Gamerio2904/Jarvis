@@ -6,18 +6,21 @@ import {
   scheduleNotify,
 } from '../native/notify.ts'
 import { syncGlance } from './glance.ts'
-import { formatDue, parseReminderIntent, startOfDay } from './remind-parse.ts'
+import { formatDue, parseReminderIntent, resolveReminderTimeAnswer, startOfDay } from './remind-parse.ts'
 import { cancelEventNotifies } from './calendar.ts'
 import {
   addReminder,
   deleteEvent,
   deleteReminder,
+  clearPending,
+  getPending,
   listEvents,
   listReminders,
   listTodos,
   loadSettings,
   persistLastList,
   putReminder,
+  setPending,
   setReminderStatus,
   type Reminder,
 } from './store.ts'
@@ -31,7 +34,36 @@ export async function handleReminders(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
-  const intent = parseReminderIntent(text)
+  let intent = parseReminderIntent(text)
+  const pending = await getPending(conversationId)
+  if (pending?.tool === 'reminder' && pending.action === 'ask_time') {
+    const age = Date.now() - Date.parse(pending.created_at)
+    if (!Number.isFinite(age) || age < 0 || age > 15 * 60_000) {
+      await clearPending(conversationId)
+    } else if (/^\s*(?:nein|abbrechen|stopp|stop|lass es)\s*[.!?]*$/i.test(text)) {
+      await clearPending(conversationId)
+      return {
+        handled: true,
+        reply: 'Die Erinnerung wurde abgebrochen.',
+        tool: { tool_status: 'aborted', tool: 'reminder', action: 'create' },
+      }
+    } else {
+      const title = typeof pending.args.title === 'string' ? pending.args.title : ''
+      const followUp = resolveReminderTimeAnswer(text, title)
+      if (followUp) {
+        intent = followUp
+        await clearPending(conversationId)
+      } else if (intent) {
+        await clearPending(conversationId)
+      } else {
+        return {
+          handled: true,
+          reply: `Welche Zeit soll ich für „${title}“ nehmen? Zum Beispiel „morgen 8 Uhr“.`,
+          tool: { tool_status: 'ask', tool: 'reminder', action: 'ask_time', preview: title },
+        }
+      }
+    }
+  }
   if (!intent) return { handled: false }
 
   if (intent.kind === 'create') {
@@ -78,6 +110,14 @@ export async function handleReminders(
   }
 
   if (intent.kind === 'ask') {
+    await setPending({
+      conversation_id: conversationId,
+      tool: 'reminder',
+      action: 'ask_time',
+      args: { title: intent.title },
+      preview: intent.title,
+      created_at: new Date().toISOString(),
+    })
     return {
       handled: true,
       reply: `Wann soll ich an ${intent.title} erinnern? Zum Beispiel „in 20 Minuten“ oder „morgen 8 Uhr“.`,

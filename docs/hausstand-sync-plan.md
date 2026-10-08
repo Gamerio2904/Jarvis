@@ -1,11 +1,17 @@
-# Tablet als Hausstand-Server und automatische Synchronisierung
+# Tablet als Hausstand-Server und automatische Synchronisierung — Vorgängerplan
 
-Plan nach [`plan-vorlage.md`](./plan-vorlage.md). Die manuelle Geräte-Kopplung
-und QR-Übertragung aus [`handy-flaeche-plan.md`](./handy-flaeche-plan.md) sind
-vorhanden. Ein dauerhaft laufender Tablet-Server, automatische Wiederverbindung
-und Hausstand-Synchronisierung sind noch nicht gebaut. Die Sprints sind Planung,
-keine Aussage über bereits gelieferte Funktionen. Umsetzung erst nach
-`Umsetzen`.
+Dieser Plan dokumentiert den früheren Entwurf. Ein Teil ist inzwischen im
+Test-Build `18.31.5` enthalten: Android-Vordergrunddienst, QR-Kopplung,
+WLAN-Erkennung und Zeitstempel-Abgleich. Die Geräteabnahme ist offen; der Code
+belegt nicht, dass alle Abläufe auf Handy und Tablet freigegeben sind.
+
+Die neue, maßgebliche Folgeschiene ist [`102-next.md`](./102-next.md),
+Sprints 483–494. Sie ersetzt die frühere Pflicht zur Bestätigung jedes klar
+geordneten Hausstand-Abgleichs durch automatisches Übernehmen einer
+nachweislich dominierenden Revision, verlangt aber weiterhin explizite
+Konfliktwahl, geschützten Transport, Versionsgleichheit und Wiederherstellung.
+Die hier dokumentierten früheren Entscheidungen bleiben als Verlauf erhalten;
+bei Widerspruch gilt `102-next.md`.
 
 ## Bedingung
 
@@ -57,7 +63,7 @@ Keine neue Web-Recherche beauftragt. Vorhandene lokale Schnittstellen:
 |---|---|
 | [`handy-flaeche-plan.md`](./handy-flaeche-plan.md) | Bestätigte LAN-Kopplung zweier App-Fenster |
 | `frontend/src/native/haus.ts` | Native QR-Angebots-, Pull- und Push-Schnittstelle |
-| `frontend/native/haus/JarvisHausPlugin.java` | Temporärer WLAN-Endpunkt für die manuelle Hausstand-Übertragung |
+| `frontend/native/haus/JarvisHausPlugin.java` | Nativer TLS-Hausstand-Endpunkt mit gepinntem Geräte-Zertifikat; QR-Pairing, Pull/Push und Tablet-Server |
 | `frontend/src/engine/backup.ts` | Hausstand-Export und vollständiges Ersetzen beim Import |
 | `frontend/src/native/presence.ts` | Vorhandenes LAN-Server-Muster mit Token und Start/Stop |
 | `frontend/native/fenster/JarvisFensterService.java` | Vorhandenes Android-Vordergrunddienst-Muster |

@@ -6,6 +6,7 @@ import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
+import { recordLocalRevision } from './sync-revisions.ts'
 
 export const APP_VERSION = '18.31.5'
 
@@ -413,6 +414,7 @@ export type Settings = {
   tablet_mode: boolean
   sync_url: string
   sync_token: string
+  sync_fingerprint: string
   tischplatte_view: string
   workbench_open: boolean
   tischplatte_focus: string
@@ -643,6 +645,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tablet_mode: false,
   sync_url: '',
   sync_token: '',
+  sync_fingerprint: '',
   tischplatte_view: 'sprints',
   workbench_open: false,
   tischplatte_focus: '',
@@ -966,6 +969,7 @@ const STAND_STORES = new Set([
 function touchStand(store: string): void {
   if (standMuted || !STAND_STORES.has(store)) return
   setStandAt(new Date().toISOString())
+  recordLocalRevision()
   try {
     window.dispatchEvent(new Event('jarvis-stand-changed'))
   } catch {

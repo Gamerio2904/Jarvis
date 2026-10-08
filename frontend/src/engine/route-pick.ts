@@ -1,6 +1,6 @@
 import { routingAgents } from './agents/parse-catalog.ts'
 import { applyConflicts } from './conflicts.ts'
-import { isFollowish, pickPolicy, withCost, withPrior, type PolicyPick } from './policy.ts'
+import { isFollowish, pickPolicy, SCORE_MIN, withCost, withPrior, type PolicyPick } from './policy.ts'
 import type { Candidate, RouteCtx } from './route-types.ts'
 import { promoteSplitPart, splitIntents } from './split-intents.ts'
 import { looseAsk } from './work-flex.ts'
@@ -38,7 +38,14 @@ function leadOf(pick: PolicyPick): string | null {
  * `wont` bricht sofort ab — eine Absage gilt für die ganze Äußerung.
  */
 export function decideRoute(ctx: RouteCtx): PolicyPick {
-  const whole = decideRouteFromCtx(ctx).pick
+  const wholeDecision = decideRouteFromCtx(ctx)
+  if (
+    /\boder\b/i.test(ctx.text) &&
+    wholeDecision.candidates.some((candidate) => (candidate.base ?? candidate.score) >= SCORE_MIN)
+  ) {
+    return { kind: 'none' }
+  }
+  const whole = wholeDecision.pick
   if (leadOf(whole) === 'wont') return whole
   const parts = splitIntents(ctx.text)
   if (parts.length > 1) {

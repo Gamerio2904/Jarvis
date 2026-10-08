@@ -1,3 +1,4 @@
+// @ts-nocheck — Test-Skript mit losen Literalen/Mocks; Laufzeit wird vom Test selbst geprüft.
 import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
 
@@ -20,6 +21,7 @@ const { handleBoard } = await import('../src/engine/board.ts')
 const { handleIdea } = await import('../src/engine/idea.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
 const { fileFor, projectSlug, projectDocument, parseProjectFile, prdDocument, mermaidDocument, implementationGuide } = await import('../src/engine/project-docs.ts')
+const { savePlanRevision } = await import('../src/engine/idea-plan.ts')
 const { wbsFor, workflowDryRun } = await import('../src/engine/idea-simulation.ts')
 const { addEvent, clearPending, getPending, listEvents, listIdeas, listReminders, loadSettings, saveSettings } = await import('../src/engine/store.ts')
 const { parseCalendarIntent, handleCalendar, cancelEventNotifies, parseRemindOffsets } = await import('../src/engine/calendar.ts')
@@ -75,19 +77,60 @@ assert.doesNotMatch(idea.plan.sprints.map((s) => s.ziel).join(' '), /Grenzen und
 const file = fileFor(idea, 'psp')
 assert.equal(file.name.endsWith('-psp.json'), true)
 assert.equal(file.data.art, 'psp')
-assert.equal(file.data.schemaVersion, 1)
+assert.equal(file.data.schemaVersion, 2)
 assert.equal(file.data.struktur.kind, 'project')
 assert.doesNotMatch(JSON.stringify(file.data.struktur), /Sprint \d/)
 const wbs = wbsFor(idea, idea.plan)
 const wbsKinds = (node) => [node.kind, ...node.children.flatMap(wbsKinds)]
 assert.equal(wbsKinds(wbs).includes('requirement'), true)
-const exportedProject = projectDocument(idea)
-assert.equal(exportedProject.schemaVersion, 1)
-assert.equal(parseProjectFile(exportedProject).plan.ideaId, idea.id)
+const exportPlan = structuredClone(idea.plan)
+exportPlan.anforderungen = [{
+  id: 'A-roundtrip',
+  satz: 'Projektinhalt vollständig erhalten',
+  abnahme: 'Roundtrip ist identisch.',
+  gateway: 'offen',
+  provenance: { kind: 'research', confirmation: 'confirmed', evidenceIds: ['E-roundtrip'] },
+}]
+exportPlan.evidence = [{
+  id: 'E-roundtrip',
+  kind: 'research',
+  title: 'Dokumentation',
+  text: 'Beleg für die Anforderung.',
+  url: 'https://example.com/reference',
+  fetchedAt: '2026-10-08T07:00:00Z',
+  requirementId: 'A-roundtrip',
+}]
+exportPlan.sprints = exportPlan.sprints.map((sprint, index) => ({
+  ...sprint,
+  anforderungen: ['A-roundtrip'],
+  relations: index ? [{ type: 'depends_on', targetId: exportPlan.sprints[index - 1].n }] : [],
+  startAt: new Date(Date.UTC(2026, 9, 8 + index, 7)).toISOString(),
+  endAt: new Date(Date.UTC(2026, 9, 8 + index, 15)).toISOString(),
+}))
+exportPlan.backlog = [{ id: 'B-roundtrip', description: 'Später prüfen', requirementIds: ['A-roundtrip'], status: 'backlog' }]
+exportPlan.risks = [{ id: 'R-roundtrip', description: 'Risiko erhalten', impact: 'Import könnte Informationen verlieren', mitigation: 'Vergleich durchführen', status: 'open' }]
+exportPlan.statusUpdates = [{ status: 'blocked', at: '2026-10-08T07:10:00Z', reason: 'Manuell erfasst', nextAction: 'Freigabe anfragen', sprintId: exportPlan.sprints[0]?.n }]
+exportPlan.extensions = { custom: { retained: true } }
+const fullPlan = savePlanRevision(exportPlan, 'roundtrip fixture', 'rev-roundtrip')
+const exportIdea = { ...idea, body: 'Notiz mit Inhalt', plan: fullPlan }
+const exportedProject = projectDocument(exportIdea)
+assert.equal(exportedProject.schemaVersion, 2)
+assert.equal(typeof exportedProject.contentHash, 'string')
+const importedProject = parseProjectFile(exportedProject)
+assert.equal(importedProject.plan.ideaId, idea.id)
+assert.deepEqual(importedProject.plan, exportedProject.plan)
+assert.deepEqual(projectDocument({ ...exportIdea, title: importedProject.projekt, body: importedProject.notiz, plan: importedProject.plan }), exportedProject)
 assert.match(prdDocument(idea), /Ursprünglicher Wunsch/)
 assert.match(mermaidDocument(idea), /^flowchart TD/)
 assert.match(implementationGuide(idea), /keine Zusage fehlerfreier Umsetzung/)
 assert.throws(() => parseProjectFile({ ...exportedProject, schemaVersion: 99 }), /Formatversion/)
+assert.throws(() => parseProjectFile({ ...exportedProject, notiz: 'verändert' }), /Prüfsumme/)
+assert.throws(() => parseProjectFile({ ...exportedProject, requiredFields: ['unknown'] }), /Pflichtfelder/)
+assert.throws(() => parseProjectFile({ ...exportedProject, notiz: 'x'.repeat(2_000_001) }), /2 MB/)
+const legacyFile = { ...exportedProject, schemaVersion: 1, contentHash: undefined, futureProjectExtension: 'preserve me' }
+const migrated = parseProjectFile(legacyFile)
+assert.equal(migrated.schemaVersion, 2)
+assert.equal(migrated.plan.extensions.projectFile.futureProjectExtension, 'preserve me')
 const simulation = workflowDryRun(idea.plan, idea.title)
 assert.equal(simulation.kind, 'workflow')
 assert.match(simulation.assumptions[0], /keine echten Tests/)
