@@ -1120,3 +1120,58 @@
     transform: none !important;
   }
 }
+
+.ygo-ultron-bubble {
+  position: fixed;
+  top: max(58px, calc(env(safe-area-inset-top) + 48px));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 10025;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(78vw, 340px);
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 16px 4px 16px 16px;
+  color: #f5f2ed;
+  background: linear-gradient(145deg, rgba(138, 75, 255, 0.35), rgba(255, 53, 88, 0.22));
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  font-size: 11px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.ygo-ultron-text strong {
+  margin-right: 4px;
+  color: #ff8fa0;
+}
+
+.ygo-ultron-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.ygo-ultron-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.4;
+}
+
+.ygo-ultron-bubble.is-thinking .ygo-ultron-dots i {
+  animation: ygo-dot 1s ease-in-out infinite;
+}
+
+.ygo-ultron-bubble.is-thinking .ygo-ultron-dots i:nth-child(2) { animation-delay: 0.15s; }
+.ygo-ultron-bubble.is-thinking .ygo-ultron-dots i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes ygo-dot {
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ygo-ultron-bubble.is-thinking .ygo-ultron-dots i { animation: none; opacity: 0.8; }
+}

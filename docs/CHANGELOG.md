@@ -14,6 +14,8 @@ Deckdaten per `scripts/enrich-ygo-effects.mjs` auf aktuelle Effektmuster erweite
 (430/1395 Karten mit simuliertem Effekt). Android-Geräteabnahme und Release-Freigabe
 bleiben offen; Umfang und Grenzen stehen in [`yugioh-duel.md`](./yugioh-duel.md).
 
+Ultron-Statusblase oben rechts im Duel-Overlay (denkt nach / aktuelle Aktion). Geplante Folge: Self-Play, Zugsuche und Dev-Umschalter in [`104-next.md`](./104-next.md) (503–508, `18.42.0`–`18.44.0`, PLAN).
+
 ### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 
 Neu: 46 echte Structure Decks, 25 davon als zufälliger Ultron-Pool.

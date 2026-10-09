@@ -112,6 +112,13 @@ das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
   24 Destroy, 8 Negate-Attack, 5 Revive).
 - Die generierten Archetyp-Decks dienen weiter nur Training und Auswertung.
 
+## Statusblase und Planung
+
+Während Jarvis zieht, zeigt eine Blase oben rechts „Ultron denkt nach …“ bzw. die
+letzte Aktion (setzt Karte, beschwört, greift an); bei STOP „pausiert“. Geplant
+(PLAN, nicht implementiert): KI-gegen-Klon-Self-Play, Zugsuche, Live-Match,
+Game⇄Dev-Umschalter und Lernen aus Protokollen — siehe [`104-next.md`](./104-next.md).
+
 ## Bewusste Grenzen
 
 Dies bleibt ein **vereinfachter Prototyp**, keine vollständige

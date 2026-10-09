@@ -189,6 +189,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [extraCardId, setExtraCardId] = useState<number | null>(null)
   const [extraMaterials, setExtraMaterials] = useState<number[]>([])
   const [jarvisPaused, setJarvisPaused] = useState(false)
+  const [jarvisThinking, setJarvisThinking] = useState(false)
   const [cardTextCache, setCardTextCache] = useState<Record<number, string>>({})
   const [cardTextBusy, setCardTextBusy] = useState(false)
   const [notice, setNotice] = useState('')
@@ -502,13 +503,18 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (!game || game.winner || game.turnOwner !== 'jarvis' || game.chain.length || jarvisPaused) return
     const delay = game.pendingAttack ? 2200 : 1500
+    setJarvisThinking(true)
     const timeout = window.setTimeout(() => {
+      setJarvisThinking(false)
       setGame((current) => {
         if (!current || current.winner || current.turnOwner !== 'jarvis' || current.chain.length || jarvisPaused) return current
         return jarvisStep(current, jarvisBrain === 'net' ? netModel : null)
       })
     }, delay)
-    return () => window.clearTimeout(timeout)
+    return () => {
+      window.clearTimeout(timeout)
+      setJarvisThinking(false)
+    }
   }, [game, jarvisBrain, netModel, jarvisPaused])
 
   useEffect(() => {
@@ -579,6 +585,12 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
 
       {game ? (
         <section className="ygo-game">
+          {game.turnOwner === 'jarvis' && !game.winner ? (
+            <div className={`ygo-ultron-bubble${jarvisThinking ? ' is-thinking' : ''}`} role="status" aria-live="polite">
+              <span className="ygo-ultron-dots" aria-hidden><i /><i /><i /></span>
+              <span className="ygo-ultron-text"><strong>Ultron</strong> {jarvisPaused ? 'pausiert – du kannst reagieren' : jarvisThinking ? 'denkt nach …' : game.message}</span>
+            </div>
+          ) : null}
           <div className="ygo-duel-status">
             <span>Zug {game.turn}</span>
             <strong>{phaseLabel}</strong>
