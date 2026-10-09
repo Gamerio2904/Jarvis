@@ -580,3 +580,90 @@ export function trainNetSoup(options: {
     soupValidation,
   }
 }
+
+// --- Jarvis plays a real duel with the network ---
+
+function mirror(state: DuelState): DuelState {
+  return { ...state, player: state.jarvis, jarvis: state.player }
+}
+
+function mirrorWinner(winner: DuelState['winner']): DuelState['winner'] {
+  return winner === 'player' ? 'jarvis' : winner === 'jarvis' ? 'player' : null
+}
+
+// Jarvis' turn, decided by the network. The board is mirrored so the same player-side rules and
+// features apply; the human opponent still answers effect chains through the scripted responder.
+export function runNetJarvisTurn(state: DuelState, model: NetModel): DuelState {
+  if (state.winner) return state
+  const policy = greedyNetPolicy(validateNetModel(model))
+  const random = seededRandom(state.turn * 7919 + 13)
+  const jarvis = { ...state.jarvis, deck: [...state.jarvis.deck], hand: [...state.jarvis.hand] }
+  const card = jarvis.deck.pop()
+  if (!card) return { ...state, winner: 'player', message: 'Jarvis kann keine Karte mehr ziehen. Du gewinnst das Duell!' }
+  jarvis.hand.push(card)
+  let view: DuelState = {
+    ...state,
+    player: { ...jarvis, normalSummonUsed: false, usedEffects: [] },
+    jarvis: { ...state.player },
+    phase: 'main1',
+    attacked: [],
+    selectedAttacker: null,
+    chain: [],
+    chainPriority: null,
+    chainPasses: 0,
+  }
+  const log: string[] = []
+  let animation: DuelState['lastAnimation'] = { id: 0, kind: 'draw' }
+  for (let step = 0; step < 60 && !view.winner && view.phase !== 'end'; step += 1) {
+    const actions = candidateActions(view)
+    const chosen = actions[actions.length === 1 ? 0 : policy(actions, random)]
+    let next: DuelState
+    try {
+      next = applyAction(view, chosen)
+    } catch {
+      next = view.chain.length ? passDuelChain(view, 'player') : advanceDuelPhase(view)
+    }
+    if (chosen.kind === 'summon' || chosen.kind === 'extra') {
+      const name = view.player.hand.concat(view.player.extraDeck).find((c) => c.id === chosen.cardId)?.name
+      if (name) log.push(`${chosen.kind === 'extra' ? 'beschwört aus dem Extra Deck' : 'beschwört'} ${name}`)
+      animation = { id: chosen.cardId || 0, kind: 'summon' }
+    } else if (chosen.kind === 'attack' || chosen.kind === 'direct') {
+      const name = view.player.monsters.find((c) => c.id === chosen.cardId)?.name
+      if (name) log.push(`greift mit ${name} an`)
+      animation = { id: chosen.cardId || 0, kind: 'attack' }
+    } else if (chosen.kind === 'effect') {
+      const name = [...view.player.hand, ...view.player.spells, ...view.player.monsters].find((c) => c.id === chosen.cardId)?.name
+      if (name) log.push(`aktiviert ${name}`)
+      animation = { id: chosen.cardId || 0, kind: 'effect' }
+    }
+    view = next
+  }
+  const finished = mirror(view)
+  const realWinner = mirrorWinner(view.winner)
+  const result: DuelState = {
+    ...finished,
+    player: { ...finished.player, normalSummonUsed: false, usedEffects: [] },
+    jarvis: { ...finished.jarvis, normalSummonUsed: false, usedEffects: [] },
+    phase: 'draw',
+    turn: state.turn + 1,
+    attacked: [],
+    selectedAttacker: null,
+    chain: [],
+    chainPriority: null,
+    chainPasses: 0,
+    lastAnimation: animation,
+    winner: realWinner,
+    message: realWinner === 'jarvis'
+      ? 'Jarvis gewinnt das Duell.'
+      : realWinner === 'player'
+        ? 'Du gewinnst das Duell!'
+        : `Jarvis (Netz) ${log.length ? log.join(', ') : 'passt'}. Dein Zug beginnt.`,
+  }
+  if (!result.winner) {
+    const drawn = result.player.deck.length ? [...result.player.deck] : null
+    if (!drawn) return { ...result, winner: 'jarvis', message: 'Du kannst keine Karte mehr ziehen. Jarvis gewinnt das Duell.' }
+    const top = drawn.pop()
+    return { ...result, player: { ...result.player, deck: drawn, hand: [...result.player.hand, top as DuelCard] } }
+  }
+  return result
+}

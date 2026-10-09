@@ -49,7 +49,7 @@ Materialregeln beschwörbar.
 - Karten-Einblendung, Beschwörungs-/Angriffs-/Effekt-Feedback und
   `prefers-reduced-motion`-Beachtung.
 
-## Erweitertes Trainingslabor (Engine/CLI, noch nicht in der App-UI)
+## Erweitertes Trainingslabor (Engine, CLI und App-UI)
 
 - `yugioh-decks.ts`: erzeugt wechselnde Decks aus fünf Archetypen (aggro,
   control, combo, balanced, burn) mit Effekt-Monstern, Zaubern, Tunern und
@@ -69,8 +69,26 @@ Netz 80,7 %, Netz-Soup 79,5 %. Das Netz lernt also deutlich mehr als
 Zufallsspiel und erreicht die handgeschriebene Heuristik auch gegen den
 unbekannten Archetyp, **übertrifft sie aber nicht**; Unterschiede von
 1–2 Punkten liegen im Messrauschen. Der Gegner ist die skriptgesteuerte
-Engine-KI. Das Netz steuert bisher nur die Spielerseite im Training;
-Jarvis' Züge im echten Duell nutzen es noch nicht.
+Engine-KI. Das Netz wurde auf der Spielerseite trainiert.
+das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
+
+### Netz steuert Jarvis, Demo-Decks
+
+- Im Deck-Menü wählt man das **Jarvis-Gehirn** (Neuronales Netz oder alte
+  Skript-KI) und das **Jarvis-Deck** (aus dem eigenen Pool oder ein Demo-Archetyp).
+  Ist noch kein Netz gespeichert, trainiert die App beim Start kurz eins
+  (1500 Episoden) und speichert es lokal.
+- Jarvis' Zug läuft über `runNetJarvisTurn`: Das Brett wird gespiegelt, damit
+  dieselben Regeln und Merkmale wie im Training gelten. Das Netz wählt Beschwörung,
+  Extra-Deck-Beschwörung, Effekte und Angriffe. Reagiert Jarvis mit einem Effekt,
+  beantwortet die Kette der Spieler weiterhin über den skriptgesteuerten Responder
+  (er kann also automatisch eine Negation aus deiner Hand spielen).
+- Simulation (60 Duelle gegen die Heuristik als „Spieler“, wechselnde Decks):
+  Netz-Jarvis gewann 20/60, die alte Skript-KI 12/60. Das ist eine Simulation,
+  keine Aussage über Spaß oder Turnierstärke.
+- Fünf **Demo-Decks** (Aggro, Control, Combo, Burn, Ausgewogen) laden per Tipp
+  ein spielbares Main-/Extra-Deck ohne YGOPRODeck-Zugriff. Es sind generierte
+  Karten ohne Bilder, keine echten Karten.
 
 ## Bewusste Grenzen
 

@@ -27,6 +27,7 @@ import {
   greedyNetPolicy,
   heuristicPolicy,
   randomPolicy,
+  runNetJarvisTurn,
   seededRandom,
   trainNetPolicy,
   trainNetSoup,
@@ -354,4 +355,26 @@ test('Model Soup über Spezialisten-Netze nimmt nur Zweige auf, die die Validier
   assert.ok(result.included.length >= 1 && result.included.length <= 3)
   validateNetModel(result.soup)
   assert.ok(result.soupValidation >= Math.min(...result.specialists.map((entry) => entry.validation)))
+})
+
+test('Das Netz steuert Jarvis im echten Duell: gültiger Zug, Zugwechsel, nie die Spielerkarten verändert', () => {
+  const model = trainNetPolicy({ hidden: 16, episodes: 300, seed: 7, validationGames: 20 }).model
+  for (let seed = 1; seed <= 20; seed += 1) {
+    const random = seededRandom(seed)
+    const mine = generateDeck('balanced', random)
+    const theirs = generateDeck(EVALUATION_ARCHETYPES[seed % 5], random)
+    let state = createDuel(mine.main, theirs.main, random, mine.extra, theirs.extra)
+    state = { ...state, phase: 'end' }
+    const handBefore = state.player.hand.length
+    const next = runNetJarvisTurn(state, model)
+    assert.equal(next.turn, state.turn + 1)
+    if (!next.winner) {
+      assert.equal(next.phase, 'draw')
+      assert.equal(next.player.deck.length, state.player.deck.length - 1, 'Spieler zieht genau eine Karte')
+      assert.ok(next.player.hand.length <= handBefore + 1)
+      assert.equal(next.jarvis.hand.length + next.jarvis.monsters.length + next.jarvis.graveyard.length + next.jarvis.spells.length + next.jarvis.deck.length + next.jarvis.extraDeck.length,
+        state.jarvis.hand.length + state.jarvis.deck.length + state.jarvis.extraDeck.length, 'keine Jarvis-Karte geht verloren')
+    }
+  }
+  assert.throws(() => runNetJarvisTurn(createDuel(deck(), deck()), { inputs: 1, hidden: 0, params: [] }), /Architektur/)
 })

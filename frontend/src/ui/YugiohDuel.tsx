@@ -24,11 +24,14 @@ import {
   greedyNetPolicy,
   heuristicPolicy,
   randomPolicy,
+  runNetJarvisTurn,
+  seededRandom,
   trainNetPolicy,
   validateNetModel,
   type NetEvaluation,
   type NetModel,
 } from '../engine/yugioh-net.ts'
+import { generateDeck, type DeckArchetype } from '../engine/yugioh-decks.ts'
 import { YugiohNetViz } from './YugiohNetViz.tsx'
 import './yugioh-duel.css'
 
@@ -48,6 +51,14 @@ type ApiCard = {
 const MAIN_KEY = 'jarvis_yugioh_main_v1'
 const EXTRA_KEY = 'jarvis_yugioh_extra_v1'
 const WEIGHTS_KEY = 'jarvis_yugioh_policy_v1'
+const DEMO_LABELS: Record<DeckArchetype, string> = {
+  aggro: 'Aggro (schneller Schaden)',
+  control: 'Control (Negates & Ressourcen)',
+  combo: 'Combo (Extra Deck & Tuner)',
+  burn: 'Burn (Effektschaden)',
+  balanced: 'Ausgewogen',
+}
+const DEMO_SEEDS: Record<DeckArchetype, number> = { aggro: 101, control: 202, combo: 303, burn: 404, balanced: 505 }
 const NET_KEY = 'jarvis_yugioh_net_v1'
 const BASELINE_WEIGHTS = DUEL_SOUP_WEIGHTS
 
@@ -201,6 +212,9 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [baselineEvaluation, setBaselineEvaluation] = useState<EvaluationResult | null>(null)
   const [evaluationBusy, setEvaluationBusy] = useState(false)
   const [netModel, setNetModel] = useState<NetModel | null>(null)
+  const [jarvisBrain, setJarvisBrain] = useState<'net' | 'script'>('net')
+  const [jarvisDeck, setJarvisDeck] = useState<'pool' | DeckArchetype>('pool')
+  const [startBusy, setStartBusy] = useState(false)
   const [netBusy, setNetBusy] = useState(false)
   const [netProgress, setNetProgress] = useState(0)
   const [netEval, setNetEval] = useState<{ net: NetEvaluation; random: NetEvaluation; heuristic: NetEvaluation } | null>(null)
@@ -311,18 +325,51 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     })
   }
 
+  function loadDemoDeck(archetype: DeckArchetype) {
+    const deck = generateDeck(archetype, seededRandom(DEMO_SEEDS[archetype]))
+    setMainDeck(deck.main)
+    setExtraDeck(deck.extra)
+    setNotice(`Demo-Deck „${DEMO_LABELS[archetype]}“ geladen (${deck.main.length} Main, ${deck.extra.length} Extra). Du kannst es noch ändern.`)
+  }
+
   function startDuel() {
-    try {
-      const botDeck = mainDeck.slice(0, 40)
-      setGame(createDuel(mainDeck, botDeck, Math.random, extraDeck, extraDeck, weights))
-      setSelectedHandCard(null)
-      setTributes([])
-      setExtraCardId(null)
-      setExtraMaterials([])
-      setNotice('')
-    } catch (error) {
-      setNotice(error instanceof Error ? error.message : 'Das Duell konnte nicht gestartet werden.')
+    if (startBusy) return
+    setStartBusy(true)
+    setNotice(jarvisBrain === 'net' && !netModel ? 'Jarvis trainiert sein Netz für das erste Duell …' : '')
+    window.setTimeout(() => {
+      try {
+        let brain = netModel
+        if (jarvisBrain === 'net' && !brain) {
+          brain = trainNetPolicy({ hidden: 16, episodes: 1500, seed: 7, validationGames: 40 }).model
+          setNetModel(brain)
+        }
+        let botMain = mainDeck.slice(0, 40)
+        let botExtra = extraDeck
+        if (jarvisDeck !== 'pool') {
+          const generated = generateDeck(jarvisDeck, seededRandom(Date.now() % 0x7fffffff))
+          botMain = generated.main
+          botExtra = generated.extra
+        }
+        setGame(createDuel(mainDeck, botMain, Math.random, extraDeck, botExtra, weights))
+        setSelectedHandCard(null)
+        setTributes([])
+        setExtraCardId(null)
+        setExtraMaterials([])
+        setNotice('')
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : 'Das Duell konnte nicht gestartet werden.')
+      } finally {
+        setStartBusy(false)
+      }
+    }, 30)
+  }
+
+  function advancePhase() {
+    if (game && game.phase === 'end' && jarvisBrain === 'net' && netModel && !game.chain.length) {
+      updateGame((current) => runNetJarvisTurn(current, netModel))
+      return
     }
+    updateGame(advanceDuelPhase)
   }
 
   function updateGame(action: (current: DuelState) => DuelState) {
@@ -643,7 +690,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
               {game.phase === 'battle' && game.selectedAttacker !== null && game.jarvis.monsters.length === 0 ? (
                 <button className="ygo-primary" type="button" onClick={() => updateGame((current) => attack(current))}>Direktangriff</button>
               ) : null}
-              <button className="ygo-next-phase" type="button" onClick={() => updateGame(advanceDuelPhase)}>
+              <button className="ygo-next-phase" type="button" onClick={advancePhase}>
                 {game.phase === 'end' ? 'Jarvis’ Zug beenden' : 'Nächste Phase'}
               </button>
             </>
@@ -658,10 +705,34 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           <div className="ygo-builder-summary">
             <div><strong>{mainDeck.length}</strong><span>Main Deck · Ziel 40–60</span></div>
             <div><strong>{extraDeck.length}/15</strong><span>Extra Deck</span></div>
-            <button className="ygo-primary" type="button" disabled={mainDeck.length < 40 || mainDeck.length > 60} onClick={startDuel}>
-              Duell starten
+            <button className="ygo-primary" type="button" disabled={startBusy || mainDeck.length < 40 || mainDeck.length > 60} onClick={startDuel}>
+              {startBusy ? 'Startet …' : 'Duell starten'}
             </button>
           </div>
+          <section className="ygo-demo">
+            <strong>Demo-Decks – ein Tippen und spielen</strong>
+            <div className="ygo-demo-grid">
+              {(['aggro', 'control', 'combo', 'burn', 'balanced'] as const).map((name) => (
+                <button type="button" key={name} onClick={() => loadDemoDeck(name)}>{DEMO_LABELS[name]}</button>
+              ))}
+            </div>
+            <div className="ygo-demo-options">
+              <label>Jarvis-Deck
+                <select value={jarvisDeck} onChange={(event) => setJarvisDeck(event.target.value as 'pool' | DeckArchetype)}>
+                  <option value="pool">Aus meinem Deck</option>
+                  {(['aggro', 'control', 'combo', 'burn', 'balanced'] as const).map((name) => (
+                    <option value={name} key={name}>{DEMO_LABELS[name]}</option>
+                  ))}
+                </select>
+              </label>
+              <label>Jarvis-Gehirn
+                <select value={jarvisBrain} onChange={(event) => setJarvisBrain(event.target.value as 'net' | 'script')}>
+                  <option value="net">Neuronales Netz</option>
+                  <option value="script">Skript-KI (alt)</option>
+                </select>
+              </label>
+            </div>
+          </section>
           <section className="ygo-training-lab">
             <div>
               <strong>RL-Trainingslabor</strong>
