@@ -68,6 +68,7 @@
     "test:agent-map": "node --experimental-strip-types scripts/test-agent-map.mjs",
     "test:chess-engine": "node --experimental-strip-types scripts/test-chess-engine.mjs",
     "test:yugioh-duel": "node --experimental-strip-types scripts/test-yugioh-duel.mjs",
+    "train:duel-net": "node --experimental-strip-types scripts/train-duel-net.mjs",
     "test:keyboard-inset": "node --experimental-strip-types scripts/test-keyboard-inset.mjs",
     "test:lage-body-globe": "node --experimental-strip-types scripts/test-lage-body-globe.mjs",
     "test:rm-graph": "node --experimental-strip-types scripts/test-rm-graph.mjs",

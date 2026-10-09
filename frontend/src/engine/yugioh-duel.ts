@@ -149,7 +149,7 @@ function newPlayer(deck: DuelCard[], extraDeck: DuelCard[]): DuelPlayer {
   return { lp: 8000, deck, hand: [], monsters: [], graveyard: [], spells: [], extraDeck, normalSummonUsed: false, usedEffects: [] }
 }
 
-function findMaterialsForExtra(card: DuelCard, field: DuelCard[]): DuelCard[] | null {
+export function findMaterialsForExtra(card: DuelCard, field: DuelCard[]): DuelCard[] | null {
   const max = Math.min(field.length, 5)
   for (let size = 2; size <= max; size += 1) {
     const search = (start: number, picked: DuelCard[]): DuelCard[] | null => {

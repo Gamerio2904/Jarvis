@@ -17,6 +17,21 @@ import {
 } from '../src/engine/yugioh-duel.ts'
 import { isYugiohDuelTrigger } from '../src/engine/yugioh-parse.ts'
 import { evaluateDuelPolicy, trainDuelPolicy } from '../src/engine/yugioh-training.ts'
+import { EVALUATION_ARCHETYPES, generateDeck, TRAINING_ARCHETYPES } from '../src/engine/yugioh-decks.ts'
+import {
+  averageNetModels,
+  candidateActions,
+  createNetModel,
+  evaluatePolicy,
+  FEATURE_COUNT,
+  greedyNetPolicy,
+  heuristicPolicy,
+  randomPolicy,
+  seededRandom,
+  trainNetPolicy,
+  trainNetSoup,
+  validateNetModel,
+} from '../src/engine/yugioh-net.ts'
 
 function deck(size = 40, atk = 1800) {
   return Array.from({ length: size }, (_, index) => ({
@@ -258,4 +273,85 @@ test('das Trainingsbudget verbessert die gemessene Winrate auf festem Holdout ge
   const holdout = evaluateDuelPolicy(trained.weights, 300, 918273)
   const baseline = evaluateDuelPolicy(DUEL_SOUP_WEIGHTS, 300, 918273)
   assert.ok(holdout.winRate > baseline.winRate, `${holdout.winRate} should exceed baseline ${baseline.winRate}`)
+})
+
+test('Deck-Generator liefert regelkonforme, wechselnde Decks; burn bleibt dem Training fremd', () => {
+  assert.ok(!TRAINING_ARCHETYPES.includes('burn'))
+  assert.ok(EVALUATION_ARCHETYPES.includes('burn'))
+  for (const archetype of EVALUATION_ARCHETYPES) {
+    const first = generateDeck(archetype, seededRandom(1))
+    const second = generateDeck(archetype, seededRandom(2))
+    assert.ok(first.main.length >= 40 && first.main.length <= 60, archetype)
+    assert.ok(first.extra.length >= 2 && first.extra.length <= 15)
+    assert.equal(new Set(first.main.map((card) => card.id)).size, first.main.length)
+    assert.deepEqual(first, generateDeck(archetype, seededRandom(1)))
+    assert.notDeepEqual(first.main.map((card) => card.atk), second.main.map((card) => card.atk))
+  }
+  const effects = new Set(generateDeck('balanced', seededRandom(5)).main.map((card) => card.effect?.kind).filter(Boolean))
+  assert.ok(effects.size >= 3)
+})
+
+test('Aktionsmerkmale decken Handkarten, Effekte, Ketten und Extra Deck ab und erzeugen nur gültige Züge', () => {
+  const seen = new Set()
+  for (const [seed, own, other] of [[11, 'combo', 'control'], [12, 'aggro', 'aggro'], [13, 'balanced', 'combo'], [14, 'control', 'aggro']]) {
+  const random = seededRandom(seed)
+  const mine = generateDeck(own, random)
+  const theirs = generateDeck(other, random)
+  let state = createDuel(mine.main, theirs.main, random, mine.extra, theirs.extra)
+  for (let step = 0; step < 400 && !state.winner; step += 1) {
+    if (!state.chain.length && ['draw', 'standby', 'end'].includes(state.phase)) {
+      state = advanceDuelPhase(state)
+      continue
+    }
+    const actions = candidateActions(state)
+    for (const action of actions) {
+      seen.add(action.kind)
+      assert.equal(action.features.length, FEATURE_COUNT)
+      assert.ok(action.features.every(Number.isFinite))
+    }
+    const choice = actions[random() < 0.2 ? Math.floor(random() * actions.length) : heuristicPolicy(actions, random)]
+    if (choice.kind === 'summon') state = summonMonster(state, choice.cardId, choice.tributes)
+    else if (choice.kind === 'extra') state = summonExtraMonster(state, choice.cardId, choice.materials)
+    else if (choice.kind === 'effect') state = activateDuelEffect(state, 'player', choice.cardId)
+    else if (choice.kind === 'direct') state = attack(selectAttacker(state, choice.cardId))
+    else if (choice.kind === 'attack') state = attack(selectAttacker(state, choice.cardId), choice.targetId)
+    else state = state.chain.length ? passDuelChain(state, 'player') : advanceDuelPhase(state)
+  }
+  }
+  for (const kind of ['summon', 'effect', 'attack', 'pass', 'extra']) assert.ok(seen.has(kind), kind)
+  assert.equal(evaluatePolicy(randomPolicy, 60, 3).invalidActions, 0)
+})
+
+test('Netzwerkmodell prüft Architektur, Gewichte und mittelt nur gleiche Formen', () => {
+  const a = createNetModel(8, 1)
+  const b = createNetModel(8, 2)
+  const mean = averageNetModels([a, b])
+  assert.equal(mean.params[3], (a.params[3] + b.params[3]) / 2)
+  assert.throws(() => averageNetModels([a, createNetModel(4, 1)]), /Architektur/)
+  assert.throws(() => validateNetModel({ ...a, params: a.params.slice(1) }), /unvollständig/)
+  assert.throws(() => validateNetModel({ ...a, params: a.params.map(() => Number.NaN) }), /nicht endlich/)
+  assert.throws(() => createNetModel(999), /Hidden/)
+  assert.throws(() => trainNetPolicy({ episodes: 0 }), /1 und 20000/)
+})
+
+test('Netz-Training ist reproduzierbar und schlägt Zufall auf frischen Holdout-Decks inkl. unbekanntem Archetyp', () => {
+  const first = trainNetPolicy({ hidden: 16, episodes: 40, seed: 5, validationGames: 20 })
+  const again = trainNetPolicy({ hidden: 16, episodes: 40, seed: 5, validationGames: 20 })
+  assert.deepEqual(first.model, again.model)
+  const trained = trainNetPolicy({ hidden: 16, episodes: 3000, seed: 7, batch: 8, learningRate: 0.02, validationGames: 60 })
+  const net = evaluatePolicy(greedyNetPolicy(trained.model), 300, 918273)
+  const random = evaluatePolicy(randomPolicy, 300, 918273)
+  const heuristic = evaluatePolicy(heuristicPolicy, 300, 918273)
+  assert.equal(net.invalidActions, 0)
+  assert.ok(net.winRate > random.winRate + 0.1, `${net.winRate} vs random ${random.winRate}`)
+  assert.ok(net.byOpponent.burn.games > 0 && net.byOpponent.burn.winRate > random.byOpponent.burn.winRate)
+  assert.ok(net.winRate > heuristic.winRate - 0.08, `${net.winRate} vs heuristic ${heuristic.winRate}`)
+})
+
+test('Model Soup über Spezialisten-Netze nimmt nur Zweige auf, die die Validierung nicht verschlechtern', () => {
+  const result = trainNetSoup({ seed: 3, baseEpisodes: 60, specialistEpisodes: 40, validationGames: 20 })
+  assert.equal(result.specialists.length, 3)
+  assert.ok(result.included.length >= 1 && result.included.length <= 3)
+  validateNetModel(result.soup)
+  assert.ok(result.soupValidation >= Math.min(...result.specialists.map((entry) => entry.validation)))
 })

@@ -38,6 +38,8 @@ export type EvaluationResult = {
   winRate: number
 }
 
+const VALIDATION_SEED = 424242
+
 function seededRandom(seed: number): () => number {
   let state = seed >>> 0 || 1
   return () => {
@@ -231,29 +233,47 @@ export function trainDuelPolicy(
   if (!Number.isFinite(learningRate) || learningRate <= 0 || learningRate > 1) {
     throw new Error('Lernrate muss größer 0 und höchstens 1 sein.')
   }
+  const keys = ['damage', 'board', 'resources', 'safety', 'combo'] as const
   const weights = { ...initialWeights }
   const random = seededRandom(seed)
   const outcomes = emptyRecord()
   let updates = 0
+  let baseline = 0
+  const m1: Record<string, number> = { damage: 0, board: 0, resources: 0, safety: 0, combo: 0 }
+  const m2: Record<string, number> = { damage: 0, board: 0, resources: 0, safety: 0, combo: 0 }
+  const validationGames = 40
+  const validate = (candidate: StrategyWeights) => evaluateDuelPolicy(candidate, validationGames, VALIDATION_SEED).winRate
+  let best = { ...weights }
+  let bestScore = validate(weights)
+  const checkpointEvery = Math.max(25, Math.floor(episodes / 10))
   for (let episode = 0; episode < episodes; episode += 1) {
     const trajectory: Decision[] = []
     const explore = Math.max(0.04, 0.3 * (1 - episode / episodes))
     const outcome = playEpisode(weights, random, explore, trajectory)
     recordResult(outcomes, outcome)
-    const reward = outcome === 'win' ? 1 : outcome === 'loss' ? -1 : 0
-    if (reward !== 0 && trajectory.length) {
-      const scale = learningRate * reward / trajectory.length
-      for (const decision of trajectory) {
-        weights.damage = Math.max(-4, Math.min(4, weights.damage + scale * decision.difference.damage))
-        weights.board = Math.max(-4, Math.min(4, weights.board + scale * decision.difference.board))
-        weights.resources = Math.max(-4, Math.min(4, weights.resources + scale * decision.difference.resources))
-        weights.safety = Math.max(-4, Math.min(4, weights.safety + scale * decision.difference.safety))
-        weights.combo = Math.max(-4, Math.min(4, weights.combo + scale * decision.difference.combo))
-        updates += 1
+    const terminal = outcome === 'win' ? 1 : outcome === 'loss' ? -1 : 0
+    const advantage = terminal - baseline
+    baseline += 0.05 * advantage
+    if (trajectory.length && Math.abs(advantage) > 1e-6) {
+      const rate = learningRate * (1 - 0.6 * episode / episodes)
+      for (const key of keys) {
+        const gradient = trajectory.reduce((sum, decision) => sum + decision.difference[key], 0) / trajectory.length * advantage
+        m1[key] = 0.9 * m1[key] + 0.1 * gradient
+        m2[key] = 0.999 * m2[key] + 0.001 * gradient * gradient
+        const step = (m1[key] / (1 - 0.9 ** (updates + 1))) / (Math.sqrt(m2[key] / (1 - 0.999 ** (updates + 1))) + 1e-8)
+        weights[key] = Math.max(-4, Math.min(4, weights[key] + rate * step))
+      }
+      updates += 1
+    }
+    if ((episode + 1) % checkpointEvery === 0 || episode === episodes - 1) {
+      const score = validate(weights)
+      if (score > bestScore) {
+        bestScore = score
+        best = { ...weights }
       }
     }
   }
-  return { ...outcomes, weights, episodes, updates }
+  return { ...outcomes, weights: best, episodes, updates }
 }
 
 export function evaluateDuelPolicy(

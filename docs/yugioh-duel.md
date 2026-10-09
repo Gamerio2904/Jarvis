@@ -49,6 +49,29 @@ Materialregeln beschwörbar.
 - Karten-Einblendung, Beschwörungs-/Angriffs-/Effekt-Feedback und
   `prefers-reduced-motion`-Beachtung.
 
+## Erweitertes Trainingslabor (Engine/CLI, noch nicht in der App-UI)
+
+- `yugioh-decks.ts`: erzeugt wechselnde Decks aus fünf Archetypen (aggro,
+  control, combo, balanced, burn) mit Effekt-Monstern, Zaubern, Tunern und
+  Extra Deck. **burn** wird nie trainiert und dient nur als unbekannter
+  Gegner in der Auswertung.
+- `yugioh-net.ts`: 28 Aktionsmerkmale (Handkarten, Effekte, Ketten-Entscheidungen,
+  Extra-Deck-Beschwörung, Kampfausgang, LP/Feld-Kontext), ein kleines
+  neuronales Netz (16 tanh-Neuronen) oder ein lineares Modell darüber,
+  REINFORCE mit Baseline, Entropie-Bonus und Adam, Auswahl des besten
+  Validierungsstands sowie Model Soup über Spezialisten (aggro/control/combo)
+  mit gemeinsamem Startpunkt und Greedy-Aufnahme.
+- `npm run train:duel-net [Episoden] [Spiele] [Seed]` gibt eine Vergleichstabelle aus.
+
+Referenzlauf (4000 Episoden, 600 Holdout-Duelle, Seed 918273, wechselnde
+Decks beider Seiten): Zufall 62,7 %, Heuristik 81,2 %, Linear 80,2 %,
+Netz 80,7 %, Netz-Soup 79,5 %. Das Netz lernt also deutlich mehr als
+Zufallsspiel und erreicht die handgeschriebene Heuristik auch gegen den
+unbekannten Archetyp, **übertrifft sie aber nicht**; Unterschiede von
+1–2 Punkten liegen im Messrauschen. Der Gegner ist die skriptgesteuerte
+Engine-KI. Das Netz steuert bisher nur die Spielerseite im Training;
+Jarvis' Züge im echten Duell nutzen es noch nicht.
+
 ## Bewusste Grenzen
 
 Dies bleibt ein **vereinfachter Prototyp**, keine vollständige
