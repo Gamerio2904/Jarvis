@@ -1,6 +1,6 @@
 # Sprint 510 — Training-Overlay mit Analyse und Verify-Gate
 
-**Version:** `18.45.0` — **PLAN** Must  
+**Version:** `18.45.0` — **CODE** Must  
 **Plan:** [`../104-next.md`](../104-next.md)  
 **Voraussetzung:** 506, 508 und 509.
 

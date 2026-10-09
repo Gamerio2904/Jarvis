@@ -705,6 +705,54 @@ test('Münzwurf: genau eine Zufallszahl entscheidet, beide Seiten kommen vor', (
   assert.deepEqual([...seen].sort(), ['jarvis', 'player'])
 })
 
+const reviewEngine = await import('../src/engine/yugioh-review.ts')
+const proofEngine = await import('../src/engine/yugioh-proof.ts')
+const leagueEngine = await import('../src/engine/yugioh-league.ts')
+
+test('Review: Fehlerkandidaten brauchen Beleg aus dem Protokoll', () => {
+  const match = selfPlay.playSelfPlayMatch({ seed: 77 })
+  const mistakes = reviewEngine.findMistakeCandidates(match.moves, 0.2)
+  for (const m of mistakes) {
+    const move = match.moves.find((entry) => entry.n === m.move)
+    assert.ok(move)
+    assert.ok(m.bestAlternative)
+  }
+  const stats = reviewEngine.aggregateReviewStats(match.moves, mistakes)
+  assert.equal(stats.totalMoves, match.moves.length)
+})
+
+test('Nachweis: Verify erkennt manipulierten Hash', () => {
+  const model = createNetModel(8, 3)
+  const proof = proofEngine.buildProofFile({ appVersion: '18.45.0', model, gatePassed: true, gateReason: 'test' })
+  const ok = proofEngine.verifyProofFile(proof, model)
+  assert.equal(ok.hashOk, true)
+  const tampered = { ...proof, weightsSha256: 'deadbeef' }
+  const bad = proofEngine.verifyProofFile(tampered, model)
+  assert.equal(bad.hashOk, false)
+  assert.equal(bad.ok, false)
+})
+
+test('Elo-Liga: stärkere Version steigt', () => {
+  let league = leagueEngine.createDefaultLeague('test')
+  league.push({ id: 'v2', label: 'V2', rating: 1000, games: 0, wins: 0, losses: 0, draws: 0, engineStamp: 'test' })
+  const before = league.find((e) => e.id === 'v2').rating
+  league = leagueEngine.updateLeagueRatings(league, { a: 'v2', b: 'heuristic', scoreA: 0.75, games: 20, seeds: [1, 2] })
+  const after = league.find((e) => e.id === 'v2').rating
+  assert.ok(after > before)
+})
+
+test('Value-Kopf und Self-Play-Gate-Helfer', () => {
+  const model = createNetModel(8, 2)
+  const bundle = netEngine.attachValueHead(model)
+  assert.equal(bundle.schema, 2)
+  const vec = new Array(netEngine.STATE_VALUE_DIM).fill(0.5)
+  assert.ok(Number.isFinite(netEngine.valueScore(bundle, vec)))
+  const rate = selfPlay.evaluateSelfPlayWinRate(model)
+  assert.ok(rate >= 0 && rate <= 1)
+  const gate = proofEngine.passesImprovementGate(0.55, 0.5)
+  assert.equal(gate.passed, true)
+})
+
 test('Ultron beginnt nach dem Münzwurf: er spielt Zug 1, danach ist der Spieler dran und zieht', () => {
   const fresh = createDuel(deck(), deck(), netEngine.seededRandom(2))
   const starts = engine.giveFirstTurn(fresh, 'jarvis')

@@ -1,6 +1,6 @@
 # Sprint 506 — Dev-Umschalter Game ⇄ Dev
 
-**Version:** `18.43.0` — **PLAN** Must  
+**Version:** `18.43.0` — **CODE** Must  
 **Plan:** [`../104-next.md`](../104-next.md)  
 **Voraussetzung:** keine.
 

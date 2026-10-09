@@ -11,12 +11,9 @@ UI). Gemessen (400 Matches je Zeile, abwechselnde Seiten, Suche gegen Heuristik,
 ohne Netz): generierte Decks 61,5 % ±4,8 (Training-Profil) bzw. 62,3 % ±4,8
 (Proof-Profil); echte Decks 51,5 % ±4,9 bzw. 52,0 % ±4,9, also nicht
 unterscheidbar von 50 %, weil die meisten echten Karten keinen simulierten Effekt
-haben. Außerdem ist die Statusblase „Ultron denkt / setzt / beschwört“ im
-Overlay im Arbeitsbaum (Test-Build `18.31.7`, `CODE`). Alles ab 505 ist
-**PLAN**. Die Folge beginnt nach den Gates bis `18.41.0` bzw. kann als
-eigenständige Schiene früher gezogen werden, weil sie nur
-`frontend/src/engine/yugioh-*` und `YugiohDuel.tsx` berührt. Kein Test-Build ist
-eine Release-Freigabe.
+haben. Sprints **503–510** sind im Test-Build **`18.45.0`** als **CODE**
+umgesetzt (Engine + UI + Tests); Geräteabnahme und Release-Freigabe bleiben offen.
+Kein Test-Build ist eine Release-Freigabe.
 
 ## 1. Ausgangslage (gemessen, nicht angenommen)
 

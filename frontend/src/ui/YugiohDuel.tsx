@@ -40,7 +40,10 @@ import {
   type NetModel,
 } from '../engine/yugioh-net.ts'
 import { YugiohNetViz } from './YugiohNetViz.tsx'
+import { YugiohSelfPlayDev } from './YugiohSelfPlayDev.tsx'
 import './yugioh-duel.css'
+
+const APP_VERSION = '18.45.0'
 
 type ApiCard = {
   id?: unknown
@@ -199,6 +202,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [searchError, setSearchError] = useState('')
   const nextCardId = useRef(1_000_000_000)
   const [demoDeckId, setDemoDeckId] = useState(REAL_DECK_LIST[0]?.id ?? '')
+  const [uiMode, setUiMode] = useState<'game' | 'dev'>('game')
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -532,7 +536,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   }, [game])
 
   useEffect(() => {
-    if (!game || game.winner || game.turnOwner !== 'jarvis' || game.chain.length || jarvisPaused) return
+    if (uiMode !== 'game' || !game || game.winner || game.turnOwner !== 'jarvis' || game.chain.length || jarvisPaused) return
     const delay = game.pendingAttack ? 2200 : 1500
     setJarvisThinking(true)
     const timeout = window.setTimeout(() => {
@@ -546,7 +550,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       window.clearTimeout(timeout)
       setJarvisThinking(false)
     }
-  }, [game, jarvisBrain, netModel, jarvisPaused])
+  }, [game, jarvisBrain, netModel, jarvisPaused, uiMode])
 
   useEffect(() => {
     if (!game || game.turnOwner !== 'jarvis') setJarvisPaused(false)
@@ -611,7 +615,17 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           <p className="ygo-eyebrow">ULTRON · DUEL PROTOCOL</p>
           <h1 id="ygo-title">Yu-Gi-Oh! Duel</h1>
         </div>
-        <button className="ygo-close" type="button" onClick={onClose}>Duell schließen</button>
+        <div className="ygo-header-actions">
+          <button
+            className="ygo-mode-toggle"
+            type="button"
+            aria-pressed={uiMode === 'dev'}
+            onClick={() => setUiMode((m) => (m === 'game' ? 'dev' : 'game'))}
+          >
+            {uiMode === 'game' ? 'Dev ⇄ Spiel' : 'Spiel ⇄ Dev'}
+          </button>
+          <button className="ygo-close" type="button" onClick={onClose}>Duell schließen</button>
+        </div>
       </header>
 
       {coin ? (
@@ -862,9 +876,30 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
               </div>
             </section>
           ) : null}
+          {uiMode === 'dev' ? (
+            <YugiohSelfPlayDev
+              appVersion={APP_VERSION}
+              netModel={netModel}
+              setNetModel={setNetModel}
+              playerGame={game}
+              pausedJarvis={jarvisPaused}
+              setPausedJarvis={setJarvisPaused}
+            />
+          ) : null}
         </section>
       ) : (
-        <section className="ygo-builder">
+        <>
+          {uiMode === 'dev' ? (
+            <YugiohSelfPlayDev
+              appVersion={APP_VERSION}
+              netModel={netModel}
+              setNetModel={setNetModel}
+              playerGame={game}
+              pausedJarvis={jarvisPaused}
+              setPausedJarvis={setJarvisPaused}
+            />
+          ) : null}
+          <section className="ygo-builder">
           <div className="ygo-builder-summary">
             <div><strong>{mainDeck.length}</strong><span>Main Deck · Ziel 40–60</span></div>
             <div><strong>{extraDeck.length}/15</strong><span>Extra Deck</span></div>
@@ -987,7 +1022,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           </div>
           {notice ? <p className="ygo-message" role="status">{notice}</p> : null}
           {!deckLoaded ? <p className="ygo-muted">Deck wird geladen …</p> : null}
-        </section>
+          </section>
+        </>
       )}
       {notice && game ? <p className="ygo-notice" role="status">{notice}</p> : null}
     </main>

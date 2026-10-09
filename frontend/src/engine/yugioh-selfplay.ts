@@ -1,6 +1,6 @@
 import { buildRealDeck, REAL_DECK_LIST } from './yugioh-deck-library.ts'
 import { generateDeck, TRAINING_ARCHETYPES } from './yugioh-decks.ts'
-import { createDuel, type DuelCard, type DuelPlayer, type DuelState } from './yugioh-duel.ts'
+import { createDuel, duelStateVector, type DuelCard, type DuelPlayer, type DuelState } from './yugioh-duel.ts'
 import { applyAction, candidateActions, heuristicScore, netScore, seededRandom, type DuelAction, type NetModel } from './yugioh-net.ts'
 import { evaluatePosition, pickByTemperature, searchAction, SEARCH_PROFILES, type SearchBudget, type SearchStop } from './yugioh-search.ts'
 
@@ -33,11 +33,13 @@ export type MoveRecord = {
   kind: DuelAction['kind'] | 'forced'
   label: string
   candidates: { label: string; value: number }[]
+  candidateFeatures: number[][]
   chosen: number
   valueBefore: number
   valueAfter: number
   search: { depth: number; nodes: number; stoppedBy: SearchStop } | null
   lp: [number, number]
+  stateVector: number[]
 }
 
 export type MatchEnd = 'win' | 'deckout' | 'turnLimit'
@@ -220,11 +222,13 @@ export function stepSelfPlayMatch(match: SelfPlayMatch): SelfPlayMatch {
     kind,
     label,
     candidates: actions.map((action, index) => ({ label: describe(view, action), value: decision.values[index] })),
+    candidateFeatures: actions.map((action) => action.features),
     chosen: decision.index,
     valueBefore,
     valueAfter: evaluatePosition(next),
     search: decision.search,
     lp: match.mover === 0 ? [next.player.lp, next.jarvis.lp] : [next.jarvis.lp, next.player.lp],
+    stateVector: duelStateVector(view),
   }
   return {
     ...match,
@@ -250,4 +254,48 @@ export function playSelfPlayMatch(options: SelfPlayOptions = {}): SelfPlayResult
     lp: [board.player.lp, board.jarvis.lp],
     moves: match.moves,
   }
+}
+
+export const HOLDOUT_EVAL_SEEDS = [11, 22, 33, 44, 55, 66] as const
+
+export function evaluateSelfPlayWinRate(model: NetModel | null, seeds: readonly number[] = HOLDOUT_EVAL_SEEDS): number {
+  const agent: SelfPlayAgent = { ...DEFAULT_AGENT, model, search: SEARCH_PROFILES.training, temperature: 0 }
+  const baseline: SelfPlayAgent = { ...DEFAULT_AGENT, model: null, search: null, temperature: 0 }
+  let points = 0
+  for (const seed of seeds) {
+    const result = playSelfPlayMatch({ seed, agents: [agent, baseline], deckSource: 'generated' })
+    points += result.winner === 0 ? 1 : result.winner === null ? 0.5 : 0
+  }
+  return points / seeds.length
+}
+
+export type SelfPlayTrainBatchResult = {
+  results: SelfPlayResult[]
+  samples: import('./yugioh-net.ts').SelfPlayTrainSample[]
+}
+
+/** Run N self-play matches and collect search-guided imitation samples. */
+export function collectSelfPlayTrainingBatch(
+  model: NetModel | null,
+  matchCount: number,
+  baseSeed: number,
+): SelfPlayTrainBatchResult {
+  const agent: SelfPlayAgent = { ...DEFAULT_AGENT, model, search: SEARCH_PROFILES.training, temperature: 0.25 }
+  const results: SelfPlayResult[] = []
+  const samples: import('./yugioh-net.ts').SelfPlayTrainSample[] = []
+  for (let i = 0; i < matchCount; i += 1) {
+    const result = playSelfPlayMatch({ seed: baseSeed + i, agents: [agent, agent], deckSource: 'generated' })
+    results.push(result)
+    const outcome = result.winner === 0 ? 1 : result.winner === 1 ? -1 : 0
+    for (const move of result.moves) {
+      if (move.candidateFeatures.length < 2) continue
+      samples.push({
+        features: move.candidateFeatures,
+        chosen: move.chosen,
+        outcome,
+        stateVector: move.stateVector,
+      })
+    }
+  }
+  return { results, samples }
 }

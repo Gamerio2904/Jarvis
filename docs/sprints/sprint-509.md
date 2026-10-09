@@ -1,6 +1,6 @@
 # Sprint 509 — Nachweis-Datei, Verify und Elo-Liga
 
-**Version:** `18.45.0` — **PLAN** Must  
+**Version:** `18.45.0` — **CODE** Must  
 **Plan:** [`../104-next.md`](../104-next.md)  
 **Voraussetzung:** 507 und 508.
 

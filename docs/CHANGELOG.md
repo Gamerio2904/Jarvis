@@ -14,7 +14,14 @@ Deckdaten per `scripts/enrich-ygo-effects.mjs` auf aktuelle Effektmuster erweite
 (430/1395 Karten mit simuliertem Effekt). Android-Geräteabnahme und Release-Freigabe
 bleiben offen; Umfang und Grenzen stehen in [`yugioh-duel.md`](./yugioh-duel.md).
 
-Münzwurf-Animation vor jedem Duell entscheidet, wer beginnt. Ultron-Statusblase oben rechts im Duel-Overlay (denkt nach / aktuelle Aktion). Engine für Self-Play-Matches und Zugsuche (Sprint 503/504, ohne UI). Geplante Folge: Self-Play, Zugsuche und Dev-Umschalter in [`104-next.md`](./104-next.md) (503–510, `18.42.0`–`18.45.0`, PLAN).
+Test-Build **`18.45.0`**: Plan 104 Sprints **503–510** (Self-Play-Zuschauer, Dev ⇄ Spiel, Review, Value-Kopf, Nachweis/Verify, Elo, gegates Speichern). Geräteabnahme offen.
+
+### `18.45.0` — Yu-Gi-Oh Self-Play 503–510 — *CODE + TEST-APK*
+
+Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga.
+
+App-Code und Sideload **`18.45.0`** (versionCode `184500`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 

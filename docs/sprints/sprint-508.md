@@ -1,6 +1,6 @@
 # Sprint 508 — Lernen, Liga und Gate
 
-**Version:** `18.44.0` — **PLAN** Must  
+**Version:** `18.44.0` — **CODE** Must  
 **Plan:** [`../104-next.md`](../104-next.md)  
 **Voraussetzung:** 504 und 507.
 

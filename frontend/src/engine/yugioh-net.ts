@@ -795,3 +795,82 @@ export function jarvisStep(state: DuelState, model: NetModel | null): DuelState 
   }
   return advance()
 }
+
+// --- Value head (schema v2) and search-guided imitation ---
+
+export const STATE_VALUE_DIM = 14
+
+export type NetBundle = {
+  schema: 1 | 2
+  policy: NetModel
+  value: { hidden: number; params: number[] } | null
+}
+
+export function bundleFromPolicy(model: NetModel): NetBundle {
+  return { schema: 1, policy: validateNetModel(model), value: null }
+}
+
+export function attachValueHead(policy: NetModel, hidden = 8, seed = 3): NetBundle {
+  const validated = validateNetModel(policy)
+  const random = seededRandom(seed)
+  const count = hidden * STATE_VALUE_DIM + hidden + hidden + 1
+  const params = Array.from({ length: count }, () => (random() * 2 - 1) * 0.05)
+  return { schema: 2, policy: validated, value: { hidden, params } }
+}
+
+export function valueScore(bundle: NetBundle, stateVector: number[]): number {
+  if (!bundle.value || stateVector.length !== STATE_VALUE_DIM) return 0
+  const { hidden, params } = bundle.value
+  const b1 = hidden * STATE_VALUE_DIM
+  const w2 = b1 + hidden
+  let out = params[w2 + hidden]
+  for (let j = 0; j < hidden; j += 1) {
+    let sum = params[b1 + j]
+    for (let i = 0; i < STATE_VALUE_DIM; i += 1) sum += params[j * STATE_VALUE_DIM + i] * stateVector[i]
+    out += params[w2 + j] * Math.tanh(sum)
+  }
+  return Math.tanh(out)
+}
+
+export type SelfPlayTrainSample = {
+  features: number[][]
+  chosen: number
+  outcome: number
+  stateVector: number[]
+}
+
+export function trainFromSelfPlaySamples(
+  bundle: NetBundle,
+  samples: readonly SelfPlayTrainSample[],
+  learningRate = 0.015,
+): NetBundle {
+  const next: NetBundle = {
+    schema: bundle.schema,
+    policy: { ...bundle.policy, params: [...bundle.policy.params] },
+    value: bundle.value ? { hidden: bundle.value.hidden, params: [...bundle.value.params] } : null,
+  }
+  if (!samples.length) return next
+  const grad = new Array<number>(next.policy.params.length).fill(0)
+  for (const sample of samples) {
+    const scored = sample.features.map((x) => scoreWithHidden(next.policy, x))
+    const probs = softmax(scored.map((entry) => entry.score))
+    probs.forEach((p, i) => {
+      const target = i === sample.chosen ? 1 : 0
+      accumulateGradient(next.policy, sample.features[i], scored[i].hidden, (target - p) * sample.outcome, grad)
+    })
+    if (next.value && next.schema === 2) {
+      const err = sample.outcome - valueScore(next, sample.stateVector)
+      const vGrad = err * learningRate * 0.2
+      for (let i = 0; i < next.value.params.length; i += 1) next.value.params[i] += vGrad * 0.01
+    }
+  }
+  const scale = learningRate / samples.length
+  for (let i = 0; i < next.policy.params.length; i += 1) next.policy.params[i] += grad[i] * scale
+  return next
+}
+
+export function averageNetCheckpoints(models: readonly NetModel[]): NetModel {
+  return averageNetModels(models)
+}
+
+export const HOLDOUT_EVAL_SEEDS = [11, 22, 33, 44, 55, 66] as const

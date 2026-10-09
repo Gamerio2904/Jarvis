@@ -1,6 +1,6 @@
 # Sprint 505 — Live-Match-Ansicht
 
-**Version:** `18.43.0` — **PLAN** Must  
+**Version:** `18.43.0` — **CODE** Must  
 **Plan:** [`../104-next.md`](../104-next.md)  
 **Voraussetzung:** 503. Die Statusblase für Ultron ist bereits im Test-Build `18.31.7`.
 
