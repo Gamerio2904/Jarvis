@@ -119,6 +119,26 @@ letzte Aktion (setzt Karte, beschwört, greift an); bei STOP „pausiert“. Gep
 (PLAN, nicht implementiert): KI-gegen-Klon-Self-Play, Zugsuche, Live-Match,
 Game⇄Dev-Umschalter und Lernen aus Protokollen — siehe [`104-next.md`](./104-next.md).
 
+## Self-Play und Zugsuche (Engine, ohne UI)
+
+- [`yugioh-selfplay.ts`](../frontend/src/engine/yugioh-selfplay.ts): zwei Agenten
+  spielen ein ganzes Match abwechselnd. Der Stand liegt immer aus Sicht der ziehenden
+  Seite vor (sie ist `player`), Engine und Netz bleiben unverändert. Pro Seite wird ein
+  zufälliges Deck gezogen (`generated`, `real`, `mixed`), per Seed reproduzierbar.
+  `stepSelfPlayMatch` führt einen sichtbaren Schritt aus, `playSelfPlayMatch` das
+  ganze Match. Jede Aktion landet mit Kandidaten, Bewertung vorher/nachher und
+  Suchinfo in einem Protokoll (Grundlage für Sprint 507).
+- [`yugioh-search.ts`](../frontend/src/engine/yugioh-search.ts): Beam Search mit
+  iterativer Vertiefung über Aktionsfolgen, Stellungsbewertung, Stellungstabelle,
+  Stichproben für die verdeckte Gegnerhand/-Karten und Boltzmann-Wahl. Profile:
+  `game` (bis Stabilität, hart 30 s), `training` und `proof` (nur Knotenbudget,
+  keine Uhr, damit Nachspielen reproduzierbar ist).
+- Gemessen (Suche ohne Netz gegen Heuristik, 400 Matches, Seiten abwechselnd):
+  generierte Decks ca. 62 % (±5), echte Decks ca. 52 % (±5, nicht von 50 %
+  unterscheidbar). Das sagt nichts über Turnierstärke.
+- Grenzen: Die Suche modelliert den Gegnerzug nicht, nur die Skript-Antworten der
+  Engine; der Anziehende hat einen Vorteil; die Gegnerliste gilt als bekannt.
+
 ## Bewusste Grenzen
 
 Dies bleibt ein **vereinfachter Prototyp**, keine vollständige

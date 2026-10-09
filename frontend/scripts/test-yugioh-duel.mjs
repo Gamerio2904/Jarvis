@@ -541,3 +541,155 @@ test('Jarvis-Zug läuft in sichtbaren Einzelschritten, kann mit Falle unterbroch
   const unblocked = netEngine.jarvisStep(declared, null)
   assert.equal(unblocked.player.lp, 6000, 'ohne Falle trifft der Angriff')
 })
+
+const searchEngine = await import('../src/engine/yugioh-search.ts')
+const selfPlay = await import('../src/engine/yugioh-selfplay.ts')
+
+const deepFreeze = (value) => {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value)
+    Object.values(value).forEach(deepFreeze)
+  }
+  return value
+}
+
+test('Self-Play: gleicher Seed ergibt dasselbe Match, es endet immer', () => {
+  const a = selfPlay.playSelfPlayMatch({ seed: 11 })
+  const b = selfPlay.playSelfPlayMatch({ seed: 11 })
+  assert.deepEqual(a, b)
+  assert.ok(a.moves.length > 5)
+  assert.ok(['win', 'deckout', 'turnLimit'].includes(a.end))
+  const other = selfPlay.playSelfPlayMatch({ seed: 12 })
+  assert.notDeepEqual(other.moves.map((m) => m.label), a.moves.map((m) => m.label))
+  for (const source of ['generated', 'real', 'mixed']) {
+    for (let seed = 1; seed <= 4; seed += 1) {
+      const result = selfPlay.playSelfPlayMatch({ seed, deckSource: source })
+      assert.ok(result.end, `${source} ${seed} endet`)
+      assert.ok(result.decks[0] && result.decks[1], 'Deckname je Seite')
+    }
+  }
+})
+
+test('Self-Play: beide Seiten ziehen abwechselnd, die Engine wird nicht verändert und der Stand bleibt spiegelbar', () => {
+  let match = selfPlay.createSelfPlayMatch({ seed: 5 })
+  const sides = []
+  for (let i = 0; i < 300 && !match.end; i += 1) {
+    deepFreeze(match.view)
+    match = selfPlay.stepSelfPlayMatch(match)
+    const last = match.moves.at(-1)
+    if (last && sides.at(-1) !== last.halfTurn) sides.push(last.halfTurn)
+  }
+  assert.ok(match.end)
+  const turns = [...new Set(match.moves.map((m) => `${m.halfTurn}:${m.side}`))]
+  for (const entry of turns) assert.equal(Number(entry.split(':')[0]) % 2 === 1, entry.endsWith(':0'), 'ungerade Halbzüge gehören Seite 0')
+  const board = selfPlay.matchBoard(match)
+  assert.equal(board.player.lp, match.moves.at(-1).lp[0])
+  assert.equal(board.jarvis.lp, match.moves.at(-1).lp[1])
+})
+
+test('Self-Play: Klon-Match ist symmetrisch – Seitenwechsel erzeugt keinen Dauergewinner', () => {
+  let first = 0
+  const games = 60
+  for (let seed = 1; seed <= games; seed += 1) {
+    const result = selfPlay.playSelfPlayMatch({ seed, deckSource: 'generated' })
+    if (result.winner === 0) first += 1
+  }
+  // Der Anziehende hat einen Vorteil, aber das Match ist kein Selbstläufer.
+  assert.ok(first > games * 0.25 && first < games * 0.85, `Anzieher gewinnt ${first}/${games}`)
+})
+
+test('Zugsuche: spielt ein Lethal über mehrere Aktionen (Beschwören, Battle Phase, Direktangriff) zu Ende', () => {
+  const monster = { id: 900, name: 'Angreifer', type: 'Normal Monster', kind: 'monster', atk: 2000, def: 1000, level: 4, position: 'attack' }
+  let state = duelWith(
+    { monsters: [monster], hand: [{ ...deck(1)[0], id: 901 }], normalSummonUsed: false },
+    { monsters: [], lp: 1000, spells: [], hand: [], deck: deck(10) },
+  )
+  const random = netEngine.seededRandom(1)
+  let deepest = 0
+  for (let step = 0; step < 8 && !state.winner; step += 1) {
+    const actions = netEngine.candidateActions(state)
+    const result = searchEngine.searchAction(state, actions, { budget: searchEngine.SEARCH_PROFILES.proof, random })
+    deepest = Math.max(deepest, result.depth)
+    state = netEngine.applyAction(state, actions[result.index])
+  }
+  assert.equal(state.winner, 'player')
+  assert.ok(deepest >= 2, 'Suche schaut mehr als einen Zug voraus')
+})
+
+test('Zugsuche: verändert den Zustand nicht und nutzt verdeckte Gegnerinformation nicht', () => {
+  const state = duelWith({ monsters: [] }, {})
+  const snapshot = JSON.stringify(state)
+  const actions = netEngine.candidateActions(state)
+  const run = (view) => searchEngine.searchAction(view, actions, { budget: searchEngine.SEARCH_PROFILES.training, random: netEngine.seededRandom(3) })
+  const base = run(deepFreeze(structuredClone(state)))
+  assert.equal(JSON.stringify(state), snapshot)
+  // Gegnerhand und Deck vertauschen: dieselben unbekannten Karten, andere echte Zuordnung.
+  const swapped = structuredClone(state)
+  const [h0, ...hRest] = swapped.jarvis.hand
+  const [d0, ...dRest] = swapped.jarvis.deck.slice().reverse()
+  swapped.jarvis.hand = [d0, ...hRest]
+  swapped.jarvis.deck = [...dRest.reverse(), h0]
+  const other = run(swapped)
+  assert.deepEqual(other.values, base.values)
+  assert.equal(other.index, base.index)
+  // Die Stichprobe erhält Handgröße und die Menge unbekannter Karten.
+  const world = searchEngine.sampleHiddenState(state, netEngine.seededRandom(9))
+  assert.equal(world.jarvis.hand.length, state.jarvis.hand.length)
+  const ids = (p) => [...p.hand, ...p.deck].map((c) => c.id).sort((x, y) => x - y)
+  assert.deepEqual(ids(world.jarvis), ids(state.jarvis))
+})
+
+test('Zugsuche: verdeckte Gegnerkarten werden nicht verraten', () => {
+  const trap = spellCard(950, { kind: 'negateAttack' }, { kind: 'trap', type: 'Trap Card', faceDown: true, lockedKey: 0 })
+  const others = ['draw', 'damage', 'destroy', 'heal', 'draw', 'damage'].map((kind, i) =>
+    spellCard(960 + i, kind === 'destroy' ? { kind, target: 'allMonsters' } : { kind, amount: 500 }))
+  const state = duelWith({}, { spells: [trap], deck: [...deck(10), ...others] })
+  const worlds = Array.from({ length: 12 }, (_, i) => searchEngine.sampleHiddenState(state, netEngine.seededRandom(i + 1)))
+  const kinds = new Set(worlds.map((w) => w.jarvis.spells[0].effect?.kind ?? 'inert'))
+  assert.ok(!(kinds.size === 1 && kinds.has('negateAttack')), 'Falle erscheint nicht in jeder Stichprobe')
+  assert.equal(worlds[0].jarvis.spells[0].id, 950)
+  assert.equal(worlds[0].jarvis.spells[0].faceDown, true)
+})
+
+test('Zugsuche: Knoten- und Zeitgrenze greifen, es gibt immer einen Zug', () => {
+  const state = duelWith({}, {})
+  const actions = netEngine.candidateActions(state)
+  const tiny = { ...searchEngine.SEARCH_PROFILES.training, maxNodes: 30, maxDepth: 6 }
+  const limited = searchEngine.searchAction(state, actions, { budget: tiny, random: netEngine.seededRandom(1) })
+  assert.equal(limited.stoppedBy, 'nodes')
+  assert.ok(limited.index >= 0 && limited.index < actions.length)
+  assert.ok(limited.depth >= 1)
+  let clock = 0
+  const slow = searchEngine.searchAction(state, actions, {
+    budget: { ...searchEngine.SEARCH_PROFILES.game, maxDepth: 8 },
+    random: netEngine.seededRandom(1),
+    now: () => (clock += 20_000),
+  })
+  assert.ok(['time', 'exhausted', 'stable', 'depth'].includes(slow.stoppedBy))
+  assert.ok(slow.index >= 0 && slow.index < actions.length)
+  assert.equal(searchEngine.SEARCH_PROFILES.game.maxMs, 30_000)
+  assert.equal(searchEngine.SEARCH_PROFILES.training.maxMs, 0, 'Training/Proof laufen ohne Uhr (reproduzierbar)')
+  assert.equal(searchEngine.SEARCH_PROFILES.proof.maxMs, 0)
+})
+
+test('Zugsuche: Temperatur 0 wählt greedy, Temperatur > 0 streut', () => {
+  const values = [0.1, 1, 0.9]
+  assert.equal(searchEngine.pickByTemperature(values, 0, () => 0.5), 1)
+  const rnd = netEngine.seededRandom(4)
+  const picks = new Set(Array.from({ length: 200 }, () => searchEngine.pickByTemperature(values, 0.5, rnd)))
+  assert.ok(picks.size >= 2)
+})
+
+test('Zugsuche gegen Heuristik: auf generierten Decks messbar nicht schlechter', () => {
+  const heuristic = { name: 'H', model: null, search: null, temperature: 0 }
+  const searcher = { name: 'S', model: null, search: searchEngine.SEARCH_PROFILES.training, temperature: 0 }
+  let points = 0
+  const games = 120
+  for (let i = 0; i < games; i += 1) {
+    const searchFirst = i % 2 === 0
+    const result = selfPlay.playSelfPlayMatch({ seed: 500 + i, agents: searchFirst ? [searcher, heuristic] : [heuristic, searcher], deckSource: 'generated' })
+    const side = searchFirst ? 0 : 1
+    points += result.winner === side ? 1 : result.winner === null ? 0.5 : 0
+  }
+  assert.ok(points / games > 0.5, `Suche ${points}/${games}`)
+})

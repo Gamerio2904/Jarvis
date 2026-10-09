@@ -195,7 +195,7 @@ export function candidateActions(state: DuelState): DuelAction[] {
   return actions
 }
 
-function applyAction(state: DuelState, action: DuelAction): DuelState {
+export function applyAction(state: DuelState, action: DuelAction): DuelState {
   if (action.kind === 'summon' && action.cardId !== undefined) return summonMonster(state, action.cardId, action.tributes || [])
   if (action.kind === 'extra' && action.cardId !== undefined) return summonExtraMonster(state, action.cardId, action.materials || [])
   if (action.kind === 'direct' && action.cardId !== undefined) return attack(selectAttacker(state, action.cardId))
@@ -312,7 +312,7 @@ export function greedyNetPolicy(model: NetModel): Policy {
 
 const f = featureIndex
 // Hand-written reference strategy over the same features. It is the bar the learned network has to beat.
-function heuristicScore(x: number[]): number {
+export function heuristicScore(x: number[]): number {
   return (
     x[f.summon] * (1 + x[f.atk]) +
     x[f.extra] * (2.5 + x[f.atk]) +

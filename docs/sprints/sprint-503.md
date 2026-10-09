@@ -1,6 +1,6 @@
 # Sprint 503 — Self-Play-Match-Runner
 
-**Version:** `18.42.0` — **PLAN** Must  
+**Version:** `18.42.0` — **CODE*** Must (Engine; UI folgt in 505/506)  
 **Plan:** [`../104-next.md`](../104-next.md)  
 **Voraussetzung:** keine (baut auf `jarvisStep`/`candidateActions`).
 

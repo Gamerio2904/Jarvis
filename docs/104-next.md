@@ -5,8 +5,14 @@ begrenzter Suche wählen, Matches live zeigen und aus den Protokollen lernen.
 Das Yu-Gi-Oh!-Fenster bleibt das Game-Overlay; ein Schalter wechselt ins
 Entwicklermenü (Builder, Labore, Self-Play) und zurück.
 
-**Planungsstand:** Nur die Statusblase „Ultron denkt / setzt / beschwört“ im
-Overlay ist im Arbeitsbaum (Test-Build `18.31.7`, `CODE`). Alles unten ist
+**Planungsstand:** Sprint 503 (Match-Runner `yugioh-selfplay.ts`) und 504 (Zugsuche
+`yugioh-search.ts`) sind als Engine-Code mit Tests im Arbeitsbaum (`CODE*`, noch ohne
+UI). Gemessen (400 Matches je Zeile, abwechselnde Seiten, Suche gegen Heuristik,
+ohne Netz): generierte Decks 61,5 % ±4,8 (Training-Profil) bzw. 62,3 % ±4,8
+(Proof-Profil); echte Decks 51,5 % ±4,9 bzw. 52,0 % ±4,9, also nicht
+unterscheidbar von 50 %, weil die meisten echten Karten keinen simulierten Effekt
+haben. Außerdem ist die Statusblase „Ultron denkt / setzt / beschwört“ im
+Overlay im Arbeitsbaum (Test-Build `18.31.7`, `CODE`). Alles ab 505 ist
 **PLAN**. Die Folge beginnt nach den Gates bis `18.41.0` bzw. kann als
 eigenständige Schiene früher gezogen werden, weil sie nur
 `frontend/src/engine/yugioh-*` und `YugiohDuel.tsx` berührt. Kein Test-Build ist
