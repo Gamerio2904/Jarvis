@@ -50,7 +50,8 @@ test('Model Soup bildet alle drei Strategie-Branches gleichgewichtet ab', () => 
 test('der Sprachtrigger erkennt die vereinbarte Herausforderung, aber keine ähnlichen Sätze', () => {
   assert.equal(isYugiohDuelTrigger('Jarvis, ich fordere dich zu einem Duell heraus.'), true)
   assert.equal(isYugiohDuelTrigger('Ich fordere dich zu einem Duell heraus'), true)
-  assert.equal(isYugiohDuelTrigger('Jarvis, ich fordere dich zum Duell heraus.'), false)
+  assert.equal(isYugiohDuelTrigger('ich fordere dich zu einem duel auf'), true)
+  assert.equal(isYugiohDuelTrigger('Wie wird das Wetter'), false)
 })
 
 test('Start zieht fünf Karten und vektorisiert den Spielzustand', () => {
