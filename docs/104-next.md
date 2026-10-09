@@ -1,4 +1,4 @@
-# 104 — Yu-Gi-Oh!-Self-Play, Zugsuche und Dev-Umschalter **PLAN** (`18.42`–`18.44`)
+# 104 — Yu-Gi-Oh!-Self-Play, Zugsuche und Dev-Umschalter **PLAN** (`18.42`–`18.45`)
 
 **Zweck:** Die Duell-KI soll gegen einen Klon ihrer selbst spielen, Züge per
 begrenzter Suche wählen, Matches live zeigen und aus den Protokollen lernen.
@@ -35,7 +35,12 @@ eine Release-Freigabe.
    die Aktion der jeweils ziehenden Seite.
 4. **Auswertung und Lernen:** Protokoll pro Aktion, Fehlerkandidaten nach dem
    Match, Value-Kopf plus suchgestützte Policy, Checkpoint-Liga und Model Soup.
-5. **Dev-Umschalter:** Header-Button `Dev ⇄ Spiel`; ein laufendes Duell bleibt
+5. **Nachweis:** Training-Overlay (Live-Board links, Dev-Infos rechts), danach
+   Analyse und grüner Verify-Button. Verify prüft den Gewichts-Hash, spielt die
+   Testspiele (inkl. verstecktem Seed-Satz) nach und rechnet die Statistik neu;
+   die Nachweis-Datei ist immer ladbar. Eine Elo-Liga (Bradley-Terry, Heuristik
+   als Anker) zeigt den Verlauf über die Versionen.
+6. **Dev-Umschalter:** Header-Button `Dev ⇄ Spiel`; ein laufendes Duell bleibt
    beim Wechsel erhalten.
 
 ## 3. Geplante Releases und Abhängigkeiten
@@ -45,9 +50,10 @@ eine Release-Freigabe.
 | `18.42.0` | 503–504 | Self-Play-Kern und Zugsuche | Reproduzierbare Matches mit festem Seed; Suche bleibt in 30 s (Spiel) bzw. Trainingsbudget; keine versteckten Gegnerinformationen |
 | `18.43.0` | 505–506 | Live-Match-Ansicht, Dev-Umschalter | Overlay-Zustand bleibt beim Wechsel; Handy/Tablet-Bedienung; Reduced Motion |
 | `18.44.0` | 507–508 | Protokoll, Review, Lernen, Liga | Neue Version wird nur gespeichert, wenn sie auf festen Holdout-Seeds nicht schlechter ist |
+| `18.45.0` | 509–510 | Nachweis-Datei, Verify, Elo-Liga, Training-Overlay | Speichern nur bei grünem Verify **und** bestandenem Gate; Verify spielt Testspiele mit festem Knotenbudget nach |
 
 Abhängigkeiten: 504 nach 503, 505 nach 503, 506 unabhängig, 507 nach 503,
-508 nach 504 und 507. Das Netz-Speicherformat `jarvis_yugioh_net_v1` (28
+508 nach 504 und 507, 509 nach 507 und 508, 510 nach 506, 508 und 509. Das Netz-Speicherformat `jarvis_yugioh_net_v1` (28
 Merkmale) bleibt gültig; neue Köpfe oder Merkmale erhalten eine neue
 Versionsnummer mit Migration oder werden abgelehnt.
 
@@ -62,7 +68,10 @@ Versionsnummer mit Migration oder werden abgelehnt.
    abbrechbar; Dauerläufe bleiben ein Dev-Menü-Werkzeug.
 5. Speicherstände werden nur durch ausdrückliche Aktion oder bestandenes Gate
    überschrieben, mit Rückfall auf den letzten guten Stand.
-6. Aussagen zur Spielstärke gelten nur für die vereinfachte Simulation, nicht
+6. Verify beweist nur, dass Messung und Datei stimmen, nicht Stärke gegen echte
+   Spieler. Der Nachweis nutzt ein festes Knotenbudget statt Zeitlimit, sonst
+   ist das Nachspielen nicht deterministisch. Elo gilt nur innerhalb der Liga.
+7. Aussagen zur Spielstärke gelten nur für die vereinfachte Simulation, nicht
    für echte Turnierspiele.
 
 ## 5. Nicht-Ziele
@@ -73,5 +82,5 @@ Versionsnummer mit Migration oder werden abgelehnt.
   Pflicht.
 
 Sprintdetails: [`sprint-503.md`](./sprints/sprint-503.md) bis
-[`sprint-508.md`](./sprints/sprint-508.md). Funktionsumfang und Grenzen des
+[`sprint-510.md`](./sprints/sprint-510.md). Funktionsumfang und Grenzen des
 Prototyps: [`yugioh-duel.md`](./yugioh-duel.md).

@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** Test-APK **`18.31.7`**, versionCode `183107`; Android-Geräteabnahme offen. Die Sprintfolge 467–482 (`18.32.0`–`18.35.0`) ist in [`101-next.md`](./101-next.md) geplant. Danach ist Tablet-Server, sicherer Hausstand-Sync und Zwei-Bildschirm-Bedienung in [`102-next.md`](./102-next.md) geplant: Sprints 483–494, `18.36.0`–`18.38.0`. Danach ist Yu-Gi-Oh!-Self-Play in [`104-next.md`](./104-next.md) geplant: Sprints 503–508, `18.42.0`–`18.44.0`. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** Test-APK **`18.31.7`**, versionCode `183107`; Android-Geräteabnahme offen. Die Sprintfolge 467–482 (`18.32.0`–`18.35.0`) ist in [`101-next.md`](./101-next.md) geplant. Danach ist Tablet-Server, sicherer Hausstand-Sync und Zwei-Bildschirm-Bedienung in [`102-next.md`](./102-next.md) geplant: Sprints 483–494, `18.36.0`–`18.38.0`. Danach ist Yu-Gi-Oh!-Self-Play in [`104-next.md`](./104-next.md) geplant: Sprints 503–510, `18.42.0`–`18.45.0`. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
