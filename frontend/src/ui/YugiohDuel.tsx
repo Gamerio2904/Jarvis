@@ -18,6 +18,18 @@ import {
   type StrategyWeights,
 } from '../engine/yugioh-duel.ts'
 import { evaluateDuelPolicy, trainDuelPolicy, type EvaluationResult } from '../engine/yugioh-training.ts'
+import {
+  createNetModel,
+  evaluatePolicy,
+  greedyNetPolicy,
+  heuristicPolicy,
+  randomPolicy,
+  trainNetPolicy,
+  validateNetModel,
+  type NetEvaluation,
+  type NetModel,
+} from '../engine/yugioh-net.ts'
+import { YugiohNetViz } from './YugiohNetViz.tsx'
 import './yugioh-duel.css'
 
 type ApiCard = {
@@ -36,6 +48,7 @@ type ApiCard = {
 const MAIN_KEY = 'jarvis_yugioh_main_v1'
 const EXTRA_KEY = 'jarvis_yugioh_extra_v1'
 const WEIGHTS_KEY = 'jarvis_yugioh_policy_v1'
+const NET_KEY = 'jarvis_yugioh_net_v1'
 const BASELINE_WEIGHTS = DUEL_SOUP_WEIGHTS
 
 function parseWeights(raw: string | null): StrategyWeights {
@@ -187,6 +200,10 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null)
   const [baselineEvaluation, setBaselineEvaluation] = useState<EvaluationResult | null>(null)
   const [evaluationBusy, setEvaluationBusy] = useState(false)
+  const [netModel, setNetModel] = useState<NetModel | null>(null)
+  const [netBusy, setNetBusy] = useState(false)
+  const [netProgress, setNetProgress] = useState(0)
+  const [netEval, setNetEval] = useState<{ net: NetEvaluation; random: NetEvaluation; heuristic: NetEvaluation } | null>(null)
   const [extraCardId, setExtraCardId] = useState<number | null>(null)
   const [extraMaterials, setExtraMaterials] = useState<number[]>([])
   const [notice, setNotice] = useState('')
@@ -208,6 +225,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       setMainDeck(main)
       setExtraDeck(extra)
       setWeights(parseWeights(localStorage.getItem(WEIGHTS_KEY)))
+      const storedNet = localStorage.getItem(NET_KEY)
+      if (storedNet) setNetModel(validateNetModel(JSON.parse(storedNet) as NetModel))
       nextCardId.current = Math.max(nextCardId.current, ...main.map((card) => card.id + 1), ...extra.map((card) => card.id + 1))
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Das gespeicherte Deck konnte nicht gelesen werden.')
@@ -222,10 +241,11 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       localStorage.setItem(MAIN_KEY, JSON.stringify(mainDeck))
       localStorage.setItem(EXTRA_KEY, JSON.stringify(extraDeck))
       localStorage.setItem(WEIGHTS_KEY, JSON.stringify(weights))
+      if (netModel) localStorage.setItem(NET_KEY, JSON.stringify(netModel))
     } catch (error) {
       setNotice(error instanceof Error ? `Deck konnte nicht gespeichert werden: ${error.message}` : 'Deck konnte nicht gespeichert werden.')
     }
-  }, [deckLoaded, mainDeck, extraDeck, weights])
+  }, [deckLoaded, mainDeck, extraDeck, weights, netModel])
 
   useEffect(() => {
     const term = query.trim()
@@ -370,6 +390,48 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     }, 30)
   }
 
+  function trainNet() {
+    if (netBusy || trainingBusy || evaluationBusy) return
+    setNetBusy(true)
+    setNetProgress(0)
+    setNotice('')
+    const chunks = 6
+    const perChunk = 250
+    const baseSeed = Date.now() % 0x7fffffff
+    let model = netModel || createNetModel(16, baseSeed)
+    setNetModel(model)
+    const step = (index: number) => {
+      try {
+        if (index >= chunks) {
+          const evalSeed = 918273
+          setNetEval({
+            net: evaluatePolicy(greedyNetPolicy(model), 200, evalSeed),
+            random: evaluatePolicy(randomPolicy, 200, evalSeed),
+            heuristic: evaluatePolicy(heuristicPolicy, 200, evalSeed),
+          })
+          setNotice('Netz-Training fertig. Es wird nur gespeichert, was die Validierung nicht verschlechtert hat.')
+          setNetBusy(false)
+          return
+        }
+        model = trainNetPolicy({ model, episodes: perChunk, seed: baseSeed + index, validationGames: 40 }).model
+        setNetModel(model)
+        setNetProgress((index + 1) / chunks)
+        window.setTimeout(() => step(index + 1), 40)
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : 'Das Netz-Training ist fehlgeschlagen.')
+        setNetBusy(false)
+      }
+    }
+    window.setTimeout(() => step(0), 30)
+  }
+
+  function resetNet() {
+    if (netBusy) return
+    setNetModel(null)
+    setNetEval(null)
+    try { localStorage.removeItem(NET_KEY) } catch { /* storage unavailable */ }
+  }
+
   function evaluateModel() {
     if (evaluationBusy || trainingBusy) return
     setEvaluationBusy(true)
@@ -451,6 +513,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         <section className="ygo-game">
           <div className="ygo-opponent">
             <div className="ygo-player-line"><strong>JARVIS</strong><span>{game.jarvis.lp.toLocaleString('de-DE')} LP</span></div>
+            <div className="ygo-lpbar is-jarvis"><i style={{ width: `${Math.max(0, Math.min(100, game.jarvis.lp / 80))}%` }} /></div>
             <div className="ygo-deck-counts">
               <span>Deck {game.jarvis.deck.length}</span><span>Friedhof {game.jarvis.graveyard.length}</span>
             </div>
@@ -462,6 +525,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <span>Zug {game.turn}</span><strong>{game.phase.toUpperCase()}</strong>
             <span>Du {game.player.lp.toLocaleString('de-DE')} LP</span>
           </div>
+          <div className="ygo-lpbar is-player"><i style={{ width: `${Math.max(0, Math.min(100, game.player.lp / 80))}%` }} /></div>
 
           <div className="ygo-player-field">
             <FieldRow
@@ -618,6 +682,32 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
               <p>Gleicher Holdout: Policy {evaluation.wins}/{evaluation.games} Siege, Winrate {(evaluation.winRate * 100).toFixed(1)}%{baselineEvaluation ? ` · Soup-Baseline ${(baselineEvaluation.winRate * 100).toFixed(1)}%` : ''}</p>
             ) : null}
             <small>Holdout ist identisch ausgesät; eine schlechtere Policy ersetzt nie das lokal gespeicherte Modell. Keine Turnier-Winrate.</small>
+          </section>
+          <section className="ygo-net-lab">
+            <div>
+              <strong>Neuronales Netz</strong>
+              <span>28 Merkmale · 16 Neuronen · wechselnde Gegnerdecks (inkl. unbekanntem burn-Deck beim Test)</span>
+            </div>
+            <YugiohNetViz model={netModel} training={netBusy} />
+            {netBusy ? <div className="ygo-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(netProgress * 100)}><i style={{ width: `${netProgress * 100}%` }} /></div> : null}
+            <div className="ygo-actions">
+              <button className="ygo-primary" type="button" disabled={netBusy || trainingBusy || evaluationBusy} onClick={trainNet}>
+                {netBusy ? 'Netz lernt …' : netModel ? 'Weitertrainieren (+1500 Episoden)' : 'Netz trainieren'}
+              </button>
+              <button type="button" disabled={netBusy || !netModel} onClick={resetNet}>Zurücksetzen</button>
+            </div>
+            {netEval ? (
+              <div className="ygo-net-eval">
+                {([['Netz', netEval.net], ['Heuristik', netEval.heuristic], ['Zufall', netEval.random]] as const).map(([name, result]) => (
+                  <div key={name}>
+                    <span>{name}</span>
+                    <strong>{(result.winRate * 100).toFixed(1)}%</strong>
+                    <small>{result.wins}/{result.games}</small>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            <small>Simulierte Duelle mit vereinfachten Regeln, nicht Turnierstärke. Das Netz ist hier sichtbar und trainierbar; Jarvis' Züge im echten Duell nutzt es noch nicht.</small>
           </section>
           <p className="ygo-disclaimer">Jarvis baut ein 40-Karten-Deck aus deinem Main-Deck-Pool. Unterstützte Kartentexte können Effekte und vereinfachte Ketten auslösen. Offizielle Kosten, Timing, Ziele und Kartentext-Errata werden nicht vollständig simuliert.</p>
           <label className="ygo-search">

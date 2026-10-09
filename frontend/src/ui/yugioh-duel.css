@@ -604,3 +604,335 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Glass / neon theme ---- */
+.ygo-overlay {
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 8%, rgba(255, 52, 84, 0.3), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 90% 25%, rgba(80, 110, 255, 0.28), transparent 62%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(150, 60, 255, 0.24), transparent 65%),
+    #07070d;
+  background-attachment: fixed;
+}
+
+.ygo-overlay::before,
+.ygo-overlay::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: ygo-orb 18s ease-in-out infinite alternate;
+}
+
+.ygo-overlay::before {
+  top: -14vmax;
+  left: -10vmax;
+  background: #ff3558;
+}
+
+.ygo-overlay::after {
+  right: -14vmax;
+  bottom: -12vmax;
+  background: #5b6cff;
+  animation-duration: 24s;
+}
+
+@keyframes ygo-orb {
+  to { transform: translate3d(8vmax, 6vmax, 0) scale(1.18); }
+}
+
+.ygo-header h1 {
+  background: linear-gradient(100deg, #fff 10%, #ff8fa0 55%, #9aa8ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 0.02em;
+}
+
+.ygo-opponent,
+.ygo-player-field,
+.ygo-duel-status,
+.ygo-chain,
+.ygo-extra-summon,
+.ygo-training-lab,
+.ygo-net-lab,
+.ygo-deck-lists section,
+.ygo-builder-summary > div,
+.ygo-hand {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03));
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  border-radius: 18px;
+}
+
+.ygo-overlay button:not(:disabled) {
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.ygo-overlay button:not(:disabled):hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.ygo-overlay button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.ygo-primary {
+  border: 0 !important;
+  background: linear-gradient(120deg, #ff3558, #8a4bff 70%, #4f6bff) !important;
+  box-shadow: 0 6px 22px rgba(138, 75, 255, 0.45);
+  font-weight: 800;
+  background-size: 200% 100% !important;
+  animation: ygo-shimmer 6s linear infinite;
+}
+
+@keyframes ygo-shimmer {
+  to { background-position: 200% 0; }
+}
+
+.ygo-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.ygo-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 700ms ease;
+  pointer-events: none;
+}
+
+.ygo-card:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(138, 75, 255, 0.4);
+}
+
+.ygo-card:hover::after {
+  transform: translateX(120%);
+}
+
+.ygo-hand-selected .ygo-card,
+.ygo-selected-card .ygo-card {
+  border-color: #ffd66b !important;
+  box-shadow: 0 0 24px rgba(255, 214, 107, 0.55);
+  transform: translateY(-8px) scale(1.04);
+}
+
+.ygo-zone-cards .ygo-empty-slot {
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.ygo-duel-status strong {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, rgba(255, 53, 88, 0.5), rgba(91, 108, 255, 0.5));
+  box-shadow: 0 0 18px rgba(255, 53, 88, 0.45);
+  animation: ygo-phase-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes ygo-phase-pulse {
+  50% { box-shadow: 0 0 30px rgba(91, 108, 255, 0.7); }
+}
+
+.ygo-lpbar {
+  height: 8px;
+  margin: 6px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.ygo-lpbar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 0 14px currentColor;
+}
+
+.ygo-lpbar.is-jarvis { color: #ff4d6a; }
+.ygo-lpbar.is-jarvis i { background: linear-gradient(90deg, #a3122c, #ff4d6a); }
+.ygo-lpbar.is-player { color: #4df0c2; }
+.ygo-lpbar.is-player i { background: linear-gradient(90deg, #1b8cff, #4df0c2); }
+
+.ygo-overlay[data-last-action="attack"] .ygo-game {
+  animation: ygo-shake 380ms ease-out;
+}
+
+@keyframes ygo-shake {
+  20% { transform: translateX(-5px); }
+  45% { transform: translateX(5px); }
+  70% { transform: translateX(-3px); }
+}
+
+/* Network lab */
+.ygo-net-lab {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+
+.ygo-net-lab > div:first-child span {
+  display: block;
+  margin-top: 2px;
+  color: #b9b5c4;
+  font-size: 11px;
+}
+
+.ygo-netviz {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.ygo-netviz svg {
+  width: 100%;
+  max-height: 340px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 50% 50%, rgba(138, 75, 255, 0.14), rgba(0, 0, 0, 0.35));
+}
+
+.ygo-edge.pos { stroke: #4df0c2; }
+.ygo-edge.neg { stroke: #ff4d6a; }
+
+.ygo-node.in { fill: #7fa6ff; }
+.ygo-node.hid { fill: #c58cff; animation: ygo-node-pulse 2.8s ease-in-out infinite; }
+.ygo-node.out { fill: #ffd66b; animation: ygo-node-pulse 2s ease-in-out infinite; }
+
+.ygo-netviz.is-training .ygo-edge {
+  stroke-dasharray: 5 7;
+  animation: ygo-flow 900ms linear infinite;
+}
+
+.ygo-netviz.is-training .ygo-node.hid {
+  animation-duration: 0.9s;
+}
+
+@keyframes ygo-flow {
+  to { stroke-dashoffset: -24; }
+}
+
+@keyframes ygo-node-pulse {
+  50% { opacity: 0.55; }
+}
+
+.ygo-net-label {
+  fill: #b9b5c4;
+  font-size: 9px;
+}
+
+.ygo-netviz figcaption {
+  display: grid;
+  gap: 8px;
+  font-size: 10px;
+}
+
+.ygo-legend {
+  display: inline-block;
+  margin-right: 12px;
+}
+
+.ygo-legend::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  margin-right: 5px;
+  vertical-align: middle;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.ygo-legend.pos { color: #4df0c2; }
+.ygo-legend.neg { color: #ff4d6a; }
+
+.ygo-importance-row {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  align-items: center;
+  gap: 8px;
+  color: #cfcadb;
+}
+
+.ygo-importance-row i {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5b6cff, #c58cff);
+  box-shadow: 0 0 10px rgba(138, 75, 255, 0.6);
+}
+
+.ygo-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ygo-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ff3558, #8a4bff, #4f6bff);
+  transition: width 300ms ease;
+}
+
+.ygo-net-eval {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ygo-net-eval > div {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  text-align: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ygo-net-eval span,
+.ygo-net-eval small {
+  color: #b9b5c4;
+  font-size: 10px;
+}
+
+.ygo-net-eval strong {
+  font-size: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ygo-overlay::before,
+  .ygo-overlay::after,
+  .ygo-primary,
+  .ygo-duel-status strong,
+  .ygo-node,
+  .ygo-netviz.is-training .ygo-edge,
+  .ygo-overlay[data-last-action] .ygo-game {
+    animation: none !important;
+  }
+  .ygo-lpbar i,
+  .ygo-card,
+  .ygo-card::after {
+    transition: none;
+  }
+}
