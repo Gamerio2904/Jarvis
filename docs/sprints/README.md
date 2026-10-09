@@ -509,9 +509,10 @@ Plan-/Projektdatei-Tests abgedeckt; Zielversionen 18.39.0–18.41.0 bleiben
 dennoch Platzhalter, bis die vollständigen Geräte-/Release-Gates bestanden
 sind.
 
-Die Vorschlagsfolge 503–510 (Yu-Gi-Oh!-Self-Play, Zugsuche, Live-Match,
-Dev-Umschalter, Review und Lernen) steht in [`../104-next.md`](../104-next.md);
-Zielversionen `18.42.0`–`18.45.0`, alles PLAN.
+Sprints 503–510 (Yu-Gi-Oh!-Self-Play) stehen in [`../104-next.md`](../104-next.md);
+**CODE** im Test-Build `18.45.0`. Folgeplan 511–530 (Regeln, Effektabdeckung,
+Fidelity) in [`../105-next.md`](../105-next.md), Zielversionen `18.46.0`–`18.51.0`,
+**PLAN**.
 
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.

@@ -1,11 +1,12 @@
 # 42 — Historischer Planungsindex
 
-> **Aktueller Stand:** Test-Build `18.31.7` / versionCode `183107`;
-> Geräteabnahme und Release-Freigabe offen. Die aktuellen, maßgeblichen Pläne
-> sind [`100-next.md`](./100-next.md) (444–466, im Test-Build enthalten),
-> [`101-next.md`](./101-next.md) (467–482, PLAN) und
-> [`102-next.md`](./102-next.md) (483–494, PLAN) sowie [`103-next.md`](./103-next.md)
-> (495–502, Vorschlagsplanung/PLAN). Die folgenden älteren
+> **Aktueller Stand:** Test-Build `18.45.0` / versionCode `184500` (Yu-Gi-Oh!
+> Self-Play 503–510 **CODE**); Geräteabnahme offen. Maßgebliche Pläne:
+> [`100-next.md`](./100-next.md) (444–466), [`101-next.md`](./101-next.md)
+> (467–482, PLAN), [`102-next.md`](./102-next.md) (483–494, PLAN),
+> [`103-next.md`](./103-next.md) (495–502, PLAN), [`104-next.md`](./104-next.md)
+> (503–510, CODE in 18.45.0), [`105-next.md`](./105-next.md) (511–530, PLAN:
+> Regelkomplettheit, Effektabdeckung, Fidelity). Die folgenden älteren
 > Einträge bewahren den damaligen Planungsstand; sie sind keine aktuelle
 > Lieferreihenfolge.
 
@@ -33,7 +34,8 @@ Hirn = Handy. PC = Werkzeug. **Aktuell konfigurierte Provider-Policy:** `engine/
 0-plan. **Tischplatte-Rework** [`100-next.md`](./100-next.md) — Sprints **444–466** im Test-Build `18.31.5` enthalten; Geräte-/Release-Gate offen.
 0-plan. **Qualität und Soup-Prüfung** [`101-next.md`](./101-next.md) — Sprints **467–482 PLAN**, geplante Versionen `18.32.0`–`18.35.0`.
 0-plan. **Tablet-Server, sicherer Sync und Zwei-Bildschirm-Ansichten** [`102-next.md`](./102-next.md) — Sprints **483–494 PLAN**, geplante Versionen `18.36.0`–`18.38.0`; einzelne Vorarbeiten sind im aktuellen Arbeitsbaum vorhanden, aber nicht als Release abgenommen.
-0-plan. **Yu-Gi-Oh!-Self-Play** [`104-next.md`](./104-next.md) — Sprints **503–510 PLAN**, Zielversionen `18.42.0`–`18.45.0`; KI-Klon-Matches, Zugsuche, Live-Ansicht, Game⇄Dev-Umschalter, Review und gegatetes Lernen.
+0-plan. **Yu-Gi-Oh!-Self-Play** [`104-next.md`](./104-next.md) — Sprints **503–510 CODE** in **`18.45.0`**; KI-Klon, Zugsuche, Dev-Umschalter, Nachweis/Verify.
+0-plan. **Yu-Gi-Oh! Regeln, Effekte, Kartentext** [`105-next.md`](./105-next.md) — Sprints **511–530 PLAN**, Zielversionen `18.46.0`–`18.51.0`; Regelkomplettheit, Effektabdeckung, Fidelity (PSCT/Errata).
 0-plan. **Robustere Projektplanung** [`103-next.md`](./103-next.md) — Sprints **495–502 Vorschlag/PLAN**, Zielversionen `18.39.0`–`18.41.0`; Backlog-/Sprint-Trennung, Abhängigkeiten, optionale Zeitplanung, Risiken/Status, Provenienz, Revision-Diff und verlustfreie Projektdateien.
 0-plan. **Hausstand nach dem Koppeln** [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) — Vorgängerplan; Tablet-Server und Zeitstempel-Sync sind teilweise im Test-Build enthalten. Für den Ausbau gilt [`102-next.md`](./102-next.md).
 0-plan. **Formulierung egal** [`formulierung-plan.md`](./formulierung-plan.md) — unpriorisierter **PLAN**, noch nicht gebaut; vor Umsetzung mit Routing-Gate 467–470 abgleichen. S1 Kopplung, egal wie gesagt. S2 Jede vorhandene Aktion. S3 Unbekannt bleibt unbekannt.

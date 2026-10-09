@@ -123,12 +123,25 @@ Bei `prefers-reduced-motion` entfällt die Drehung. Die Animation wurde nur geba
 und typgeprüft, nicht auf einem Gerät gesehen. Self-Play-Matches (Sprint 503)
 nutzen keinen Münzwurf.
 
-## Statusblase und Planung
+## Statusblase und Self-Play
 
 Während Jarvis zieht, zeigt eine Blase oben rechts „Ultron denkt nach …“ bzw. die
-letzte Aktion (setzt Karte, beschwört, greift an); bei STOP „pausiert“. Geplant
-(PLAN, nicht implementiert): KI-gegen-Klon-Self-Play, Zugsuche, Live-Match,
-Game⇄Dev-Umschalter und Lernen aus Protokollen — siehe [`104-next.md`](./104-next.md).
+letzte Aktion (setzt Karte, beschwört, greift an); bei STOP „pausiert“. Self-Play,
+Zugsuche, Dev-Umschalter, Review, Nachweis und Verify sind in **`18.45.0`**
+implementiert — siehe [`104-next.md`](./104-next.md).
+
+## Was noch fehlt (geplant)
+
+Näher am **echten TCG** sind drei Schienen in [`105-next.md`](./105-next.md)
+(**PLAN**, Sprints 511–530):
+
+1. **Regelkomplettheit** — Zonen (EMZ/MMZ/Link), Turn-1-Battle, Ketten/Spell Speed,
+   Kosten, Banish, vollständigere Kampfphase.
+2. **Effektabdeckung** — von ~31 % simulierten Karten deutlich hoch; Field/Continuous,
+   mehr Effektarten, Structure-Decks mit messbarer Deck-Coverage.
+3. **Fidelity** — PSCT/Errata, Zielwahl, OPT/HOPT, Gold-Kartenkorpus statt Regex-only.
+
+Bis dahin gilt der Abschnitt **Bewusste Grenzen** unten.
 
 ## Self-Play und Zugsuche (Engine, ohne UI)
 
@@ -184,7 +197,7 @@ Android-Gerätebedienung müssen zusätzlich am Zielgerät manuell geprüft werd
 
 ## Version / APK
 
-App-Version `18.31.7`, Android `versionCode 183107`, debug-signierter
-Test-Build. Die Android-Geräteabnahme und Release-Freigabe sind offen. Der
-Build-Einstieg ist `./build-apk.sh`; das erzeugte Sideload liegt in
-`releases/Jarvis.apk`.
+App-Version **`18.45.0`**, Android `versionCode 184500`, debug-signierter
+Test-Build (Self-Play 503–510). Geräteabnahme offen. Build: `./build-apk.sh`;
+Sideload: `releases/Jarvis.apk`. Regel-/Effekt-Ausbau: Plan **105** (noch nicht
+gebaut).

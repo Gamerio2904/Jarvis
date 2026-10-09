@@ -5,15 +5,16 @@ begrenzter Suche wählen, Matches live zeigen und aus den Protokollen lernen.
 Das Yu-Gi-Oh!-Fenster bleibt das Game-Overlay; ein Schalter wechselt ins
 Entwicklermenü (Builder, Labore, Self-Play) und zurück.
 
-**Planungsstand:** Sprint 503 (Match-Runner `yugioh-selfplay.ts`) und 504 (Zugsuche
-`yugioh-search.ts`) sind als Engine-Code mit Tests im Arbeitsbaum (`CODE*`, noch ohne
-UI). Gemessen (400 Matches je Zeile, abwechselnde Seiten, Suche gegen Heuristik,
+**Planungsstand:** Sprints **503–510** sind im Test-Build **`18.45.0`** **CODE**
+(Engine + UI + Tests). Gemessen (400 Matches je Zeile, abwechselnde Seiten, Suche gegen Heuristik,
 ohne Netz): generierte Decks 61,5 % ±4,8 (Training-Profil) bzw. 62,3 % ±4,8
 (Proof-Profil); echte Decks 51,5 % ±4,9 bzw. 52,0 % ±4,9, also nicht
 unterscheidbar von 50 %, weil die meisten echten Karten keinen simulierten Effekt
-haben. Sprints **503–510** sind im Test-Build **`18.45.0`** als **CODE**
-umgesetzt (Engine + UI + Tests); Geräteabnahme und Release-Freigabe bleiben offen.
-Kein Test-Build ist eine Release-Freigabe.
+haben. Geräteabnahme und Release-Freigabe bleiben offen. Kein Test-Build ist eine
+Release-Freigabe.
+
+**Folgeplan Regeln/Effekte/Texttreue:** [`105-next.md`](./105-next.md) (Sprints
+511–530, `18.46.0`–`18.51.0`, **PLAN**).
 
 ## 1. Ausgangslage (gemessen, nicht angenommen)
 
@@ -79,7 +80,8 @@ Versionsnummer mit Migration oder werden abgelehnt.
 
 ## 5. Nicht-Ziele
 
-- Keine vollständige Yu-Gi-Oh!-Regelimplementierung, kein Online-Spiel.
+- Keine vollständige Yu-Gi-Oh!-Regelimplementierung in Plan 104 (Ausbaupfad:
+  [`105-next.md`](./105-next.md)); kein Online-Spiel.
 - Kein Cloud-Training und kein Server; alles bleibt lokal.
 - Keine automatische Versionsfreigabe durch Winrate allein; Geräteabnahme bleibt
   Pflicht.
