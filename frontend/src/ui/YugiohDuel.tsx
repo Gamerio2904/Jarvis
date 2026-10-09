@@ -17,6 +17,7 @@ import {
   type DuelState,
   type StrategyWeights,
 } from '../engine/yugioh-duel.ts'
+import { REAL_DECK_LIST, buildRealDeck, findRealDeck, pickUltronDeck } from '../engine/yugioh-deck-library.ts'
 import { evaluateDuelPolicy, trainDuelPolicy, type EvaluationResult } from '../engine/yugioh-training.ts'
 import {
   createNetModel,
@@ -25,13 +26,11 @@ import {
   heuristicPolicy,
   randomPolicy,
   runNetJarvisTurn,
-  seededRandom,
   trainNetPolicy,
   validateNetModel,
   type NetEvaluation,
   type NetModel,
 } from '../engine/yugioh-net.ts'
-import { generateDeck, type DeckArchetype } from '../engine/yugioh-decks.ts'
 import { YugiohNetViz } from './YugiohNetViz.tsx'
 import './yugioh-duel.css'
 
@@ -51,14 +50,6 @@ type ApiCard = {
 const MAIN_KEY = 'jarvis_yugioh_main_v1'
 const EXTRA_KEY = 'jarvis_yugioh_extra_v1'
 const WEIGHTS_KEY = 'jarvis_yugioh_policy_v1'
-const DEMO_LABELS: Record<DeckArchetype, string> = {
-  aggro: 'Aggro (schneller Schaden)',
-  control: 'Control (Negates & Ressourcen)',
-  combo: 'Combo (Extra Deck & Tuner)',
-  burn: 'Burn (Effektschaden)',
-  balanced: 'Ausgewogen',
-}
-const DEMO_SEEDS: Record<DeckArchetype, number> = { aggro: 101, control: 202, combo: 303, burn: 404, balanced: 505 }
 const NET_KEY = 'jarvis_yugioh_net_v1'
 const BASELINE_WEIGHTS = DUEL_SOUP_WEIGHTS
 
@@ -213,7 +204,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [evaluationBusy, setEvaluationBusy] = useState(false)
   const [netModel, setNetModel] = useState<NetModel | null>(null)
   const [jarvisBrain, setJarvisBrain] = useState<'net' | 'script'>('net')
-  const [jarvisDeck, setJarvisDeck] = useState<'pool' | DeckArchetype>('pool')
+  const [jarvisDeck, setJarvisDeck] = useState<string>('random')
   const [startBusy, setStartBusy] = useState(false)
   const [netBusy, setNetBusy] = useState(false)
   const [netProgress, setNetProgress] = useState(0)
@@ -223,6 +214,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [notice, setNotice] = useState('')
   const [searchError, setSearchError] = useState('')
   const nextCardId = useRef(1_000_000_000)
+  const [demoDeckId, setDemoDeckId] = useState(REAL_DECK_LIST[0]?.id ?? '')
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -325,11 +317,13 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     })
   }
 
-  function loadDemoDeck(archetype: DeckArchetype) {
-    const deck = generateDeck(archetype, seededRandom(DEMO_SEEDS[archetype]))
+  function loadDemoDeck(deckId: string) {
+    const real = findRealDeck(deckId)
+    if (!real) return
+    const deck = buildRealDeck(real, () => nextCardId.current++)
     setMainDeck(deck.main)
     setExtraDeck(deck.extra)
-    setNotice(`Demo-Deck „${DEMO_LABELS[archetype]}“ geladen (${deck.main.length} Main, ${deck.extra.length} Extra). Du kannst es noch ändern.`)
+    setNotice(`Echtes Deck „${real.title}“ geladen (${deck.main.length} Main, ${deck.extra.length} Extra). Du kannst es noch ändern.`)
   }
 
   function startDuel() {
@@ -345,17 +339,22 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         }
         let botMain = mainDeck.slice(0, 40)
         let botExtra = extraDeck
+        let drawn = ''
         if (jarvisDeck !== 'pool') {
-          const generated = generateDeck(jarvisDeck, seededRandom(Date.now() % 0x7fffffff))
-          botMain = generated.main
-          botExtra = generated.extra
+          const real = jarvisDeck === 'random' ? pickUltronDeck() : findRealDeck(jarvisDeck.replace(/^real:/, ''))
+          if (real) {
+            const built = buildRealDeck(real, () => nextCardId.current++)
+            botMain = built.main
+            botExtra = built.extra
+            drawn = `Ultron spielt „${real.title}“.`
+          }
         }
         setGame(createDuel(mainDeck, botMain, Math.random, extraDeck, botExtra, weights))
         setSelectedHandCard(null)
         setTributes([])
         setExtraCardId(null)
         setExtraMaterials([])
-        setNotice('')
+        setNotice(drawn)
       } catch (error) {
         setNotice(error instanceof Error ? error.message : 'Das Duell konnte nicht gestartet werden.')
       } finally {
@@ -710,18 +709,22 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             </button>
           </div>
           <section className="ygo-demo">
-            <strong>Demo-Decks – ein Tippen und spielen</strong>
+            <strong>Echte Decks – ein Tippen und spielen</strong>
             <div className="ygo-demo-grid">
-              {(['aggro', 'control', 'combo', 'burn', 'balanced'] as const).map((name) => (
-                <button type="button" key={name} onClick={() => loadDemoDeck(name)}>{DEMO_LABELS[name]}</button>
-              ))}
+              <select aria-label="Echtes Deck" value={demoDeckId} onChange={(event) => setDemoDeckId(event.target.value)}>
+                {REAL_DECK_LIST.map((deck) => (
+                  <option value={deck.id} key={deck.id}>{deck.title}</option>
+                ))}
+              </select>
+              <button type="button" onClick={() => loadDemoDeck(demoDeckId)}>Deck laden</button>
             </div>
             <div className="ygo-demo-options">
               <label>Jarvis-Deck
-                <select value={jarvisDeck} onChange={(event) => setJarvisDeck(event.target.value as 'pool' | DeckArchetype)}>
+                <select value={jarvisDeck} onChange={(event) => setJarvisDeck(event.target.value)}>
+                  <option value="random">Zufällig (Ultron-Pool, 25 echte Decks)</option>
                   <option value="pool">Aus meinem Deck</option>
-                  {(['aggro', 'control', 'combo', 'burn', 'balanced'] as const).map((name) => (
-                    <option value={name} key={name}>{DEMO_LABELS[name]}</option>
+                  {REAL_DECK_LIST.map((deck) => (
+                    <option value={`real:${deck.id}`} key={deck.id}>{deck.title}</option>
                   ))}
                 </select>
               </label>

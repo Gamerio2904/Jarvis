@@ -9,7 +9,7 @@ Der Test-Build `18.31.7` ergänzt das Yu-Gi-Oh!-Duell um Policy-Gradient-Trainin
 
 ### `18.31.7` — Duel-KI und Effektketten — *CODE + TEST-APK*
 
-Softmax-Policy-Gradient auf synthetischen Episoden (120 Läufe im UI), Gewichte
+Neu: 46 echte Structure Decks, 25 davon als zufälliger Ultron-Pool. Softmax-Policy-Gradient auf synthetischen Episoden (120 Läufe im UI), Gewichte
 lokal persistiert und von Jarvis im nächsten Duell verwendet. Separater
 Holdout-Bericht aus 100 synthetischen Baseline-Duellen. Fünf erkannte
 Effektformen, priorisierte Chain-Links mit Negation, vereinfachte Fusion-/

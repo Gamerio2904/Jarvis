@@ -378,3 +378,30 @@ test('Das Netz steuert Jarvis im echten Duell: gültiger Zug, Zugwechsel, nie di
   }
   assert.throws(() => runNetJarvisTurn(createDuel(deck(), deck()), { inputs: 1, hidden: 0, params: [] }), /Architektur/)
 })
+
+test('Echte Structure Decks: gültige Größen, Ultron-Pool mit 25 Decks, Zufallswahl variiert', async () => {
+  const { REAL_DECK_LIST, ULTRON_DECK_POOL, buildRealDeck, pickUltronDeck } = await import('../src/engine/yugioh-deck-library.ts')
+  assert.ok(REAL_DECK_LIST.length >= 40)
+  assert.equal(ULTRON_DECK_POOL.length, 25)
+  let id = 1
+  const seen = new Set()
+  for (const real of REAL_DECK_LIST) {
+    const { main, extra } = buildRealDeck(real, () => id++)
+    assert.ok(main.length >= 40 && main.length <= 60, `${real.title}: Main ${main.length}`)
+    assert.ok(extra.length <= 15, `${real.title}: Extra ${extra.length}`)
+    for (const card of [...main, ...extra]) {
+      assert.ok(card.name && card.catalogId, `${real.title}: Karte unvollständig`)
+      assert.ok(!seen.has(card.id), 'Kopie-IDs sind eindeutig')
+      seen.add(card.id)
+    }
+  }
+  const stream = seededRandom(11)
+  const picks = new Set(Array.from({ length: 200 }, () => pickUltronDeck(stream).id))
+  assert.ok(picks.size > 10)
+  const mine = buildRealDeck(REAL_DECK_LIST[0], () => id++)
+  const theirs = buildRealDeck(pickUltronDeck(seededRandom(3)), () => id++)
+  const model = trainNetPolicy({ hidden: 16, episodes: 100, seed: 7, validationGames: 10 }).model
+  let state = createDuel(mine.main, theirs.main, seededRandom(5), mine.extra, theirs.extra)
+  state = runNetJarvisTurn({ ...state, phase: 'end' }, model)
+  assert.equal(state.turn, 2)
+})

@@ -72,10 +72,10 @@ unbekannten Archetyp, **übertrifft sie aber nicht**; Unterschiede von
 Engine-KI. Das Netz wurde auf der Spielerseite trainiert.
 das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
 
-### Netz steuert Jarvis, Demo-Decks
+### Netz steuert Jarvis, echte Decks
 
 - Im Deck-Menü wählt man das **Jarvis-Gehirn** (Neuronales Netz oder alte
-  Skript-KI) und das **Jarvis-Deck** (aus dem eigenen Pool oder ein Demo-Archetyp).
+  Skript-KI) und das **Jarvis-Deck** (Ultron-Zufallspool, eigenes Deck oder festes echtes Deck).
   Ist noch kein Netz gespeichert, trainiert die App beim Start kurz eins
   (1500 Episoden) und speichert es lokal.
 - Jarvis' Zug läuft über `runNetJarvisTurn`: Das Brett wird gespiegelt, damit
@@ -86,9 +86,20 @@ das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
 - Simulation (60 Duelle gegen die Heuristik als „Spieler“, wechselnde Decks):
   Netz-Jarvis gewann 20/60, die alte Skript-KI 12/60. Das ist eine Simulation,
   keine Aussage über Spaß oder Turnierstärke.
-- Fünf **Demo-Decks** (Aggro, Control, Combo, Burn, Ausgewogen) laden per Tipp
-  ein spielbares Main-/Extra-Deck ohne YGOPRODeck-Zugriff. Es sind generierte
-  Karten ohne Bilder, keine echten Karten.
+- **Echte Decks:** 46 offizielle TCG-Structure-Decks (Kartenlisten mit echten
+  Stückzahlen aus den Yugipedia-Set-Listen, Kartendaten von YGOPRODeck) sind
+  eingebettet (`yugioh-real-decks.ts`, erzeugt von
+  `scripts/build-ygo-decks.mjs`) und per Tipp ladbar. 14 weitere Structure
+  Decks fehlen, weil Karten (Skill Cards, Tokens, Namensabweichungen) nicht
+  auflösbar waren oder die Größe nicht 40–60/≤15 ergab.
+- **Ultron-Pool:** 25 dieser echten Decks; Jarvis zieht bei jedem Duell zufällig
+  eines und nennt es im Hinweis. Alternativ: eigenes Deck oder ein festes Deck.
+- Eingebettet sind Name, Typ, ATK/DEF, Stufe und die geparsten Effekte, nicht
+  der Kartentext. Bilder werden zur Laufzeit von images.ygoprodeck.com geladen
+  (Netz nötig). Die Banlist gilt nur im Deckbuilder, nicht für diese Decks.
+  Nicht unterstützte Effekte (alles außer Ziehen/Schaden/Heilen/Zerstören/
+  Negieren) werden als Karte ohne Effekt gespielt.
+- Die generierten Archetyp-Decks dienen weiter nur Training und Auswertung.
 
 ## Bewusste Grenzen
 
