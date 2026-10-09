@@ -1,15 +1,13 @@
-# 105 — Yu-Gi-Oh! Regeln, Effekte und Kartentext-Treue **PLAN** (`18.46`–`18.51`)
+# 105 — Yu-Gi-Oh! Regeln, Effekte und Kartentext-Treue **CODE** (`18.46`–`18.51`)
 
 **Bedingung:** Das Duell soll sich **näher am TCG** anfühlen als der heutige Prototyp:
 regelkonforme Züge und Ketten, **deutlich mehr spielbare Karteneffekte** in echten
 Decks, und Effekte, die dem **offiziellen Kartentext** (PSCT/Errata) folgen — nicht
 nur generischen Regex-Mustern auf Englisch.
 
-**Planungsstand:** **PLAN**. Baut auf Test-Build **`18.45.0`** (Plan 104, Sprints
-503–510 **CODE**) auf. Plan 104 bleibt für KI/Self-Play; Plan 105 adressiert die
-**Simulationslücke** gegenüber echtem Yu-Gi-Oh! (siehe [`yugioh-duel.md`](./yugioh-duel.md)
-§ Bewusste Grenzen). Keine Version `18.46.x` ist freigegeben, bis das jeweilige
-Gate bestanden ist.
+**Planungsstand:** **CODE** (Release **`18.51.0`**, Sprints 511–530). Baut auf
+**`18.45.0`** (Plan 104) auf. Gates: `test:yugioh-duel`, `test:yugioh-rules`,
+`test:yugioh-fidelity` grün; `engineStamp` **`18.51.0-ygo-tcg`**.
 
 **Ist-Stand (gemessen / im Code):**
 

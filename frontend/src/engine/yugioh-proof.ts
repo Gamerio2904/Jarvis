@@ -1,9 +1,11 @@
-import { duelStateVector } from './yugioh-duel.ts'
+import { deckEffectCoverage, duelStateVector } from './yugioh-duel.ts'
+import { generateDeck, TRAINING_ARCHETYPES } from './yugioh-decks.ts'
+import { deckFidelityScore } from './yugioh-psct.ts'
 import type { LeagueEntry } from './yugioh-league.ts'
 import { createDefaultLeague, updateLeagueRatings } from './yugioh-league.ts'
 import { aggregateReviewStats, findMistakeCandidates } from './yugioh-review.ts'
 import type { NetModel } from './yugioh-net.ts'
-import { validateNetModel } from './yugioh-net.ts'
+import { seededRandom, validateNetModel } from './yugioh-net.ts'
 import { SEARCH_PROFILES } from './yugioh-search.ts'
 import {
   DEFAULT_AGENT,
@@ -13,7 +15,7 @@ import {
 } from './yugioh-selfplay.ts'
 
 export const PROOF_FORMAT = 'jarvis-yugioh-proof-v1' as const
-export const ENGINE_STAMP = '18.45.0-ygo-sim'
+export const ENGINE_STAMP = '18.51.0-ygo-tcg'
 
 export const PUBLIC_HOLDOUT_SEEDS = [101, 202, 303, 404, 505, 606, 707, 808] as const
 /** Only used inside verify — not written into the public test block of the proof. */
@@ -56,6 +58,7 @@ export type YugiohProofFile = {
   trainingCurve: number[]
   reviewSummary: ReturnType<typeof aggregateReviewStats>
   mistakeCount: number
+  fidelity: { deckCoverage: number; psctScore: number; schemaVersion: number }
 }
 
 export function wilsonInterval(wins: number, games: number, z = 1.96): { low: number; high: number } {
@@ -163,6 +166,9 @@ export function buildProofFile(options: BuildProofOptions): YugiohProofFile {
     games: measurements[0].games,
     seeds: publicSeeds,
   })
+  const generated = generateDeck(TRAINING_ARCHETYPES[0], seededRandom(42))
+  const coverage = deckEffectCoverage(generated.main)
+  const psctScore = deckFidelityScore(generated.main, (card) => (card.effect ? { effect: card.effect } : null))
   return {
     format: PROOF_FORMAT,
     createdAt: new Date().toISOString(),
@@ -186,6 +192,11 @@ export function buildProofFile(options: BuildProofOptions): YugiohProofFile {
     trainingCurve: options.trainingCurve ?? [],
     reviewSummary,
     mistakeCount: mistakes.length,
+    fidelity: {
+      deckCoverage: coverage.ratio,
+      psctScore,
+      schemaVersion: coverage.schemaVersion,
+    },
   }
 }
 

@@ -103,6 +103,7 @@ test('Battle berechnet Kampfschaden, zerstört das schwächere Monster und verhi
   const jarvisMonster = { ...base.jarvis.hand[0], id: 800, atk: 1500 }
   const state = {
     ...base,
+    turn: 2,
     phase: 'battle',
     player: { ...base.player, monsters: [playerMonster] },
     jarvis: { ...base.jarvis, monsters: [jarvisMonster] },
@@ -436,11 +437,11 @@ test('Monster verdeckt in Verteidigung setzen, Verteidigung greift nicht an, Kam
   assert.equal(placed.faceDown, true)
   assert.equal(placed.position, 'defense')
   assert.throws(() => changePos(state, placed.id), /bereits/)
-  state = { ...state, phase: 'battle' }
+  state = { ...state, turn: 2, phase: 'battle' }
   assert.throws(() => selectAttacker(state, placed.id), /Verteidigung/)
   const attackerCard = { ...deck(1, 2500)[0], id: 700, position: 'attack', faceDown: false }
   const defender = { ...deck(1, 1000)[0], id: 701, def: 2000, position: 'defense', faceDown: true }
-  const fight = { ...state, player: { ...state.player, monsters: [attackerCard] }, jarvis: { ...state.jarvis, monsters: [defender], spells: [] } }
+  const fight = { ...state, turn: 2, player: { ...state.player, monsters: [attackerCard] }, jarvis: { ...state.jarvis, monsters: [defender], spells: [] } }
   const result = attack(selectAttacker(fight, 700), 701)
   assert.equal(result.jarvis.lp, 8000, 'kein Schaden gegen DEF-Position')
   assert.equal(result.jarvis.graveyard.some((c) => c.id === 701), true)
@@ -603,6 +604,7 @@ test('Zugsuche: spielt ein Lethal über mehrere Aktionen (Beschwören, Battle Ph
   let state = duelWith(
     { monsters: [monster], hand: [{ ...deck(1)[0], id: 901 }], normalSummonUsed: false },
     { monsters: [], lp: 1000, spells: [], hand: [], deck: deck(10) },
+    { turn: 2 },
   )
   const random = netEngine.seededRandom(1)
   let deepest = 0
@@ -723,7 +725,7 @@ test('Review: Fehlerkandidaten brauchen Beleg aus dem Protokoll', () => {
 
 test('Nachweis: Verify erkennt manipulierten Hash', () => {
   const model = createNetModel(8, 3)
-  const proof = proofEngine.buildProofFile({ appVersion: '18.45.0', model, gatePassed: true, gateReason: 'test' })
+  const proof = proofEngine.buildProofFile({ appVersion: '18.51.0', model, gatePassed: true, gateReason: 'test' })
   const ok = proofEngine.verifyProofFile(proof, model)
   assert.equal(ok.hashOk, true)
   const tampered = { ...proof, weightsSha256: 'deadbeef' }

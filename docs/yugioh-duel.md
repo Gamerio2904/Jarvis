@@ -130,18 +130,16 @@ letzte Aktion (setzt Karte, beschwört, greift an); bei STOP „pausiert“. Sel
 Zugsuche, Dev-Umschalter, Review, Nachweis und Verify sind in **`18.45.0`**
 implementiert — siehe [`104-next.md`](./104-next.md).
 
+Plan **105** (Sprints **511–530**, **`18.51.0`**) ist als **TCG-Subset** umgesetzt:
+EMZ/MMZ-Kapazität über Link, Turn-1 ohne Battle Phase, Spell Speed 2/3 in Ketten,
+Banish-Zone, erweiterte Effektarten (Banish, Bounce, Mill, Field-Aura), Schema v2
+mit Coverage-/Fidelity-Metriken im Nachweis. Details: [`105-next.md`](./105-next.md).
+
 ## Was noch fehlt (geplant)
 
-Näher am **echten TCG** sind drei Schienen in [`105-next.md`](./105-next.md)
-(**PLAN**, Sprints 511–530):
-
-1. **Regelkomplettheit** — Zonen (EMZ/MMZ/Link), Turn-1-Battle, Ketten/Spell Speed,
-   Kosten, Banish, vollständigere Kampfphase.
-2. **Effektabdeckung** — von ~31 % simulierten Karten deutlich hoch; Field/Continuous,
-   mehr Effektarten, Structure-Decks mit messbarer Deck-Coverage.
-3. **Fidelity** — PSCT/Errata, Zielwahl, OPT/HOPT, Gold-Kartenkorpus statt Regex-only.
-
-Bis dahin gilt der Abschnitt **Bewusste Grenzen** unten.
+Pendel, vollständiges PSCT pro Karten-ID, Zielwahl-UI für alle Texte, Competitive-
+Edge-Cases und offizielle Judge-Rulings bleiben außerhalb des Scope — siehe
+**Bewusste Grenzen** unten.
 
 ## Self-Play und Zugsuche (Engine, ohne UI)
 
@@ -173,18 +171,18 @@ die eingebaute Baseline. Das ist weder Training auf vollständigen echten
 Karten-/Duellverläufen noch eine Aussage über Turnier-Winrate oder
 Generalisierung.
 
-Die Effekt-Erkennung bleibt bewusst heuristisch und deckt nur generische Muster
-ab. Kosten, harte Timingfenster, explizite Zielauswahl aus Freitext, Errata und
-viele Spezialfälle offizieller Rulings sind nicht vollständig abgebildet.
-Negation zielt auf das letzte Kettenglied; Feldzauber-Effekte werden nicht
-simuliert; erste-Zug-Battle-Verbote fehlen; Extra-Monsterzonen und viele
-Turnierdetails sind vereinfacht.
+Die Effekt-Erkennung bleibt heuristisch (Schema v2 + PSCT-Atome), deckt aber nicht
+alle ~1395 Karten ab. Unklare OPT-Texte sind fail-closed. Explizite Spielerauswahl
+für Ziele fehlt oft noch; Errata-Tabelle ist minimal. Viele Turnier-Edge-Cases
+(Pendel, Kettendetails, gleichzeitige Effekte nur grob) sind vereinfacht.
 
 ## Prüfen
 
 ```bash
 cd frontend
 npm run test:yugioh-duel
+npm run test:yugioh-rules
+npm run test:yugioh-fidelity
 npm run build
 ```
 
@@ -197,7 +195,6 @@ Android-Gerätebedienung müssen zusätzlich am Zielgerät manuell geprüft werd
 
 ## Version / APK
 
-App-Version **`18.45.0`**, Android `versionCode 184500`, debug-signierter
-Test-Build (Self-Play 503–510). Geräteabnahme offen. Build: `./build-apk.sh`;
-Sideload: `releases/Jarvis.apk`. Regel-/Effekt-Ausbau: Plan **105** (noch nicht
-gebaut).
+App-Version **`18.51.0`**, Android `versionCode 185100`, debug-signierter
+Test-Build (Self-Play 503–510 + TCG-Subset 511–530). Build: `./build-apk.sh`;
+Sideload: `releases/Jarvis.apk`.

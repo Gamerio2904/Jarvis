@@ -1,6 +1,6 @@
 # Sprint 516 — Kosten und Aktivierungsbedingungen
 
-**Version:** `18.47.0` — **PLAN** Must  
+**Version:** `18.47.0` — **CODE** Must  
 **Plan:** [`../105-next.md`](../105-next.md) · Säule **Regel**  
 **Voraussetzung:** siehe Abhängigkeiten in Plan 105.
 

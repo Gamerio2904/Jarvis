@@ -1,6 +1,6 @@
 # Sprint 525 — PSCT-Atommodell
 
-**Version:** `18.50.0` — **PLAN** Must  
+**Version:** `18.50.0` — **CODE** Must  
 **Plan:** [`../105-next.md`](../105-next.md) · Säule **Fidelity**  
 **Voraussetzung:** siehe Abhängigkeiten in Plan 105.
 

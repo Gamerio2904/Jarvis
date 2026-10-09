@@ -1,6 +1,6 @@
 # Sprint 521 — Archetyp-Muster erweitern
 
-**Version:** `18.48.0` — **PLAN** Must  
+**Version:** `18.48.0` — **CODE** Must  
 **Plan:** [`../105-next.md`](../105-next.md) · Säule **Effekt**  
 **Voraussetzung:** siehe Abhängigkeiten in Plan 105.
 

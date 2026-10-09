@@ -8,6 +8,8 @@ import {
   createDuel,
   DUEL_STRATEGIES,
   findMaterialsForExtra,
+  hasFreeMonsterZone,
+  isFirstTurnBattleBlocked,
   passDuelChain,
   selectAttacker,
   summonExtraMonster,
@@ -139,7 +141,7 @@ export function candidateActions(state: DuelState): DuelAction[] {
           if (card.kind !== 'monster') continue
           const tributes = tributesNeeded(card)
           if (player.monsters.length < tributes) continue
-          if (player.monsters.length - tributes + 1 > 5) continue
+          if (!hasFreeMonsterZone(player.monsters, tributes)) continue
           const sacrificed = [...player.monsters].sort((a, b) => (a.atk || 0) - (b.atk || 0)).slice(0, tributes)
           const features = base('summon', context, false)
           features[featureIndex.atk] = (card.atk || 0) / 3000
@@ -150,14 +152,14 @@ export function candidateActions(state: DuelState): DuelAction[] {
       }
       for (const card of player.extraDeck) {
         const materials = findMaterialsForExtra(card, player.monsters)
-        if (!materials || player.monsters.length - materials.length + 1 > 5) continue
+        if (!materials || !hasFreeMonsterZone(player.monsters, materials.length)) continue
         const features = base('extra', context, false)
         features[featureIndex.atk] = (card.atk || 0) / 3000
         features[featureIndex.def] = (card.def || 0) / 3000
         features[featureIndex.materials] = materials.length / 5
         actions.push({ kind: 'extra', cardId: card.id, materials: materials.map((monster) => monster.id), features })
       }
-    } else {
+    } else if (!isFirstTurnBattleBlocked(state)) {
       for (const attacker of player.monsters) {
         if (state.attacked.includes(attacker.id) || attacker.position === 'defense' || attacker.faceDown) continue
         if (!state.jarvis.monsters.length) {
