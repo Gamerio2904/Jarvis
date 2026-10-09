@@ -1,12 +1,21 @@
-# Android-APK — Test-Build `18.31.5`
+# Android-APK — Test-Build `18.31.7`
 
-Test-Build **`18.31.5`** (versionCode `183105`), debug-signiert:
+Test-Build **`18.31.7`** (versionCode `183107`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Die Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
 keine finale Release-Freigabe. Die Änderungen seit 18.31.3 und die Testschritte
 für 18.31.4/18.31.5 stehen in der
 [detaillierten Testanleitung](./testanleitung-18-31-4-5.md).
+
+**Neu in 18.31.7:** Yu-Gi-Oh!-Duel-KI mit lokalem Policy-Gradient-Training,
+Holdout-Winrate gegen Baseline, begrenzten Effekten und Chain-Links,
+vereinfachten Fusion-/Synchro-/Xyz-/Link-Beschwörungen sowie Animationen.
+Kein Turnier-RL: Details und Regelgrenzen in
+[`yugioh-duel.md`](./yugioh-duel.md).
+
+**18.31.6:** Sprachtrigger, responsive Duell-Overlay, Deckeditor und
+YGOPRODeck-Kartensuche.
 
 **Neu seit 18.31.3:** 18.31.4 ergänzt Review-Fixes, Pflichtfeld-Rückfragen,
 responsive Geräteklassen und Datensatz-Governance. 18.31.5 ergänzt Tabletmodus,

@@ -73,6 +73,7 @@ import { VoiceMode } from './ui/VoiceMode.tsx'
 import { SettingsScreen, type SettingsTopic } from './ui/SettingsScreen.tsx'
 import { DriveMode } from './ui/DriveMode.tsx'
 import { ChessMode } from './ui/ChessMode.tsx'
+import { YugiohDuel } from './ui/YugiohDuel.tsx'
 import { Lage } from './ui/lage/Lage.tsx'
 import { WakeBubble } from './ui/WakeBubble.tsx'
 import { ToolChip } from './ui/ToolChip.tsx'
@@ -126,6 +127,7 @@ import { TabletShell, TABLET_HEARD, TABLET_SHOW_TODOS } from './ui/TabletShell.t
 import { isTodoQuery, todoSpeech, wakeAck } from './engine/tablet-todos.ts'
 import { useTabletRuntime } from './ui/useTabletRuntime.ts'
 import { enterTabletMode, leaveTabletMode } from './engine/tablet-runtime.ts'
+import { isYugiohDuelTrigger } from './engine/yugioh-parse.ts'
 
 function opensDriveOverlay(tool?: ToolMeta | null): boolean {
   if (!tool) return false
@@ -357,6 +359,7 @@ function App() {
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
   const [chessOpen, setChessOpen] = useState(false)
+  const [yugiohOpen, setYugiohOpen] = useState(false)
   const [overlay, setOverlay] = useState(OVERLAY_INIT)
   const voiceOpenRef = useRef(false)
   const micDeniedRef = useRef(false)
@@ -466,6 +469,19 @@ function App() {
 
   function closeSheet(id: OverlayId) {
     patchOverlay({ type: 'drop', id })
+  }
+
+  function openYugiohDuel() {
+    setYugiohOpen(true)
+    setSettingsPanelOpen(false)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    setShoppingOpen(false)
+    setNotesOpen(false)
+    setTodosOpen(false)
+    setChessOpen(false)
+    setDriveOpen(false)
+    closeVoice(true)
   }
 
   function dropOverlayHistory() {
@@ -1563,6 +1579,12 @@ function App() {
   ): Promise<{ reply: string; tool?: ToolMeta; error?: string }> {
     const source: TurnSource = opts?.source || 'user'
     if (!content) return { reply: '' }
+    if (isYugiohDuelTrigger(content)) {
+      openYugiohDuel()
+      const reply = 'Herausforderung angenommen. Es ist Zeit für ein Duell!'
+      void speakText(reply)
+      return { reply }
+    }
     const conversationHint = opts?.conversationId || activeIdRef.current || undefined
     const ticket = beginTurn({ source, content, conversationId: conversationHint, requestId: opts?.requestId })
     if (!ticket.ok) {
@@ -1876,6 +1898,11 @@ function App() {
     opts?: { preempt?: boolean },
   ): Promise<string> {
     if (!content) return ''
+    if (isYugiohDuelTrigger(content)) {
+      openYugiohDuel()
+      window.setTimeout(() => void speakText('Herausforderung angenommen. Es ist Zeit für ein Duell!'), 180)
+      return ''
+    }
     let conversationId = await ensureConversation()
     const ticket = beginTurn({
       source: 'voice',
@@ -2601,6 +2628,7 @@ function App() {
             initialUtterance={voiceSeed}
           />
         ) : null}
+        {yugiohOpen ? <YugiohDuel onClose={() => setYugiohOpen(false)} /> : null}
         {homeOpen && !driveOpen && !chessOpen ? (
           <HomeScreen
             face="ultron"

@@ -512,7 +512,7 @@ sind.
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Test-APK `18.31.5` / versionCode `183105`; finale Geräteabnahme
+**Stände:** Test-APK `18.31.7` / versionCode `183107`; finale Geräteabnahme
 offen. Rework 444–466: [`../100-next.md`](../100-next.md). Folgeschienen
 467–482: [`../101-next.md`](../101-next.md) und 483–494:
 [`../102-next.md`](../102-next.md). Ältere Sprintfolgen bleiben historisch.

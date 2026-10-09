@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Stände:** Test-APK `18.31.5` / versionCode `183105`; Android-Geräteabnahme und Release-Freigabe sind offen. Notizen/Todos (431–443), Tischplatten-Rework (444–466) und Tablet-/Hausstand-Basis (18.31.5) sind im Code enthalten. Geplante Reihenfolge: [`101-next.md`](./101-next.md), Sprints 467–482 (`18.32.0`–`18.35.0`); danach [`102-next.md`](./102-next.md), Sprints 483–494 (`18.36.0`–`18.38.0`) für sicheren Tablet-Server, automatischen Hausstand-Abgleich und Planung/Sprints auf zwei Geräten; anschließend Vorschlagsfolge [`103-next.md`](./103-next.md), Sprints 495–502 (`18.39.0`–`18.41.0`) zur robusteren Projektplanung. Keine dieser Planungen ist eine Release-Freigabe.
+**Stände:** Test-APK `18.31.7` / versionCode `183107`; Android-Geräteabnahme und Release-Freigabe sind offen. Notizen/Todos (431–443), Tischplatten-Rework (444–466), Tablet-/Hausstand-Basis (18.31.5) und der Duellprototyp samt weiterem KI-/Effektumfang (18.31.6–18.31.7) sind im Code enthalten. Details, Trainingsumfang und Grenzen: [`yugioh-duel.md`](./yugioh-duel.md). Geplante Reihenfolge: [`101-next.md`](./101-next.md), Sprints 467–482 (`18.32.0`–`18.35.0`); danach [`102-next.md`](./102-next.md), Sprints 483–494 (`18.36.0`–`18.38.0`) für sicheren Tablet-Server, automatischen Hausstand-Abgleich und Planung/Sprints auf zwei Geräten; anschließend Vorschlagsfolge [`103-next.md`](./103-next.md), Sprints 495–502 (`18.39.0`–`18.41.0`) zur robusteren Projektplanung. Keine dieser Planungen ist eine Release-Freigabe.
 
 Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Zwei Fenster, Handy per Satz: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md), bestehende Basis `18.25.12`/`18.25.13`; Ausbau für sichere Projekt-/Sprintansicht: [`102-next.md`](./102-next.md). Bestehende Hausstand-Sync-Basis und Vorgängerplanung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Der alte Teilplan „Tischplatte lesbar“ ist in den Tischplatten-Rework [`100-next.md`](./100-next.md) integriert. [`formulierung-plan.md`](./formulierung-plan.md) bleibt ein unpriorisierter, noch nicht gebauter Plan und muss vor Umsetzung mit dem Routing-Gate 467–470 abgeglichen werden. Historische Flächen-Bugs: [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
 
@@ -110,7 +110,7 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | 100 | [Tischplatte-Rework](./100-next.md) | **CODE; Geräte-Gate offen** `18.28.0`–`18.31.0` — Stabilität, Intake/Research, sichere Simulationen, WBS und Exporte; Sprints 444–466 |
 | 101 | [Ultron, Soup und Modellqualität](./101-next.md) | **PLAN** `18.32.0`–`18.35.0` — Routing, Planung, Rückfragen und Sprachantworten; Sprints 467–482 |
 | 102 | [Tablet-Server und zweiter Bildschirm](./102-next.md) | **PLAN** `18.36.0`–`18.38.0` — sicherer Sync, Versionshandshake, Planung/Sprints auf Handy und Tablet; Sprints 483–494 |
-| — | [Stände 18.25.1–18.31.5](./09-versioning.md) | **CODE + Test-APK** `18.31.5`, Geräte-Gate offen |
+| — | [Stände 18.25.1–18.31.7](./09-versioning.md) | **CODE + Test-APK** `18.31.7`, Geräte-Gate offen |
 | — | [Test 18.26](./TEST-18.26.md) | **PLAN** — Notizen-GUI, Sprachzugriff und belegbarer Rückruf |
 | — | [Test 18.27](./TEST-18.27.md) | **PLAN** — Todo-Listen, Swipe-Aktionen, Deadline und Abfrage bis morgen |
 | — | [Test 18.28](./TEST-18.28.md) | **PLAN** — Projektzustand, Routing, PSP/Sprints und Resume |
@@ -126,7 +126,7 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | — | [Test 18.24](./TEST-18.24.md) | Portfolio-Sätze, in der App ab `18.24.0` |
 | — | [Test 18.24.6](./TEST-18.24.6.md) | Raum- und Objekt-Scan, Sideload `18.24.7` |
 | — | [Test 18.25](./TEST-18.25.md) | Entwurf-Sätze, in der App ab `18.25.0` |
-| — | [APK](./apk.md) | Test-Build `18.31.5` / versionCode `183105`; Geräte-Gate offen: [`TEST-18.31.md`](./TEST-18.31.md) |
+| — | [APK](./apk.md) | Test-Build `18.31.7` / versionCode `183107`; Geräte-Gate offen: [`yugioh-duel.md`](./yugioh-duel.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -390,6 +390,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | — | `18.25.13` | **CODE + APK** Kopplung im Hintergrund, Planungsbildschirm |
 | — | — | Tischplatte lesbar: historischer Teilplan, in [`100-next.md`](./100-next.md) Sprints 444–466 integriert |
 | — | `18.31.5` | **CODE; Geräteabnahme offen** Tablet-Server, QR-Kopplung und Zeitstempel-Sync; sichere Weiterentwicklung in [`102-next.md`](./102-next.md) |
+| — | `18.31.6` | **CODE + Test-APK; Geräteabnahme offen** Yu-Gi-Oh!-Duellprototype |
+| — | `18.31.7` | **CODE + Test-APK; Geräteabnahme offen** Policy-Gradient-Training, Winrate, Effektketten und Extra-Deck |
 | — | unpriorisiert | **PLAN** Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md); vor Start mit 467–470 abgleichen |
 
-**Stände:** Test-APK `18.31.5` / `183105`; finale Geräteabnahme offen. Umsetzung Tischplatte 444–466 und Tablet-/Hausstand-Basis liegen im Code. Folgeschienen 467–482 (`101-next.md`) und 483–494 (`102-next.md`) sind PLAN. Vorheriger Plan: [`100-next.md`](./100-next.md). Historische Hausstand-Planung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Index: [`42-planned.md`](./42-planned.md).
+**Stände:** Test-APK `18.31.7` / `183107`; finale Geräteabnahme offen. Umsetzung Tischplatte 444–466 und Tablet-/Hausstand-Basis liegen im Code; Duell-KI/Regelabgrenzung steht in [`yugioh-duel.md`](./yugioh-duel.md). Folgeschienen 467–482 (`101-next.md`) und 483–494 (`102-next.md`) sind PLAN. Vorheriger Plan: [`100-next.md`](./100-next.md). Historische Hausstand-Planung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Index: [`42-planned.md`](./42-planned.md).

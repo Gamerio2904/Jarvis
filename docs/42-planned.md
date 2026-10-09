@@ -1,6 +1,6 @@
 # 42 — Historischer Planungsindex
 
-> **Aktueller Stand:** Test-Build `18.31.5` / versionCode `183105`;
+> **Aktueller Stand:** Test-Build `18.31.7` / versionCode `183107`;
 > Geräteabnahme und Release-Freigabe offen. Die aktuellen, maßgeblichen Pläne
 > sind [`100-next.md`](./100-next.md) (444–466, im Test-Build enthalten),
 > [`101-next.md`](./101-next.md) (467–482, PLAN) und

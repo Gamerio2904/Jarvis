@@ -1,6 +1,6 @@
 # Ultron — Architekturüberblick
 
-Stand: App-Code **18.31.5**. Diese Datei beschreibt die bestehende Planungsarchitektur und den aktuellen Hausstand-/Tablet-Unterbau, nicht die noch geplanten Ausbaustufen. Der lokale Arbeitsbaum enthält zusätzliche, noch nicht als Release abgenommene Änderungen; maßgeblich für die Folgeschritte ist [`docs/102-next.md`](docs/102-next.md).
+Stand: App-Code **18.31.7**. Diese Datei beschreibt die bestehende Planungsarchitektur und den aktuellen Hausstand-/Tablet-Unterbau, nicht die noch geplanten Ausbaustufen. Der lokale Arbeitsbaum enthält zusätzliche, noch nicht als Release abgenommene Änderungen; maßgeblich für die Folgeschritte ist [`docs/102-next.md`](docs/102-next.md).
 
 Ultron ist eine Android-App (Capacitor-WebView) plus dieselbe Oberfläche im Browser. Es gibt keinen separaten Anwendungs-Server. Hirn, Agenten, Planung und Speicher laufen in TypeScript im Client.
 
@@ -124,3 +124,27 @@ Gespeichert wird das als `Idea.plan` (`IdeaPlan` in `idea-plan.ts`) in der Index
 - Der Fill ist ein einzelner JSON-Abschluss. Es gibt keine Kette aus vier Planern und kein Tool-Schema für den Plan.
 - Zustand zwischen den Planungsschritten liegt in `ideas.plan` und `jarvis_settings_v13`. Der Hausstand-Sync kann diese Daten übertragen, entscheidet aber noch nach `stand_at`; Projekt-/Sprintansichten werden nicht gezielt auf einem zweiten Gerät geöffnet. Die Fenster-Kopplung bleibt ein separater Kanal.
 - `prompt` ist Text zum Kopieren, kein Start eines Programmier-Agenten in der App.
+
+## 4. Yu-Gi-Oh!-Duell (`18.31.6`–`18.31.7`)
+
+Das Duell ist ein lokales React-Overlay (`frontend/src/ui/YugiohDuel.tsx`) mit
+separater Regellogik (`frontend/src/engine/yugioh-duel.ts`). Der festgelegte
+Sprachsatz wird vor dem LLM-Routing erkannt. Kartensuche und Bilder kommen auf
+Anfrage direkt von YGOPRODeck; Main- und Extra-Deck liegen im lokalen
+`localStorage`. Die drei statischen Strategie-Vektoren (Aggro, Control, Combo)
+werden beim Laden uniform gemittelt und für eine einfache deterministische
+Monsterwahl verwendet. Das ist **kein trainiertes neuronales Modell** und kein
+abgeschlossenes Reinforcement-Learning-/Winrate-Projekt.
+
+Die Umsetzung bildet Eröffnungs-Hand, Züge, Phasen, LP, Normal-/Tribut-
+Beschwörung, Monster-Kampf, Friedhof und Deck-out ab. Seit `18.31.7` führt ein
+begrenzter textbasierter Effect-Adapter Ziehen, Schaden, LP-Gewinn, Zerstörung
+und Negation über priorisierte Chain-Links aus. Fusion/Synchro/Xyz/Link
+verbrauchen vereinfachte Materialien. Das Trainingslabor optimiert dieselbe
+lineare Policy mit episodischem Softmax-Policy-Gradient auf synthetischen
+Duellen, persistiert die resultierenden Gewichte und misst eine getrennte
+Holdout-Winrate gegen die eingebaute Baseline. Animationen respektieren
+`prefers-reduced-motion`. Das sind keine vollständigen offiziellen Regeln,
+keine realen Karten-Trainingsdaten und keine Turnier-Winrate. Die komplette
+Funktionsabgrenzung und Tests stehen in
+[`docs/yugioh-duel.md`](docs/yugioh-duel.md).

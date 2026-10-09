@@ -8,7 +8,7 @@ import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 import { recordLocalRevision } from './sync-revisions.ts'
 
-export const APP_VERSION = '18.31.5'
+export const APP_VERSION = '18.31.7'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(

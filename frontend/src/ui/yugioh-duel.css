@@ -1,0 +1,606 @@
+.ygo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  color: #f5f2ed;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(134, 29, 43, 0.22), transparent 56%),
+    #111114;
+  font-family: Manrope, system-ui, sans-serif;
+}
+
+.ygo-header,
+.ygo-player-line,
+.ygo-duel-status,
+.ygo-deck-counts,
+.ygo-builder-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ygo-header {
+  flex: 0 0 auto;
+}
+
+.ygo-header h1 {
+  margin: 0;
+  font-size: clamp(20px, 5vw, 30px);
+}
+
+.ygo-eyebrow {
+  margin: 0 0 4px;
+  color: #ed5363;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+.ygo-close,
+.ygo-overlay button {
+  min-height: 38px;
+  border: 1px solid rgba(244, 235, 228, 0.16);
+  border-radius: 10px;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.06);
+  font: inherit;
+}
+
+.ygo-close {
+  padding: 0 13px;
+  white-space: nowrap;
+}
+
+.ygo-overlay button:not(:disabled) {
+  cursor: pointer;
+}
+
+.ygo-overlay button:disabled {
+  opacity: 0.45;
+}
+
+.ygo-builder,
+.ygo-game {
+  width: min(100%, 920px);
+  margin: 0 auto;
+}
+
+.ygo-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ygo-builder-summary {
+  position: sticky;
+  top: -1px;
+  z-index: 2;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(21, 21, 25, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.ygo-builder-summary > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 90px;
+}
+
+.ygo-builder-summary strong {
+  color: #fff;
+  font-size: 20px;
+}
+
+.ygo-builder-summary span,
+.ygo-muted,
+.ygo-disclaimer,
+.ygo-card small {
+  color: #aaa7aa;
+  font-size: 11px;
+}
+
+.ygo-card .ygo-effect-label {
+  color: #e8c776;
+  white-space: normal;
+}
+
+.ygo-primary,
+.ygo-next-phase {
+  padding: 0 15px;
+  font-weight: 800 !important;
+}
+
+.ygo-primary {
+  border-color: #c93447 !important;
+  background: #9e2637 !important;
+}
+
+.ygo-next-phase {
+  min-height: 42px !important;
+  border-color: rgba(237, 83, 99, 0.48) !important;
+  background: rgba(174, 37, 56, 0.2) !important;
+}
+
+.ygo-disclaimer {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ygo-search {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #dedbda;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ygo-search input {
+  min-height: 46px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  outline: none;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.055);
+  font: inherit;
+}
+
+.ygo-search input:focus {
+  border-color: #e74659;
+}
+
+.ygo-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 8px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.ygo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  min-width: 82px;
+  min-height: 132px;
+  padding: 6px !important;
+  text-align: left;
+  animation: ygo-card-enter 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.ygo-card img {
+  width: 100%;
+  height: 78px;
+  border-radius: 5px;
+  object-fit: cover;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.ygo-card strong {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.ygo-card small {
+  overflow: hidden;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ygo-card-type {
+  display: grid;
+  height: 78px;
+  place-items: center;
+  border-radius: 5px;
+  color: #e6c48a;
+  background: #28252a;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.ygo-deck-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ygo-deck-lists section {
+  min-width: 0;
+}
+
+.ygo-deck-lists h2 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 7px;
+  font-size: 13px;
+}
+
+.ygo-deck-lists h2 span {
+  color: #aaa7aa;
+  font-size: 11px;
+}
+
+.ygo-deck-entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 31px !important;
+  margin-bottom: 4px;
+  padding: 4px 8px !important;
+  text-align: left;
+  font-size: 10px !important;
+}
+
+.ygo-deck-entry span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ygo-deck-entry small {
+  color: #aaa7aa;
+  white-space: nowrap;
+}
+
+.ygo-game {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ygo-opponent,
+.ygo-player-field {
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.ygo-player-line strong {
+  color: #ed5363;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+}
+
+.ygo-player-line span {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.ygo-deck-counts {
+  justify-content: flex-start;
+  gap: 14px;
+  margin: 5px 0;
+  color: #aaa7aa;
+  font-size: 10px;
+}
+
+.ygo-zone-row {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  min-height: 80px;
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.ygo-zone-label {
+  color: #aaa7aa;
+  font-size: 9px;
+}
+
+.ygo-zone-cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.ygo-zone-cards .ygo-card {
+  min-width: 0;
+  min-height: 72px;
+  padding: 4px !important;
+}
+
+.ygo-zone-cards .ygo-card img,
+.ygo-zone-cards .ygo-card-type {
+  height: 38px;
+}
+
+.ygo-zone-cards .ygo-card strong {
+  font-size: 8px;
+}
+
+.ygo-zone-cards .ygo-card small {
+  font-size: 7px;
+}
+
+.ygo-zone-cards .ygo-empty-slot {
+  min-height: 68px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+}
+
+.ygo-selected-card .ygo-card {
+  border-color: #f5c461;
+  box-shadow: 0 0 12px rgba(245, 196, 97, 0.35);
+}
+
+.ygo-effect-button {
+  width: 100%;
+  min-height: 24px !important;
+  padding: 2px 4px !important;
+  color: #f4d58f !important;
+  font-size: 8px !important;
+}
+
+.ygo-chain,
+.ygo-extra-summon,
+.ygo-training-lab {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid rgba(237, 83, 99, 0.28);
+  border-radius: 12px;
+  background: rgba(174, 37, 56, 0.08);
+  font-size: 11px;
+}
+
+.ygo-chain > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ygo-chain small,
+.ygo-chain p,
+.ygo-training-lab span,
+.ygo-training-lab small,
+.ygo-extra-summon span {
+  color: #bcb5b5;
+}
+
+.ygo-chain .ygo-chain-negated {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.ygo-chain p {
+  margin: 0;
+}
+
+.ygo-extra-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ygo-extra-list button {
+  padding: 0 8px;
+  font-size: 10px;
+}
+
+.ygo-extra-list .is-active {
+  border-color: #f5c461;
+  color: #f5c461;
+}
+
+.ygo-training-lab {
+  border-color: rgba(108, 191, 160, 0.28);
+  background: rgba(58, 143, 109, 0.08);
+}
+
+.ygo-training-lab > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ygo-training-lab p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ygo-overlay[data-last-action="summon"] .ygo-player-field,
+.ygo-overlay[data-last-action="attack"] .ygo-duel-status,
+.ygo-overlay[data-last-action="effect"] .ygo-opponent,
+.ygo-overlay[data-last-action="draw"] .ygo-hand {
+  animation: ygo-action-flash 460ms ease-out;
+}
+
+@keyframes ygo-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(9px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ygo-action-flash {
+  0% {
+    box-shadow: 0 0 0 rgba(242, 89, 106, 0);
+  }
+  45% {
+    box-shadow: 0 0 22px rgba(242, 89, 106, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(242, 89, 106, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ygo-card,
+  .ygo-overlay[data-last-action] .ygo-player-field,
+  .ygo-overlay[data-last-action] .ygo-duel-status,
+  .ygo-overlay[data-last-action] .ygo-opponent,
+  .ygo-overlay[data-last-action] .ygo-hand {
+    animation: none;
+  }
+}
+
+.ygo-duel-status {
+  padding: 9px 12px;
+  border: 1px solid rgba(237, 83, 99, 0.26);
+  border-radius: 12px;
+  color: #d2cbca;
+  background: rgba(174, 37, 56, 0.1);
+  font-size: 11px;
+}
+
+.ygo-duel-status strong {
+  color: #fff;
+  letter-spacing: 0.1em;
+}
+
+.ygo-message,
+.ygo-notice {
+  margin: 0;
+  color: #e5d4d3;
+  font-size: 12px;
+  text-align: center;
+}
+
+.ygo-notice,
+.ygo-error {
+  color: #ff969f;
+}
+
+.ygo-hand {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px 2px;
+}
+
+.ygo-hand > div {
+  flex: 0 0 clamp(70px, 17vw, 108px);
+}
+
+.ygo-hand .ygo-card {
+  width: 100%;
+  min-height: 112px;
+}
+
+.ygo-hand .ygo-card img,
+.ygo-hand .ygo-card-type {
+  height: 65px;
+}
+
+.ygo-hand-selected .ygo-card {
+  border-color: #f5c461;
+  transform: translateY(-5px);
+}
+
+.ygo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ygo-tribute-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  color: #d2cbca;
+  font-size: 10px;
+}
+
+.ygo-tribute-list button {
+  padding: 0 8px;
+  font-size: 10px;
+}
+
+.ygo-tribute-list .is-active {
+  border-color: #f5c461;
+  color: #f5c461;
+}
+
+.ygo-ai-info {
+  color: #aaa7aa;
+  font-size: 10px;
+}
+
+.ygo-ai-info p {
+  line-height: 1.5;
+}
+
+@media (min-width: 760px) {
+  .ygo-overlay {
+    gap: 18px;
+    padding: 22px 30px;
+  }
+
+  .ygo-game {
+    gap: 13px;
+  }
+
+  .ygo-zone-row {
+    grid-template-columns: 100px minmax(0, 1fr);
+    min-height: 94px;
+  }
+
+  .ygo-zone-cards .ygo-card {
+    min-height: 88px;
+  }
+
+  .ygo-zone-cards .ygo-card img,
+  .ygo-zone-cards .ygo-card-type {
+    height: 50px;
+  }
+
+  .ygo-zone-cards .ygo-empty-slot {
+    min-height: 84px;
+  }
+}
+
+@media (max-width: 430px) {
+  .ygo-builder-summary {
+    gap: 7px;
+  }
+
+  .ygo-builder-summary > div {
+    min-width: 0;
+  }
+
+  .ygo-builder-summary span {
+    max-width: 88px;
+  }
+
+  .ygo-zone-row {
+    grid-template-columns: 65px minmax(0, 1fr);
+  }
+
+  .ygo-deck-lists {
+    grid-template-columns: 1fr;
+  }
+}

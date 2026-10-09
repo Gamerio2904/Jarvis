@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** Test-APK **`18.31.5`**, versionCode `183105`; Android-Geräteabnahme offen. Die Sprintfolge 467–482 (`18.32.0`–`18.35.0`) ist in [`101-next.md`](./101-next.md) geplant. Danach ist Tablet-Server, sicherer Hausstand-Sync und Zwei-Bildschirm-Bedienung in [`102-next.md`](./102-next.md) geplant: Sprints 483–494, `18.36.0`–`18.38.0`. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** Test-APK **`18.31.7`**, versionCode `183107`; Android-Geräteabnahme offen. Die Sprintfolge 467–482 (`18.32.0`–`18.35.0`) ist in [`101-next.md`](./101-next.md) geplant. Danach ist Tablet-Server, sicherer Hausstand-Sync und Zwei-Bildschirm-Bedienung in [`102-next.md`](./102-next.md) geplant: Sprints 483–494, `18.36.0`–`18.38.0`. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1017,6 +1017,8 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.25.13` | Kopplung im Hintergrund | keine Nummer, CODE |
 | nach `18.25.13` | Tischplatte lesbar | in `100-next.md` Sprints 448, 450–451 integriert |
 | `18.31.5` | Tablet-Server, QR-Kopplung und Zeitstempel-Sync | CODE + Test-APK; Geräteabnahme offen, Ausbau [`102-next.md`](./102-next.md) |
+| `18.31.6` | Yu-Gi-Oh!-Duellprototype, Kartensuche, Grundregeln und Model-Soup-Baseline | CODE + Test-APK; kein RL-Training, Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
+| `18.31.7` | Synthetisches Policy-Gradient-Training, gemessene Holdout-Winrate, Effektketten, Extra-Deck-Regeln und Animationen | CODE + Test-APK; vereinfachte Spiel-/Kartenregeln, Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**
