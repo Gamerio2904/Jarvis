@@ -26,8 +26,9 @@ eine Release-Freigabe.
 
 1. **Self-Play-Match:** zwei gleiche KI-Instanzen (Klon), je Match zufälliger
    Archetyp/Deck pro Seite, abwechselnd Zug für Zug.
-2. **Zugsuche:** Pro Zug werden Aktionsfolgen mit Beam Search (Tiefe 3–4,
-   Breite 5–6) bewertet; gewählt wird per Softmax mit Temperatur, damit
+2. **Zugsuche:** Pro Zug werden Aktionsfolgen mit Beam Search mit
+   iterativer Vertiefung (Breite 5–6) bewertet, im Spiel bis zur Stabilität des
+   besten Zugs, hart max. 30 s (Training: kleines festes Budget); gewählt wird per Softmax mit Temperatur, damit
    Exploration erhalten bleibt. Gegnerhand wird nur als Stichprobe aus seinem
    Deck geschätzt, nie ausgelesen.
 3. **Live-Darstellung:** Das Duell läuft sichtbar schrittweise; die Blase zeigt
@@ -41,7 +42,7 @@ eine Release-Freigabe.
 
 | Zielversion | Sprints | Schwerpunkt | Freigabe |
 |---|---:|---|---|
-| `18.42.0` | 503–504 | Self-Play-Kern und Zugsuche | Reproduzierbare Matches mit festem Seed; Suche bleibt im Zeitbudget; keine versteckten Gegnerinformationen |
+| `18.42.0` | 503–504 | Self-Play-Kern und Zugsuche | Reproduzierbare Matches mit festem Seed; Suche bleibt in 30 s (Spiel) bzw. Trainingsbudget; keine versteckten Gegnerinformationen |
 | `18.43.0` | 505–506 | Live-Match-Ansicht, Dev-Umschalter | Overlay-Zustand bleibt beim Wechsel; Handy/Tablet-Bedienung; Reduced Motion |
 | `18.44.0` | 507–508 | Protokoll, Review, Lernen, Liga | Neue Version wird nur gespeichert, wenn sie auf festen Holdout-Seeds nicht schlechter ist |
 
