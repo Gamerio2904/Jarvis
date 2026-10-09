@@ -5,16 +5,25 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Der Test-Build `18.31.7` ergänzt das Yu-Gi-Oh!-Duell um Policy-Gradient-Training auf synthetischen Spielen, eine getrennte Baseline-Winrate-Auswertung, ausgewählte Karteneffekte mit Chain-Links, vereinfachte Extra-Deck-Beschwörungen und UI-Animationen. Android-Geräteabnahme und Release-Freigabe bleiben offen; Umfang und Einschränkungen stehen in [`yugioh-duel.md`](./yugioh-duel.md). Der Stand `18.31.5` enthält Tabletmodus, Hausstand-Server und bestehende Zwei-Fenster-Steuerung. Der Arbeitsbaum ergänzt den Hausstand-Kanal um TLS-Zertifikat-Pinning, Bearer-Header sowie eine App-/Protokollprüfung und trennt Tabletmodus vom ausdrücklichen Serverstart. Diese Code-Vorarbeiten sind kein neues freigegebenes APK: Fenster-Steuerung, einheitliches Pairing, kausale Konfliktauflösung und Projekt-/Sprintansichten bleiben offen. Die geplante Qualitätsschiene 467–482 steht in [`101-next.md`](./101-next.md). Danach folgen die vollständigen Sicherheits-, Sync- und Zwei-Bildschirm-Gates in [`102-next.md`](./102-next.md), Sprints 483–494 / Versionen `18.36.0`–`18.38.0`. Der frühere Sync-Plan bleibt als Vorgänger dokumentiert.
+Der Test-Build `18.31.7` wurde für das Yu-Gi-Oh!-Overlay weiter ausgebaut:
+Schrittweiser Jarvis-Zug (`jarvisStep`), sichtbare Zonen inkl. Deck/Extra/Friedhof/Feldzauber,
+Karten-Detail-Modal, Extra-Deck-Overlay, gesetzte Verteidigungsmonster, zusätzliche
+Effektmuster (search/revive/boost/negateAttack/weitere destroy-Ziele), Trap-Unterbrechung
+über STOP/Weiter sowie stärkeres Battle-Feedback in der GUI. Dazu wurden die
+Deckdaten per `scripts/enrich-ygo-effects.mjs` auf aktuelle Effektmuster erweitert
+(430/1395 Karten mit simuliertem Effekt). Android-Geräteabnahme und Release-Freigabe
+bleiben offen; Umfang und Grenzen stehen in [`yugioh-duel.md`](./yugioh-duel.md).
 
-### `18.31.7` — Duel-KI und Effektketten — *CODE + TEST-APK*
+### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 
-Neu: 46 echte Structure Decks, 25 davon als zufälliger Ultron-Pool. Softmax-Policy-Gradient auf synthetischen Episoden (120 Läufe im UI), Gewichte
-lokal persistiert und von Jarvis im nächsten Duell verwendet. Separater
-Holdout-Bericht aus 100 synthetischen Baseline-Duellen. Fünf erkannte
-Effektformen, priorisierte Chain-Links mit Negation, vereinfachte Fusion-/
-Synchro-/Xyz-/Link-Materialprüfung und reduzierte UI-Animationen. Keine
-vollständige Yu-Gi-Oh!-Regelimplementierung; genaue Grenzen in
+Neu: 46 echte Structure Decks, 25 davon als zufälliger Ultron-Pool.
+Softmax-Policy-Gradient und Netztraining mit lokaler Persistenz.
+Jarvis wird im echten Duell schrittweise ausgeführt und kann über STOP/Weiter
+unterbrochen werden, wenn Spielerfallen aktivierbar sind. Das Board zeigt
+Deck/Extra/Friedhof/Feldzauber, Karten-Detail-Popups, Extra-Deck-Overlay
+und Aktivierbarkeits-Glow. Effektabdeckung erweitert (inkl. search, revive,
+boost, negate attack und zusätzliche destroy-Ziele), mit Kettenauflösung und
+Battle-Feedback. Keine vollständige Yu-Gi-Oh!-Regelimplementierung; genaue Grenzen in
 [`yugioh-duel.md`](./yugioh-duel.md).
 
 ### `18.31.6` — Yu-Gi-Oh!-Duellprototype — *CODE + TEST-APK*

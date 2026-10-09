@@ -16,9 +16,9 @@ Materialregeln beschwörbar.
 
 ## Enthaltener Funktionsumfang
 
-- Responsive Vollbild-Overlay für Handy und Tablet mit Jarvis-/Spielerfeld,
-  fünf Monster- und Zauber-/Fallen-Plätzen, Friedhof, Deckzählern, Hand und
-  Statusleiste.
+- Responsive Vollbild-Overlay für Handy und Tablet mit sichtbaren Zonen für
+  Deck, Extra Deck, Friedhof und Spielfeldzauber (beide Seiten), fächerbarer
+  Hand, Phasenleiste und Step-by-Step-Darstellung von Jarvis' Zug.
 - Kartennamensuche, Kartengrafiken und Kartendaten über YGOPRODeck REST API.
   Die Suche beginnt erst ab zwei Zeichen; dafür werden Suchtext und Netzwerk-
   Metadaten an den Drittanbieter übertragen. Es gibt keinen Offline-Katalog.
@@ -31,11 +31,20 @@ Materialregeln beschwörbar.
   Monster), Synchro (Empfänger und passende Gesamtstufe), Xyz (mindestens zwei
   Monster gleicher Stufe) und Link (Materialanzahl mindestens Link-Wert).
   Materialien gehen auf den Friedhof; das Extra-Deck wird lokal verwaltet.
-- Begrenzte Effektunterstützung über Kartentext-Erkennung: ziehen, Schaden,
-  LP-Gewinn, ein gegnerisches Monster zerstören und Negation des letzten
-  Kettenglieds. Ketten bekommen fortlaufende IDs, gegnerische Priorität,
-  Pass-Fenster und LIFO-Auflösung. Jarvis reagiert auf unterstützte
-  Negationskarten.
+- Effektunterstützung über Kartentext-Erkennung inkl. Ketten: ziehen, Schaden,
+  LP-Gewinn, Negation, Angriffs-Negation, Suche aus dem Deck, Wiederbelebung,
+  temporärer ATK-Boost sowie Zerstören (ein Monster, alle Monster, Angriffs-
+  Positionen oder Zauber/Fallen). Ketten haben Priorität, Pass-Fenster und
+  LIFO-Auflösung. Jarvis kann auf Angriffe und Ketten reagieren.
+- Karten-Details per Tap: eigene Feldkarten immer, gegnerische Feldmonster nur
+  offen. Das Detailfenster zeigt große Grafik, Werte und Kartentext (live
+  aus YGOPRODeck, mit Fallback).
+- Spieleraktionen im Duell: Monster normal beschwören **oder verdeckt in
+  Verteidigung setzen**, Zauber/Fallen setzen, Position wechseln, Effekte
+  aktivieren, Extra-Deck per Overlay (Auto-Material oder manuelle Auswahl).
+- Während Jarvis' Zug läuft der Ablauf verzögert in einzelnen Schritten. Falls
+  eine eigene Falle aktivierbar ist, erscheint ein kleiner **STOP**-Button am
+  Rand zum Unterbrechen; danach kann man reagieren und mit **Weiter** fortsetzen.
 - **RL-Trainingslabor:** trainiert eine lineare Softmax-Policy mittels
   episodischem Policy Gradient (REINFORCE mit terminalem Sieg/Remis/Niederlage-
   Signal) auf synthetischen Duellen gegen die Baseline. Das UI startet 500
@@ -46,8 +55,8 @@ Materialregeln beschwörbar.
   Ergebnisbereiche. Referenzlauf (Seed 12345 trainiert, Seed 918273 holdout):
   500 Spiele / 4.394 Policy-Gradient-Updates; Holdout **38,7 %** (116/300)
   gegenüber **25,0 %** Soup-Baseline (75/300), also **+13,7 Prozentpunkte**.
-- Karten-Einblendung, Beschwörungs-/Angriffs-/Effekt-Feedback und
-  `prefers-reduced-motion`-Beachtung.
+- Karten-Einblendung, Angriffs-/Effekt-/Beschwörungs-Feedback, LP-Balken,
+  Glow-Markierung aktivierbarer Karten und `prefers-reduced-motion`-Beachtung.
 
 ## Erweitertes Trainingslabor (Engine, CLI und App-UI)
 
@@ -78,11 +87,10 @@ das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
   Skript-KI) und das **Jarvis-Deck** (Ultron-Zufallspool, eigenes Deck oder festes echtes Deck).
   Ist noch kein Netz gespeichert, trainiert die App beim Start kurz eins
   (1500 Episoden) und speichert es lokal.
-- Jarvis' Zug läuft über `runNetJarvisTurn`: Das Brett wird gespiegelt, damit
-  dieselben Regeln und Merkmale wie im Training gelten. Das Netz wählt Beschwörung,
-  Extra-Deck-Beschwörung, Effekte und Angriffe. Reagiert Jarvis mit einem Effekt,
-  beantwortet die Kette der Spieler weiterhin über den skriptgesteuerten Responder
-  (er kann also automatisch eine Negation aus deiner Hand spielen).
+- Jarvis' Zug läuft über `jarvisStep`: Das Brett wird gespiegelt, damit
+  dieselben Regeln und Merkmale wie im Training gelten. Das Netz (oder die
+  Skript-KI) wählt sichtbar Schritt für Schritt Beschwörung, Extra-Deck,
+  Effekte und Angriffe; Ketten laufen weiter über die Engine-Priorität.
 - Simulation (60 Duelle gegen die Heuristik als „Spieler“, wechselnde Decks):
   Netz-Jarvis gewann 20/60, die alte Skript-KI 12/60. Das ist eine Simulation,
   keine Aussage über Spaß oder Turnierstärke.
@@ -94,11 +102,14 @@ das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
   auflösbar waren oder die Größe nicht 40–60/≤15 ergab.
 - **Ultron-Pool:** 25 dieser echten Decks; Jarvis zieht bei jedem Duell zufällig
   eines und nennt es im Hinweis. Alternativ: eigenes Deck oder ein festes Deck.
-- Eingebettet sind Name, Typ, ATK/DEF, Stufe und die geparsten Effekte, nicht
-  der Kartentext. Bilder werden zur Laufzeit von images.ygoprodeck.com geladen
-  (Netz nötig). Die Banlist gilt nur im Deckbuilder, nicht für diese Decks.
-  Nicht unterstützte Effekte (alles außer Ziehen/Schaden/Heilen/Zerstören/
-  Negieren) werden als Karte ohne Effekt gespielt.
+- Eingebettet sind Name, Typ, ATK/DEF, Stufe, Subtyp (z. B. Quick-Play/Counter)
+  und geparste Effekte; Volltexte lädt die UI bei Bedarf live. Bilder werden
+  zur Laufzeit von images.ygoprodeck.com geladen (Netz nötig). Die Banlist gilt
+  nur im Deckbuilder, nicht für diese Decks.
+- Stand der gebündelten Effekte nach Re-Enrichment
+  (`scripts/enrich-ygo-effects.mjs`): 1395 Karten insgesamt, 430 Karten mit
+  simuliertem Effekt (u. a. 118 Boost, 105 Search, 74 Draw, 57 Negate, 32 Damage,
+  24 Destroy, 8 Negate-Attack, 5 Revive).
 - Die generierten Archetyp-Decks dienen weiter nur Training und Auswertung.
 
 ## Bewusste Grenzen
@@ -111,15 +122,12 @@ die eingebaute Baseline. Das ist weder Training auf vollständigen echten
 Karten-/Duellverläufen noch eine Aussage über Turnier-Winrate oder
 Generalisierung.
 
-Die Effekt-Erkennung ist absichtlich auf fünf generische Effektformen
-beschränkt. Sie interpretiert keine Kosten, Bedingungen, Timing-Fenster,
-Zielwahlen, Kartentexte in natürlicher Sprache vollständig oder Errata.
-Negation zielt auf das letzte Kettenglied. Kampfpositionen, Spezialbeschwörungs-
-Beschränkungen, korrekte Materialien/Kartennamen bei Fusion, Link-Regeln,
-Extra-Monsterzonen, Quick-Play-/Trap-Timing, komplexe Damage Steps,
-Archetype-Deckgenerierung und Turnierregeln fehlen weiterhin. Die UI zeigt die
-Regelvereinfachungen an; unbekannte Texteffekte werden nicht als ausführbar
-ausgegeben.
+Die Effekt-Erkennung bleibt bewusst heuristisch und deckt nur generische Muster
+ab. Kosten, harte Timingfenster, explizite Zielauswahl aus Freitext, Errata und
+viele Spezialfälle offizieller Rulings sind nicht vollständig abgebildet.
+Negation zielt auf das letzte Kettenglied; Feldzauber-Effekte werden nicht
+simuliert; erste-Zug-Battle-Verbote fehlen; Extra-Monsterzonen und viele
+Turnierdetails sind vereinfacht.
 
 ## Prüfen
 

@@ -21,7 +21,7 @@ for (const [title, list] of Object.entries(decks)) {
     if (!card || /token|skill/i.test(card.type)) { dropped += qty; continue }
     const extraKind = extraKindOf(card.frameType || '')
     if (!cardIndex.has(card.id)) {
-      const parsed = effectFromDescription(card.desc || '')
+      const parsed = /Normal/.test(card.type) ? null : effectFromDescription(card.desc || '')
       const type = card.type
       const kind = /spell/i.test(type) ? 'spell' : /trap/i.test(type) ? 'trap' : 'monster'
       cardIndex.set(card.id, {
@@ -30,6 +30,7 @@ for (const [title, list] of Object.entries(decks)) {
         ...(typeof card.def === 'number' ? { def: card.def } : {}),
         ...(typeof card.level === 'number' ? { level: card.level } : {}),
         ...(typeof card.linkval === 'number' ? { linkRating: card.linkval } : {}),
+        ...(kind !== 'monster' && card.race ? { subtype: card.race } : {}),
         ...(/Tuner/.test(type) ? { tuner: true } : {}),
         ...(extraKind ? { extraKind, extraDeck: true } : {}),
         ...(parsed ? { effect: parsed.effect, effectSummary: parsed.summary } : {}),

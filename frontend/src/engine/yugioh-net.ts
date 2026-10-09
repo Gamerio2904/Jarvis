@@ -2,6 +2,9 @@ import {
   activateDuelEffect,
   advanceDuelPhase,
   attack,
+  checkActivation,
+  endJarvisTurn,
+  setSpellTrap,
   createDuel,
   DUEL_STRATEGIES,
   findMaterialsForExtra,
@@ -95,8 +98,12 @@ function base(kind: ActionKind, context: Context, chain: boolean): number[] {
 function withEffect(features: number[], card: DuelCard, opponentLp: number): void {
   const effect = card.effect
   if (!effect) return
-  const name = (`effect${effect.kind[0].toUpperCase()}${effect.kind.slice(1)}`) as (typeof FEATURE_NAMES)[number]
-  features[featureIndex[name]] = 1
+  // New effect kinds reuse the existing inputs so stored networks stay compatible.
+  const named: Record<string, (typeof FEATURE_NAMES)[number]> = {
+    draw: 'effectDraw', search: 'effectDraw', revive: 'effectDraw', boost: 'effectHeal',
+    damage: 'effectDamage', heal: 'effectHeal', destroy: 'effectDestroy', negate: 'effectNegate', negateAttack: 'effectNegate',
+  }
+  features[featureIndex[named[effect.kind]]] = 1
   const amount = effect.kind === 'draw' || effect.kind === 'damage' || effect.kind === 'heal' ? effect.amount : 0
   features[featureIndex.effectAmount] = effect.kind === 'draw' ? amount / 3 : clamp(amount / 2000, 0, 1)
   if (effect.kind === 'damage' && amount >= opponentLp) features[featureIndex.lethal] = 1
@@ -112,14 +119,11 @@ export function candidateActions(state: DuelState): DuelAction[] {
   const actions: DuelAction[] = []
   const player = state.player
   const chain = state.chain.length > 0
-  const effectCards = (): DuelCard[] => {
-    const usable = (card: DuelCard) => Boolean(card.effect) && (!chain || card.effect?.kind === 'negate')
-    return [
-      ...player.hand.filter((card) => card.kind === 'spell' && usable(card)),
-      ...player.spells.filter(usable),
-      ...player.monsters.filter((card) => usable(card) && !player.usedEffects.includes(card.id)),
-    ].filter((card) => chain || card.effect?.kind !== 'negate')
-  }
+  const effectCards = (): DuelCard[] =>
+    [...player.hand, ...player.spells, ...player.monsters].filter((card) =>
+      Boolean(card.effect)
+      && (chain ? card.effect?.kind === 'negate' : card.effect?.kind !== 'negate' && card.kind !== 'trap')
+      && checkActivation(state, 'player', card.id) === null)
   if (chain) {
     if (state.chainPriority === 'player') {
       for (const card of effectCards()) {
@@ -155,7 +159,7 @@ export function candidateActions(state: DuelState): DuelAction[] {
       }
     } else {
       for (const attacker of player.monsters) {
-        if (state.attacked.includes(attacker.id)) continue
+        if (state.attacked.includes(attacker.id) || attacker.position === 'defense' || attacker.faceDown) continue
         if (!state.jarvis.monsters.length) {
           const features = base('direct', context, false)
           features[featureIndex.atk] = (attacker.atk || 0) / 3000
@@ -164,15 +168,17 @@ export function candidateActions(state: DuelState): DuelAction[] {
           continue
         }
         for (const target of state.jarvis.monsters) {
-          const difference = (attacker.atk || 0) - (target.atk || 0)
+          const defending = target.position === 'defense'
+          const targetPower = (defending ? target.def : target.atk) || 0
+          const difference = (attacker.atk || 0) - targetPower
           const features = base('attack', context, false)
           features[featureIndex.atk] = (attacker.atk || 0) / 3000
-          features[featureIndex.def] = (target.atk || 0) / 3000
+          features[featureIndex.def] = targetPower / 3000
           features[featureIndex.atkDiff] = clamp(difference / 2500)
           features[featureIndex.kills] = difference > 0 ? 1 : 0
           features[featureIndex.suicide] = difference < 0 ? 1 : 0
-          features[featureIndex.trade] = difference === 0 ? 1 : 0
-          if (difference > 0 && difference >= state.jarvis.lp && state.jarvis.monsters.length === 1) features[featureIndex.lethal] = 1
+          features[featureIndex.trade] = difference === 0 && !defending ? 1 : 0
+          if (difference > 0 && !defending && difference >= state.jarvis.lp && state.jarvis.monsters.length === 1) features[featureIndex.lethal] = 1
           actions.push({ kind: 'attack', cardId: attacker.id, targetId: target.id, features })
         }
       }
@@ -666,4 +672,126 @@ export function runNetJarvisTurn(state: DuelState, model: NetModel): DuelState {
     return { ...result, player: { ...result.player, deck: drawn, hand: [...result.player.hand, top as DuelCard] } }
   }
   return result
+}
+
+// --- Jarvis' turn in single, visible steps (UI plays one step every ~1.5 s and can be interrupted) ---
+
+function mirrorAnimation(animation: DuelState['lastAnimation']): DuelState['lastAnimation'] {
+  if (!animation) return animation
+  const swap = (side?: 'player' | 'jarvis') => side === 'player' ? 'jarvis' as const : side === 'jarvis' ? 'player' as const : undefined
+  return {
+    ...animation,
+    side: swap(animation.side),
+    ...(animation.damage ? { damage: { player: animation.damage.jarvis, jarvis: animation.damage.player } } : {}),
+  }
+}
+
+// Jarvis' board as "player". The half-turn offset keeps turnKey() equal to the real Jarvis turn.
+function jarvisView(state: DuelState): DuelState {
+  return {
+    ...state,
+    player: state.jarvis,
+    jarvis: state.player,
+    turn: state.turn + 0.5,
+    turnOwner: 'player',
+    pendingAttack: null,
+    selectedAttacker: null,
+    chain: [],
+    chainPriority: null,
+    chainPasses: 0,
+  }
+}
+
+function fromJarvisView(view: DuelState, real: DuelState): DuelState {
+  const winner = mirrorWinner(view.winner)
+  return {
+    ...real,
+    player: view.jarvis,
+    jarvis: view.player,
+    attacked: view.attacked,
+    winner,
+    lastAnimation: mirrorAnimation(view.lastAnimation),
+    message: winner === 'jarvis' ? 'Jarvis gewinnt das Duell.' : winner === 'player' ? 'Du gewinnst das Duell!' : view.message,
+  }
+}
+
+const NEXT_JARVIS_PHASE = { draw: 'standby', standby: 'main1', main1: 'battle', battle: 'main2', main2: 'end' } as const
+const PHASE_LABEL = { standby: 'Standby Phase', main1: 'Main Phase 1', battle: 'Battle Phase', main2: 'Main Phase 2', end: 'End Phase' } as const
+
+function resolveJarvisAttack(state: DuelState): DuelState {
+  const pending = state.pendingAttack
+  if (!pending) return state
+  const view = { ...jarvisView(state), phase: 'battle' as const, attacked: state.attacked.filter((id) => id !== pending.attackerId) }
+  const attacker = view.player.monsters.find((card) => card.id === pending.attackerId)
+  const target = pending.targetId === null ? null : view.jarvis.monsters.find((card) => card.id === pending.targetId)
+  const blocked = !attacker || (pending.targetId === null ? view.jarvis.monsters.length > 0 : !target)
+  if (blocked) return { ...state, pendingAttack: null, message: 'Der Angriff von Jarvis fällt aus.' }
+  try {
+    const result = attack(selectAttacker(view, pending.attackerId), target ? target.id : undefined, { skipTraps: true })
+    return { ...fromJarvisView(result, state), pendingAttack: null }
+  } catch {
+    return { ...state, pendingAttack: null, message: 'Der Angriff von Jarvis fällt aus.' }
+  }
+}
+
+export function jarvisStep(state: DuelState, model: NetModel | null): DuelState {
+  if (state.winner || state.turnOwner !== 'jarvis' || state.chain.length) return state
+  const steps = (state.jarvisSteps ?? 0) + 1
+  const base: DuelState = { ...state, jarvisSteps: steps }
+  if (base.pendingAttack?.side === 'jarvis') return resolveJarvisAttack(base)
+  if (base.phase === 'end') return endJarvisTurn(base)
+  if (base.phase === 'draw' || base.phase === 'standby') {
+    const phase = NEXT_JARVIS_PHASE[base.phase]
+    return { ...base, phase, lastAnimation: null, message: `Jarvis: ${PHASE_LABEL[phase as keyof typeof PHASE_LABEL]}.` }
+  }
+  if (steps > 40) return { ...base, phase: 'end', message: 'Jarvis beendet seinen Zug.' }
+  const view = jarvisView(base)
+  const advance = (): DuelState => {
+    const phase = NEXT_JARVIS_PHASE[base.phase as 'main1' | 'battle' | 'main2']
+    return { ...base, phase, attacked: [], lastAnimation: null, message: phase === 'end' ? 'Jarvis: End Phase.' : `Jarvis wechselt in die ${PHASE_LABEL[phase]}.` }
+  }
+  if (base.phase !== 'battle') {
+    const toSet = view.player.hand.find((card) => card.kind === 'trap' || (card.kind === 'spell' && !card.effect))
+    if (toSet) {
+      try {
+        const set = setSpellTrap(view, toSet.id)
+        const field = toSet.subtype === 'Field'
+        const result = fromJarvisView(set, base)
+        return field ? result : { ...result, message: 'Jarvis setzt eine Karte verdeckt.' }
+      } catch {
+        // Zone full: fall through to the normal decision.
+      }
+    }
+  }
+  const actions = candidateActions(view)
+  const policy = model ? greedyNetPolicy(validateNetModel(model)) : heuristicPolicy
+  const random = seededRandom(base.turn * 7919 + steps * 104729 + 13)
+  const chosen = actions[actions.length === 1 ? 0 : policy(actions, random)]
+  try {
+    if (chosen.kind === 'pass') return advance()
+    if (chosen.kind === 'effect' && chosen.cardId !== undefined) return activateDuelEffect(base, 'jarvis', chosen.cardId)
+    if ((chosen.kind === 'attack' || chosen.kind === 'direct') && chosen.cardId !== undefined) {
+      const attacker = base.jarvis.monsters.find((card) => card.id === chosen.cardId)
+      return {
+        ...base,
+        attacked: [...base.attacked, chosen.cardId],
+        pendingAttack: { side: 'jarvis', attackerId: chosen.cardId, targetId: chosen.kind === 'attack' ? chosen.targetId ?? null : null },
+        lastAnimation: { id: chosen.cardId, kind: 'attack', side: 'jarvis', targetId: chosen.kind === 'attack' ? chosen.targetId ?? null : null },
+        message: `Jarvis greift mit ${attacker?.name ?? 'einem Monster'} an!`,
+      }
+    }
+    if (chosen.kind === 'summon' && chosen.cardId !== undefined) {
+      const card = view.player.hand.find((item) => item.id === chosen.cardId)
+      const strongestFoe = Math.max(0, ...view.jarvis.monsters.map((monster) => monster.atk || 0))
+      const defensive = Boolean(card) && (card?.def || 0) > (card?.atk || 0) + 300 && strongestFoe > (card?.atk || 0)
+      const result = fromJarvisView(summonMonster(view, chosen.cardId, chosen.tributes || [], defensive ? 'set' : 'attack'), base)
+      return defensive ? { ...result, message: 'Jarvis setzt ein Monster verdeckt in Verteidigung.' } : result
+    }
+    if (chosen.kind === 'extra' && chosen.cardId !== undefined) {
+      return fromJarvisView(summonExtraMonster(view, chosen.cardId, chosen.materials || []), base)
+    }
+  } catch {
+    return advance()
+  }
+  return advance()
 }

@@ -162,7 +162,7 @@ test('beschränkte Kartentext-Auswertung erkennt nur unterstützte Effektformen'
     effect: { kind: 'draw', amount: 2 },
     summary: 'Zieht 2 Karte(n).',
   })
-  assert.equal(effectFromDescription('This card gains 300 ATK.'), null)
+  assert.equal(effectFromDescription('Once per turn, you can shuffle your hand.'), null)
   assert.deepEqual(effectFromDescription('Negate the activation of a card.'), {
     effect: { kind: 'negate' },
     summary: 'Negiert das vorherige Kettenglied (vereinfachte Regel).',
@@ -404,4 +404,140 @@ test('Echte Structure Decks: gültige Größen, Ultron-Pool mit 25 Decks, Zufall
   let state = createDuel(mine.main, theirs.main, seededRandom(5), mine.extra, theirs.extra)
   state = runNetJarvisTurn({ ...state, phase: 'end' }, model)
   assert.equal(state.turn, 2)
+})
+
+const engine = await import('../src/engine/yugioh-duel.ts')
+const netEngine = await import('../src/engine/yugioh-net.ts')
+
+function spellCard(id, effect, extra = {}) {
+  return { id, name: `Karte ${id}`, type: 'Spell Card', kind: 'spell', effect, effectSummary: effect.kind, ...extra }
+}
+
+function duelWith(playerPatch = {}, jarvisPatch = {}, patch = {}) {
+  const base = createDuel(deck(), deck(), () => 0)
+  return { ...base, phase: 'main1', player: { ...base.player, ...playerPatch }, jarvis: { ...base.jarvis, ...jarvisPatch }, ...patch }
+}
+
+test('neue Effekttypen werden aus Kartentext erkannt', () => {
+  assert.equal(effectFromDescription('Negate the attack and inflict damage to your opponent.')?.effect.kind, 'negateAttack')
+  assert.deepEqual(effectFromDescription('Destroy all Attack Position monsters your opponent controls.')?.effect, { kind: 'destroy', target: 'attackMonsters' })
+  assert.deepEqual(effectFromDescription('Destroy all monsters your opponent controls.')?.effect, { kind: 'destroy', target: 'allMonsters' })
+  assert.deepEqual(effectFromDescription('Destroy 1 Spell/Trap on the field.')?.effect, { kind: 'destroy', target: 'spelltrap' })
+  assert.equal(effectFromDescription('Add 1 "Blue-Eyes" monster from your Deck to your hand.')?.effect.kind, 'search')
+  assert.equal(effectFromDescription('Special Summon 1 monster from your GY.')?.effect.kind, 'revive')
+  assert.deepEqual(effectFromDescription('This card gains 500 ATK.')?.effect, { kind: 'boost', amount: 500 })
+})
+
+test('Monster verdeckt in Verteidigung setzen, Verteidigung greift nicht an, Kampf gegen DEF verursacht keinen Schaden', () => {
+  let state = duelWith()
+  const card = state.player.hand.find((item) => item.kind === 'monster')
+  state = summonMonster(state, card.id, [], 'set')
+  const placed = state.player.monsters[0]
+  assert.equal(placed.faceDown, true)
+  assert.equal(placed.position, 'defense')
+  assert.throws(() => changePos(state, placed.id), /bereits/)
+  state = { ...state, phase: 'battle' }
+  assert.throws(() => selectAttacker(state, placed.id), /Verteidigung/)
+  const attackerCard = { ...deck(1, 2500)[0], id: 700, position: 'attack', faceDown: false }
+  const defender = { ...deck(1, 1000)[0], id: 701, def: 2000, position: 'defense', faceDown: true }
+  const fight = { ...state, player: { ...state.player, monsters: [attackerCard] }, jarvis: { ...state.jarvis, monsters: [defender], spells: [] } }
+  const result = attack(selectAttacker(fight, 700), 701)
+  assert.equal(result.jarvis.lp, 8000, 'kein Schaden gegen DEF-Position')
+  assert.equal(result.jarvis.graveyard.some((c) => c.id === 701), true)
+  const weak = { ...attackerCard, atk: 1500 }
+  const bounce = attack(selectAttacker({ ...fight, player: { ...fight.player, monsters: [weak] } }, 700), 701)
+  assert.equal(bounce.player.lp, 7500)
+  assert.equal(bounce.jarvis.monsters[0].faceDown, false, 'Angriff deckt das Monster auf')
+})
+
+function changePos(state, id) {
+  return engine.changePosition(state, id)
+}
+
+test('Zauber/Fallen: Setzen, Aktivierungsprüfung und aufleuchtende Karten', () => {
+  const trap = spellCard(800, { kind: 'damage', amount: 500 }, { kind: 'trap', type: 'Trap Card' })
+  const spell = spellCard(801, { kind: 'draw', amount: 1 })
+  let state = duelWith({ hand: [trap, spell] })
+  assert.equal(engine.canActivateCard(state, 'player', 801), true)
+  assert.equal(engine.canActivateCard(state, 'player', 800), false, 'Fallen nicht aus der Hand')
+  state = engine.setSpellTrap(state, 800)
+  assert.equal(state.player.spells[0].faceDown, true)
+  assert.match(engine.checkActivation(state, 'player', 800), /in diesem Zug gesetzt/)
+  const nextTurn = { ...state, turn: state.turn + 1 }
+  assert.equal(engine.canActivateCard(nextTurn, 'player', 800), true)
+  const fired = activateDuelEffect(nextTurn, 'player', 800)
+  const resolved = passDuelChain(fired, 'player')
+  assert.equal(resolved.jarvis.lp, 7500)
+  assert.equal(resolved.player.graveyard.some((c) => c.id === 800 && !c.faceDown), true)
+})
+
+test('Effekte: Suche, Wiederbeleben, Bonus, Zerstören aller Monster', () => {
+  const monsterIn = (id, atk) => ({ ...deck(1, atk)[0], id, position: 'attack' })
+  let state = duelWith({ hand: [spellCard(810, { kind: 'search', amount: 1 })] })
+  let out = passDuelChain(activateDuelEffect(state, 'player', 810), 'player')
+  assert.equal(out.player.hand.length, 1, 'Spell weg, 1 Karte gesucht')
+  state = duelWith({ hand: [spellCard(811, { kind: 'revive' })], graveyard: [monsterIn(1, 900), monsterIn(2, 2400)] })
+  out = passDuelChain(activateDuelEffect(state, 'player', 811), 'player')
+  assert.equal(out.player.monsters[0].atk, 2400)
+  state = duelWith({ hand: [spellCard(812, { kind: 'boost', amount: 700 })], monsters: [monsterIn(3, 1000)] })
+  out = passDuelChain(activateDuelEffect(state, 'player', 812), 'player')
+  assert.equal(out.player.monsters[0].atk, 1700)
+  const ended = engine.endJarvisTurn(engine.startJarvisTurn({ ...out, phase: 'end' }))
+  assert.equal(ended.player.monsters[0].atk, 1000, 'Bonus endet mit dem Zug')
+  state = duelWith({ hand: [spellCard(813, { kind: 'destroy', target: 'allMonsters' })] }, { monsters: [monsterIn(4, 1000), monsterIn(5, 1000)] })
+  out = passDuelChain(activateDuelEffect(state, 'player', 813), 'player')
+  assert.equal(out.jarvis.monsters.length, 0)
+  assert.equal(out.jarvis.graveyard.length, 2)
+})
+
+test('Jarvis antwortet auf einen Angriff mit einer gesetzten Falle und die Kette hält den Angriff an', () => {
+  const trap = spellCard(820, { kind: 'negateAttack' }, { kind: 'trap', type: 'Trap Card', faceDown: true, lockedKey: 0 })
+  const mine = { ...deck(1, 2500)[0], id: 821, position: 'attack' }
+  const state = duelWith({ monsters: [mine] }, { spells: [trap], monsters: [] }, { phase: 'battle', turn: 2 })
+  const declared = attack(selectAttacker(state, 821))
+  assert.equal(declared.chain.length, 1)
+  assert.equal(declared.pendingAttack?.attackerId, 821)
+  assert.equal(declared.jarvis.lp, 8000)
+  const resolved = passDuelChain(declared, 'player')
+  assert.equal(resolved.jarvis.lp, 8000, 'Angriff negiert')
+  assert.equal(resolved.pendingAttack, null)
+})
+
+test('Jarvis-Zug läuft in sichtbaren Einzelschritten, kann mit Falle unterbrochen werden und endet im Spielerzug', () => {
+  const model = createNetModel(8, 3)
+  for (const brain of [null, model]) {
+    const random = seededRandom(9)
+    const mine = generateDeck('balanced', random)
+    const theirs = generateDeck('aggro', random)
+    let state = createDuel(mine.main, theirs.main, random, mine.extra, theirs.extra)
+    const total = (side) => side.hand.length + side.deck.length + side.extraDeck.length + side.monsters.length + side.graveyard.length + side.spells.length
+    const before = total(state.jarvis)
+    state = engine.startJarvisTurn({ ...state, phase: 'end' })
+    assert.equal(state.turnOwner, 'jarvis')
+    let steps = 0
+    while (state.turnOwner === 'jarvis' && !state.winner && steps < 80) {
+      if (state.chain.length) state = passDuelChain(state, 'player')
+      else state = netEngine.jarvisStep(state, brain)
+      steps += 1
+    }
+    assert.ok(steps < 80 && steps >= 4, `Schritte: ${steps}`)
+    if (!state.winner) {
+      assert.equal(state.turnOwner, 'player')
+      assert.equal(state.phase, 'draw')
+      assert.equal(total(state.jarvis), before, 'Jarvis verliert keine Karte')
+    }
+  }
+  // Unterbrechung: Spieler negiert den angekündigten Angriff von Jarvis.
+  const trap = spellCard(830, { kind: 'negateAttack' }, { kind: 'trap', type: 'Trap Card', faceDown: true, lockedKey: 0 })
+  const jarvisMonster = { ...deck(1, 2000)[0], id: 831, position: 'attack' }
+  const base = duelWith({ spells: [trap], monsters: [] }, { monsters: [jarvisMonster] }, { turnOwner: 'jarvis', phase: 'battle', turn: 3 })
+  const declared = netEngine.jarvisStep(base, null)
+  assert.equal(declared.pendingAttack?.side, 'jarvis')
+  assert.equal(engine.canActivateCard(declared, 'player', 830), true)
+  assert.equal(engine.canActivateCard({ ...declared, pendingAttack: null }, 'player', 830), false, 'ohne Angriff nicht aktivierbar')
+  const answered = passDuelChain(activateDuelEffect(declared, 'player', 830), 'player')
+  assert.equal(answered.pendingAttack, null)
+  assert.equal(answered.player.lp, 8000)
+  const unblocked = netEngine.jarvisStep(declared, null)
+  assert.equal(unblocked.player.lp, 6000, 'ohne Falle trifft der Angriff')
 })
