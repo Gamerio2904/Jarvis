@@ -253,6 +253,28 @@ export function createDuel(
   }
 }
 
+// Coin flip before a normal duel (player vs Ultron). Exactly one random draw decides who starts.
+export function coinFlip(random: () => number = Math.random): DuelSide {
+  return random() < 0.5 ? 'player' : 'jarvis'
+}
+
+// The player starts by default (createDuel). If Jarvis wins the flip his turn 1 begins instead; like the
+// player's first turn it has no draw step, and Jarvis' turn is then played by jarvisStep().
+export function giveFirstTurn(state: DuelState, side: DuelSide): DuelState {
+  if (side === 'player') {
+    return { ...state, turnOwner: 'player', message: 'Du beginnst das Duell. Führe deine Spielzüge aus.' }
+  }
+  return {
+    ...state,
+    turnOwner: 'jarvis',
+    phase: 'draw',
+    jarvisSteps: 0,
+    pendingAttack: null,
+    lastAnimation: null,
+    message: 'Ultron beginnt das Duell.',
+  }
+}
+
 function finishBattle(state: DuelState): DuelState {
   if (state.player.lp <= 0) return { ...state, winner: 'jarvis', message: 'Jarvis gewinnt das Duell.' }
   if (state.jarvis.lp <= 0) return { ...state, winner: 'player', message: 'Du gewinnst das Duell!' }

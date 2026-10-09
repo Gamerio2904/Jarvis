@@ -1175,3 +1175,98 @@
 @media (prefers-reduced-motion: reduce) {
   .ygo-ultron-bubble.is-thinking .ygo-ultron-dots i { animation: none; opacity: 0.8; }
 }
+
+.ygo-coin-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10040;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 22px;
+  background: radial-gradient(circle at 50% 40%, rgba(60, 40, 120, 0.55), rgba(4, 6, 18, 0.96) 70%);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.ygo-coin-title {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #cbb6ff;
+}
+
+.ygo-coin {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  perspective: 700px;
+  transform-style: preserve-3d;
+  animation: ygo-coin-toss 2.4s cubic-bezier(0.3, 0.6, 0.35, 1) forwards;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 22px rgba(255, 206, 90, 0.45));
+}
+
+.ygo-coin-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 6px solid #f6d36b;
+  background: radial-gradient(circle at 35% 30%, #fff1b8, #e0a92e 55%, #8a5d10);
+  color: #4a2f00;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  backface-visibility: hidden;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.25), inset 0 -10px 18px rgba(90, 50, 0, 0.45);
+}
+
+.ygo-coin-front span { font-size: 2rem; }
+.ygo-coin-back span { font-size: 1.25rem; }
+.ygo-coin-back { transform: rotateY(180deg); }
+
+/* Odd number of half turns ends on the back (Ultron), even on the front (you). */
+@keyframes ygo-coin-toss {
+  0% { transform: translateY(160px) rotateY(0) scale(0.6); }
+  45% { transform: translateY(-130px) rotateY(900deg) scale(1.15); }
+  100% { transform: translateY(0) rotateY(var(--ygo-coin-end, 1800deg)) scale(1); }
+}
+
+.ygo-coin.lands-jarvis { --ygo-coin-end: 1980deg; }
+
+.ygo-coin-result {
+  margin: 0;
+  min-height: 1.6em;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #e9e1ff;
+  opacity: 0.75;
+}
+
+.ygo-coin-result.is-shown {
+  color: #ffd86b;
+  text-shadow: 0 0 18px rgba(255, 200, 80, 0.7);
+  opacity: 1;
+  animation: ygo-coin-pop 0.5s ease-out;
+}
+
+@keyframes ygo-coin-pop {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.ygo-coin-skip {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e9e1ff;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ygo-coin { animation: none; transform: rotateY(var(--ygo-coin-end, 1800deg)); }
+  .ygo-coin-result.is-shown { animation: none; }
+}

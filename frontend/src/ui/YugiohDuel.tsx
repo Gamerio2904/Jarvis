@@ -6,12 +6,14 @@ import {
   canActivateCard,
   changePosition,
   checkActivation,
+  coinFlip,
   createDuel,
   DUEL_SOUP_WEIGHTS,
   duelStateVector,
   effectFromDescription,
   extraSummonMaterials,
   findMaterialsForExtra,
+  giveFirstTurn,
   passDuelChain,
   selectAttacker,
   setSpellTrap,
@@ -190,6 +192,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [extraMaterials, setExtraMaterials] = useState<number[]>([])
   const [jarvisPaused, setJarvisPaused] = useState(false)
   const [jarvisThinking, setJarvisThinking] = useState(false)
+  const [coin, setCoin] = useState<{ result: DuelSide; duel: DuelState; settled: boolean } | null>(null)
   const [cardTextCache, setCardTextCache] = useState<Record<number, string>>({})
   const [cardTextBusy, setCardTextBusy] = useState(false)
   const [notice, setNotice] = useState('')
@@ -330,7 +333,9 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             drawn = `Ultron spielt „${real.title}“.`
           }
         }
-        setGame(createDuel(mainDeck, botMain, Math.random, extraDeck, botExtra, weights))
+        // The duel only becomes visible after the coin flip has decided who starts.
+        setGame(null)
+        setCoin({ result: coinFlip(), duel: createDuel(mainDeck, botMain, Math.random, extraDeck, botExtra, weights), settled: false })
         setFocusedCard(null)
         setShowPlayerGrave(false)
         setShowJarvisGrave(false)
@@ -345,6 +350,32 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         setStartBusy(false)
       }
     }, 30)
+  }
+
+  const coinDuel = coin?.duel
+  const coinResult = coin?.result
+  const coinSettled = coin?.settled
+
+  useEffect(() => {
+    if (!coinDuel) return
+    const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const settle = window.setTimeout(() => setCoin((current) => (current ? { ...current, settled: true } : current)), reduced ? 400 : 2600)
+    return () => window.clearTimeout(settle)
+  }, [coinDuel])
+
+  useEffect(() => {
+    if (!coinSettled || !coinDuel || !coinResult) return
+    const start = window.setTimeout(() => {
+      setGame(giveFirstTurn(coinDuel, coinResult))
+      setCoin(null)
+    }, 1500)
+    return () => window.clearTimeout(start)
+  }, [coinSettled, coinDuel, coinResult])
+
+  function skipCoin() {
+    if (!coin) return
+    setGame(giveFirstTurn(coin.duel, coin.result))
+    setCoin(null)
   }
 
   function advancePhase() {
@@ -583,7 +614,19 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         <button className="ygo-close" type="button" onClick={onClose}>Duell schließen</button>
       </header>
 
-      {game ? (
+      {coin ? (
+        <div className="ygo-coin-stage" role="status" aria-live="polite" onClick={skipCoin}>
+          <p className="ygo-coin-title">Münzwurf</p>
+          <div className={`ygo-coin ${coin.result === 'player' ? 'lands-player' : 'lands-jarvis'}`} aria-hidden>
+            <div className="ygo-coin-face ygo-coin-front"><span>DU</span></div>
+            <div className="ygo-coin-face ygo-coin-back"><span>ULTRON</span></div>
+          </div>
+          <p className={`ygo-coin-result${coin.settled ? ' is-shown' : ''}`}>
+            {coin.settled ? (coin.result === 'player' ? 'Du beginnst das Duell!' : 'Ultron beginnt das Duell!') : 'Die Münze fliegt …'}
+          </p>
+          <button className="ygo-coin-skip" type="button" onClick={(event) => { event.stopPropagation(); skipCoin() }}>Überspringen</button>
+        </div>
+      ) : game ? (
         <section className="ygo-game">
           {game.turnOwner === 'jarvis' && !game.winner ? (
             <div className={`ygo-ultron-bubble${jarvisThinking ? ' is-thinking' : ''}`} role="status" aria-live="polite">

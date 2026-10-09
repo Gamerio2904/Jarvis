@@ -693,3 +693,34 @@ test('Zugsuche gegen Heuristik: auf generierten Decks messbar nicht schlechter',
   }
   assert.ok(points / games > 0.5, `Suche ${points}/${games}`)
 })
+
+test('Münzwurf: genau eine Zufallszahl entscheidet, beide Seiten kommen vor', () => {
+  assert.equal(engine.coinFlip(() => 0.1), 'player')
+  assert.equal(engine.coinFlip(() => 0.9), 'jarvis')
+  let calls = 0
+  engine.coinFlip(() => { calls += 1; return 0.3 })
+  assert.equal(calls, 1)
+  const random = netEngine.seededRandom(21)
+  const seen = new Set(Array.from({ length: 40 }, () => engine.coinFlip(random)))
+  assert.deepEqual([...seen].sort(), ['jarvis', 'player'])
+})
+
+test('Ultron beginnt nach dem Münzwurf: er spielt Zug 1, danach ist der Spieler dran und zieht', () => {
+  const fresh = createDuel(deck(), deck(), netEngine.seededRandom(2))
+  const starts = engine.giveFirstTurn(fresh, 'jarvis')
+  assert.equal(starts.turnOwner, 'jarvis')
+  assert.equal(starts.phase, 'draw')
+  assert.equal(starts.player.hand.length, 5)
+  assert.equal(starts.jarvis.hand.length, 5, 'kein Ziehen im ersten Zug')
+  assert.equal(starts.turn, 1)
+  let state = starts
+  for (let i = 0; i < 60 && state.turnOwner === 'jarvis' && !state.winner; i += 1) state = netEngine.jarvisStep(state, null)
+  assert.equal(state.turnOwner, 'player')
+  assert.equal(state.phase, 'draw')
+  assert.equal(state.turn, 2)
+  assert.equal(state.player.hand.length, 6, 'Spieler zieht zu Beginn seines ersten Zugs')
+  const you = engine.giveFirstTurn(fresh, 'player')
+  assert.equal(you.turnOwner, 'player')
+  assert.equal(you.phase, 'draw')
+  assert.equal(you.player.hand.length, 5)
+})

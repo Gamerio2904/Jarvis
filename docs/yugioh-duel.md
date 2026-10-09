@@ -112,6 +112,17 @@ das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
   24 Destroy, 8 Negate-Attack, 5 Revive).
 - Die generierten Archetyp-Decks dienen weiter nur Training und Auswertung.
 
+## Münzwurf vor dem Duell
+
+Vor jedem normalen Duell (du gegen Ultron) läuft eine Münzwurf-Animation
+(3D-Flip, „DU“ gegen „ULTRON“), die per `coinFlip()` entscheidet, wer beginnt.
+Gewinnt Ultron, setzt `giveFirstTurn()` ihn auf Zug 1 (ohne Ziehen, wie beim
+Spieler) und die Schritt-Automatik spielt seinen Zug; danach zieht der Spieler.
+Tippen oder „Überspringen“ beendet die Animation, das Ergebnis bleibt gleich.
+Bei `prefers-reduced-motion` entfällt die Drehung. Die Animation wurde nur gebaut
+und typgeprüft, nicht auf einem Gerät gesehen. Self-Play-Matches (Sprint 503)
+nutzen keinen Münzwurf.
+
 ## Statusblase und Planung
 
 Während Jarvis zieht, zeigt eine Blase oben rechts „Ultron denkt nach …“ bzw. die
