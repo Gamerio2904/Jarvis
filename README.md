@@ -31,7 +31,7 @@ PC-Test: [`docs/TEST-PC.md`](docs/TEST-PC.md) · Seit 1.16: [`docs/TEST-1.16-plu
 2. **Groq-Key** eintragen (Smalltalk). Optional **Gemini** (Vision/Research).
 3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
 
-Im Code dieses Stands liegen Self-Play und Zugsuche ([`docs/104-next.md`](docs/104-next.md), Sprints 503–510) sowie das TCG-Subset ([`docs/105-next.md`](docs/105-next.md), Sprints 511–530). Routing, Tablet-Sync und Projektplanung in [`docs/101-next.md`](docs/101-next.md) bis [`docs/103-next.md`](docs/103-next.md) sind teilweise vorbereitet; ihre Geräte-Gates `18.32.0`–`18.41.0` sind nicht als eigene Releases freigegeben. Vorhandener Code gilt nicht automatisch als abgenommenes Release.
+Im Code dieses Stands liegen Self-Play und Zugsuche ([`docs/104-next.md`](docs/104-next.md), Sprints 503–510) sowie das TCG-Subset ([`docs/105-next.md`](docs/105-next.md), Sprints 511–530). Die Master-Duel-Bedienung ist geplant und nicht gebaut ([`docs/106-next.md`](docs/106-next.md), Sprints 531–550, `18.52.0`–`18.60.0`). Routing, Tablet-Sync und Projektplanung in [`docs/101-next.md`](docs/101-next.md) bis [`docs/103-next.md`](docs/103-next.md) sind teilweise vorbereitet; ihre Geräte-Gates `18.32.0`–`18.41.0` sind nicht als eigene Releases freigegeben. Vorhandener Code gilt nicht automatisch als abgenommenes Release.
 
 ## Prüfen
 

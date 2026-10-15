@@ -147,9 +147,12 @@ mit Coverage-/Fidelity-Metriken im Nachweis. Details: [`105-next.md`](./105-next
 
 ## Was noch fehlt (geplant)
 
-Pendel, vollständiges PSCT pro Karten-ID, Zielwahl-UI für alle Texte, Competitive-
-Edge-Cases und offizielle Judge-Rulings bleiben außerhalb des Scope — siehe
-**Bewusste Grenzen** unten.
+Plan **106** (Sprints **531–550**, Ziel **`18.52.0`–`18.60.0`**) ist **PLAN** und
+nicht gebaut: Aktivieren-Fenster, Zielwahl auf dem Feld, Kettenstapel, Kampf-
+und Endphase, Zonenwahl, Kartenstatus, Pendel, Ritual, Deckeditor und
+Duellprotokoll. Details: [`106-next.md`](./106-next.md). Bis zum Umsetzen bleiben
+Pendel, die volle Tipp-Zielwahl, Competitive-Edge-Cases und offizielle
+Judge-Rulings außerhalb des gebauten Umfangs — siehe **Bewusste Grenzen** unten.
 
 ## Self-Play und Zugsuche (Engine, ohne UI)
 
