@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 10001;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -66,10 +66,18 @@
   opacity: 0.45;
 }
 
-.ygo-builder,
-.ygo-game {
+.ygo-builder {
   width: min(100%, 920px);
   margin: 0 auto;
+  overflow: auto;
+  min-height: 0;
+}
+
+.ygo-game {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .ygo-builder {
@@ -1065,10 +1073,10 @@
 .ygo-hand-card:nth-child(even) { transform: translateY(2px) rotate(2deg); }
 
 .ygo-stop-turn {
-  position: fixed;
-  right: max(8px, env(safe-area-inset-right));
-  bottom: max(14px, env(safe-area-inset-bottom));
-  z-index: 10020;
+  position: static;
+  align-self: center;
+  z-index: 2;
+  min-height: 32px !important;
   border-color: rgba(255, 150, 159, 0.9) !important;
   background: rgba(174, 37, 56, 0.85) !important;
 }
@@ -1085,8 +1093,8 @@
 
 .ygo-modal-card {
   width: min(680px, 96vw);
-  max-height: 88vh;
-  overflow: auto;
+  max-height: min(46vh, 320px);
+  overflow: hidden;
   display: grid;
   gap: 10px;
   padding: 14px;
@@ -1545,11 +1553,12 @@
 
 .ygo-hand {
   display: flex;
-  justify-content: flex-start;
-  gap: 8px;
-  min-height: 120px;
-  padding: 8px 4px 0;
-  overflow-x: auto;
+  justify-content: center;
+  gap: 6px;
+  height: clamp(64px, 14vh, 108px);
+  min-height: 0;
+  padding: 4px 2px 0;
+  overflow: hidden;
 }
 
 @media (min-width: 900px) {
@@ -1559,8 +1568,12 @@
 }
 
 .ygo-hand .ygo-hand-card {
-  flex: 0 0 clamp(72px, 16vw, 108px);
-  aspect-ratio: 59 / 86;
+  flex: 1 1 0;
+  width: auto;
+  max-width: 86px;
+  min-width: 0;
+  height: 100%;
+  aspect-ratio: auto;
 }
 
 .ygo-dev-panel h2 {
@@ -1620,13 +1633,17 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .ygo-overlay[data-last-action="summon"] .ygo-slot:not(.is-empty),
-  .ygo-overlay[data-last-action="set"] .ygo-slot:not(.is-empty) {
+  .ygo-slot.is-arriving,
+  .ygo-hand-card.is-arriving {
     animation: ygo-ultron-summon 680ms cubic-bezier(0.16, 0.84, 0.24, 1);
   }
 
-  .ygo-overlay[data-last-action="effect"] .ygo-mat {
-    animation: ygo-ultron-core 640ms ease;
+  .ygo-slot.is-hit {
+    animation: ygo-ultron-hit 640ms ease;
+  }
+
+  .ygo-overlay[data-last-action="effect"] .ygo-slot.is-arriving {
+    animation: ygo-ultron-core 640ms ease, ygo-ultron-summon 680ms cubic-bezier(0.16, 0.84, 0.24, 1);
   }
 
   .ygo-overlay[data-last-action="draw"] .ygo-hand-card:last-child {
@@ -1658,4 +1675,235 @@
 @keyframes ygo-ultron-draw {
   from { transform: translateY(18px) scale(0.9); filter: brightness(1.7); }
   to { transform: none; filter: none; }
+}
+
+@keyframes ygo-ultron-hit {
+  0% { filter: brightness(2.4); transform: scale(1.08); }
+  100% { filter: grayscale(0.4) brightness(0.7); transform: scale(0.92); }
+}
+
+.ygo-overlay {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  gap: 6px;
+  padding: 8px;
+}
+
+.ygo-builder,
+.ygo-game {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.ygo-game {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.ygo-duel-status,
+.ygo-message,
+.ygo-chain,
+.ygo-next-phase,
+.ygo-ai-info {
+  flex: 0 0 auto;
+}
+
+.ygo-mat {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 4px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.ygo-field,
+.ygo-zones,
+.ygo-piles {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ygo-field {
+  grid-template-columns: 56px minmax(0, 1fr) 56px;
+  gap: 4px;
+}
+
+.ygo-piles {
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.ygo-pile {
+  min-height: 0;
+  height: 100%;
+  padding: 2px;
+}
+
+.ygo-pile img {
+  height: 100%;
+  max-height: 100%;
+}
+
+.ygo-zones {
+  gap: 3px;
+  grid-template-rows: 0.7fr 1fr 0.26fr 0.26fr 1fr 0.7fr;
+}
+
+.ygo-slot,
+.ygo-hand-card,
+.ygo-pile {
+  min-height: 0 !important;
+}
+
+.ygo-slot {
+  aspect-ratio: auto;
+  height: 100%;
+}
+
+.ygo-hand {
+  flex: 0 0 auto;
+  height: clamp(64px, 12vh, 88px);
+  overflow: hidden !important;
+  padding: 4px;
+}
+
+.ygo-hand .ygo-hand-card {
+  flex: 1 1 0;
+  width: auto;
+  max-width: 76px;
+  min-width: 0;
+  height: 100%;
+  transform: none !important;
+}
+
+.ygo-hand-card:nth-child(odd),
+.ygo-hand-card:nth-child(even) {
+  transform: none !important;
+}
+
+.ygo-slot.is-tribute {
+  box-shadow: 0 0 0 2px #f6d56a, 0 0 16px rgba(246, 213, 106, 0.8);
+}
+
+.ygo-mat.is-casting {
+  animation: ygo-ultron-core 640ms ease;
+}
+
+.ygo-slot.is-facedown.is-arriving {
+  animation: ygo-ultron-set 520ms ease;
+}
+
+@keyframes ygo-ultron-set {
+  from { transform: rotateY(90deg) scale(0.86); filter: brightness(1.8); }
+  to { transform: none; filter: none; }
+}
+
+.ygo-inspect {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 28px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  max-height: 88px;
+  overflow: hidden;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(4, 8, 16, 0.88);
+  border: 1px solid rgba(246, 213, 106, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.ygo-inspect img,
+.ygo-inspect-fallback {
+  width: 48px;
+  height: 66px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.ygo-inspect-fallback {
+  display: grid;
+  place-items: center;
+  background: #241018;
+  font-size: 10px;
+}
+
+.ygo-inspect strong {
+  display: block;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ygo-inspect p {
+  margin: 2px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 11px;
+  color: #d9d3cc;
+}
+
+.ygo-inspect .ygo-actions {
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+.ygo-inspect .ygo-actions button {
+  min-height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.ygo-message,
+.ygo-chain {
+  overflow: hidden;
+  margin: 0;
+}
+
+.ygo-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-height: 58px;
+  padding: 4px 8px;
+}
+
+.ygo-ai-info {
+  max-height: 22px;
+  overflow: hidden;
+}
+
+.ygo-modal-card,
+.ygo-modal-grid {
+  overflow: hidden;
+}
+
+.ygo-modal-grid {
+  max-height: 22vh;
+}
+
+@media (min-width: 760px) {
+  .ygo-overlay {
+    gap: 8px;
+    padding: 10px 16px;
+  }
+
+  .ygo-game {
+    gap: 6px;
+  }
 }

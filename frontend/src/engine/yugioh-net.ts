@@ -7,6 +7,7 @@ import {
   endJarvisTurn,
   setSpellTrap,
   createDuel,
+  drainChain,
   DUEL_STRATEGIES,
   extraSummonZone,
   findMaterialsForExtra,
@@ -124,6 +125,7 @@ function withEffect(features: number[], card: DuelCard, opponentLp: number): voi
 }
 
 function tributesNeeded(card: DuelCard): number {
+  if (hasRule(card, 'freeTribute')) return 0
   const level = card.level || 4
   return level >= 7 ? 2 : level >= 5 ? 1 : 0
 }
@@ -858,11 +860,17 @@ function flipActors(state: DuelState): DuelState {
 /** Ein Zug des Spielers, mit derselben Entscheidung wie Ultron, zurück auf das sichtbare Feld gelegt. */
 export function mirrorBotStep(state: DuelState, model: NetModel | null): DuelState {
   if (state.winner) return state
-  if (state.turnOwner === 'jarvis') return jarvisStep(state, model)
-  const stepped = flipActors(jarvisStep(flipActors({ ...state, turnOwner: 'player' }), model))
+  const open = state.chain.length ? drainChain(state) : state
+  if (open.winner || open.chain.length) return open
+  if (open.turnOwner === 'jarvis') {
+    const played = jarvisStep(open, model)
+    return played.chain.length ? drainChain(played) : played
+  }
+  const stepped = flipActors(jarvisStep(flipActors({ ...open, turnOwner: 'player' }), model))
+  const settled = stepped.chain.length ? drainChain(stepped) : stepped
   return {
-    ...stepped,
-    message: stepped.message.replace(/\bJarvis\b/g, 'Der Gegner'),
+    ...settled,
+    message: settled.message.replace(/\bJarvis\b/g, 'Der Gegner'),
   }
 }
 

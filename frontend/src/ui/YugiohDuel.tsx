@@ -52,6 +52,20 @@ import './yugioh-duel.css'
 
 const APP_VERSION = '18.51.3'
 
+function settleOwnActivation(state: DuelState): DuelState {
+  if (
+    !state.chain.length
+    || state.chainPriority !== 'player'
+    || state.chainPasses !== 1
+    || state.chain.some((link) => link.controller !== 'player')
+  ) return state
+  try {
+    return passDuelChain(state, 'player')
+  } catch {
+    return state
+  }
+}
+
 type ApiCard = {
   id?: unknown
   name?: unknown
@@ -234,7 +248,7 @@ function PlayCard({
   return (
     <button
       type="button"
-      className={`ygo-slot${card ? '' : ' is-empty'}${card?.faceDown ? ' is-facedown' : ''}${card?.position === 'defense' ? ' is-defense' : ''}${card?.zoneKind === 'emz' ? ' is-emz' : ''}${className}`}
+      className={`ygo-slot${card ? '' : ' is-empty'}${card?.faceDown ? ' is-facedown' : ''}${card?.position === 'defense' ? ' is-defense' : ''}${card?.zoneKind === 'emz' ? ' is-emz' : ''}${className ? ` ${className}` : ''}`}
       disabled={disabled || !card}
       onClick={onClick}
       title={card ? shortCard(card) : 'Leere Zone'}
@@ -298,6 +312,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [netProgress, setNetProgress] = useState(0)
   const [netEval, setNetEval] = useState<{ net: NetEvaluation; random: NetEvaluation; heuristic: NetEvaluation } | null>(null)
   const [focusedCard, setFocusedCard] = useState<{ side: DuelSide; zone: string; id: number } | null>(null)
+  const [tributeFor, setTributeFor] = useState<number | null>(null)
+  const [tributeIds, setTributeIds] = useState<number[]>([])
   const [showPlayerGrave, setShowPlayerGrave] = useState(false)
   const [showJarvisGrave, setShowJarvisGrave] = useState(false)
   const [showPlayerExtra, setShowPlayerExtra] = useState(false)
@@ -531,11 +547,26 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   function updateGame(action: (current: DuelState) => DuelState) {
     if (!game) return
     try {
-      setGame(action(game))
+      const next = settleOwnActivation(action(game))
+      setGame(next)
       setNotice('')
-      setFocusedCard(null)
+      setTributeFor(null)
+      setTributeIds([])
       setExtraCardId(null)
       setExtraMaterials([])
+      const previous = game.lastAnimation
+      const anim = next.lastAnimation
+      const fresh = Boolean(anim && (!previous || previous.id !== anim.id || previous.kind !== anim.kind || previous.side !== anim.side))
+      if (!spectator && fresh && anim && anim.side === 'player' && (anim.kind === 'summon' || anim.kind === 'set' || anim.kind === 'effect' || anim.kind === 'destroy')) {
+        const zone = next.player.monsters.some((card) => card.id === anim.id) ? 'monsters'
+          : next.player.spells.some((card) => card.id === anim.id) ? 'spells'
+            : next.player.fieldSpell?.id === anim.id ? 'field'
+              : next.player.graveyard.some((card) => card.id === anim.id) ? 'graveyard'
+                : null
+        setFocusedCard(zone ? { side: 'player', zone, id: anim.id } : null)
+      } else {
+        setFocusedCard(null)
+      }
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Der Spielzug konnte nicht ausgeführt werden.')
     }
@@ -702,7 +733,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const timeout = window.setTimeout(() => {
       setGame((current) => (current && !current.winner ? mirrorBotStep(current, null) : current))
-    }, reduced ? 80 : 720)
+    }, reduced ? 80 : 500 + Math.floor(Math.random() * 501))
     return () => window.clearTimeout(timeout)
   }, [spectator, spectatorPaused, game])
 
@@ -733,18 +764,78 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           : game?.phase === 'main2' ? 'Main 2'
             : 'End'
 
-  function summonFromHand(card: DuelCard, mode: 'attack' | 'set') {
+  function tributesFor(card: DuelCard): number {
+    if (hasRule(card, 'freeTribute')) return 0
+    return (card.level || 4) >= 7 ? 2 : (card.level || 4) >= 5 ? 1 : 0
+  }
+
+  function summonFromHand(card: DuelCard, mode: 'attack' | 'set', chosen: number[] = []) {
     if (!game) return
-    const required = (card.level || 4) >= 7 ? 2 : (card.level || 4) >= 5 ? 1 : 0
-    const tributes = [...game.player.monsters]
-      .sort((a, b) => (a.atk || 0) - (b.atk || 0))
-      .slice(0, required)
-      .map((item) => item.id)
+    const required = tributesFor(card)
+    const tributes = chosen.length
+      ? chosen
+      : [...game.player.monsters]
+        .sort((a, b) => (a.atk || 0) - (b.atk || 0))
+        .slice(0, required)
+        .map((item) => item.id)
     if (tributes.length < required) {
-      setNotice(`Für ${card.name} fehlen Tribute (${tributes.length}/${required}).`)
+      setTributeFor(card.id)
+      setTributeIds([])
+      setFocusedCard({ side: 'player', zone: 'hand', id: card.id })
+      setNotice(`Tippe ${required} eigene Monster als Tribut für ${card.name}.`)
       return
     }
     updateGame((current) => summonMonster(current, card.id, tributes, mode))
+  }
+
+  function playHandCard(card: DuelCard) {
+    if (!game || spectator || game.winner || game.turnOwner !== 'player') {
+      openCard('player', 'hand', card.id)
+      return
+    }
+    if ((game.discardNeeded || 0) > 0) {
+      updateGame((current) => discardForHandLimit(current, card.id))
+      return
+    }
+    if (!['main1', 'main2'].includes(game.phase)) {
+      setNotice('Beschwören und Zauber gehen in der Main Phase. Tippe auf Nächste Phase.')
+      openCard('player', 'hand', card.id)
+      return
+    }
+    if (card.kind === 'monster') {
+      if (hasRule(card, 'cannotNormal') && card.effect?.kind === 'summonHand') {
+        activateIfPossible('player', card)
+        return
+      }
+      summonFromHand(card, 'attack')
+      return
+    }
+    const problem = card.effect ? checkActivation(game, 'player', card.id) : null
+    if (card.effect && problem === null) {
+      activateIfPossible('player', card)
+      return
+    }
+    updateGame((current) => {
+      const placed = setSpellTrap(current, card.id)
+      return problem ? { ...placed, message: `${placed.message} ${problem}` } : placed
+    })
+  }
+
+  function offerTribute(card: DuelCard) {
+    if (!game || tributeFor === null) return
+    const next = tributeIds.includes(card.id) ? tributeIds.filter((id) => id !== card.id) : [...tributeIds, card.id]
+    const summon = game.player.hand.find((item) => item.id === tributeFor)
+    if (!summon) {
+      setTributeFor(null)
+      setTributeIds([])
+      return
+    }
+    if (next.length >= tributesFor(summon)) {
+      summonFromHand(summon, 'attack', next)
+      return
+    }
+    setTributeIds(next)
+    setNotice(`Tribut ${next.length}/${tributesFor(summon)} für ${summon.name}.`)
   }
 
   function activateIfPossible(side: DuelSide, card: DuelCard) {
@@ -760,6 +851,13 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   function summonableExtra(card: DuelCard) {
     if (!game) return false
     return Boolean(findMaterialsForExtra(card, game.player.monsters))
+  }
+
+  function popClass(card: DuelCard | null): string {
+    if (!card || !game?.lastAnimation) return ''
+    if (game.lastAnimation.destroyed?.includes(card.id)) return ' is-hit'
+    if (game.lastAnimation.id === card.id) return ' is-arriving'
+    return ''
   }
 
   const board = (
@@ -807,7 +905,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <strong>{phaseLabel}</strong>
             <span>{spectator ? (game.turnOwner === 'jarvis' ? 'Ultron ist dran' : 'Gegner-Bot ist dran') : (game.turnOwner === 'jarvis' ? 'Jarvis ist dran' : 'Du bist dran')}</span>
           </div>
-          <div className="ygo-mat">
+          <div className={`ygo-mat${game.lastAnimation?.kind === 'effect' ? ' is-casting' : ''}${game.lastAnimation?.kind === 'summon' ? ' is-summoning' : ''}`}>
             <div className="ygo-lp is-jarvis">
               <strong>ULTRON</strong>
               <span>{game.jarvis.lp.toLocaleString('de-DE')} LP</span>
@@ -818,7 +916,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 <button type="button" className="ygo-pile" onClick={() => setNotice('Ultrons Extra Deck bleibt verdeckt.')}>Extra<br />{game.jarvis.extraDeck.length}</button>
                 <button type="button" className="ygo-pile is-deck" onClick={() => setNotice('Ultrons Deck bleibt verdeckt.')}>Deck<br />{game.jarvis.deck.length}</button>
                 <PlayCard card={game.jarvis.fieldSpell ?? null} className="ygo-field-slot" onClick={() => game.jarvis.fieldSpell && openCard('jarvis', 'field', game.jarvis.fieldSpell.id)} />
-                <button type="button" className="ygo-pile" aria-label={`Friedhof Ultron, ${game.jarvis.graveyard.length}`} onClick={() => setShowJarvisGrave(true)}>
+                <button type="button" className={`ygo-pile${game.lastAnimation && game.jarvis.graveyard.at(-1)?.id === game.lastAnimation.id ? ' is-arriving' : ''}`} aria-label={`Friedhof Ultron, ${game.jarvis.graveyard.length}`} onClick={() => setShowJarvisGrave(true)}>
                   {game.jarvis.graveyard.at(-1) && cardArt(game.jarvis.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.jarvis.graveyard.at(-1) as DuelCard)} alt="" /> : <span className="ygo-pile-name">Friedhof</span>}
                   <em>{game.jarvis.graveyard.length}</em>
                 </button>
@@ -829,7 +927,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                     <PlayCard
                       key={`jarvis-spell-${index}`}
                       card={card}
-                      className={card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}
+                      className={`${card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}${popClass(card)}`}
                       onClick={() => card && !card.faceDown && openCard('jarvis', 'spells', card.id)}
                     />
                   ))}
@@ -841,7 +939,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                       card={card}
                       owner={game.jarvis}
                       opponent={game.player}
-                      className={card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}
+                      className={`${card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}${popClass(card)}`}
                       onClick={() => {
                         if (!card) return
                         if (game.selectedAttacker !== null) updateGame((current) => attack(current, card.id))
@@ -877,8 +975,13 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                         card={card}
                         owner={game.player}
                         opponent={game.jarvis}
-                        className={card && game.selectedAttacker === card.id ? ' is-selected' : ''}
-                        onClick={() => card && (game.phase === 'battle' ? chooseAttacker(card) : openCard('player', 'monsters', card.id))}
+                        className={`${card && game.selectedAttacker === card.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${popClass(card)}`}
+                        onClick={() => {
+                          if (!card) return
+                          if (tributeFor !== null) offerTribute(card)
+                          else if (game.phase === 'battle') chooseAttacker(card)
+                          else openCard('player', 'monsters', card.id)
+                        }}
                       />
                     )
                   })}
@@ -890,8 +993,13 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                       card={card}
                       owner={game.player}
                       opponent={game.jarvis}
-                      className={`${game.selectedAttacker === card?.id ? ' is-selected' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
-                      onClick={() => card && (game.phase === 'battle' ? chooseAttacker(card) : openCard('player', 'monsters', card.id))}
+                      className={`${game.selectedAttacker === card?.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}${popClass(card)}`}
+                      onClick={() => {
+                        if (!card) return
+                        if (tributeFor !== null) offerTribute(card)
+                        else if (game.phase === 'battle') chooseAttacker(card)
+                        else openCard('player', 'monsters', card.id)
+                      }}
                     />
                   ))}
                 </div>
@@ -900,14 +1008,18 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                     <PlayCard
                       key={`player-spell-${index}`}
                       card={card}
-                      className={card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}
-                      onClick={() => card && openCard('player', 'spells', card.id)}
+                      className={`${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}${popClass(card)}`}
+                      onClick={() => {
+                        if (!card) return
+                        if (canActivateCard(game, 'player', card.id)) activateIfPossible('player', card)
+                        else openCard('player', 'spells', card.id)
+                      }}
                     />
                   ))}
                 </div>
               </div>
               <div className="ygo-piles">
-                <button type="button" className="ygo-pile" aria-label={`Friedhof, ${game.player.graveyard.length}`} onClick={() => setShowPlayerGrave(true)}>
+                <button type="button" className={`ygo-pile${game.lastAnimation && game.player.graveyard.at(-1)?.id === game.lastAnimation.id ? ' is-arriving' : ''}`} aria-label={`Friedhof, ${game.player.graveyard.length}`} onClick={() => setShowPlayerGrave(true)}>
                   {game.player.graveyard.at(-1) && cardArt(game.player.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.player.graveyard.at(-1) as DuelCard)} alt="" /> : <span className="ygo-pile-name">Friedhof</span>}
                   <em>{game.player.graveyard.length}</em>
                 </button>
@@ -916,6 +1028,38 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 <button type="button" className="ygo-pile" onClick={() => setShowPlayerExtra(true)}>Extra<br />{game.player.extraDeck.length}</button>
               </div>
             </div>
+            {focused && focusedCard ? (
+              <div className="ygo-inspect" role="region" aria-label="Karte auf dem Feld">
+                {focused.imageUrl ? <img src={focused.imageUrl} alt="" /> : <span className="ygo-inspect-fallback">{focused.kind === 'monster' ? 'MON' : 'ZAUBER'}</span>}
+                <div>
+                  <strong>{focused.name}</strong>
+                  <p>{(focused.catalogId && cardTextCache[focused.catalogId]) || focused.effectSummary || (cardTextBusy ? 'Kartentext wird geladen …' : focused.type)}</p>
+                  <div className="ygo-actions">
+                    {focusedCard.side === 'player' && focusedCard.zone === 'hand' && focused.kind === 'monster' ? (
+                      <>
+                        <button className="ygo-primary" type="button" onClick={() => summonFromHand(focused, 'attack', tributeIds)}>Normal beschwören</button>
+                        <button type="button" onClick={() => summonFromHand(focused, 'set', tributeIds)}>Verdeckt setzen</button>
+                      </>
+                    ) : null}
+                    {focusedCard.side === 'player' && focusedCard.zone === 'hand' && (focused.kind === 'spell' || focused.kind === 'trap') ? (
+                      <button className="ygo-primary" type="button" onClick={() => playHandCard(focused)}>Spielen</button>
+                    ) : null}
+                    {focusedCard.side === 'player' && focusedCard.zone === 'monsters' && game.phase === 'battle' && focused.position !== 'defense' ? (
+                      <button type="button" onClick={() => chooseAttacker(focused)}>Angreifen</button>
+                    ) : null}
+                    {focusedCard.side === 'player' && focusedCard.zone === 'monsters' ? (
+                      <button type="button" onClick={() => updateGame((current) => changePosition(current, focused.id))}>Position</button>
+                    ) : null}
+                    {focusedCard.side === 'player' && focused.effect ? (
+                      <button type="button" onClick={() => activateIfPossible(focusedCard.side, focused)}>
+                        {focused.faceDown ? 'Aufdecken' : 'Effekt'}
+                      </button>
+                    ) : null}
+                    <button type="button" onClick={() => { setFocusedCard(null); setTributeFor(null); setTributeIds([]) }}>Schließen</button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
             <div className="ygo-lp is-player">
               <strong>{spectator ? 'BOT' : 'DU'}</strong>
               <span>{game.player.lp.toLocaleString('de-DE')} LP</span>
@@ -928,11 +1072,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 key={`hand-${card.id}`}
                 card={card}
                 owner={game.player}
-                className={`ygo-hand-card${canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
-                onClick={() => {
-                  if ((game.discardNeeded || 0) > 0) updateGame((current) => discardForHandLimit(current, card.id))
-                  else openCard('player', 'hand', card.id)
-                }}
+                className={`ygo-hand-card${canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}${tributeFor === card.id ? ' is-selected' : ''}${popClass(card)}`}
+                onClick={() => playHandCard(card)}
               />
             ))}
           </div>
@@ -1045,65 +1186,6 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                   ))}
                 </div>
                 <button type="button" onClick={() => { setShowPlayerGrave(false); setShowJarvisGrave(false) }}>Schließen</button>
-              </div>
-            </section>
-          ) : null}
-          {focused && focusedCard ? (
-            <section className="ygo-modal" role="dialog" aria-modal="true" aria-label="Kartendetails">
-              <div className="ygo-modal-card">
-                <h2>{focused.name}</h2>
-                {focused.imageUrl ? <img className="ygo-detail-image" src={focused.imageUrl.replace('/cards_small/', '/cards/')} alt={focused.name} /> : null}
-                <p>{focused.type} {focused.level ? `· Stufe ${focused.level}` : ''}{focused.extraKind ? ` · ${focused.extraKind}` : ''}</p>
-                {focused.kind === 'monster' ? (
-                  <p className="ygo-detail-stats">
-                    {(() => {
-                      const owner = focusedCard.side === 'player' ? game.player : game.jarvis
-                      const stats = cardBattleStats(focused, owner)
-                      return (
-                        <>
-                          ATK <b className={statTone(stats.atk, stats.baseAtk)}>{stats.atk}</b>
-                          {stats.atk !== stats.baseAtk ? <small> (Druck {stats.baseAtk})</small> : null}
-                          {' / '}DEF <b className={statTone(stats.def, stats.baseDef)}>{stats.def}</b>
-                          {stats.def !== stats.baseDef ? <small> (Druck {stats.baseDef})</small> : null}
-                        </>
-                      )
-                    })()}
-                  </p>
-                ) : null}
-                <p>{(focused.catalogId && cardTextCache[focused.catalogId]) || focused.effectSummary || (cardTextBusy ? 'Kartentext wird geladen …' : 'Kein Text verfügbar.')}</p>
-                <div className="ygo-actions">
-                  {focusedCard.side === 'player' && focusedCard.zone === 'hand' && focused.kind === 'monster' ? (
-                    <>
-                      <button className="ygo-primary" type="button" onClick={() => summonFromHand(focused, 'attack')}>Normal beschwören</button>
-                      <button type="button" onClick={() => summonFromHand(focused, 'set')}>Verdeckt setzen</button>
-                    </>
-                  ) : null}
-                  {focusedCard.side === 'player' && focusedCard.zone === 'hand' && (focused.kind === 'spell' || focused.kind === 'trap') ? (
-                    <button className="ygo-primary" type="button" onClick={() => updateGame((current) => setSpellTrap(current, focused.id))}>Setzen</button>
-                  ) : null}
-                  {focusedCard.side === 'player' && focusedCard.zone === 'monsters' && game.phase === 'battle' && focused.position !== 'defense' ? (
-                    <button type="button" onClick={() => chooseAttacker(focused)}>Als Angreifer wählen</button>
-                  ) : null}
-                  {focusedCard.side === 'player' && focusedCard.zone === 'monsters' ? (
-                    <button type="button" onClick={() => updateGame((current) => changePosition(current, focused.id))}>Position wechseln</button>
-                  ) : null}
-                  {focusedCard.side === 'player' && focused.effect ? (
-                    <button type="button" onClick={() => {
-                      if (focused.faceDown) {
-                        updateGame((current) => changePosition(current, focused.id))
-                        return
-                      }
-                      activateIfPossible(focusedCard.side, focused)
-                    }}>
-                      {focused.faceDown
-                        ? 'Aufdecken'
-                        : focused.effectTrigger === 'ignition' || focused.effectTrigger === 'flip' || focused.effectTrigger === 'quick'
-                          ? 'Effekt ausführen'
-                          : 'Effekt aktivieren'}
-                    </button>
-                  ) : null}
-                  <button type="button" onClick={() => setFocusedCard(null)}>Schließen</button>
-                </div>
               </div>
             </section>
           ) : null}
