@@ -35,8 +35,16 @@ const TIMED =
 const GENERIC_LIST =
   /^(?:die|der|das|dem|den|meine[nrs]?|unsere[nrs]?|einkauf(?:s)?(?:liste)?|haupt(?:liste)?|liste)$/i
 
+const ERRAND =
+  /^\s*ich\s+muss\s+(?:noch\s+)?(.{2,80}?)\s+(kaufen|holen|besorgen)\s*$/i
+
 export function parseShopIntent(text: string): ShopIntent | null {
   const t = text.trim().replace(/[.!]+\s*$/g, '').trim()
+  const errand = ERRAND.exec(t)
+  if (errand) {
+    const add = asAdd(errand[1])
+    if (add) return add
+  }
   if (!t || t.length > 180) return null
   const create = CREATE_LIST.exec(t)
   if (create) {

@@ -425,7 +425,9 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
 
   if (pick.kind === 'none') {
     if (isDeepResearch(ctx.text)) return { hit: null }
-    if (loadSettings().plan_phase === 'live') {
+    const planSettings = loadSettings()
+    const planHere = !planSettings.plan_conversation_id || planSettings.plan_conversation_id === conversationId
+    if (planSettings.plan_phase === 'live' && planHere) {
       const talked = await handleIdea(conversationId, text)
       if (talked.handled && talked.reply) {
         setLastUserFacts(talked.reply)

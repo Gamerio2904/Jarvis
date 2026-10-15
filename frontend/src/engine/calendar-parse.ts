@@ -241,6 +241,17 @@ function createFromInner(raw: string, now: Date): CalendarIntent | null {
   }
   const bare = parseBareCreate(raw, now)
   if (bare) return bare
+  const weekday = takeWeekday(raw)
+  const when = weekday ? parseWhenBlob(raw, now) : null
+  if (when && weekday) {
+    const split = splitTitlePlace(when.rest)
+    if (split.title && split.title.length >= 2 && !FOREIGN_TITLE.test(split.title)) {
+      return withAllDayAndSpan(
+        { kind: 'create', title: split.title, place: split.place, start: when.start, whenLabel: when.whenLabel },
+        raw,
+      )
+    }
+  }
   const title = raw.trim()
   if (!title) return null
   const split = splitTitlePlace(title)

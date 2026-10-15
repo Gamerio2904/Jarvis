@@ -29,7 +29,8 @@ function otherWish(): boolean {
 
 /** Parser für den Ablauf. `So` und `Ja` nur, solange eine Zeile wartet. */
 export function parseAblaufIntent(text: string): AblaufIntent | null {
-  const t = normalizeUtterance(text.trim())
+  const original = text.trim()
+  const t = normalizeUtterance(original)
   if (!t) return null
   if (isPlanningScreenAsk(t)) return { kind: 'screen' }
   const invite = planningInvite(t)
@@ -54,7 +55,11 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
 
   const named = new RegExp(String.raw`^\s*plan(?:e)?\s+das\s*:\s*([\s\S]+)$`, 'i').exec(t)
   if (named) {
-    const work = named[1].trim().slice(0, 2000)
+    let work = named[1].trim()
+    const rawNamed = /^\s*plan(?:e)?\s+das\s*:\s*([\s\S]+)$/i.exec(original.replace(/\.+\s*$/g, '').trim())
+    const rawWork = rawNamed?.[1].trim()
+    if (rawWork && rawWork.replace(/!+\s*$/g, '').trim() === work) work = rawWork
+    work = work.slice(0, 2000)
     return work ? { kind: 'open', work } : { kind: 'open' }
   }
   if (new RegExp(String.raw`^\s*plan(?:e)?\s+das${END}`, 'i').test(t)) return { kind: 'open' }

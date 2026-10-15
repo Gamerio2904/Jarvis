@@ -49,7 +49,8 @@ export async function handleReminders(
       }
     } else {
       const title = typeof pending.args.title === 'string' ? pending.args.title : ''
-      const followUp = resolveReminderTimeAnswer(text, title)
+      const dayWord = typeof pending.args.dayWord === 'string' ? pending.args.dayWord : undefined
+      const followUp = resolveReminderTimeAnswer(text, title, new Date(), dayWord)
       if (followUp) {
         intent = followUp
         await clearPending(conversationId)
@@ -114,7 +115,7 @@ export async function handleReminders(
       conversation_id: conversationId,
       tool: 'reminder',
       action: 'ask_time',
-      args: { title: intent.title },
+      args: { title: intent.title, ...(intent.dayWord ? { dayWord: intent.dayWord } : {}) },
       preview: intent.title,
       created_at: new Date().toISOString(),
     })

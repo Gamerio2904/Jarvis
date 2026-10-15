@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   activateDuelEffect,
   advanceDuelPhase,
+  discardForHandLimit,
   attack,
   canActivateCard,
   changePosition,
@@ -264,7 +265,10 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        const leave = window.confirm('Duell schließen?')
+        if (leave) onClose()
+      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -806,7 +810,10 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 card={card}
                 owner={game.player}
                 className={`ygo-hand-card${canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
-                onClick={() => openCard('player', 'hand', card.id)}
+                onClick={() => {
+                  if ((game.discardNeeded || 0) > 0) updateGame((current) => discardForHandLimit(current, card.id))
+                  else openCard('player', 'hand', card.id)
+                }}
               />
             ))}
           </div>

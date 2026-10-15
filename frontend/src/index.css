@@ -7738,6 +7738,25 @@ html.theme-wipe-dark::before {
   text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
+.timer-bar-stop {
+  flex: none;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+}
+
+.mini-chat .timer-rail {
+  width: auto;
+  margin: 8px 10px 0;
+}
+
+.mini-chat .timer-clock {
+  display: none;
+}
+
 .timer-rail-more {
   margin: 0;
   padding-left: 8px;

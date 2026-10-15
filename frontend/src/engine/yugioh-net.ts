@@ -1,6 +1,7 @@
 import {
   activateDuelEffect,
   advanceDuelPhase,
+  autoDiscardForHandLimit,
   attack,
   checkActivation,
   endJarvisTurn,
@@ -352,6 +353,10 @@ function playGame(policy: Policy, random: () => number, agentArchetype: DeckArch
   let state = createDuel(own.main, other.main, random, own.extra, other.extra, strategy)
   let invalid = 0
   for (let step = 0; !state.winner && state.turn <= 40 && step < 1500; step += 1) {
+    if ((state.discardNeeded || 0) > 0) {
+      state = autoDiscardForHandLimit(state)
+      continue
+    }
     if (!state.chain.length && (state.phase === 'draw' || state.phase === 'standby' || state.phase === 'end')) {
       state = advanceDuelPhase(state)
       continue
@@ -647,6 +652,7 @@ export function runNetJarvisTurn(state: DuelState, model: NetModel): DuelState {
     }
     view = next
   }
+  if ((view.discardNeeded || 0) > 0) view = autoDiscardForHandLimit(view)
   const finished = mirror(view)
   const realWinner = mirrorWinner(view.winner)
   const result: DuelState = {
@@ -722,6 +728,12 @@ function fromJarvisView(view: DuelState, real: DuelState): DuelState {
     chain: view.chain.map((link) => ({ ...link, controller: link.controller === 'player' ? 'jarvis' as const : 'player' as const })),
     chainPriority: view.chainPriority === 'player' ? 'jarvis' : view.chainPriority === 'jarvis' ? 'player' : null,
     chainPasses: view.chainPasses,
+    pendingAttack: view.pendingAttack
+      ? {
+          ...view.pendingAttack,
+          side: view.pendingAttack.side === 'player' ? 'jarvis' : 'player',
+        }
+      : null,
   }
 }
 
@@ -738,7 +750,8 @@ function resolveJarvisAttack(state: DuelState): DuelState {
   if (blocked) return { ...state, pendingAttack: null, message: 'Der Angriff von Jarvis fällt aus.' }
   try {
     const result = attack(selectAttacker(view, pending.attackerId), target ? target.id : undefined, { skipTraps: true })
-    return { ...fromJarvisView(result, state), pendingAttack: null }
+    const mapped = fromJarvisView(result, state)
+    return mapped.chain.length ? mapped : { ...mapped, pendingAttack: null }
   } catch {
     return { ...state, pendingAttack: null, message: 'Der Angriff von Jarvis fällt aus.' }
   }

@@ -47,8 +47,8 @@ function atHours(base: Date, h: number, m: number): Date {
 function nextClock(now: Date, h: number, m: number, dayWord: string | null): Date {
   const w = (dayWord || '').toLowerCase()
   const d = new Date(now)
-  if (w === 'morgen') d.setDate(d.getDate() + 1)
-  if (w === 'übermorgen') d.setDate(d.getDate() + 2)
+  if (w === 'morgen') d.setDate(d.getDate() + (now.getHours() < 4 ? 0 : 1))
+  if (w === 'übermorgen') d.setDate(d.getDate() + (now.getHours() < 4 ? 1 : 2))
   const wd = WEEKDAYS[w]
   if (wd !== undefined) {
     const add = (wd - d.getDay() + 7) % 7
@@ -57,7 +57,11 @@ function nextClock(now: Date, h: number, m: number, dayWord: string | null): Dat
   let due = atHours(d, h, m)
   if (due.getTime() <= now.getTime() + 15_000) {
     if (wd !== undefined) due.setDate(due.getDate() + 7)
-    else due = atHours(new Date(now.getTime() + 86_400_000), h, m)
+    else {
+      const next = new Date(now)
+      next.setDate(next.getDate() + 1)
+      due = atHours(next, h, m)
+    }
   }
   return due
 }

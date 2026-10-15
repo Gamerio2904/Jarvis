@@ -14,6 +14,23 @@ import type { ToolMeta } from './tools.ts'
 
 export { parseTimerIntent } from './timer-parse.ts'
 
+/** Die Browser-Nachfrage darf den Timer nicht festhalten, bis der Agent aufgibt. */
+function notifyPermissionSoon(): Promise<boolean> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), 1200)
+    requestNotifyPermission().then(
+      (ok) => {
+        clearTimeout(timer)
+        resolve(ok)
+      },
+      () => {
+        clearTimeout(timer)
+        resolve(false)
+      },
+    )
+  })
+}
+
 export async function handleTimers(
   conversationId: string,
   text: string,
@@ -34,7 +51,7 @@ export async function handleTimers(
     let perm = false
     let scheduled: { ok: boolean } = { ok: false }
     try {
-      perm = await requestNotifyPermission()
+      perm = await notifyPermissionSoon()
       scheduled = await scheduleNotify({
         id: notifyIdOf(row),
         ...timerAlarmFields(row.title),
@@ -75,15 +92,23 @@ export async function handleTimers(
 
   const rows = await openTimers()
   if (!rows.length) return { handled: true, reply: 'Kein Timer zum Stoppen.' }
-  for (const r of rows) {
-    await cancelReminderNotify(r)
-    await deleteReminder(r.id)
-  }
+  for (const r of rows) await stopTimer(r.id)
   await syncGlance()
   return {
     handled: true,
     reply: rows.length === 1 ? timerStopLine(rows[0].title) : `${rows.length} Timer aus.`,
     tool: { tool_status: 'executed', tool: 'timer', action: 'stop', label: 'Timer aus' },
+  }
+}
+
+export async function stopTimer(id: string): Promise<void> {
+  const row = (await listReminders()).find((item) => item.id === id)
+  if (row) await cancelReminderNotify(row)
+  await deleteReminder(id)
+  try {
+    await syncGlance()
+  } catch {
+    /* */
   }
 }
 

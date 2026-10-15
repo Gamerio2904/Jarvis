@@ -102,7 +102,8 @@ export async function handleShopping(
     if (intent.listHint && !hinted) {
       return { handled: true, reply: `Die Liste ${intent.listHint} gibt es noch nicht.` }
     }
-    const open = (await listShopping(hinted?.id)).filter((s) => s.status === 'open')
+    const activeId = hinted?.id || loadSettings().shopping_list_id || (await getDefaultShoppingList()).id
+    const open = (await listShopping(activeId)).filter((s) => s.status === 'open')
     if (!open.length) {
       return { handled: true, reply: hinted ? `${hinted.name} ist leer.` : 'Einkaufsliste ist leer.' }
     }

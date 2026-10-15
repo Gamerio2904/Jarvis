@@ -1,4 +1,5 @@
 import {
+  hasFreeExtraZone,
   hasFreeMonsterZone,
   isFirstTurnBattleBlocked,
   registerLinkArrows,
@@ -14,10 +15,11 @@ export type DuelSide = 'player' | 'jarvis'
 
 export type DuelEffect =
   | { kind: 'draw'; amount: number }
+  | { kind: 'drawDiscard'; draw: number; discard: number }
   | { kind: 'damage'; amount: number }
   | { kind: 'heal'; amount: number }
   | { kind: 'destroy'; target: 'monster' | 'allMonsters' | 'attackMonsters' | 'spelltrap' }
-  | { kind: 'negate' }
+  | { kind: 'negate'; cost?: 'halfLp' }
   | { kind: 'negateAttack' }
   | { kind: 'search'; amount: number }
   | { kind: 'revive' }
@@ -116,6 +118,8 @@ export type DuelState = {
   jarvisWeights: StrategyWeights
   message: string
   winner: 'player' | 'jarvis' | null
+  /** Karten, die in der End Phase noch abgeworfen werden müssen (Handlimit 6). */
+  discardNeeded?: number
 }
 
 export type StrategyWeights = {
@@ -438,12 +442,75 @@ function skipBlockedPhases(state: DuelState, phase: DuelPhase): DuelPhase {
   return next
 }
 
+function handKeepScore(card: DuelCard): number {
+  if (card.kind === 'monster') return (card.atk || 0) + 1
+  return 0
+}
+
+function weakestHandCard(hand: DuelCard[]): DuelCard {
+  return [...hand].sort((a, b) => handKeepScore(a) - handKeepScore(b) || a.id - b.id)[0]
+}
+
+export function discardForHandLimit(state: DuelState, cardId: number): DuelState {
+  const need = state.discardNeeded || 0
+  if (need <= 0) throw new Error('Es muss nichts abgeworfen werden.')
+  const card = state.player.hand.find((item) => item.id === cardId)
+  if (!card) throw new Error('Diese Karte ist nicht auf der Hand.')
+  const left = need - 1
+  return {
+    ...state,
+    discardNeeded: left,
+    player: {
+      ...state.player,
+      hand: state.player.hand.filter((item) => item.id !== cardId),
+      graveyard: [...state.player.graveyard, card],
+    },
+    message: left > 0 ? `Handlimit 6. Noch ${left} Karte(n) abwerfen.` : 'Handlimit erfüllt.',
+  }
+}
+
+/** Trainings- und Jarvis-Züge wählen selbst: schwächste Karte zuerst, der Spieler tippt. */
+export function autoDiscardForHandLimit(state: DuelState): DuelState {
+  let next = state
+  let guard = 0
+  while ((next.discardNeeded || 0) > 0 && next.player.hand.length && guard < 20) {
+    next = discardForHandLimit(next, weakestHandCard(next.player.hand).id)
+    guard += 1
+  }
+  return next
+}
+
+function trimHandToLimit(player: DuelPlayer, limit = 6): DuelPlayer {
+  if (player.hand.length <= limit) return player
+  const hand = [...player.hand]
+  const graveyard = [...player.graveyard]
+  while (hand.length > limit) {
+    const worst = weakestHandCard(hand)
+    const index = hand.findIndex((card) => card.id === worst.id)
+    graveyard.push(...hand.splice(index, 1))
+  }
+  return { ...player, hand, graveyard }
+}
+
 export function advanceDuelPhase(state: DuelState): DuelState {
   if (state.winner) return state
   requirePlayerTurn(state)
   if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
+  if ((state.discardNeeded || 0) > 0) throw new Error('Wirf zuerst Karten ab. Das Handlimit ist 6.')
   if (state.phase === 'end') return runJarvisTurn(state)
   let phase = skipBlockedPhases(state, nextPhase(state.phase))
+  if (phase === 'end' && state.player.hand.length > 6) {
+    const extra = state.player.hand.length - 6
+    return {
+      ...state,
+      phase: 'end',
+      discardNeeded: extra,
+      selectedAttacker: null,
+      attacked: [],
+      lastAnimation: null,
+      message: `Handlimit 6. Wirf ${extra} Karte(n) ab.`,
+    }
+  }
   return {
     ...state,
     phase,
@@ -593,7 +660,7 @@ export function summonExtraMonster(state: DuelState, cardId: number, materialIds
   const card = state.player.extraDeck.find((item) => item.id === cardId)
   if (!card) throw new Error('Diese Karte liegt nicht in deinem Extra Deck.')
   const materials = extraSummonMaterials(card, state.player.monsters, materialIds)
-  if (!hasFreeMonsterZone(state.player.monsters, materials.length)) throw new Error('Deine Monster-Zone ist voll.')
+  if (!hasFreeExtraZone(state.player.monsters, materials.length)) throw new Error('Deine Monster-Zone ist voll.')
   const player = {
     ...state.player,
     monsters: state.player.monsters.filter((monster) => !materialIds.includes(monster.id)),
@@ -601,12 +668,13 @@ export function summonExtraMonster(state: DuelState, cardId: number, materialIds
     extraDeck: state.player.extraDeck.filter((item) => item.id !== cardId),
     usedEffects: [...state.player.usedEffects],
   }
+  const emzTaken = player.monsters.filter((monster) => monster.zoneKind === 'emz').length
   player.monsters.push({
     ...card,
     faceDown: false,
     position: 'attack',
     lockedKey: turnKey(state),
-    zoneKind: card.extraKind === 'link' ? 'emz' : 'mmz',
+    zoneKind: emzTaken < 2 ? 'emz' : 'mmz',
     linkArrows: card.extraKind === 'link' ? registerLinkArrows(card) : card.linkArrows,
   })
   const summoned: DuelState = {
@@ -837,6 +905,12 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
     case 'draw':
       drawFailed = draw(nextSource, link.effect.amount) !== link.effect.amount
       break
+    case 'drawDiscard':
+      draw(nextSource, link.effect.draw)
+      for (let i = 0; i < link.effect.discard && nextSource.hand.length; i += 1) {
+        nextSource.graveyard.push(nextSource.hand.pop() as DuelCard)
+      }
+      break
     case 'damage':
       nextTarget.lp = Math.max(0, nextTarget.lp - link.effect.amount)
       break
@@ -915,6 +989,7 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
       break
     }
     case 'fieldAura':
+      nextSource.fieldSpell = { ...link.card, faceDown: false, effect: link.effect }
       break
     case 'boost': {
       const strongest = nextSource.monsters.reduce<DuelCard | null>((top, item) => !top || (item.atk || 0) > (top.atk || 0) ? item : top, null)
@@ -945,7 +1020,11 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
     case 'negate':
       break
   }
-  if (link.card.kind !== 'monster') nextSource.graveyard.push(link.card)
+  const staysOnField = link.effect.kind === 'fieldAura' || /field/i.test(link.card.subtype || '')
+  if (link.card.kind !== 'monster' && !staysOnField) nextSource.graveyard.push(link.card)
+  if (staysOnField && link.effect.kind !== 'fieldAura') {
+    nextSource.fieldSpell = { ...link.card, faceDown: false }
+  }
   const result = finishBattle({
     ...state,
     [link.controller]: nextSource,
@@ -983,11 +1062,12 @@ function resolveChain(state: DuelState): DuelState {
       const previous = chain[index - 1]
       if (previous) previous.negated = true
       const source = owner(next, link.controller)
+      const paying = link.effect.cost === 'halfLp' ? { ...source, lp: Math.ceil(source.lp / 2) } : source
       next = {
         ...next,
         [link.controller]: link.card.kind === 'monster'
-          ? source
-          : { ...source, graveyard: [...source.graveyard, link.card] },
+          ? paying
+          : { ...paying, graveyard: [...paying.graveyard, link.card] },
         message: `${link.card.name} negiert Kettenglied ${previous?.id ?? '—'}.`,
       }
     } else {
@@ -1114,7 +1194,7 @@ function resolveBattle(state: DuelState, attacker: DuelCard, target: DuelCard | 
     message: summary,
   })
   const flipped = target?.faceDown && !outcome.destroyTarget ? target.id : 0
-  if (flipped && Number.isInteger(battled.turn) && battled.jarvis.monsters.some((card) => card.id === flipped)) {
+  if (flipped && battled.jarvis.monsters.some((card) => card.id === flipped)) {
     return settleTrigger(battled, 'jarvis', flipped, 'flip')
   }
   return battled
@@ -1161,6 +1241,7 @@ export function startJarvisTurn(state: DuelState): DuelState {
   if (state.winner) return state
   if ((state.turnOwner ?? 'player') !== 'player') return state
   if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
+  if ((state.discardNeeded || 0) > 0) throw new Error('Wirf zuerst Karten ab. Das Handlimit ist 6.')
   if (state.phase !== 'end') throw new Error('Beende zuerst deine End Phase.')
   const jarvis: DuelPlayer = clearBoosts({
     ...state.jarvis,
@@ -1197,7 +1278,7 @@ export function endJarvisTurn(state: DuelState): DuelState {
   return {
     ...state,
     player: { ...state.player, deck, hand: [...state.player.hand, top], normalSummonUsed: false, usedEffects: [] },
-    jarvis: clearBoosts(state.jarvis),
+    jarvis: clearBoosts(trimHandToLimit(state.jarvis)),
     turnOwner: 'player',
     phase: 'draw',
     turn: state.turn + 1,

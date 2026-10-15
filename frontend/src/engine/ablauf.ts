@@ -482,6 +482,14 @@ export function requestAblaufStop(): void {
   skipLaterWaves = true
 }
 
+/** Agentenkarten zum Satz, sobald ein Modell da ist. Ohne Modell bleibt die Tischplatte. */
+export async function startPlanCards(conversationId: string, work: string): Promise<string> {
+  if (!groqReady() && !geminiReady()) return ''
+  if (loadSettings().ablauf_status === 'läuft') return ''
+  const started = await openWork(conversationId, work)
+  return started.reply || ''
+}
+
 export async function handleAblauf(
   conversationId: string,
   text: string,

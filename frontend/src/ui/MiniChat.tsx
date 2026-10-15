@@ -2,6 +2,7 @@ import type { ClipboardEvent, KeyboardEvent } from 'react'
 import type { Message } from '../api.ts'
 import { parseChatBlocks } from '../engine/chat-blocks.ts'
 import { safeImageSrc } from '../engine/image-parse.ts'
+import { TimerChip } from './TimerChip.tsx'
 
 export function MiniChat({
   open,
@@ -78,6 +79,7 @@ export function MiniChat({
               </p>
             ) : null}
           </div>
+          <TimerChip />
           <div className="mini-chat-compose">
             {pasteImage ? (
               <div className="paste-preview">

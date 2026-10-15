@@ -1,6 +1,6 @@
 import { routingAgents } from './agents/parse-catalog.ts'
 import { applyConflicts } from './conflicts.ts'
-import { isFollowish, pickPolicy, SCORE_MIN, withCost, withPrior, type PolicyPick } from './policy.ts'
+import { isFollowish, pickPolicy, withCost, withPrior, type PolicyPick } from './policy.ts'
 import type { Candidate, RouteCtx } from './route-types.ts'
 import { promoteSplitPart, splitIntents } from './split-intents.ts'
 import { looseAsk } from './work-flex.ts'
@@ -39,11 +39,16 @@ function leadOf(pick: PolicyPick): string | null {
  */
 export function decideRoute(ctx: RouteCtx): PolicyPick {
   const wholeDecision = decideRouteFromCtx(ctx)
-  if (
-    /\boder\b/i.test(ctx.text) &&
-    wholeDecision.candidates.some((candidate) => (candidate.base ?? candidate.score) >= SCORE_MIN)
-  ) {
-    return { kind: 'none' }
+  if (/\boder\b/i.test(ctx.text)) {
+    const bits = ctx.text.split(/\s+oder\s+/i).map((part) => part.trim()).filter(Boolean)
+    if (bits.length >= 2) {
+      const leads = new Set(
+        bits
+          .map((part) => leadOf(decideRouteFromCtx({ ...ctx, text: part }).pick))
+          .filter((id): id is string => Boolean(id)),
+      )
+      if (leads.size > 1) return { kind: 'none' }
+    }
   }
   const whole = wholeDecision.pick
   if (leadOf(whole) === 'wont') return whole

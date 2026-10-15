@@ -12,7 +12,7 @@ export const APP_VERSION = '18.51.0'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
-  name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings' | 'jarvis-shopping',
+  name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings' | 'jarvis-shopping' | 'jarvis-todos' | 'jarvis-notes' | 'jarvis-reminders',
 ): void {
   if (typeof window === 'undefined') return
   window.dispatchEvent(new Event(name))
@@ -430,6 +430,8 @@ export type Settings = {
   leiste_zu: boolean
   /** `live` = Skript läuft. `go` = fest, Export bereit. */
   plan_phase: '' | 'live' | 'go'
+  /** Gespräch, in dem der Plan läuft. Andere Chats sehen ihn nicht. */
+  plan_conversation_id: string
   /** Sprintliste im Skriptfenster. */
   script_sprint_side: 'left' | 'right'
   /** Start der Laufschrift auf der Tafel. */
@@ -657,6 +659,7 @@ export const DEFAULT_SETTINGS: Settings = {
   leiste_on: true,
   leiste_zu: false,
   plan_phase: '',
+  plan_conversation_id: '',
   script_sprint_side: 'left',
   plan_script_at: 0,
   plan_idea_id: '',
@@ -1244,6 +1247,7 @@ export async function addTodo(
     updated_at: now,
   }
   await put('todos', row)
+  emitHouse('jarvis-todos')
   return row
 }
 
@@ -1251,6 +1255,7 @@ export async function setTodoStatus(id: string, status: string): Promise<void> {
   const row = await get<Todo>('todos', id)
   if (!row) throw new Error('Das Todo existiert nicht mehr.')
   await put('todos', { ...row, status, updated_at: nowIso() })
+  emitHouse('jarvis-todos')
 }
 
 export async function updateTodo(
@@ -1275,18 +1280,21 @@ export async function updateTodo(
     updated_at: nowIso(),
   }
   await put('todos', updated)
+  emitHouse('jarvis-todos')
   return updated
 }
 
 export async function deleteTodo(id: string): Promise<void> {
   if (!(await get<Todo>('todos', id))) throw new Error('Das Todo existiert nicht mehr.')
   await del('todos', id)
+  emitHouse('jarvis-todos')
 }
 
 export async function deleteDoneTodos(): Promise<number> {
   const rows = await getAll<Todo>('todos')
   const done = rows.filter((t) => t.status === 'done')
   for (const t of done) await del('todos', t.id)
+  if (done.length) emitHouse('jarvis-todos')
   return done.length
 }
 
@@ -1308,6 +1316,7 @@ export async function addNote(body: string, conversationId?: string): Promise<No
     updated_at: nowIso(),
   }
   await put('notes', row)
+  emitHouse('jarvis-notes')
   return row
 }
 
@@ -1318,12 +1327,14 @@ export async function updateNote(id: string, body: string): Promise<Note> {
   if (!cleanBody) throw new Error('Eine Notiz darf nicht leer sein.')
   const updated = { ...row, body: cleanBody, updated_at: nowIso() }
   await put('notes', updated)
+  emitHouse('jarvis-notes')
   return updated
 }
 
 export async function deleteNote(id: string): Promise<void> {
   if (!(await get<Note>('notes', id))) throw new Error('Die Notiz existiert nicht mehr.')
   await del('notes', id)
+  emitHouse('jarvis-notes')
 }
 
 function validateTodoDeadline(date?: string | null, time?: string | null): void {
@@ -1560,6 +1571,7 @@ export async function addReminder(opts: {
     weekday: opts.weekday ?? null,
   }
   await put('reminders', row)
+  emitHouse('jarvis-reminders')
   return row
 }
 
@@ -1591,6 +1603,7 @@ export async function setReminderStatus(id: string, status: string): Promise<voi
 
 export async function deleteReminder(id: string): Promise<void> {
   await del('reminders', id)
+  emitHouse('jarvis-reminders')
 }
 
 export async function listEvents(): Promise<CalendarEvent[]> {

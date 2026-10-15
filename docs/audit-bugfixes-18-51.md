@@ -26,19 +26,19 @@ Dieser Zweig enthält zusätzlich die Duell-Korrekturen und die Timer-, Einkaufs
 | Planung | „Ich möchte eine neue App planen“ öffnet immer dasselbe Projekt. „für Rezepte“ geht verloren. | „eine neue App“ legt ein weiteres Projekt an. „für Rezepte“ heißt Rezepte. |
 | Planung | Dieselbe Anforderung mit und ohne Punkt wird doppelt gespeichert. „Oberfläche: Liste: Liste“. | Der Vergleich ignoriert das Satzzeichen. Gleiche Bausteinzeilen stehen nur einmal. |
 | Plan-Ansicht | Quellen, Backlog, Risiken, Abhängigkeiten, Revisionen und Zeitplan stehen in einer 28-Pixel-Spalte. | Diese Listen laufen über die Breite. Die PSP-Kürzel behalten ihre zwei Spalten. |
+| Duell | Die End Phase kennt kein Handlimit. Ein stilles Abwerfen wäre falsch. | Ab 7 Karten bleibt die End Phase stehen. Die Karten werden angetippt. Erst danach startet Ultrons Zug. Training und Ultron werfen die schwächste Karte selbst ab. |
+| Duell | Mirror Force, Solemn Judgment, Feldzauber, „draw then discard“ und „all monsters gain ATK“ haben keinen spielbaren Effekt. | Angriffsposition wird zerstört. Negate von Beschwörung, Aktivierung oder Effekt kostet die Hälfte der Life Points, wenn der Text das sagt. Ein Feldzauber bleibt als Aura liegen. Ziehen und Abwerfen ist ein Effekt. Ein Bonus für alle eigenen Monster ist eine Feldaura. |
+| Duell | Ultrons Angriff deckt ein Monster auf, der Flip-Effekt fehlt in der Kette. | Die gespiegelte Sicht zählt halbe Züge. Der Flip löst trotzdem aus, und ein offener Angriff bleibt stehen, solange die Kette offen ist. |
+| Duell | Link-Pfeile öffnen zwei zusätzliche Hauptzonen. | Es bleiben fünf Hauptzonen. Belegte Extra-Monsterzonen zählen höchstens zwei dazu. Extra-Deck-Monster nehmen eine freie Extra-Monsterzone, sonst eine Hauptzone, wenn dort schon ein Link-Monster liegt. |
+| Duell | Escape beendet das Duell sofort. | Escape fragt „Duell schließen?“. |
+| Planung | `plan_phase` gilt für alle Gespräche. Eine offene Rückfrage hängt am nächsten Chat. | Der Plan merkt sich `plan_conversation_id`. Sparren und der Director ändern ihn nur in diesem Gespräch. „Plane das“, eine Sitzung oder der Bildschirm starten den Plan im aktuellen Chat. |
+| Planung | Zwei gleichzeitige Sätze überschreiben sich beim Speichern. | `handleIdea` läuft nacheinander über eine Kette. |
+| Planung | „Plane das: …“ schreibt die Tabelle und startet keine Agentenkarten. | Liegt Groq oder Gemini bereit, folgen die Karten nach dem Schreiben. Ohne Modell bleibt die Tabellenantwort. |
+| Einkauf | „ich muss noch Brot holen“ ist Einkauf und Aufgabe zugleich. | Kaufen, holen und besorgen nach „ich muss“ sind Einkauf. |
 
 ## Offen
 
-Diese Punkte sind echte Lücken. Sie sind hier festgehalten und in diesem Durchgang nicht nachgebaut, weil dafür eine eigene Oberfläche oder eine große Effektabdeckung fehlt.
-
-- Kein Handlimit von 6 Karten in der End Phase. Ein stilles Abwerfen wäre falsch, eine Auswahl fehlt.
-- Viele Kartentexte haben keinen spielbaren Effekt. Beispiele: Mirror Force, Solemn Judgment, Feldzauber als Dauerbonus, „draw then discard“, „all monsters gain ATK“. Der Parser deckt eine Teilmenge ab.
-- Flip-Effekte lösen aus, wenn der Spieler ein verdecktes Monster angreift. Greift Ultron ein verdecktes Monster an, wird es aufgedeckt, der Effekt wartet aber nicht in derselben Kette.
-- Die Monsterzonen rechnen Link-Pfeile als bis zu zwei zusätzliche Zonen (5+2). Das ist die vereinfachte Zonenregel dieser Engine, nicht ein vollständiges Master-Rule-Feld.
-- Der Planungszustand gilt für alle Gespräche, nicht für ein einzelnes. Eine offene Rückfrage kann an einem späteren Projekt hängen bleiben.
-- Zwei gleichzeitige Planungssätze können sich beim Speichern überschreiben.
-- Der ältere Ablauf mit Agentenkarten ist von der Tischplatte abgelöst. „Plane das: …“ schreibt den Plan, startet aber keine Agentenkarten.
-- „ich muss noch Brot holen“ kann Einkauf und Aufgabe zugleich meinen. Die bestehende Reihenfolge bleibt.
+Kartentexte außerhalb der genannten Formen bleiben ohne Effekt. Die Engine bildet kein vollständiges Master-Rule-Feld mit Pfeilrichtung ab.
 
 ## Nachzug aus dem Allgemein-Audit
 
@@ -55,21 +55,19 @@ Die drei Code-Audits liefen parallel zum ersten Fix. Der Alltagsteil kam danach 
 | Kalender | „Termine“, „Montags“ und „Geburtstagsfeier“ werden auseinandergerissen. | Getrennt wird nur, wenn der nächste Buchstabe groß oder eine Ziffer ist. |
 | Chat | Jeder Satz wird vor dem Router umgestellt. „Kannst du mir helfen, eine Mail zu schreiben“ wird ein Kontakt namens Helfen. | Die Umstellung läuft nur, wenn sonst niemand zuständig ist. „helfen … zu“ bleibt stehen. |
 | Duell | Die Hand auf schmalen Screens ist zentriert und die äußeren Karten sind nicht erreichbar. Ein abgebrochener Kartentext bleibt als Fehler gespeichert. | Die Hand startet links und lässt sich schieben. Ein Abbruch schreibt keinen Fehlertext. |
-
-Weiter offen aus demselben Audit, nicht in diesem Durchgang:
-
-- „morgen“ zwischen 0 und 4 Uhr legt Wecker und Erinnerung einen Tag zu spät.
-- „Termin am Freitag Friseur“ ohne Uhrzeit landet auf heute 12:00.
-- Tage und Wochen über die Zeitumstellung werden als feste Millisekunden addiert und rutschen um eine Stunde.
-- „erinnere mich am Freitag“, „heute Abend“, „am 20.10.“ werden oft nicht erkannt.
-- Fragen mit „und“ werden in zwei Befehle zerschnitten.
-- Todo- und Notizfenster aktualisieren sich nicht, solange sie offen sind.
-- Das Backup enthält `todo_lists` nicht.
-- Der Timer-Balken liest die Datenbank mehrmals pro Sekunde, auch ohne Timer.
+| Wecker, Erinnerung | Zwischen 0 und 4 Uhr legt „morgen“ den Termin einen Tag zu spät. „Übermorgen“ rutscht mit. | In diesem Fenster ist „morgen“ der heutige Tag, „übermorgen“ der nächste. |
+| Kalender | „Termin am Freitag Friseur“ ohne Uhr landet auf heute, der Wochentag bleibt im Titel. | Der Wochentag wird erkannt und aus dem Titel genommen. Ohne Uhr gilt 18:00. |
+| Erinnerung | „in 2 Wochen“ und „in 1 Tag“ addieren feste Millisekunden und rutschen über die Zeitumstellung um eine Stunde. | Tage und Wochen laufen über das Kalenderdatum. Minuten und Stunden bleiben Millisekunden. |
+| Erinnerung | „am 20.10. um 9“, „am Freitag an Mama“, „heute Abend“ und „morgen früh“ bleiben unerkannt. Titel behalten den Artikel. | Datum mit Uhr wird angelegt. Tageszeit ohne Uhr fragt nach, der Tag bleibt für die Antwort erhalten. Früh 8, mittags 12, abends 19, nachts 22 Uhr. Artikel am Anfang fallen weg. |
+| Routing | Eine Frage mit „und“ wird in zwei Befehle zerschnitten. „oder“ schaltet jede Zuordnung aus. | Ein Fragewort am Anfang oder ein Fragezeichen am Ende bleibt ein Satz. „oder“ bricht nur ab, wenn die beiden Seiten zu verschiedenen Agenten führen. |
+| Wetter | „wird es morgen regnen“ und „brauche ich morgen einen Regenschirm“ gelten nicht als Wetter. | Regen und Regenschirm sind Wetter, auch ohne das Wort Wetter. |
+| Einkauf | „Einkaufsliste“ mischt alle Listen unter „Fehlt“. | Angezeigt wird die aktive Liste, sonst die Standardliste. |
+| Timer | Der Balken hat keinen Abbrechen-Knopf und liest die Datenbank fünfmal pro Sekunde, auch ohne Timer. | Ein Timer lässt sich einzeln stoppen. Die Uhr läuft nur, solange ein Timer offen ist, sonst reicht das Ereignis `jarvis-reminders`. Der Balken steht auch im kleinen Chat. Eine hängende Benachrichtigungsfrage verschluckt die Antwort nicht. |
+| Aufgaben, Notizen | Offene Fenster sehen neue Einträge erst nach Schließen. | Schreiben sendet `jarvis-todos` und `jarvis-notes`. |
+| Backup | `todo_lists` fehlen. Alte Wecker klingeln nach dem Ersetzen weiter. Eine Aufgabe ohne Liste hängt in der Luft. | Listen werden mitgeschrieben. Vor dem Ersetzen werden die aktuellen Alarme storniert. Eine unbekannte `list_id` landet auf der allgemeinen Liste. |
 
 ## Prüfung
 
-Yu-Gi-Oh-Regeln, Duell, Fidelity, Ideen und Plan: grün. Typprüfung grün.
-`test-portfolio` bricht schon vor diesen Änderungen ab, weil `psp.json` das Feld `struktur` schreibt und der Test noch `psp.psp` liest.
-Parser, Verbstellung und Timer-Lauf nach dem Nachzug: grün.
-Version und APK bleiben 18.51.0.
+Parser, Alltag, Kalender, Erinnerungen, Ideen, Plan, Portfolio, Yu-Gi-Oh-Regeln und Duell nach diesem Nachzug: grün. Typprüfung grün.
+`test-portfolio` liest `psp.json` als `{ art, struktur }`.
+Version und APK bleiben 18.51.0. `main` und die installierte APK enthalten diesen Zweig erst nach dem Merge.

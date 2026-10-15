@@ -16,7 +16,7 @@ export type ReminderIntent =
   | { kind: 'delete_recur'; recur: 'daily' | 'weekly' | 'monthly' | 'yearly'; query: string }
   | { kind: 'delete_last' }
   | { kind: 'delete_day'; day: Date; label: string }
-  | { kind: 'ask'; title: string }
+  | { kind: 'ask'; title: string; dayWord?: string }
 
 const WEEKDAYS: Record<string, number> = {
   sonntag: 0,
@@ -39,7 +39,9 @@ function stripTail(s: string): string {
 }
 
 function cleanTitle(raw: string): string {
-  return stripTail(raw.replace(/^(?:an|an\s+den|an\s+die|an\s+das)\s+/i, ''))
+  return stripTail(
+    raw.replace(/^(?:an\s+(?:den|die|das|dem|der)\s+|ans\s+|an\s+|den\s+|die\s+|das\s+)/i, ''),
+  )
 }
 
 export function startOfDay(d: Date): Date {
@@ -69,16 +71,32 @@ function atHours(base: Date, h: number, m: number): Date {
   return d
 }
 
+/** Nach Mitternacht meint „morgen“ den Morgen, der in ein paar Stunden kommt. */
+export function spokenDayShift(word: string, now: Date): number {
+  const w = word.toLowerCase()
+  const night = now.getHours() < 4
+  if (w === 'heute') return 0
+  if (w === 'morgen') return night ? 0 : 1
+  if (w === 'übermorgen') return night ? 1 : 2
+  return -1
+}
+
+export function addCalendarSpan(now: Date, n: number, unit: string): Date {
+  const d = new Date(now)
+  const u = unit.toLowerCase()
+  if (u.startsWith('min')) d.setTime(d.getTime() + n * 60_000)
+  else if (u.startsWith('stund')) d.setTime(d.getTime() + n * 3_600_000)
+  else if (u.startsWith('woch')) d.setDate(d.getDate() + n * 7)
+  else d.setDate(d.getDate() + n)
+  return d
+}
+
 function applyDay(now: Date, word: string): Date {
   const w = word.toLowerCase()
   const d = new Date(now)
-  if (w === 'heute') return d
-  if (w === 'morgen') {
-    d.setDate(d.getDate() + 1)
-    return d
-  }
-  if (w === 'übermorgen') {
-    d.setDate(d.getDate() + 2)
+  const shift = spokenDayShift(w, now)
+  if (shift >= 0) {
+    d.setDate(d.getDate() + shift)
     return d
   }
   const want = WEEKDAYS[w]
@@ -124,7 +142,9 @@ function dueFromDayTime(now: Date, dayWord: string | null, h: number, m: number)
   const base = dayWord ? applyDay(now, dayWord) : new Date(now)
   let due = atHours(base, h, m)
   if (!dayWord && due.getTime() <= now.getTime() + 15_000) {
-    due = atHours(new Date(now.getTime() + 86_400_000), h, m)
+    const next = new Date(now)
+    next.setDate(next.getDate() + 1)
+    due = atHours(next, h, m)
   }
   if (dayWord && dayWord.toLowerCase() === 'heute' && due.getTime() <= now.getTime()) {
     return due
@@ -135,12 +155,8 @@ function dueFromDayTime(now: Date, dayWord: string | null, h: number, m: number)
   return due
 }
 
-function relMs(n: number, unit: string): number {
-  const u = unit.toLowerCase()
-  if (u.startsWith('min')) return n * 60_000
-  if (u.startsWith('stund')) return n * 3_600_000
-  if (u.startsWith('woch')) return n * 7 * 86_400_000
-  return n * 86_400_000
+function relDue(now: Date, n: number, unit: string): Date {
+  return addCalendarSpan(now, n, unit)
 }
 
 const REL = new RegExp(
@@ -281,7 +297,7 @@ function parseRecur(t: string, now: Date): ReminderIntent | null {
     const title = cleanTitle(daily[3])
     if (!clock || !title) return null
     const due = dueFromDayTime(now, 'heute', clock.h, clock.m)
-    const next = due.getTime() <= now.getTime() ? new Date(due.getTime() + 86_400_000) : due
+    const next = due.getTime() <= now.getTime() ? addCalendarSpan(due, 1, 'tag') : due
     return {
       kind: 'create',
       title,
@@ -296,7 +312,7 @@ function parseRecur(t: string, now: Date): ReminderIntent | null {
     const title = cleanTitle(morning[3])
     if (!clock || !title) return null
     const due = dueFromDayTime(now, 'heute', clock.h, clock.m)
-    const next = due.getTime() <= now.getTime() ? new Date(due.getTime() + 86_400_000) : due
+    const next = due.getTime() <= now.getTime() ? addCalendarSpan(due, 1, 'tag') : due
     return {
       kind: 'create',
       title,
@@ -337,7 +353,7 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   if (callMe) {
     const n = Number(callMe[1])
     if (Number.isFinite(n) && n > 0) {
-      const due = new Date(now.getTime() + relMs(n, callMe[2]))
+      const due = relDue(now, n, callMe[2])
       return { kind: 'create', title: 'Rückruf', due, whenLabel: formatDue(due, now) }
     }
   }
@@ -347,7 +363,7 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
     const n = Number(rel[1])
     const title = cleanTitle(rel[3])
     if (!title || !Number.isFinite(n) || n <= 0) return null
-    const due = new Date(now.getTime() + relMs(n, rel[2]))
+    const due = relDue(now, n, rel[2])
     return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
   }
 
@@ -355,7 +371,7 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   if (relOne) {
     const title = cleanTitle(relOne[2])
     if (!title) return null
-    const due = new Date(now.getTime() + relMs(1, relOne[1]))
+    const due = relDue(now, 1, relOne[1])
     return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
   }
 
@@ -399,7 +415,44 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
     return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
   }
 
-  const bare = /^\s*erinner(?:e)?\s+mich\s+an\s+(.+)$/is.exec(t)
+  const dayPart = new RegExp(
+    `^\\s*erinner(?:e)?\\s+mich\\s+(?:am\\s+)?(${DAY_WORD})(?:\\s+(früh|morgens|abend|abends|mittag|mittags|nacht|nachts))?\\s+(?:an\\s+|ans\\s+)(.+)$`,
+    'is',
+  ).exec(t)
+  if (dayPart) {
+    const title = cleanTitle(dayPart[3])
+    if (title) {
+      const part = (dayPart[2] || '').toLowerCase()
+      const clock = part.startsWith('früh') || part.startsWith('morgen')
+        ? { h: 8, m: 0 }
+        : part.startsWith('mittag')
+          ? { h: 12, m: 0 }
+          : part.startsWith('abend')
+            ? { h: 19, m: 0 }
+            : part.startsWith('nacht')
+              ? { h: 22, m: 0 }
+              : null
+      if (!clock) return { kind: 'ask', title, dayWord: dayPart[1] }
+      const due = dueFromDayTime(now, dayPart[1], clock.h, clock.m)
+      return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
+    }
+  }
+
+  const amDate = new RegExp(
+    `^\\s*erinner(?:e)?\\s+mich\\s+am\\s+(\\d{1,2})\\.(\\d{1,2})\\.?\\s*(?:(\\d{2,4})\\s+)?(?:um\\s+)?(\\d{1,2})(?:[:.](\\d{2}))?(?:\\s*uhr)?\\s+(?:an\\s+|ans\\s+)?(.+)$`,
+    'is',
+  ).exec(t)
+  if (amDate) {
+    const day = dateFromParts(now, amDate[1], amDate[2], amDate[3] || undefined)
+    const clock = parseClock(amDate[4], amDate[5])
+    const title = cleanTitle(amDate[6] || '')
+    if (day && clock && title) {
+      const due = atHours(day, clock.h, clock.m)
+      return { kind: 'create', title, due, whenLabel: formatDue(due, now) }
+    }
+  }
+
+  const bare = /^\s*erinner(?:e)?\s+mich\s+(?:an\s+|ans\s+)(.+)$/is.exec(t)
   if (bare) {
     const title = cleanTitle(bare[1])
     if (title) return { kind: 'ask', title }
@@ -409,10 +462,16 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
 }
 
 /** Bind a time-only answer to the exact reminder that asked for it. */
-export function resolveReminderTimeAnswer(text: string, title: string, now = new Date()): Extract<ReminderIntent, { kind: 'create' }> | null {
+export function resolveReminderTimeAnswer(
+  text: string,
+  title: string,
+  now = new Date(),
+  dayWord?: string,
+): Extract<ReminderIntent, { kind: 'create' }> | null {
   const reminderTitle = cleanTitle(title)
   if (!reminderTitle || !text.trim()) return null
-  const intent = parseReminderIntent(`${text.trim()} ${reminderTitle}`, now)
+  const day = dayWord && !new RegExp(`\\b(?:${DAY_WORD})\\b`, 'i').test(text) ? `${dayWord} ` : ''
+  const intent = parseReminderIntent(`${day}${text.trim()} ${reminderTitle}`, now)
   if (intent?.kind !== 'create' || intent.title.toLocaleLowerCase('de-DE') !== reminderTitle.toLocaleLowerCase('de-DE')) {
     return null
   }

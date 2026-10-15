@@ -232,9 +232,9 @@ assert.equal((await listReminders()).filter((r) => r.kind === 'timer' && r.statu
 
 for (const row of await listReminders()) {
   if (row.kind === 'timer') {
-    const { cancelNotify, notifyIdFromKey } = await import('../src/native/notify.ts')
+    const { cancelReminderNotify } = await import('../src/engine/reminders.ts')
     const { deleteReminder } = await import('../src/engine/store.ts')
-    await cancelNotify(notifyIdFromKey(row.id))
+    await cancelReminderNotify(row)
     await deleteReminder(row.id)
   }
 }

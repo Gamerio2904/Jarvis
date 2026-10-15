@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   advanceDuelPhase,
+  discardForHandLimit,
   createDuel,
   giveFirstTurn,
   isFirstTurnBattleBlocked,
@@ -37,7 +38,7 @@ function enterMain1(state) {
   return advanceDuelPhase(advanceDuelPhase(state))
 }
 
-test('G1–G5: Link erweitert Zonenkapazität', () => {
+test('G1–G5: Link öffnet keine sechste Hauptzone', () => {
   const link = {
     id: 9001,
     name: 'Test Link',
@@ -50,7 +51,27 @@ test('G1–G5: Link erweitert Zonenkapazität', () => {
     level: 2,
   }
   assert.deepEqual(registerLinkArrows(link), [0, 1, 2])
-  assert.equal(monsterZoneCapacity([link]), 6)
+  assert.equal(monsterZoneCapacity([link]), 5)
+  assert.equal(monsterZoneCapacity([{ ...link, zoneKind: 'emz' }]), 6)
+})
+
+test('End Phase: Handlimit 6 wartet auf eine Auswahl', () => {
+  const base = enterMain1(createDuel(deck(), deck(), () => 0))
+  const hand = Array.from({ length: 7 }, (_, index) => ({
+    ...base.player.hand[0],
+    id: 500 + index,
+    name: `Karte ${index + 1}`,
+    atk: index * 100,
+  }))
+  const end = advanceDuelPhase({ ...base, phase: 'main2', player: { ...base.player, hand } })
+  assert.equal(end.phase, 'end')
+  assert.equal(end.discardNeeded, 1)
+  assert.throws(() => advanceDuelPhase(end), /Handlimit/)
+  assert.throws(() => startJarvisTurn(end), /Handlimit/)
+  const picked = discardForHandLimit(end, 500)
+  assert.equal(picked.discardNeeded, 0)
+  assert.equal(picked.player.hand.length, 6)
+  assert.equal(picked.player.graveyard.some((card) => card.id === 500), true)
 })
 
 test('G6–G10: Turn-1-Battle blockiert für Startspieler', () => {

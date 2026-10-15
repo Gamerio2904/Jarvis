@@ -1,5 +1,6 @@
 import {
   advanceDuelPhase,
+  autoDiscardForHandLimit,
   attack,
   createDuel,
   DUEL_SOUP_WEIGHTS,
@@ -170,6 +171,10 @@ function playEpisode(
   let state = createDuel(deck, deck, random)
   let decisions = 0
   while (!state.winner && state.turn <= 40 && decisions < 800) {
+    if ((state.discardNeeded || 0) > 0) {
+      state = autoDiscardForHandLimit(state)
+      continue
+    }
     if (state.phase === 'end') {
       state = advanceDuelPhase(state)
       continue

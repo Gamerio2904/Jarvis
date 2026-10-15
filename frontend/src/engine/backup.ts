@@ -16,6 +16,8 @@ import {
   listShopping,
   listShoppingLists,
   listTodos,
+  listTodoLists,
+  updateTodo,
   listIdeas,
   listWatchMovies,
   listWatchedMovies,
@@ -35,6 +37,7 @@ import {
   type ShoppingItem,
   type ShoppingList,
   type Todo,
+  type TodoList,
   type Idea,
   type MemoryProposal,
   type WatchMovie,
@@ -156,6 +159,7 @@ export type HausBackup = {
   events: CalendarEvent[]
   notes: Note[]
   todos: Todo[]
+  todo_lists?: TodoList[]
   ideas?: Idea[]
   plans?: Ablauf[]
   portfolio?: PortfolioRow[]
@@ -413,6 +417,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     events,
     notes: await listNotes(),
     todos: await listTodos(),
+    todo_lists: await listTodoLists(),
     ideas: await listIdeas(),
     plans: await listPlans(),
     portfolio: await listPortfolio(),
@@ -442,10 +447,24 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   saveSettings(next)
   const memory = (data.memory || []).filter((row) => !isImportJunkMemory(row))
   await replaceStore('memory', memory)
+  try {
+    const { cancelReminderNotify } = await import('./reminders.ts')
+    for (const row of await listReminders()) await cancelReminderNotify(row)
+  } catch {
+    /* alte Alarme bleiben sonst neben dem wiederhergestellten Stand liegen */
+  }
   await replaceStore('reminders', data.reminders || [])
   await replaceStore('events', data.events || [])
   await replaceStore('notes', data.notes || [])
+  if (data.todo_lists) await replaceStore('todo_lists', data.todo_lists)
+  await listTodoLists()
   await replaceStore('todos', data.todos || [])
+  const knownLists = new Set((await listTodoLists()).map((list) => list.id))
+  for (const todo of await listTodos()) {
+    if (todo.list_id && !knownLists.has(todo.list_id)) {
+      await updateTodo(todo.id, { listId: 'todo-list-general' })
+    }
+  }
   await replaceStore('ideas', data.ideas || [])
   if (data.plans) {
     await replaceStore('plans', data.plans)

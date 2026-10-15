@@ -499,7 +499,7 @@ assert.deepEqual(parseShopIntent('Erstelle eine Einkaufsliste für Getränke'), 
   kind: 'create-list',
   name: 'Getränke',
 })
-assert.equal(parseToolIntent('ich muss noch Brot holen')?.kind, 'todo_create')
+assert.equal(parseToolIntent('ich muss noch Brot holen'), null)
 assert.equal(parseToolIntent('erinner mich an Steuer'), null)
 assert.equal(parseReminderIntent('erinner mich an Steuer')?.kind, 'ask')
 assert.equal(parseToolIntent('erledige das erste')?.kind, 'todo_done_first')
@@ -731,6 +731,9 @@ assert.equal(uhr30?.kind, 'create')
 if (uhr30?.kind === 'create') assert.equal(uhr30.due.getMinutes(), 30)
 assert.equal(parseAlarmIntent('Mein Wecker klingelt jeden Tag um 6, das nervt'), null)
 assert.equal(parseAlarmIntent('Wecker aus')?.kind, 'stop')
+const night = parseAlarmIntent('weck mich morgen um 7', new Date(2026, 9, 16, 0, 30))
+assert.equal(night?.kind, 'create')
+if (night?.kind === 'create') assert.equal(night.due.getDate(), 16)
 assert.equal(parseAlarmIntent('Timer 8 Minuten'), null)
 assert.match(formatDue(new Date('2026-08-15T17:42:00'), frozen), /heute/)
 
@@ -742,6 +745,8 @@ assert.equal(munich?.kind, 'place')
 if (munich?.kind === 'place') assert.equal(munich.place, 'München')
 assert.equal(parseWeatherIntent('Wetter morgen in Köln')?.when, 'tomorrow')
 assert.equal(parseWeatherIntent('Brauche ich einen Schirm')?.focus, 'rain')
+assert.equal(parseWeatherIntent('wird es morgen regnen')?.when, 'tomorrow')
+assert.equal(parseWeatherIntent('brauche ich morgen einen Regenschirm')?.focus, 'rain')
 assert.equal(parseWeatherIntent('Was soll ich anziehen')?.focus, 'wear')
 assert.equal(parseWeatherIntent('Wetter am Wochenende')?.when, 'weekend')
 assert.equal(parseWeatherIntent('Hallo Jarvis'), null)
@@ -980,6 +985,26 @@ assert.equal(parseCalendarIntent('lösche den letzten Termin')?.kind, 'delete_la
 }
 assert.equal(parseToolIntent('lösche Todo Milch')?.kind, 'todo_delete')
 assert.equal(parseReminderIntent('Erinnerung aus')?.kind, 'delete_last')
+const fridayMama = parseReminderIntent('Erinnere mich am Freitag an Mama', frozen)
+assert.equal(fridayMama?.kind, 'ask')
+if (fridayMama?.kind === 'ask') assert.equal(fridayMama.title, 'Mama')
+const evening = parseReminderIntent('erinnere mich heute Abend ans Müll rausbringen', frozen)
+assert.equal(evening?.kind, 'create')
+if (evening?.kind === 'create') {
+  assert.equal(evening.title, 'Müll rausbringen')
+  assert.equal(evening.due.getHours(), 19)
+}
+const tax = parseReminderIntent('erinnere mich am 20.10. um 9 an die Steuer', frozen)
+assert.equal(tax?.kind, 'create')
+if (tax?.kind === 'create') assert.equal(tax.title, 'Steuer')
+const fridayCut = parseCalendarIntent('Termin am Freitag Friseur', frozen)
+assert.equal(fridayCut?.kind, 'create')
+if (fridayCut?.kind === 'create') {
+  assert.equal(fridayCut.title, 'Friseur')
+  assert.equal(fridayCut.start.getDay(), 5)
+}
+assert.equal(parseShopIntent('ich muss noch Brot holen')?.kind, 'add')
+assert.equal(parseToolIntent('ich muss noch Brot holen'), null)
 
 assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln und Wetter heute'), [
   'Wecker 7',
@@ -996,6 +1021,9 @@ assert.deepEqual(splitIntents('Ich heiße Max und trinke gerne Kaffee'), [
   'Ich heiße Max und trinke gerne Kaffee',
 ])
 assert.deepEqual(splitIntents('Hallo Jarvis'), ['Hallo Jarvis'])
+assert.deepEqual(splitIntents('Was ist der Unterschied zwischen Timer und Wecker?'), [
+  'Was ist der Unterschied zwischen Timer und Wecker?',
+])
 
 assert.ok(isFollowUpPhrase('lösch das'))
 assert.ok(isFollowUpPhrase('und morgen?'))

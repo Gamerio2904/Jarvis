@@ -3,15 +3,9 @@ import type { DuelCard, DuelSide, DuelState } from './yugioh-duel.ts'
 export const MAIN_MONSTER_ZONE_COUNT = 5
 export const SHARED_EXTRA_MONSTER_ZONE_COUNT = 2
 
-/** Link monsters open extra Main Monster Zones (TCG subset, capped at 2 EMZ). */
+/** Eine Link-Karte vergrößert die fünf Hauptzonen nicht. Extra-Deck-Monster nutzen die zwei EMZ. */
 export function linkExtraZones(monsters: DuelCard[]): number {
-  let extra = 0
-  for (const monster of monsters) {
-    if (monster.extraKind === 'link') {
-      extra += Math.max(0, (monster.linkRating || monster.level || 2) - 1)
-    }
-  }
-  return Math.min(SHARED_EXTRA_MONSTER_ZONE_COUNT, extra)
+  return Math.min(SHARED_EXTRA_MONSTER_ZONE_COUNT, monsters.filter((monster) => monster.zoneKind === 'emz').length)
 }
 
 export function monsterZoneCapacity(monsters: DuelCard[]): number {
@@ -19,7 +13,16 @@ export function monsterZoneCapacity(monsters: DuelCard[]): number {
 }
 
 export function hasFreeMonsterZone(monsters: DuelCard[], afterRemoving = 0): boolean {
-  return monsters.length - afterRemoving < monsterZoneCapacity(monsters)
+  const main = monsters.filter((monster) => monster.zoneKind !== 'emz').length
+  return main - afterRemoving < MAIN_MONSTER_ZONE_COUNT
+}
+
+export function hasFreeExtraZone(monsters: DuelCard[], afterRemoving = 0): boolean {
+  const emz = monsters.filter((monster) => monster.zoneKind === 'emz').length
+  if (emz < SHARED_EXTRA_MONSTER_ZONE_COUNT) return true
+  const linkPoints = monsters.some((monster) => monster.extraKind === 'link' && monster.zoneKind === 'emz')
+  const main = monsters.filter((monster) => monster.zoneKind !== 'emz').length
+  return linkPoints && main - afterRemoving < MAIN_MONSTER_ZONE_COUNT
 }
 
 export function registerLinkArrows(card: DuelCard): number[] {

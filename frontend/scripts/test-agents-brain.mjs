@@ -29,7 +29,7 @@ const { abortError, abortCurrentTurn, beginTurnAbort, isAbortError, isTurnAborte
 const { runDirectorTurn } = await import('../src/engine/director.ts')
 const { clearPending, createConversation, deleteReminder, listMessages, listReminders, saveSettings } =
   await import('../src/engine/store.ts')
-const { cancelNotify, notifyIdFromKey } = await import('../src/native/notify.ts')
+const { cancelReminderNotify } = await import('../src/engine/reminders.ts')
 const { streamChat } = await import('../src/engine/chat.ts')
 const { AGENT_SWEEP } = await import('../src/engine/agents/sweep.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
@@ -79,7 +79,7 @@ assert.equal(thrown.length, 0, `lokale Agenten warfen:\n  ${thrown.join('\n  ')}
 saveSettings({ last_step_tool: '', last_step_title: '', last_step_utterance: '', last_agent_id: '' })
 await clearPending('brain-local')
 for (const row of await listReminders()) {
-  await cancelNotify(notifyIdFromKey(row.id))
+  await cancelReminderNotify(row)
   await deleteReminder(row.id)
 }
 

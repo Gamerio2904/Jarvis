@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { openTimers } from '../engine/timers.ts'
+import { openTimers, stopTimer } from '../engine/timers.ts'
 import { timerListLabel } from '../engine/timer-announce.ts'
 import type { Reminder } from '../engine/store.ts'
 
@@ -45,18 +45,24 @@ export function TimerChip() {
   const [more, setMore] = useState(0)
   useEffect(() => {
     let live = true
+    let clock: number | undefined
+    const onChange = () => void tick()
     async function tick() {
       const next = await openTimers()
       if (!live) return
       const now = Date.now()
       setRows(next.slice(0, 3).map((row) => clockOf(row, now)))
       setMore(Math.max(0, next.length - 3))
+      window.clearInterval(clock)
+      clock = undefined
+      if (next.length) clock = window.setInterval(() => void tick(), 1000)
     }
     void tick()
-    const id = window.setInterval(() => void tick(), 200)
+    window.addEventListener('jarvis-reminders', onChange)
     return () => {
       live = false
-      window.clearInterval(id)
+      window.removeEventListener('jarvis-reminders', onChange)
+      window.clearInterval(clock)
     }
   }, [])
   if (!rows.length) return null
@@ -85,6 +91,18 @@ export function TimerChip() {
           <time className="timer-bar-time" dateTime={row.left} aria-label={`${row.label}, ${row.remain}`}>
             {row.left}
           </time>
+          <button
+            type="button"
+            className="timer-bar-stop"
+            aria-label={`${row.label} abbrechen`}
+            onClick={() => {
+              void stopTimer(row.id).then(() => {
+                setRows((current) => current.filter((item) => item.id !== row.id))
+              })
+            }}
+          >
+            Abbrechen
+          </button>
         </div>
       ))}
       {more > 0 ? <p className="timer-rail-more">und {more} weitere</p> : null}

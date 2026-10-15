@@ -13,7 +13,7 @@ import {
   setPending,
   type Idea,
 } from './store.ts'
-import { handleAblauf } from './ablauf.ts'
+import { handleAblauf, startPlanCards } from './ablauf.ts'
 import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { commitPortfolio, currentIdeaForTable, handlePortfolio, listPortfolio } from './portfolio.ts'
@@ -184,11 +184,17 @@ function genericAppTitle(title: string): boolean {
   return /^(?:eine neue app|neue app|eine app|app)$/i.test(title.trim())
 }
 
+function ownsPlan(conversationId: string): boolean {
+  const owner = loadSettings().plan_conversation_id
+  return !owner || owner === conversationId
+}
+
 function clearShownPlan(): string {
   const phase = loadSettings().plan_phase
   const jobs = stopJobs(parseBoardJobs(loadSettings().board_jobs_json))
   saveSettings({
     plan_phase: '',
+    plan_conversation_id: '',
     plan_script_at: 0,
     plan_idea_id: '',
     workbench_open: false,
@@ -198,7 +204,7 @@ function clearShownPlan(): string {
   return 'Es liegt kein Plan auf der Tischplatte.'
 }
 
-async function planOntoTable(intent: AblaufIntent, raw = ''): Promise<string> {
+async function planOntoTable(intent: AblaufIntent, raw = '', conversationId = ''): Promise<string> {
   if (intent.kind === 'screen') return revealPlanningScreen()
   if (intent.kind === 'clear') return clearShownPlan()
   if (intent.kind === 'accept') {
@@ -243,11 +249,11 @@ async function planOntoTable(intent: AblaufIntent, raw = ''): Promise<string> {
     ablauf_id: '',
     bot_ask_json: '',
   })
-  if (intent.kind === 'session') return openPlanningSession(intent.work)
+  if (intent.kind === 'session') return openPlanningSession(intent.work, conversationId)
   if (intent.kind === 'open' && !intent.work) return 'Was soll geplant werden?'
   if (intent.kind === 'close') return closePlanningScreen(raw)
   if (intent.kind === 'revise') return reviseProject(intent.text)
-  if (intent.kind === 'open' && intent.work) return writeProject(intent.work)
+  if (intent.kind === 'open' && intent.work) return writeProject(intent.work, conversationId)
   return 'Planen schreibt Sprints und PSP auf der Tischplatte.'
 }
 
@@ -263,6 +269,7 @@ async function revealPlanningScreen(): Promise<string> {
   }
   saveSettings({
     plan_phase: 'live',
+    plan_conversation_id: loadSettings().plan_conversation_id,
     plan_script_at: Date.now(),
     tischplatte_on: true,
     tischplatte_view: 'psp',
@@ -280,7 +287,7 @@ async function closePlanningScreen(raw: string): Promise<string> {
     return 'Der Planungsbildschirm ist zu. Das Skript bleibt fest.'
   }
   if (phase === 'live' || settings.workbench_open) {
-    saveSettings({ plan_phase: '', plan_script_at: 0, tischplatte_on: true, workbench_open: false })
+    saveSettings({ plan_phase: '', plan_conversation_id: '', plan_script_at: 0, tischplatte_on: true, workbench_open: false })
     return 'Der Planungsbildschirm ist zu. Der Plan bleibt.'
   }
   return 'Das Planfenster ist zu. Die Sprints bleiben auf der Tischplatte.'
@@ -341,18 +348,27 @@ async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
   const source = (work || plan.bedingung || idea.body || idea.title).trim()
   keepOriginalIntake(plan, idea, idea.body || source || idea.title)
   const parts = clausesOf(source)
-  if (!plan.anforderungen.length && parts.length) {
-    plan.anforderungen = parts.map((satz, i) => ({
+  const sameLine = (value: string) => value.replace(/[.?!,;:]+$/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
+  const fresh = parts.filter((satz) => sameLine(satz) !== sameLine(idea.title))
+  if (!plan.anforderungen.length && fresh.length) {
+    plan.anforderungen = fresh.map((satz, i) => ({
       id: `A${i + 1}`,
       satz,
       abnahme: '',
       gateway: 'offen' as const,
     }))
+  } else {
+    for (const satz of fresh) {
+      if (plan.anforderungen.some((row) => sameLine(row.satz) === sameLine(satz))) continue
+      const n = plan.anforderungen.filter((row) => row.id.startsWith('A')).length + 1
+      plan.anforderungen.push({ id: `A${n}`, satz, abnahme: '', gateway: 'offen' })
+    }
   }
   if (!plan.sprints.length) fillFromClauses(plan, parts.length ? parts : [idea.title], planTitle(source || idea.title))
   dropCannedRoster(plan)
   addSurface(plan, source)
-  const next = { ...idea, body: idea.body || source, plan }
+  const nextBody = source.trim().length > idea.title.trim().length ? source.trim() : idea.body || source
+  const next = { ...idea, body: nextBody, plan }
   await putIdea(next)
   return next
 }
@@ -383,9 +399,10 @@ function formatSession(plan: IdeaPlan, title: string, cardName = ''): string {
   return bits.join(' ')
 }
 
-async function showPlanning(idea: Idea): Promise<void> {
+async function showPlanning(idea: Idea, conversationId = ''): Promise<void> {
   saveSettings({
     plan_phase: 'live',
+    plan_conversation_id: conversationId || loadSettings().plan_conversation_id,
     plan_script_at: Date.now(),
     plan_idea_id: idea.id,
     tischplatte_on: true,
@@ -394,7 +411,7 @@ async function showPlanning(idea: Idea): Promise<void> {
   })
 }
 
-async function openPlanningSession(work: string): Promise<string> {
+async function openPlanningSession(work: string, conversationId = ''): Promise<string> {
   const text = work.replace(/\s+/g, ' ').trim()
   let hit = text ? (genericAppTitle(text) ? undefined : await namedProject(text)) : await ideaOnTable()
   if (!text && !hit) {
@@ -407,13 +424,13 @@ async function openPlanningSession(work: string): Promise<string> {
   }
   if (!hit && !text) return 'Was soll geplant werden?'
   if (!hit && text) {
-    await writeProject(text)
+    await writeProject(text, conversationId)
     hit = await ideaOnTable()
   }
   if (!hit) return 'Was soll geplant werden?'
   const ready = await ensurePlanningDocs(hit, text || hit.body || hit.title)
   const saved = await commitPortfolio(ready)
-  await showPlanning(ready)
+  await showPlanning(ready, conversationId)
   const cardName = saved.row && !saved.full ? saved.row.name : ''
   return formatSession(ready.plan || emptyPlan(ready.id), ready.title, cardName)
 }
@@ -432,8 +449,9 @@ function deviceTalk(text: string): boolean {
   return /\b(?:tablet\s*modus|tabel\s*modus|talet\s*modus|tabletmodus|tabelmodus|taletmodus|tabletmodu|handy\s+koppeln|verbinde(?:\s+dich)?(?:\s+mit)?\s+(?:dem\s+|das\s+)?handy|server\s+(?:an|aus)|starte(?:\s+bitte)?(?:\s+mal)?\s+den\s+server|fernseher|yu-?gi-?oh|zeit\s+für\s+ein\s+duell)\b/i.test(text)
 }
 
-export async function sparPlan(text: string): Promise<string | null> {
+export async function sparPlan(text: string, conversationId = ''): Promise<string | null> {
   if (loadSettings().plan_phase !== 'live' || !talkWorth(text)) return null
+  if (conversationId && !ownsPlan(conversationId)) return null
   if (parseBoardIntent(text) || parseAblaufIntent(text) || deviceTalk(text)) return null
   if (/^\s*lade\b/i.test(text)) return null
   const hit = await ideaOnTable()
@@ -470,7 +488,7 @@ async function layNewProject(work: string): Promise<string> {
   return openPlanningSession(text)
 }
 
-async function writeProject(work: string): Promise<string> {
+async function writeProject(work: string, conversationId = ''): Promise<string> {
   const parts = clausesOf(work)
   const title = planTitle(work)
   const rows = await listIdeas()
@@ -487,6 +505,7 @@ async function writeProject(work: string): Promise<string> {
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
   saveSettings({
     plan_phase: 'live',
+    plan_conversation_id: conversationId || loadSettings().plan_conversation_id,
     plan_script_at: Date.now(),
     plan_idea_id: hit.id,
     tischplatte_on: true,
@@ -507,7 +526,14 @@ async function reviseProject(text: string): Promise<string> {
   const k = sprint.lieferumfang.length + 1
   sprint.lieferumfang.push({ id: `S1-${k}`, task: line.slice(0, 120), anleitung: WEG_ANLEITUNG })
   await putIdea({ ...hit, plan })
-  saveSettings({ plan_phase: 'live', plan_script_at: Date.now(), plan_idea_id: hit.id, tischplatte_on: true, workbench_open: true })
+  saveSettings({
+    plan_phase: 'live',
+    plan_conversation_id: loadSettings().plan_conversation_id,
+    plan_script_at: Date.now(),
+    plan_idea_id: hit.id,
+    tischplatte_on: true,
+    workbench_open: true,
+  })
   return formatPlan(plan, hit.title)
 }
 
@@ -520,7 +546,9 @@ async function ideaOnTable(): Promise<Idea | undefined> {
   return currentIdeaForTable()
 }
 
-export async function handleIdea(
+let ideaChain: Promise<void> = Promise.resolve()
+
+async function handleIdeaBody(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
@@ -570,15 +598,21 @@ export async function handleIdea(
     return pack(reply, 'portfolio')
   }
   const table = parseAblaufIntent(text)
-  if (table) {
-    const reply = await planOntoTable(table, text)
+  const tableHere = !table || ownsPlan(conversationId) || table.kind === 'open' || table.kind === 'session' || table.kind === 'screen'
+  if (table && tableHere) {
+    if (table.kind === 'open' && table.work) {
+      const written = await writeProject(table.work, conversationId)
+      const cards = await startPlanCards(conversationId, table.work)
+      return pack(cards ? `${written}\n\n${cards}` : written, 'plan_table')
+    }
+    const reply = await planOntoTable(table, text, conversationId)
     return pack(reply, 'plan_table')
   }
   const ablauf = await handleAblauf(conversationId, text)
   if (ablauf.handled) return { handled: true, reply: ablauf.reply, tool: ablauf.tool }
   const intent = parseIdeaIntent(text)
   if (!intent) {
-    const talked = await sparPlan(text)
+    const talked = await sparPlan(text, conversationId)
     if (talked) return pack(talked, 'plan_talk')
     return { handled: false }
   }
@@ -606,6 +640,7 @@ export async function handleIdea(
   if (intent.kind === 'blank') {
     saveSettings({
       plan_phase: 'live',
+      plan_conversation_id: conversationId,
       plan_script_at: Date.now(),
       plan_idea_id: '',
       tischplatte_on: true,
@@ -822,4 +857,16 @@ export async function handlePendingPlanProposal(
     'plan_proposal_accept',
     hit.title,
   )
+}
+
+export function handleIdea(
+  conversationId: string,
+  text: string,
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const run = ideaChain.then(() => handleIdeaBody(conversationId, text))
+  ideaChain = run.then(
+    () => undefined,
+    () => undefined,
+  )
+  return run
 }

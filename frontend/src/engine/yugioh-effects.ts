@@ -48,8 +48,20 @@ function parseLegacyDescription(description: string): { effect: DuelEffect; summ
   const text = (description || '').replace(/\s+/g, ' ').trim()
   if (!text) return null
   if (/negate the attack/i.test(text)) return { effect: { kind: 'negateAttack' }, summary: 'Negiert den gegnerischen Angriff.' }
-  const negate = text.match(/negate (?:the )?(?:activation|effect)/i)
-  if (negate) return { effect: { kind: 'negate' }, summary: 'Negiert das vorherige Kettenglied (vereinfachte Regel).' }
+  const both = text.match(/draw (?:up to )?(?:(\d+)|a|one) cards?[^.]{0,80}?discard (?:(\d+)|a|one) cards?/i)
+  if (both) {
+    const draw = Math.max(1, Math.min(3, Number(both[1] || 1)))
+    const discard = Math.max(1, Math.min(5, Number(both[2] || 1)))
+    return { effect: { kind: 'drawDiscard', draw, discard }, summary: `Zieht ${draw} und wirft ${discard} ab.` }
+  }
+  const negate = text.match(/negate (?:the )?(?:summon|activation|effect)/i)
+  if (negate) {
+    const half = /pay half your lp/i.test(text)
+    return {
+      effect: { kind: 'negate', ...(half ? { cost: 'halfLp' as const } : {}) },
+      summary: half ? 'Negiert und zahlt die Hälfte der LP.' : 'Negiert das vorherige Kettenglied (vereinfachte Regel).',
+    }
+  }
   if (/destroy all (?:the )?attack position monsters/i.test(text)) {
     return { effect: { kind: 'destroy', target: 'attackMonsters' }, summary: 'Zerstört alle Angriffs-Monster des Gegners.' }
   }
@@ -116,15 +128,15 @@ function parseLegacyDescription(description: string): { effect: DuelEffect; summ
     const value = Math.max(0, Math.min(10000, Number(setDef[1] || setDef[2] || setDef[3])))
     return { effect: { kind: 'setStat', stat: 'def', value }, summary: `Setzt die DEF auf ${value}.` }
   }
+  const fieldAura = text.match(/all (?:face-up )?(?:your )?monsters (?:you control )?gain (\d{3,4}) atk|each (?:face-up )?monster you control gains? (\d{3,4}) atk/i)
+  if (fieldAura || (/field spell/i.test(text) && /gain (\d{3,4}) atk/i.test(text))) {
+    const amount = Math.max(100, Math.min(1000, Number(fieldAura?.[1] || fieldAura?.[2] || text.match(/gain (\d{3,4}) atk/i)?.[1] || 0)))
+    if (amount) return { effect: { kind: 'fieldAura', stat: 'atk', amount }, summary: `Alle deine Monster erhalten +${amount} ATK (Spielfeld).` }
+  }
   const boost = text.match(/gains? (\d{3,4}) atk|(?:atk|attack) (?:is |are )?(?:increased|raised) by (\d{3,4})/i)
   if (boost) {
     const amount = Math.max(100, Math.min(3000, Number(boost[1] || boost[2])))
     return { effect: { kind: 'boost', amount }, summary: `Gibt deinem stärksten Monster bis zum Zugende +${amount} ATK.` }
-  }
-  const fieldAura = text.match(/all (?:face-up )?monsters you control gain (\d{3,4}) atk/i)
-  if (fieldAura) {
-    const amount = Math.max(100, Math.min(1000, Number(fieldAura[1])))
-    return { effect: { kind: 'fieldAura', stat: 'atk', amount }, summary: `Alle deine Monster erhalten +${amount} ATK (Spielfeld).` }
   }
   return null
 }

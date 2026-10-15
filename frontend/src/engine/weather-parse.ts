@@ -6,7 +6,7 @@ export type WeatherIntent =
   | { kind: 'place'; place: string; when: WeatherWhen; focus: WeatherFocus }
 
 const WEATHER =
-  /\b(wetter|temperatur|wie\s+warm|wie\s+kalt|regnet\s+es|schneit\s+es|wie\s+ist\s+das\s+wetter|wird\s+es\s+regnen|schirm|anziehen|was\s+tragen)\b/i
+  /\b(wetter|temperatur|wie\s+warm|wie\s+kalt|regnet(?:\s+es)?|schneit(?:\s+es)?|wie\s+ist\s+das\s+wetter|wird\s+es(?:\s+\p{L}+){0,3}\s+regnen|regnen|regenschirm|schirm|anziehen|was\s+tragen)\b/iu
 const AIR =
   /\b(luftqualität|luftqualitaet|feinstaub|pollen(?:flug|werte)?|luftverschmutzung|aqi|wie\s+ist\s+die\s+luft|luft\s+hier)\b/i
 const SUN =
@@ -56,7 +56,7 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
   if (/\b(luft|pollen|feinstaub|aqi)\b/i.test(rest)) focus = 'air'
   else if (/\b(sonnenaufgang|sonnenuntergang|sonne)\b/i.test(rest)) focus = 'sun'
   else if (/\b(anzug|anziehen|tragen|jacke|pulli)\b/i.test(rest)) focus = 'wear'
-  else if (/\b(regen|regnet|schneit|schirm|trocken)\b/i.test(rest)) focus = 'rain'
+  else if (/\b(regen|regnet|schneit|schirm|trocken)\b|regenschirm/i.test(rest)) focus = 'rain'
 
   const placeHit = /\b(?:in|für|aus|bei)\s+(?:der\s+|dem\s+|den\s+)?([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-]{1,32})\b/i.exec(rest)
   if (placeHit) {
@@ -132,6 +132,6 @@ function parseWhen(text: string): WeatherWhen {
 
 function parseFocus(text: string): WeatherFocus {
   if (/\b(anzug|anziehen|tragen|jacke|pulli|kleidung)\b/i.test(text)) return 'wear'
-  if (/\b(regen|regnet|schneit|schirm|trocken)\b/i.test(text)) return 'rain'
+  if (/\b(regen|regnet|regnen|schneit|schirm|trocken)\b|regenschirm/i.test(text)) return 'rain'
   return 'general'
 }
