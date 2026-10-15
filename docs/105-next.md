@@ -123,4 +123,5 @@ Sprintdetails: [`sprint-525.md`](./sprints/sprint-525.md) bis [`sprint-530.md`](
 - Offline-Vollkatalog ohne YGOPRODeck (optional, nicht Gate).
 
 Funktionsumfang heute: [`yugioh-duel.md`](./yugioh-duel.md). Vorgänger KI:
-[`104-next.md`](./104-next.md).
+[`104-next.md`](./104-next.md). Folgeplan Bedienung:
+[`106-next.md`](./106-next.md) (Sprints 531–550, PLAN `18.52.0`–`18.60.0`).
