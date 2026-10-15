@@ -28,6 +28,7 @@ Dieser Zweig enthält zusätzlich die Duell-Korrekturen und die Timer-, Einkaufs
 | Plan-Ansicht | Quellen, Backlog, Risiken, Abhängigkeiten, Revisionen und Zeitplan stehen in einer 28-Pixel-Spalte. | Diese Listen laufen über die Breite. Die PSP-Kürzel behalten ihre zwei Spalten. |
 | Duell | Die End Phase kennt kein Handlimit. Ein stilles Abwerfen wäre falsch. | Ab 7 Karten bleibt die End Phase stehen. Die Karten werden angetippt. Erst danach startet Ultrons Zug. Training und Ultron werfen die schwächste Karte selbst ab. |
 | Duell | Mirror Force, Solemn Judgment, Feldzauber, „draw then discard“ und „all monsters gain ATK“ haben keinen spielbaren Effekt. | Angriffsposition wird zerstört. Negate von Beschwörung, Aktivierung oder Effekt kostet die Hälfte der Life Points, wenn der Text das sagt. Ein Feldzauber bleibt als Aura liegen. Ziehen und Abwerfen ist ein Effekt. Ein Bonus für alle eigenen Monster ist eine Feldaura. |
+| Duell | Kartentext nach dem Semikolon (Ziel zerstören, verbannen, auf die Hand, aus dem Friedhof oder Deck holen, Position drehen, ATK senken, alle Zauber/Fallen) bleibt ohne Effekt. | Diese Auflösung wird spielbar. 793 der 1395 Structure-Deck-Karten haben danach einen Effekt. Eine Kostenzeile vor dem Semikolon ist nicht der Effekt. „Shuffle your hand“ bleibt geschlossen. |
 | Duell | Ultrons Angriff deckt ein Monster auf, der Flip-Effekt fehlt in der Kette. | Die gespiegelte Sicht zählt halbe Züge. Der Flip löst trotzdem aus, und ein offener Angriff bleibt stehen, solange die Kette offen ist. |
 | Duell | Link-Pfeile öffnen zwei zusätzliche Hauptzonen. | Es bleiben fünf Hauptzonen. Belegte Extra-Monsterzonen zählen höchstens zwei dazu. Extra-Deck-Monster nehmen eine freie Extra-Monsterzone, sonst eine Hauptzone, wenn dort schon ein Link-Monster liegt. |
 | Duell | Escape beendet das Duell sofort. | Escape fragt „Duell schließen?“. |
@@ -38,7 +39,7 @@ Dieser Zweig enthält zusätzlich die Duell-Korrekturen und die Timer-, Einkaufs
 
 ## Offen
 
-Kartentexte außerhalb der genannten Formen bleiben ohne Effekt. Die Engine bildet kein vollständiges Master-Rule-Feld mit Pfeilrichtung ab.
+Beschwörungsbedingungen, Dauerregeln („cannot“, durchbohrend, Direktangriff), Spielmarken, Token und Materialrezepte bleiben ohne eigenen Knopf. Die Engine bildet kein vollständiges Master-Rule-Feld mit Pfeilrichtung ab.
 
 ## Nachzug aus dem Allgemein-Audit
 

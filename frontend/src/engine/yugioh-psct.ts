@@ -40,6 +40,21 @@ const GOLD_FIDELITY: FidelityCase[] = [
   { catalogId: 3, description: 'Destroy 1 monster your opponent controls.', expectedKind: 'destroy' },
   { catalogId: 4, description: 'Negate the attack.', expectedKind: 'negateAttack' },
   { catalogId: 5, description: 'Add 1 monster from your Deck to your hand.', expectedKind: 'search' },
+  { catalogId: 6, description: 'Target 1 monster your opponent controls; destroy that target.', expectedKind: 'destroy' },
+  { catalogId: 7, description: 'Target 1 Spell/Trap on the field; destroy that target.', expectedKind: 'destroy' },
+  { catalogId: 8, description: 'Destroy all Spells and Traps your opponent controls.', expectedKind: 'destroy' },
+  { catalogId: 9, description: 'Target 1 monster in your GY; Special Summon it.', expectedKind: 'revive' },
+  { catalogId: 10, description: 'Target 1 monster in your GY; add that target to your hand.', expectedKind: 'recover' },
+  { catalogId: 11, description: 'Target 1 monster in your Deck; add it to your hand.', expectedKind: 'search' },
+  { catalogId: 12, description: 'You can discard this card; negate that effect.', expectedKind: 'negate' },
+  { catalogId: 13, description: 'Send the top 3 cards of your Deck to the GY.', expectedKind: 'mill' },
+  { catalogId: 14, description: 'Target 1 card on the field; return it to the hand.', expectedKind: 'bounce' },
+  { catalogId: 15, description: 'Target 1 face-up monster on the field; change that target to face-down Defense Position.', expectedKind: 'position' },
+  { catalogId: 16, description: 'Special Summon 1 monster from your Deck.', expectedKind: 'summonDeck' },
+  { catalogId: 17, description: 'All Dragon monsters you control gain 300 ATK.', expectedKind: 'fieldAura' },
+  { catalogId: 18, description: 'Target 1 monster your opponent controls; it loses 500 ATK.', expectedKind: 'weaken' },
+  { catalogId: 19, description: 'Once per turn, you can shuffle your hand.', expectedKind: null },
+  { catalogId: 20, description: 'You can discard 1 card; look at your opponent\'s Extra Deck.', expectedKind: null },
 ]
 
 export function goldFidelityCases(): readonly FidelityCase[] {

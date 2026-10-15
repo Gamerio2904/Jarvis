@@ -18,15 +18,19 @@ export type DuelEffect =
   | { kind: 'drawDiscard'; draw: number; discard: number }
   | { kind: 'damage'; amount: number }
   | { kind: 'heal'; amount: number }
-  | { kind: 'destroy'; target: 'monster' | 'allMonsters' | 'attackMonsters' | 'spelltrap' }
+  | { kind: 'destroy'; target: 'monster' | 'allMonsters' | 'attackMonsters' | 'spelltrap' | 'allSpelltrap' }
   | { kind: 'negate'; cost?: 'halfLp' }
   | { kind: 'negateAttack' }
   | { kind: 'search'; amount: number }
   | { kind: 'revive' }
+  | { kind: 'summonDeck' }
+  | { kind: 'recover' }
   | { kind: 'boost'; amount: number }
+  | { kind: 'weaken'; amount: number; half: boolean }
   | { kind: 'setStat'; stat: 'atk' | 'def'; value: number }
-  | { kind: 'banish'; target: 'monster' | 'gyMonster' }
+  | { kind: 'banish'; target: 'monster' | 'gyMonster' | 'spelltrap' }
   | { kind: 'bounce'; target: 'monster' }
+  | { kind: 'position'; target: 'monster' | 'allMonsters'; faceDown: boolean }
   | { kind: 'mill'; amount: number }
   | { kind: 'discard'; amount: number }
   | { kind: 'fieldAura'; stat: 'atk'; amount: number }
@@ -796,7 +800,9 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
       if (!state.pendingAttack || state.pendingAttack.side === side) return 'Es gibt gerade keinen gegnerischen Angriff.'
       break
     case 'destroy':
-      if (effect.target === 'spelltrap' ? !foe.spells.length : !foe.monsters.length) return 'Es gibt kein Ziel für diesen Effekt.'
+      if (effect.target === 'spelltrap' || effect.target === 'allSpelltrap') {
+        if (!foe.spells.length && !foe.fieldSpell) return 'Es gibt kein Ziel für diesen Effekt.'
+      } else if (!foe.monsters.length) return 'Es gibt kein Ziel für diesen Effekt.'
       if (effect.target === 'attackMonsters' && !foe.monsters.some((monster) => monster.position !== 'defense')) return 'Es gibt kein Ziel für diesen Effekt.'
       break
     case 'search':
@@ -807,6 +813,18 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
         return 'Kein Monster im Friedhof oder keine freie Monsterzone.'
       }
       break
+    case 'summonDeck':
+      if (!hasFreeMonsterZone(me.monsters, 0) || !me.deck.some((item) => item.kind === 'monster' && !item.extraDeck)) {
+        return 'Kein Monster im Deck oder keine freie Monsterzone.'
+      }
+      break
+    case 'recover':
+      if (!me.graveyard.length) return 'Der Friedhof ist leer.'
+      break
+    case 'weaken':
+    case 'position':
+      if (!foe.monsters.length) return 'Es gibt kein Ziel für diesen Effekt.'
+      break
     case 'discard':
       if (effect.amount > me.hand.length) return 'Nicht genug Karten auf der Hand für den Kosten-Effekt.'
       break
@@ -815,6 +833,7 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
       break
     case 'banish':
       if (effect.target === 'monster' && !foe.monsters.length) return 'Es gibt kein Ziel für diesen Effekt.'
+      if (effect.target === 'spelltrap' && !foe.spells.length && !foe.fieldSpell) return 'Es gibt kein Ziel für diesen Effekt.'
       if (effect.target === 'gyMonster' && !me.graveyard.some((item) => item.kind === 'monster')) return 'Kein Monster im Friedhof zum Verbannen.'
       break
     case 'bounce':
@@ -894,6 +913,14 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
   let drawFailed = false
   let pendingAttack = state.pendingAttack
   const destroyed: number[] = []
+  const takeSpell = (player: DuelPlayer): DuelCard | null => {
+    const hit = player.spells.shift()
+    if (hit) return hit
+    if (!player.fieldSpell) return null
+    const field = player.fieldSpell
+    player.fieldSpell = null
+    return field
+  }
   const destroyMonster = (monster: DuelCard) => {
     const index = nextTarget.monsters.indexOf(monster)
     if (index < 0) return
@@ -918,9 +945,13 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
       nextSource.lp = Math.min(8000, nextSource.lp + link.effect.amount)
       break
     case 'destroy': {
-      if (link.effect.target === 'spelltrap') {
-        const hit = nextTarget.spells.shift()
-        if (hit) nextTarget.graveyard.push({ ...hit, faceDown: false })
+      if (link.effect.target === 'spelltrap' || link.effect.target === 'allSpelltrap') {
+        const hits = link.effect.target === 'allSpelltrap' ? 12 : 1
+        for (let i = 0; i < hits; i += 1) {
+          const hit = takeSpell(nextTarget)
+          if (!hit) break
+          nextTarget.graveyard.push({ ...hit, faceDown: false })
+        }
       } else if (link.effect.target === 'allMonsters') {
         for (const monster of [...nextTarget.monsters]) destroyMonster(monster)
       } else if (link.effect.target === 'attackMonsters') {
@@ -948,6 +979,27 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
       }
       break
     }
+    case 'summonDeck': {
+      const best = nextSource.deck
+        .filter((item) => item.kind === 'monster' && !item.extraDeck)
+        .reduce<DuelCard | null>((top, item) => !top || (item.atk || 0) > (top.atk || 0) ? item : top, null)
+      if (best && hasFreeMonsterZone(nextSource.monsters, 0)) {
+        nextSource.deck.splice(nextSource.deck.indexOf(best), 1)
+        nextSource.monsters.push({ ...leaveField(best), faceDown: false, position: 'attack', lockedKey: turnKey(state), zoneKind: 'mmz' })
+      }
+      break
+    }
+    case 'recover': {
+      const monsters = nextSource.graveyard.filter((item) => item.kind === 'monster' && !item.extraDeck)
+      const best = monsters.reduce<DuelCard | null>((top, item) => !top || (item.atk || 0) > (top.atk || 0) ? item : top, null)
+        || nextSource.graveyard.find((item) => !item.extraDeck)
+        || null
+      if (best) {
+        nextSource.graveyard.splice(nextSource.graveyard.indexOf(best), 1)
+        nextSource.hand.push(leaveField(best))
+      }
+      break
+    }
     case 'banish': {
       if (link.effect.target === 'gyMonster') {
         const best = nextSource.graveyard.find((item) => item.kind === 'monster')
@@ -955,6 +1007,9 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
           nextSource.graveyard.splice(nextSource.graveyard.indexOf(best), 1)
           nextSource.banished.push({ ...best, faceDown: false })
         }
+      } else if (link.effect.target === 'spelltrap') {
+        const hit = takeSpell(nextTarget)
+        if (hit) nextTarget.banished.push({ ...hit, faceDown: false })
       } else {
         const targetMonster = nextTarget.monsters.reduce<DuelCard | null>((weakest, monster) =>
           !weakest || (monster.atk || 0) < (weakest.atk || 0) ? monster : weakest, null)
@@ -962,6 +1017,35 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
           nextTarget.monsters.splice(nextTarget.monsters.indexOf(targetMonster), 1)
           nextTarget.banished.push(leaveField(targetMonster))
           destroyed.push(targetMonster.id)
+        }
+      }
+      break
+    }
+    case 'position': {
+      const chosen = link.effect.target === 'allMonsters'
+        ? [...nextTarget.monsters]
+        : [nextTarget.monsters.reduce<DuelCard | null>((top, monster) => !top || (monster.atk || 0) > (top.atk || 0) ? monster : top, null)].filter((monster): monster is DuelCard => Boolean(monster))
+      for (const monster of chosen) {
+        const index = nextTarget.monsters.indexOf(monster)
+        if (index < 0) continue
+        nextTarget.monsters[index] = {
+          ...monster,
+          position: 'defense',
+          faceDown: link.effect.faceDown ? true : monster.faceDown,
+        }
+      }
+      break
+    }
+    case 'weaken': {
+      const strongest = nextTarget.monsters.reduce<DuelCard | null>((top, monster) => !top || (monster.atk || 0) > (top.atk || 0) ? monster : top, null)
+      if (strongest) {
+        const amount = link.effect.half ? Math.ceil((strongest.atk || 0) / 2) : link.effect.amount
+        const index = nextTarget.monsters.indexOf(strongest)
+        nextTarget.monsters[index] = {
+          ...strongest,
+          baseAtk: strongest.baseAtk ?? strongest.atk,
+          atk: Math.max(0, (strongest.atk || 0) - amount),
+          boost: (strongest.boost || 0) - amount,
         }
       }
       break
@@ -1204,7 +1288,7 @@ function jarvisTrapAnswer(state: DuelState): DuelCard | undefined {
   return state.jarvis.spells.find((card) =>
     card.kind === 'trap'
     && card.effect
-    && (card.effect.kind === 'negateAttack' || card.effect.kind === 'damage' || card.effect.kind === 'destroy')
+    && (card.effect.kind === 'negateAttack' || card.effect.kind === 'damage' || card.effect.kind === 'destroy' || card.effect.kind === 'banish' || card.effect.kind === 'bounce' || card.effect.kind === 'position')
     && checkActivation({ ...state, turnOwner: 'player' }, 'jarvis', card.id) === null)
 }
 

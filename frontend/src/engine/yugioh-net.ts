@@ -104,8 +104,10 @@ function withEffect(features: number[], card: DuelCard, opponentLp: number): voi
   if (!effect) return
   // New effect kinds reuse the existing inputs so stored networks stay compatible.
   const named: Record<string, (typeof FEATURE_NAMES)[number]> = {
-    draw: 'effectDraw', search: 'effectDraw', revive: 'effectDraw', boost: 'effectHeal', setStat: 'effectHeal',
-    damage: 'effectDamage', heal: 'effectHeal', destroy: 'effectDestroy', negate: 'effectNegate', negateAttack: 'effectNegate',
+    draw: 'effectDraw', drawDiscard: 'effectDraw', search: 'effectDraw', revive: 'effectDraw', summonDeck: 'effectDraw', recover: 'effectDraw', mill: 'effectDraw',
+    boost: 'effectHeal', setStat: 'effectHeal', fieldAura: 'effectHeal', heal: 'effectHeal',
+    damage: 'effectDamage', destroy: 'effectDestroy', banish: 'effectDestroy', bounce: 'effectDestroy', position: 'effectDestroy', weaken: 'effectDestroy',
+    negate: 'effectNegate', negateAttack: 'effectNegate',
   }
   const slot = named[effect.kind]
   if (slot) features[featureIndex[slot]] = 1
