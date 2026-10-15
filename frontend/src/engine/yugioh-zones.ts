@@ -165,6 +165,38 @@ export function pointedMonsters(card: DuelCard, own: DuelCard[], opponent: DuelC
   return hits
 }
 
+/** Freie Hauptspalten 0–4. Eine sechste Hauptzone gibt es nicht. */
+export function legalMainSummonZones(monsters: DuelCard[]): ZoneSlot[] {
+  const used = occupiedMainColumns(monsters)
+  const zones: ZoneSlot[] = []
+  for (let column = 0; column < MAIN_MONSTER_ZONE_COUNT; column += 1) {
+    if (!used.has(column)) zones.push({ zoneKind: 'mmz', zoneIndex: column })
+  }
+  return zones
+}
+
+/** Freie EMZ und freie Hauptspalten, auf die ein eigener Link zeigt. */
+export function legalExtraSummonZones(monsters: DuelCard[], removeIds: readonly number[] = []): ZoneSlot[] {
+  const remaining = removeIds.length ? monsters.filter((monster) => !removeIds.includes(monster.id)) : monsters
+  const zones: ZoneSlot[] = []
+  const emz = occupiedExtraIndexes(remaining)
+  for (let index = 0; index < SHARED_EXTRA_MONSTER_ZONE_COUNT; index += 1) {
+    if (!emz.has(index)) zones.push({ zoneKind: 'emz', zoneIndex: index })
+  }
+  const used = occupiedMainColumns(remaining)
+  const pointed = new Set<number>()
+  for (const monster of remaining) {
+    if (monster.extraKind !== 'link') continue
+    for (const zone of linkedOwnZones(monster)) {
+      if (zone.zoneKind === 'mmz') pointed.add(zone.zoneIndex)
+    }
+  }
+  for (let column = 0; column < MAIN_MONSTER_ZONE_COUNT; column += 1) {
+    if (!used.has(column) && pointed.has(column)) zones.push({ zoneKind: 'mmz', zoneIndex: column })
+  }
+  return zones
+}
+
 /** Freie Extra-Monsterzone zuerst, sonst die niedrigste freie Hauptspalte, auf die ein verbleibender Link zeigt. */
 export function extraSummonZone(monsters: DuelCard[], removeIds: readonly number[] = []): ZoneSlot | null {
   const remaining = removeIds.length ? monsters.filter((monster) => !removeIds.includes(monster.id)) : monsters

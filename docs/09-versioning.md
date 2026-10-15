@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** App-Code, UI und Test-APK **`18.51.3`**, versionCode `185103`; Android-Geräteabnahme offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, Ziel `18.52.0`–`18.60.0`) steht in [`106-next.md`](./106-next.md) als **PLAN** und ist nicht gebaut. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** App-Code, UI und Test-APK **`18.51.3`**, versionCode `185103`; Android-Geräteabnahme offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, `engineStamp` `18.60.0-ygo-md`) steht in [`106-next.md`](./106-next.md) als **CODE**. `APP_VERSION` bleibt `18.51.3`. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1024,7 +1024,7 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.51.1` | Audit-Nachzieher Alltag, Planung, Duell, versionCode `185101` | CODE; Sideload inzwischen `18.51.3`, [`audit-bugfixes-18-51.md`](./audit-bugfixes-18-51.md) |
 | `18.51.2` | Startbildschirm, Sparring, Bot-Duell, Kartentexte, Beschwörung, Regeln, Spielmarken, Token, Link-Pfeile, versionCode `185102` | CODE; Sideload inzwischen `18.51.3`, [`yugioh-duel.md`](./yugioh-duel.md) |
 | `18.51.3` | Chat und Sprache nur in der offenen Werte-Leiste, versionCode `185103` | CODE + Test-APK; Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
-| `18.52.0`–`18.60.0` | Master-Duel-Bedienung, Sprints 531–550, versionCode erst beim Bauen `185200`–`186000` | PLAN, nicht gebaut, [`106-next.md`](./106-next.md) |
+| `18.52.0`–`18.60.0` | Master-Duel-Bedienung, Sprints 531–550, versionCode erst beim Bauen `185200`–`186000` | CODE, App bleibt `18.51.3`, [`106-next.md`](./106-next.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**
@@ -1139,21 +1139,21 @@ Sprints 511–530 liegen im App-Code (`yugioh-zones.ts`, `yugioh-effects.ts` Sch
 | `18.50.0` | PSCT-Atome, Zielhinweis, OPT/HOPT | 525–527 CODE |
 | `18.51.0` (`185100`) | Errata-Minimum, Gold-Korpus, Fidelity im Nachweis | 528–530 CODE |
 
-### `18.52`–`18.60` — Yu-Gi-Oh! Master-Duel-Vorlage [`106-next.md`](./106-next.md) **PLAN**
+### `18.52`–`18.60` — Yu-Gi-Oh! Master-Duel-Vorlage [`106-next.md`](./106-next.md) **CODE**
 
-Sprints 531–550 sind nicht gebaut. Der laufende Stand bleibt `18.51.3` / versionCode `185103`. Die versionCodes in der Tabelle gelten erst, wenn die Version gebaut wird. `engineStamp` bleibt `18.51.0-ygo-tcg`, bis 538, 540–542 oder 544–546 die Auflösung ändern.
+Sprints 531–550 sind gebaut. Der laufende App-Stand bleibt `18.51.3` / versionCode `185103`. Die versionCodes in der Tabelle gelten erst, wenn die Version gebaut wird. `engineStamp` ist `18.60.0-ygo-md`.
 
 | Version | Ziel | Sprints |
 |---------|------|---------|
-| `18.52.0` (`185200`) | Aktivieren-Fenster und Schalter OFF / AUTO / ON | 531–532 PLAN |
-| `18.53.0` (`185300`) | Ziele auf dem Feld und in öffentlichen Stapeln | 533–534 PLAN |
-| `18.54.0` (`185400`) | Kettenstapel und Reihenfolge gleichzeitiger Trigger | 535–536 PLAN |
-| `18.55.0` (`185500`) | Knöpfe Kampf und Ende, Kampfschritte, Pfeil und LP-Zahl | 537–539 PLAN |
-| `18.56.0` (`185600`) | Spalte wählen, Xyz-Material, genannte Materialien | 540–542 PLAN |
-| `18.57.0` (`185700`) | Statussymbole auf der Zone und im Blatt | 543 PLAN |
-| `18.58.0` (`185800`) | Pendel-Skalen, Pendelbeschwörung, Ritual | 544–546 PLAN |
-| `18.59.0` (`185900`) | Deckeditor, Filter, Banlist-Farben, verwandte Karten | 547–548 PLAN |
-| `18.60.0` (`186000`) | Duellprotokoll und Vorlagen-Gate | 549–550 PLAN |
+| `18.52.0` (`185200`) | Aktivieren-Fenster und Schalter OFF / AUTO / ON | 531–532 CODE |
+| `18.53.0` (`185300`) | Ziele auf dem Feld und in öffentlichen Stapeln | 533–534 CODE |
+| `18.54.0` (`185400`) | Kettenstapel und Reihenfolge gleichzeitiger Trigger | 535–536 CODE |
+| `18.55.0` (`185500`) | Knöpfe Kampf und Ende, Kampfschritte, Pfeil und LP-Zahl | 537–539 CODE |
+| `18.56.0` (`185600`) | Spalte wählen, Xyz-Material, genannte Materialien | 540–542 CODE |
+| `18.57.0` (`185700`) | Statussymbole auf der Zone und im Blatt | 543 CODE |
+| `18.58.0` (`185800`) | Pendel-Skalen, Pendelbeschwörung, Ritual | 544–546 CODE |
+| `18.59.0` (`185900`) | Deckeditor, Filter, Banlist-Farben, verwandte Karten | 547–548 CODE |
+| `18.60.0` (`186000`) | Duellprotokoll und Vorlagen-Gate | 549–550 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

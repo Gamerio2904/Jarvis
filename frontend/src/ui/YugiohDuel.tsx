@@ -3,31 +3,51 @@ import { createPortal } from 'react-dom'
 import {
   activateDuelEffect,
   advanceDuelPhase,
-  discardForHandLimit,
   attack,
+  banlistTone,
   canActivateCard,
+  cardBattleStats,
+  cardStatuses,
   changePosition,
   checkActivation,
+  chooseChainTarget,
   coinFlip,
-  cardBattleStats,
+  confirmPrompt,
+  confirmTriggerOrder,
   createDuel,
+  declinePrompt,
+  declareDuelPhase,
+  discardForHandLimit,
   DUEL_SOUP_WEIGHTS,
   duelStateVector,
   effectFromDescription,
-  hasRule,
-  extraSummonMaterials,
+  filterDeckPool,
   findMaterialsForExtra,
   giveFirstTurn,
+  hasRule,
+  isFirstTurnBattleBlocked,
+  legalExtraSummonZones,
+  legalMainSummonZones,
+  materialClauseFromText,
+  parsePromptMode,
   passDuelChain,
+  pendulumSummon,
+  placePendulumScale,
+  PROMPT_MODE_KEY,
+  relatedFromCatalog,
+  resolveDeclaredAttack,
+  ritualSummon,
   selectAttacker,
   setSpellTrap,
   startJarvisTurn,
   summonExtraMonster,
   summonMonster,
+  extraSummonMaterials,
   type DuelCard,
   type DuelPlayer,
   type DuelSide,
   type DuelState,
+  type PromptMode,
   type StrategyWeights,
 } from '../engine/yugioh-duel.ts'
 import { REAL_DECK_LIST, buildRealDeck, findRealDeck, pickUltronDeck } from '../engine/yugioh-deck-library.ts'
@@ -53,6 +73,7 @@ import './yugioh-duel.css'
 const APP_VERSION = '18.51.3'
 
 function settleOwnActivation(state: DuelState): DuelState {
+  if (state.pendingPrompt || state.pendingTarget || state.pendingTriggerOrder) return state
   if (
     !state.chain.length
     || state.chainPriority !== 'player'
@@ -79,6 +100,9 @@ type ApiCard = {
   linkval?: unknown
   linkmarkers?: unknown
   race?: unknown
+  attribute?: unknown
+  archetype?: unknown
+  scale?: unknown
 }
 
 const MAIN_KEY = 'jarvis_yugioh_main_v1'
@@ -147,7 +171,9 @@ function apiCards(payload: unknown): DuelCard[] {
     const banlist = card.banlist_info && typeof card.banlist_info === 'object'
       ? (card.banlist_info as Record<string, unknown>).ban_tcg
       : undefined
-    const copyLimit = banlist === 'Forbidden' ? 0 : banlist === 'Limited' ? 1 : banlist === 'Semi-Limited' ? 2 : 3
+    const copyLimit = banlist === 'Forbidden' ? 0 : banlist === 'Limited' ? 1 : banlist === 'Semi-Limited' ? 2 : undefined
+    const clause = materialClauseFromText(description)
+    const ritualSpell = description.match(/Ritual Spell Card "([^"]+)"/i)?.[1]
     return [{
       id: card.id,
       catalogId: card.id,
@@ -162,6 +188,13 @@ function apiCards(payload: unknown): DuelCard[] {
       level: typeof card.level === 'number' ? card.level : undefined,
       linkRating,
       ...(kind !== 'monster' && typeof card.race === 'string' ? { subtype: card.race } : {}),
+      ...(typeof card.race === 'string' ? { race: card.race } : {}),
+      ...(typeof card.attribute === 'string' ? { attribute: card.attribute } : {}),
+      ...(typeof card.archetype === 'string' ? { archetype: card.archetype } : {}),
+      ...(typeof card.scale === 'number' ? { pendulumScale: card.scale } : {}),
+      ...(clause ? { materialClause: clause } : {}),
+      ...(/ritual/i.test(card.type) ? { ritual: true } : {}),
+      ...(ritualSpell ? { ritualSpellName: ritualSpell } : {}),
       tuner: /\btuner\b/i.test(description),
       ...(extraKind ? { extraKind } : {}),
       ...(linkArrows.length ? { linkArrows } : {}),
@@ -233,6 +266,7 @@ function PlayCard({
   opponent,
   className = '',
   disabled = false,
+  pickable = false,
   onClick,
 }: {
   card: DuelCard | null
@@ -240,6 +274,7 @@ function PlayCard({
   opponent?: DuelPlayer | null
   className?: string
   disabled?: boolean
+  pickable?: boolean
   onClick?: () => void
 }) {
   const stats = card && owner && card.kind === 'monster' && !card.faceDown ? cardBattleStats(card, owner, opponent ?? undefined) : null
@@ -249,7 +284,7 @@ function PlayCard({
     <button
       type="button"
       className={`ygo-slot${card ? '' : ' is-empty'}${card?.faceDown ? ' is-facedown' : ''}${card?.position === 'defense' ? ' is-defense' : ''}${card?.zoneKind === 'emz' ? ' is-emz' : ''}${className ? ` ${className}` : ''}`}
-      disabled={disabled || !card}
+      disabled={disabled || (!card && !pickable)}
       onClick={onClick}
       title={card ? shortCard(card) : 'Leere Zone'}
     >
@@ -258,6 +293,9 @@ function PlayCard({
       {card?.token ? <em className="ygo-mark">Token</em> : null}
       {card?.counters ? <em className="ygo-mark">{card.counters}</em> : null}
       {arrows ? <em className="ygo-arrows">{arrows}</em> : null}
+      {card && !card.faceDown ? cardStatuses(card).map((status) => (
+        <em key={status} className={`ygo-status is-${status}`}>{status === 'negated' ? 'NEG' : status === 'untargetable' ? 'UNT' : 'IMM'}</em>
+      )) : null}
       {stats ? (
         <span className="ygo-slot-stats">
           <b className={statTone(stats.atk, stats.baseAtk)}>{stats.atk}</b>
@@ -266,6 +304,16 @@ function PlayCard({
       ) : null}
     </button>
   )
+}
+
+function armDuel(state: DuelState, mode: PromptMode): DuelState {
+  return { ...state, promptMode: mode, battleWindow: true, log: state.log ?? [] }
+}
+
+function statusLabel(status: 'negated' | 'untargetable' | 'immune'): string {
+  if (status === 'negated') return 'negated'
+  if (status === 'untargetable') return 'unanvisierbar'
+  return 'immun'
 }
 
 function CardTile({ card, onClick, disabled = false }: { card: DuelCard; onClick?: () => void; disabled?: boolean }) {
@@ -279,8 +327,9 @@ function CardTile({ card, onClick, disabled = false }: { card: DuelCard; onClick
       {card.effectSummary ? <small className="ygo-effect-label">{card.effectSummary}</small> : null}
     </>
   )
+  const tone = banlistTone(card.copyLimit)
   return onClick ? (
-    <button className="ygo-card" type="button" onClick={onClick} disabled={disabled} title={shortCard(card)}>
+    <button className={`ygo-card${tone ? ` is-${tone}` : ''}`} type="button" onClick={onClick} disabled={disabled} title={shortCard(card)}>
       {content}
     </button>
   ) : (
@@ -294,6 +343,13 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [deckLoaded, setDeckLoaded] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<DuelCard[]>([])
+  const [promptMode, setPromptMode] = useState<PromptMode>(() => {
+    try { return parsePromptMode(localStorage.getItem(PROMPT_MODE_KEY)) } catch { return 'auto' }
+  })
+  const [deckFilter, setDeckFilter] = useState({ type: '', attribute: '', level: '', race: '', archetype: '', text: '' })
+  const [relatedCard, setRelatedCard] = useState<DuelCard | null>(null)
+  const [zonePick, setZonePick] = useState<{ cardId: number; tributes: number[]; mode: 'attack' | 'set'; kind: 'normal' | 'extra'; materialIds: number[] } | null>(null)
+  const [chainHold, setChainHold] = useState(false)
   const [searchBusy, setSearchBusy] = useState(false)
   const [game, setGame] = useState<DuelState | null>(null)
   const [spectator, setSpectator] = useState(false)
@@ -451,7 +507,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       const left = buildRealDeck(leftDeck, () => nextCardId.current++)
       const right = buildRealDeck(rightDeck, () => nextCardId.current++)
       const opened = giveFirstTurn(
-        createDuel(left.main, right.main, Math.random, left.extra, right.extra, weights),
+        armDuel(createDuel(left.main, right.main, Math.random, left.extra, right.extra, weights), promptMode),
         coinFlip(),
       )
       setCoin(null)
@@ -491,7 +547,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         }
         // The duel only becomes visible after the coin flip has decided who starts.
         setGame(null)
-        setCoin({ result: coinFlip(), duel: createDuel(mainDeck, botMain, Math.random, extraDeck, botExtra, weights), settled: false })
+        setCoin({ result: coinFlip(), duel: armDuel(createDuel(mainDeck, botMain, Math.random, extraDeck, botExtra, weights), promptMode), settled: false })
         setFocusedCard(null)
         setShowPlayerGrave(false)
         setShowJarvisGrave(false)
@@ -785,7 +841,65 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       setNotice(`Tippe ${required} eigene Monster als Tribut für ${card.name}.`)
       return
     }
-    updateGame((current) => summonMonster(current, card.id, tributes, mode))
+    const remaining = game.player.monsters.filter((monster) => !tributes.includes(monster.id))
+    const zones = legalMainSummonZones(remaining)
+    if (zones.length > 1) {
+      setZonePick({ cardId: card.id, tributes, mode, kind: 'normal', materialIds: [] })
+      setNotice('Tippe eine leuchtende Monsterzone.')
+      return
+    }
+    setZonePick(null)
+    updateGame((current) => summonMonster(current, card.id, tributes, mode, zones[0]?.zoneIndex))
+  }
+
+  function chooseZone(kind: 'mmz' | 'emz', index: number) {
+    if (!zonePick) return
+    const pick = zonePick
+    setZonePick(null)
+    if (pick.kind === 'normal') {
+      updateGame((current) => summonMonster(current, pick.cardId, pick.tributes, pick.mode, index))
+      return
+    }
+    updateGame((current) => summonExtraMonster(current, pick.cardId, pick.materialIds, { zoneKind: kind, zoneIndex: index }))
+  }
+
+  function zoneChoice(kind: 'mmz' | 'emz', index: number): boolean {
+    if (!zonePick || !game) return false
+    const monsters = game.player.monsters.filter((monster) => !zonePick.tributes.includes(monster.id))
+    const zones = zonePick.kind === 'normal'
+      ? legalMainSummonZones(monsters)
+      : legalExtraSummonZones(monsters, zonePick.materialIds)
+    return zones.some((slot) => slot.zoneKind === kind && slot.zoneIndex === index)
+  }
+
+  function markedTarget(card: DuelCard | null): string {
+    if (!card || !game?.pendingTarget?.candidates.includes(card.id)) return ''
+    const own = game.player.monsters.some((monster) => monster.id === card.id)
+      || game.player.spells.some((spell) => spell.id === card.id)
+      || game.player.graveyard.some((item) => item.id === card.id)
+      || game.player.deck.some((item) => item.id === card.id)
+      || game.player.banished.some((item) => item.id === card.id)
+    return own ? ' is-target-own' : ' is-target-foe'
+  }
+
+  function passChain() {
+    if (!game || chainHold || game.pendingPrompt || game.pendingTarget) return
+    const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced || game.chain.length < 2) {
+      updateGame((current) => passDuelChain(current, 'player'))
+      return
+    }
+    setChainHold(true)
+    window.setTimeout(() => {
+      setChainHold(false)
+      updateGame((current) => passDuelChain(current, 'player'))
+    }, 420)
+  }
+
+  function storePromptMode(mode: PromptMode) {
+    setPromptMode(mode)
+    try { localStorage.setItem(PROMPT_MODE_KEY, mode) } catch { /* Speicher nicht verfügbar */ }
+    if (game) setGame({ ...game, promptMode: mode })
   }
 
   function playHandCard(card: DuelCard) {
@@ -904,7 +1018,19 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <span>Zug {game.turn}</span>
             <strong>{phaseLabel}</strong>
             <span>{spectator ? (game.turnOwner === 'jarvis' ? 'Ultron ist dran' : 'Gegner-Bot ist dran') : (game.turnOwner === 'jarvis' ? 'Jarvis ist dran' : 'Du bist dran')}</span>
+            <label className="ygo-prompt-mode">Aktivieren
+              <select aria-label="Aktivieren-Fenster" value={game.promptMode || promptMode} onChange={(event) => storePromptMode(event.target.value as PromptMode)}>
+                <option value="off">OFF</option>
+                <option value="auto">AUTO</option>
+                <option value="on">ON</option>
+              </select>
+            </label>
           </div>
+          {game.log?.length ? (
+            <ol className="ygo-duel-log" aria-label="Duellprotokoll">
+              {game.log.slice(-8).map((line, index) => <li key={`log-${index}`}>{line}</li>)}
+            </ol>
+          ) : null}
           <div className={`ygo-mat${game.lastAnimation?.kind === 'effect' ? ' is-casting' : ''}${game.lastAnimation?.kind === 'summon' ? ' is-summoning' : ''}`}>
             <div className="ygo-lp is-jarvis">
               <strong>ULTRON</strong>
@@ -939,9 +1065,10 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                       card={card}
                       owner={game.jarvis}
                       opponent={game.player}
-                      className={`${card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}${popClass(card)}`}
+                      className={`${card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}${popClass(card)}${markedTarget(card)}`}
                       onClick={() => {
                         if (!card) return
+                        if (game.pendingTarget?.candidates.includes(card.id)) { updateGame((current) => chooseChainTarget(current, card.id)); return }
                         if (game.selectedAttacker !== null) updateGame((current) => attack(current, card.id))
                         else if (!card.faceDown) openCard('jarvis', 'monsters', card.id)
                       }}
@@ -975,14 +1102,39 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                         card={card}
                         owner={game.player}
                         opponent={game.jarvis}
-                        className={`${card && game.selectedAttacker === card.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${popClass(card)}`}
+                        className={`${card && game.selectedAttacker === card.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${popClass(card)}${markedTarget(card)}${zoneChoice('emz', index) ? ' is-zone-choice' : ''}`}
+                        pickable={zoneChoice('emz', index)}
                         onClick={() => {
+                          if (zoneChoice('emz', index)) { chooseZone('emz', index); return }
                           if (!card) return
+                          if (game.pendingTarget?.candidates.includes(card.id)) { updateGame((current) => chooseChainTarget(current, card.id)); return }
                           if (tributeFor !== null) offerTribute(card)
                           else if (game.phase === 'battle') chooseAttacker(card)
                           else openCard('player', 'monsters', card.id)
                         }}
                       />
+                    )
+                  })}
+                </div>
+                <div className="ygo-scale-row">
+                  {[0, 1].map((slot) => {
+                    const scale = game.player.scales?.[slot] ?? null
+                    return (
+                      <button
+                        key={`scale-${slot}`}
+                        type="button"
+                        className="ygo-scale"
+                        onClick={() => {
+                          if (scale) { openCard('player', 'hand', scale.id); return }
+                          const card = focused?.pendulumScale != null ? focused : game.player.hand.find((item) => typeof item.pendulumScale === 'number')
+                          if (!card) { setNotice('Diese Karte hat keine Pendel-Skala. Es wird keine Skala erfunden.'); return }
+                          updateGame((current) => placePendulumScale(current, card.id, slot as 0 | 1))
+                        }}
+                      >
+                        <span>{slot === 0 ? 'Skala L' : 'Skala R'}</span>
+                        <strong>{typeof scale?.pendulumScale === 'number' ? scale.pendulumScale : '—'}</strong>
+                        <small>{scale?.name || 'Pendel'}</small>
+                      </button>
                     )
                   })}
                 </div>
@@ -993,9 +1145,12 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                       card={card}
                       owner={game.player}
                       opponent={game.jarvis}
-                      className={`${game.selectedAttacker === card?.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}${popClass(card)}`}
+                      className={`${game.selectedAttacker === card?.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}${popClass(card)}${markedTarget(card)}${zoneChoice('mmz', index) ? ' is-zone-choice' : ''}`}
+                      pickable={zoneChoice('mmz', index)}
                       onClick={() => {
+                        if (zoneChoice('mmz', index)) { chooseZone('mmz', index); return }
                         if (!card) return
+                        if (game.pendingTarget?.candidates.includes(card.id)) { updateGame((current) => chooseChainTarget(current, card.id)); return }
                         if (tributeFor !== null) offerTribute(card)
                         else if (game.phase === 'battle') chooseAttacker(card)
                         else openCard('player', 'monsters', card.id)
@@ -1033,12 +1188,21 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 {focused.imageUrl ? <img src={focused.imageUrl} alt="" /> : <span className="ygo-inspect-fallback">{focused.kind === 'monster' ? 'MON' : 'ZAUBER'}</span>}
                 <div>
                   <strong>{focused.name}</strong>
+                  <p>{[focused.attribute, focused.level != null ? (focused.extraKind === 'xyz' ? `Rang ${focused.level}` : focused.extraKind === 'link' ? `Link ${focused.linkRating || focused.level}` : `Stufe ${focused.level}`) : '', arrowText(focused), focused.race, focused.type].filter(Boolean).join(' · ')}</p>
+                  {cardStatuses(focused).length ? <p>{cardStatuses(focused).map(statusLabel).join(', ')}</p> : null}
+                  {focused.materials?.length ? <p>Xyz-Material: {focused.materials.map((material) => material.name).join(', ')}</p> : null}
                   <p>{(focused.catalogId && cardTextCache[focused.catalogId]) || focused.effectSummary || (cardTextBusy ? 'Kartentext wird geladen …' : focused.type)}</p>
                   <div className="ygo-actions">
                     {focusedCard.side === 'player' && focusedCard.zone === 'hand' && focused.kind === 'monster' ? (
                       <>
                         <button className="ygo-primary" type="button" onClick={() => summonFromHand(focused, 'attack', tributeIds)}>Normal beschwören</button>
                         <button type="button" onClick={() => summonFromHand(focused, 'set', tributeIds)}>Verdeckt setzen</button>
+                        {focused.ritual || /ritual/i.test(focused.type) ? (
+                          <button type="button" onClick={() => updateGame((current) => ritualSummon(current, focused.id, null, tributeIds))}>Ritual</button>
+                        ) : null}
+                        {typeof focused.pendulumScale === 'number' ? (
+                          <button type="button" onClick={() => updateGame((current) => pendulumSummon(current, [focused.id]))}>Pendelbeschwören</button>
+                        ) : null}
                       </>
                     ) : null}
                     {focusedCard.side === 'player' && focusedCard.zone === 'hand' && (focused.kind === 'spell' || focused.kind === 'trap') ? (
@@ -1081,16 +1245,52 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           {game.chain.length ? (
             <section className="ygo-chain" aria-label="Effektkette">
               <strong>Effektkette · Auflösung zuletzt zuerst</strong>
-              {game.chain.map((link) => (
-                <div className={link.negated ? 'ygo-chain-negated' : ''} key={`chain-${link.id}`}>
-                  <span>CL{link.id} · {link.controller === 'player' ? 'Du' : 'Jarvis'} · {link.card.name}</span>
-                  <small>{link.card.effectSummary || link.effect.kind}</small>
-                </div>
-              ))}
-              {game.chainPriority === 'player' ? (
-                <button type="button" onClick={() => updateGame((current) => passDuelChain(current, 'player'))}>Passen / Kette auflösen</button>
+              <div className="ygo-chain-stack">
+                {game.chain.map((link) => (
+                  <div className={`ygo-chain-card${link.negated ? ' ygo-chain-negated' : ''}${link.id === game.chain[game.chain.length - 1]?.id ? ' is-top' : ''}`} key={`chain-${link.id}`}>
+                    <span>CL{link.id} · {link.controller === 'player' ? 'Du' : 'Jarvis'} · {link.card.name}</span>
+                    <small>{link.card.effectSummary || link.effect.kind}</small>
+                  </div>
+                ))}
+              </div>
+              {game.pendingTarget ? <p>Wähle ein leuchtendes Ziel.</p> : game.pendingPrompt ? <p>Ja oder Nein zur Aktivierung.</p> : game.chainPriority === 'player' ? (
+                <button type="button" disabled={chainHold} onClick={passChain}>{chainHold ? 'Kette löst auf …' : 'Passen / Kette auflösen'}</button>
               ) : <p>Jarvis reagiert …</p>}
             </section>
+          ) : null}
+          {game.pendingPrompt ? (
+            <section className="ygo-prompt" role="dialog" aria-label="Aktivieren">
+              <p>Kettenglied {game.pendingPrompt.chainNumber}</p>
+              <strong>{[...game.player.hand, ...game.player.monsters, ...game.player.spells, ...game.jarvis.hand, ...game.jarvis.monsters, ...game.jarvis.spells].find((card) => card.id === game.pendingPrompt?.cardId)?.name}</strong>
+              <div className="ygo-actions">
+                <button className="ygo-primary" type="button" onClick={() => updateGame(confirmPrompt)}>Ja</button>
+                <button type="button" disabled={game.pendingPrompt.mandatory} onClick={() => updateGame(declinePrompt)}>Nein</button>
+              </div>
+            </section>
+          ) : null}
+          {game.pendingTriggerOrder ? (
+            <section className="ygo-prompt" role="dialog" aria-label="Auslöser-Reihenfolge">
+              <p>Gleichzeitige Auslöser</p>
+              <div className="ygo-actions">
+                <button type="button" onClick={() => updateGame((current) => confirmTriggerOrder(current, current.pendingTriggerOrder || []))}>Reihenfolge bestätigen</button>
+                <button type="button" onClick={() => updateGame((current) => confirmTriggerOrder(current, [...(current.pendingTriggerOrder || [])].reverse()))}>Umkehren</button>
+              </div>
+            </section>
+          ) : null}
+          {game.battleWindow && game.phase === 'battle' ? (
+            <p className="ygo-battle-steps" aria-label="Kampfschritte">
+              {(['start', 'declare', 'damage', 'end'] as const).map((step) => (
+                <span key={step} className={game.battleStep === step ? 'is-current' : ''}>
+                  {step === 'start' ? 'Start' : step === 'declare' ? 'Angriffsdeklaration' : step === 'damage' ? 'Schadensrechnung' : 'Ende'}
+                </span>
+              ))}
+            </p>
+          ) : null}
+          {game.lastAnimation?.kind === 'attack' && game.lastAnimation.damage ? (
+            <p className="ygo-lp-float" aria-label="Lebenspunkt-Differenz">
+              <span className="ygo-attack-arrow" aria-hidden>→</span>
+              {game.lastAnimation.damage.jarvis ? `−${game.lastAnimation.damage.jarvis}` : game.lastAnimation.damage.player ? `−${game.lastAnimation.damage.player}` : '0'}
+            </p>
           ) : null}
           {game.phase === 'battle' && game.selectedAttacker !== null && (!game.jarvis.monsters.length || game.player.monsters.some((card) => card.id === game.selectedAttacker && hasRule(card, 'direct'))) ? (
             <button className="ygo-primary" type="button" onClick={() => updateGame((current) => attack(current))}>Direktangriff</button>
@@ -1099,6 +1299,15 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <button className="ygo-primary" type="button" onClick={() => { setGame(null); setSpectator(false) }}>Neues Duell vorbereiten</button>
           ) : (
             <>
+              {game.phase === 'main1' && !isFirstTurnBattleBlocked(game) ? (
+                <button className="ygo-next-phase" type="button" onClick={() => updateGame((current) => declareDuelPhase(current, 'battle'))} disabled={spectator || game.turnOwner === 'jarvis' || game.chain.length > 0}>Kampf</button>
+              ) : null}
+              {game.phase === 'main1' || game.phase === 'battle' || game.phase === 'main2' ? (
+                <button className="ygo-next-phase" type="button" onClick={() => updateGame((current) => declareDuelPhase(current, 'end'))} disabled={spectator || game.turnOwner === 'jarvis' || game.chain.length > 0}>Ende</button>
+              ) : null}
+              {game.battleStep === 'damage' && game.battleWindow ? (
+                <button className="ygo-primary" type="button" onClick={() => updateGame(resolveDeclaredAttack)}>Schadensrechnung</button>
+              ) : null}
               <button className="ygo-next-phase" type="button" onClick={advancePhase} disabled={spectator || game.turnOwner === 'jarvis' || game.chain.length > 0}>
                 {game.phase === 'end' ? 'Jarvis Zug starten' : 'Nächste Phase'}
               </button>
@@ -1161,7 +1370,15 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                         if (!card) return
                         try {
                           const materials = extraSummonMaterials(card, game.player.monsters, extraMaterials)
-                          updateGame((current) => summonExtraMonster(current, card.id, materials.map((item) => item.id)))
+                          const ids = materials.map((item) => item.id)
+                          const zones = legalExtraSummonZones(game.player.monsters, ids)
+                          if (zones.length > 1) {
+                            setZonePick({ cardId: card.id, tributes: [], mode: 'attack', kind: 'extra', materialIds: ids })
+                            setShowPlayerExtra(false)
+                            setNotice('Tippe eine leuchtende Monsterzone.')
+                            return
+                          }
+                          updateGame((current) => summonExtraMonster(current, card.id, ids, zones[0]))
                           setShowPlayerExtra(false)
                         } catch (error) {
                           setNotice(error instanceof Error ? error.message : 'Material-Auswahl ungültig.')
@@ -1297,42 +1514,68 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <small>Simulierte Duelle mit vereinfachten Regeln, nicht Turnierstärke. Das Netz ist sichtbar, trainierbar und steuert Jarvis im Duell Schritt für Schritt.</small>
           </section>
           <p className="ygo-disclaimer">Jarvis baut ein 40-Karten-Deck aus deinem Main-Deck-Pool. Unterstützte Kartentexte können Effekte und vereinfachte Ketten auslösen. Offizielle Kosten, Timing, Ziele und Kartentext-Errata werden nicht vollständig simuliert.</p>
-          <label className="ygo-search">
-            <span>Karte in YGOPRODeck suchen</span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Kartennamen eingeben …" />
-          </label>
-          {searchBusy ? <p className="ygo-muted">Kartendaten werden geladen …</p> : null}
-          {searchError ? <p className="ygo-error" role="alert">{searchError}</p> : null}
-          <div className="ygo-results">
-            {results.map((card) => {
-              const copies = counts([...mainDeck, ...extraDeck], card)
-              return (
-                <CardTile
-                  card={card}
-                  key={card.catalogId}
-                  disabled={copies >= (card.copyLimit ?? 3)}
-                  onClick={() => addCard(card)}
-                />
-              )
-            })}
-          </div>
-          <div className="ygo-deck-lists">
-            <section>
-              <h2>Main Deck <span>{mainDeck.length}/60</span></h2>
-              {mainDeck.map((card) => (
-                <button className="ygo-deck-entry" type="button" onClick={() => removeCard(card, false)} key={`main-${card.id}`}>
-                  <span>{card.name}</span><small>{card.kind} · entfernen</small>
-                </button>
-              ))}
-            </section>
-            <section>
-              <h2>Extra Deck <span>{extraDeck.length}/15</span></h2>
-              {extraDeck.map((card) => (
-                <button className="ygo-deck-entry" type="button" onClick={() => removeCard(card, true)} key={`extra-${card.id}`}>
-                  <span>{card.name}</span><small>{card.type} · entfernen</small>
-                </button>
-              ))}
-            </section>
+          <div className="ygo-editor">
+            <div className="ygo-deck-lists">
+              <section>
+                <h2>Main Deck <span>{mainDeck.length}/60</span></h2>
+                {mainDeck.map((card) => (
+                  <button className={`ygo-deck-entry${banlistTone(card.copyLimit) ? ` is-${banlistTone(card.copyLimit)}` : ''}`} type="button" onClick={() => removeCard(card, false)} key={`main-${card.id}`}>
+                    <span>{card.name}</span><small>{card.kind} · entfernen</small>
+                  </button>
+                ))}
+              </section>
+              <section>
+                <h2>Extra Deck <span>{extraDeck.length}/15</span></h2>
+                {extraDeck.map((card) => (
+                  <button className={`ygo-deck-entry${banlistTone(card.copyLimit) ? ` is-${banlistTone(card.copyLimit)}` : ''}`} type="button" onClick={() => removeCard(card, true)} key={`extra-${card.id}`}>
+                    <span>{card.name}</span><small>{card.type} · entfernen</small>
+                  </button>
+                ))}
+              </section>
+            </div>
+            <div className="ygo-editor-search">
+              <label className="ygo-search">
+                <span>Karte in YGOPRODeck suchen</span>
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Kartennamen eingeben …" />
+              </label>
+              <div className="ygo-filters">
+                <input aria-label="Filter Typ" value={deckFilter.type} placeholder="Typ" onChange={(event) => setDeckFilter({ ...deckFilter, type: event.target.value })} />
+                <input aria-label="Filter Attribut" value={deckFilter.attribute} placeholder="Attribut" onChange={(event) => setDeckFilter({ ...deckFilter, attribute: event.target.value })} />
+                <input aria-label="Filter Stufe" value={deckFilter.level} placeholder="Stufe" onChange={(event) => setDeckFilter({ ...deckFilter, level: event.target.value })} />
+                <input aria-label="Filter Rasse" value={deckFilter.race} placeholder="Rasse" onChange={(event) => setDeckFilter({ ...deckFilter, race: event.target.value })} />
+                <input aria-label="Filter Archetyp" value={deckFilter.archetype} placeholder="Archetyp" onChange={(event) => setDeckFilter({ ...deckFilter, archetype: event.target.value })} />
+                <input aria-label="Filter Effekttext" value={deckFilter.text} placeholder="Effekttext" onChange={(event) => setDeckFilter({ ...deckFilter, text: event.target.value })} />
+              </div>
+              {searchBusy ? <p className="ygo-muted">Kartendaten werden geladen …</p> : null}
+              {searchError ? <p className="ygo-error" role="alert">{searchError}</p> : null}
+              <div className="ygo-results">
+                {filterDeckPool(results, {
+                  type: deckFilter.type,
+                  attribute: deckFilter.attribute,
+                  level: deckFilter.level.trim() ? Number(deckFilter.level) : null,
+                  race: deckFilter.race,
+                  archetype: deckFilter.archetype,
+                  text: deckFilter.text,
+                }).map((card) => {
+                  const copies = counts([...mainDeck, ...extraDeck], card)
+                  return (
+                    <CardTile
+                      card={card}
+                      key={card.catalogId}
+                      disabled={copies >= (card.copyLimit ?? 3)}
+                      onClick={() => { addCard(card); setRelatedCard(card) }}
+                    />
+                  )
+                })}
+              </div>
+              {relatedCard ? (
+                <div className="ygo-related" aria-label="Verwandte Karten">
+                  {relatedCard.archetype ? relatedFromCatalog(results, relatedCard).map((card) => (
+                    <button type="button" key={`rel-${card.catalogId}`} onClick={() => addCard(card)}>{card.name}</button>
+                  )) : <p>Kein Archetyp-Name vorhanden.</p>}
+                </div>
+              ) : null}
+            </div>
           </div>
           {notice ? <p className="ygo-message" role="status">{notice}</p> : null}
           {!deckLoaded ? <p className="ygo-muted">Deck wird geladen …</p> : null}

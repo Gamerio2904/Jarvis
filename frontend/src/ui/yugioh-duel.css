@@ -1907,3 +1907,137 @@
     gap: 6px;
   }
 }
+
+.ygo-prompt-mode {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.ygo-duel-log {
+  max-height: 4.5rem;
+  overflow: auto;
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 12px;
+}
+
+.ygo-scale-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ygo-scale {
+  width: 4.6rem;
+  min-height: 3.2rem;
+  border: 1px dashed #c9a227;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ygo-chain-stack {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  width: 100%;
+}
+
+.ygo-chain-card {
+  width: min(100%, 18rem);
+  margin-top: -0.35rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid rgba(201, 162, 39, 0.7);
+  background: rgba(12, 16, 28, 0.92);
+}
+
+.ygo-chain-card.is-top {
+  z-index: 2;
+}
+
+.ygo-prompt,
+.ygo-battle-steps,
+.ygo-lp-float {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ygo-battle-steps .is-current {
+  font-weight: 700;
+}
+
+.ygo-status {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 9px;
+  padding: 0 3px;
+  background: #111;
+}
+
+.ygo-status.is-untargetable { color: #7eb6ff; }
+.ygo-status.is-immune { color: #d2b4ff; }
+.ygo-status.is-negated { color: #ff8b8b; }
+
+.is-target-own { outline: 2px solid #4c8dff; }
+.is-target-foe { outline: 2px solid #e23b3b; }
+.is-zone-choice { outline: 2px solid #c9a227; }
+
+.ygo-card.is-forbidden,
+.ygo-deck-entry.is-forbidden { box-shadow: inset 3px 0 #d22; }
+.ygo-card.is-limited,
+.ygo-deck-entry.is-limited { box-shadow: inset 3px 0 #e6a817; }
+.ygo-card.is-semi,
+.ygo-deck-entry.is-semi { box-shadow: inset 3px 0 #3aa357; }
+
+.ygo-editor {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.ygo-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ygo-filters input {
+  width: 7rem;
+}
+
+.ygo-lp-float {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.ygo-attack-arrow {
+  display: inline-block;
+  animation: ygo-arrow 0.6s ease-out;
+}
+
+@keyframes ygo-arrow {
+  from { transform: translateX(-14px); opacity: 0.35; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ygo-lp-float,
+  .ygo-attack-arrow {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .ygo-editor {
+    grid-template-columns: 1fr;
+  }
+}

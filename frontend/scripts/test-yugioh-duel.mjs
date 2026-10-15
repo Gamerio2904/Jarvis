@@ -16,6 +16,7 @@ import {
   summonMonster,
 } from '../src/engine/yugioh-duel.ts'
 import { isYugiohDuelTrigger } from '../src/engine/yugioh-parse.ts'
+import './test-yugioh-md.mjs'
 import { evaluateDuelPolicy, trainDuelPolicy } from '../src/engine/yugioh-training.ts'
 import { EVALUATION_ARCHETYPES, generateDeck, TRAINING_ARCHETYPES } from '../src/engine/yugioh-decks.ts'
 import {
@@ -467,8 +468,9 @@ test('Das Netz steuert Jarvis im echten Duell: gültiger Zug, Zugwechsel, nie di
       assert.equal(next.phase, 'draw')
       assert.equal(next.player.deck.length, state.player.deck.length - 1, 'Spieler zieht genau eine Karte')
       assert.ok(next.player.hand.length <= handBefore + 1)
-      assert.equal(next.jarvis.hand.length + next.jarvis.monsters.length + next.jarvis.graveyard.length + next.jarvis.spells.length + next.jarvis.deck.length + next.jarvis.extraDeck.length,
-        state.jarvis.hand.length + state.jarvis.deck.length + state.jarvis.extraDeck.length, 'keine Jarvis-Karte geht verloren')
+      const held = (side) => side.monsters.reduce((sum, card) => sum + (card.materials?.length || 0), 0)
+      assert.equal(next.jarvis.hand.length + next.jarvis.monsters.length + next.jarvis.graveyard.length + next.jarvis.spells.length + next.jarvis.deck.length + next.jarvis.extraDeck.length + held(next.jarvis),
+        state.jarvis.hand.length + state.jarvis.deck.length + state.jarvis.extraDeck.length + held(state.jarvis), 'keine Jarvis-Karte geht verloren')
     }
   }
   assert.throws(() => runNetJarvisTurn(createDuel(deck(), deck()), { inputs: 1, hidden: 0, params: [] }), /Architektur/)
@@ -720,7 +722,7 @@ test('Jarvis-Zug läuft in sichtbaren Einzelschritten, kann mit Falle unterbroch
     const mine = generateDeck('balanced', random)
     const theirs = generateDeck('aggro', random)
     let state = createDuel(mine.main, theirs.main, random, mine.extra, theirs.extra)
-    const total = (side) => side.hand.length + side.deck.length + side.extraDeck.length + side.monsters.length + side.graveyard.length + side.spells.length
+    const total = (side) => side.hand.length + side.deck.length + side.extraDeck.length + side.monsters.length + side.graveyard.length + side.spells.length + side.monsters.reduce((sum, card) => sum + (card.materials?.length || 0), 0)
     const before = total(state.jarvis)
     state = engine.startJarvisTurn({ ...state, phase: 'end' })
     assert.equal(state.turnOwner, 'jarvis')

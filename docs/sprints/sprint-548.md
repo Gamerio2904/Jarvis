@@ -1,12 +1,12 @@
 # Sprint 548 — Banlist-Farben und verwandte Karten
 
-**Version:** `18.59.0` — **PLAN** Must
+**Version:** `18.59.0` — **CODE** Must
 
 **Plan:** [`../106-next.md`](../106-next.md)
 
 **Hängt an:** 547
 
-**Gateway:** offen
+**Gateway:** go
 
 ## Ziel
 

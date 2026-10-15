@@ -1,15 +1,16 @@
-# 106 — Yu-Gi-Oh! Master Duel als Duellvorlage **PLAN** (`18.52`–`18.60`)
+# 106 — Yu-Gi-Oh! Master Duel als Duellvorlage **CODE** (`18.52`–`18.60`)
 
 **Bedingung:** Die Bedienung des Duells folgt der App Yu-Gi-Oh! Master Duel als
 direkte Vorlage: Aktivieren-Fenster, Zielwahl auf dem Feld, Kettenstapel,
 Kampf- und Endphase, Zonenwahl, Kartenstatus, Pendel und Ritual, Deckeditor
 und Duellprotokoll.
 
-**Planungsstand:** **PLAN**. Baut auf Plan 105 auf (Sprints 511–530, Stand
-`18.51.3`). Kein Sprint ist gebaut. `APP_VERSION`, `package.json` und die
-Test-APK bleiben `18.51.3`, bis jemand `Umsetzen` sagt und das jeweilige
-Gateway auf Go steht. `engineStamp` bleibt `18.51.0-ygo-tcg`, bis ein Sprint
-die Auflösung ändert (538, 540–542, 544–546).
+**Planungsstand:** **CODE**. Baut auf Plan 105 auf (Sprints 511–530, Stand
+`18.51.3`). Sprints 531–550 sind umgesetzt, die Gateways stehen auf Go.
+`APP_VERSION`, `package.json` und die Test-APK bleiben `18.51.3`; die
+versionCodes `185200`–`186000` gelten erst, wenn eine Version gebaut wird.
+`engineStamp` ist `18.60.0-ygo-md`, weil 538, 540–542 und 544–546 die
+Auflösung ändern.
 
 **Vorlage, kein Nachbau der App-Hülle.** Shop, Gems, Secret Packs, Crafting,
 Rangliste, Einsatz-Uhr, Solo-Story, Sleeves, Feld-Skins, Mates und Replay

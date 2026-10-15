@@ -15,7 +15,7 @@ import {
 } from './yugioh-selfplay.ts'
 
 export const PROOF_FORMAT = 'jarvis-yugioh-proof-v1' as const
-export const ENGINE_STAMP = '18.51.0-ygo-tcg'
+export const ENGINE_STAMP = '18.60.0-ygo-md'
 
 export const PUBLIC_HOLDOUT_SEEDS = [101, 202, 303, 404, 505, 606, 707, 808] as const
 /** Only used inside verify — not written into the public test block of the proof. */

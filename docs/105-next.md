@@ -7,9 +7,9 @@ nur generischen Regex-Mustern auf Englisch.
 
 **Planungsstand:** **CODE** (Release **`18.51.0`**, Sprints 511–530). Baut auf
 **`18.45.0`** (Plan 104) auf. Gates: `test:yugioh-duel`, `test:yugioh-rules`,
-`test:yugioh-fidelity` grün; `engineStamp` **`18.51.0-ygo-tcg`**.
+`test:yugioh-fidelity` grün. Der Stempel dieses Plans war `18.51.0-ygo-tcg`; Plan 106 setzt ihn auf `18.60.0-ygo-md`.
 
-**Geliefert in `18.51.0` (Subset, Geräte-Gate offen):** EMZ/MMZ-Kapazität über Link-Wertung, Turn 1 ohne Battle Phase, Spell Speed 1–3, Banish/Bounce/Mill/Field-Aura, Effekt-Schema v2, PSCT-Atome (OPT/HOPT, Trigger/Cost/Target-Hinweis, fail-closed), Coverage und Fidelity im Nachweis (`engineStamp` `18.51.0-ygo-tcg`). Tests: `test:yugioh-rules`, `test:yugioh-fidelity`. Nicht geschlossen: Coverage ≥70 % Ultron-Pool, 100 Gold-Karten ≥95 %, vollständige Zielwahl-UI, Pendel und Link-Pfeil-Geometrie.
+**Geliefert in `18.51.0` (Subset, Geräte-Gate offen):** EMZ/MMZ-Kapazität über Link-Wertung, Turn 1 ohne Battle Phase, Spell Speed 1–3, Banish/Bounce/Mill/Field-Aura, Effekt-Schema v2, PSCT-Atome (OPT/HOPT, Trigger/Cost/Target-Hinweis, fail-closed), Coverage und Fidelity im Nachweis (`engineStamp` `18.51.0-ygo-tcg`). Tests: `test:yugioh-rules`, `test:yugioh-fidelity`. Nicht geschlossen: Coverage ≥70 % Ultron-Pool und 100 Gold-Karten ≥95 %. Zielwahl und Pendel liegen in Plan 106.
 
 **Ausgangslage vor Sprint 511 (nicht der heutige Code):**
 
@@ -124,4 +124,4 @@ Sprintdetails: [`sprint-525.md`](./sprints/sprint-525.md) bis [`sprint-530.md`](
 
 Funktionsumfang heute: [`yugioh-duel.md`](./yugioh-duel.md). Vorgänger KI:
 [`104-next.md`](./104-next.md). Folgeplan Bedienung:
-[`106-next.md`](./106-next.md) (Sprints 531–550, PLAN `18.52.0`–`18.60.0`).
+[`106-next.md`](./106-next.md) (Sprints 531–550, CODE `18.52.0`–`18.60.0`).

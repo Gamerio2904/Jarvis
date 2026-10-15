@@ -512,26 +512,26 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 528 | [`sprint-528.md`](./sprint-528.md) | `18.51.0` | Errata-Tabelle | **CODE** Must |
 | 529 | [`sprint-529.md`](./sprint-529.md) | `18.51.0` | Gold-Kartenkorpus | **CODE** Must |
 | 530 | [`sprint-530.md`](./sprint-530.md) | `18.51.0` | Fidelity-Nachweis und Release-Gate | **CODE** Must |
-| 531 | [`sprint-531.md`](./sprint-531.md) | `18.52.0` | Aktivieren-Fenster | **PLAN** Must |
-| 532 | [`sprint-532.md`](./sprint-532.md) | `18.52.0` | Schalter OFF, AUTO und ON | **PLAN** Must |
-| 533 | [`sprint-533.md`](./sprint-533.md) | `18.53.0` | Ziele auf dem Feld antippen | **PLAN** Must |
-| 534 | [`sprint-534.md`](./sprint-534.md) | `18.53.0` | Ziele in Friedhof, Deck, Extra und Verbannung | **PLAN** Must |
-| 535 | [`sprint-535.md`](./sprint-535.md) | `18.54.0` | Kette als Kartenstapel | **PLAN** Must |
-| 536 | [`sprint-536.md`](./sprint-536.md) | `18.54.0` | Reihenfolge gleichzeitiger Trigger | **PLAN** Must |
-| 537 | [`sprint-537.md`](./sprint-537.md) | `18.55.0` | Knöpfe Kampf und Ende | **PLAN** Must |
-| 538 | [`sprint-538.md`](./sprint-538.md) | `18.55.0` | Kampfschritte und Schadensfenster | **PLAN** Must |
-| 539 | [`sprint-539.md`](./sprint-539.md) | `18.55.0` | Angriffspfeil und LP-Zahl | **PLAN** Must |
-| 540 | [`sprint-540.md`](./sprint-540.md) | `18.56.0` | Beschworene Spalte selbst wählen | **PLAN** Must |
-| 541 | [`sprint-541.md`](./sprint-541.md) | `18.56.0` | Xyz-Material bleibt unter der Karte | **PLAN** Must |
-| 542 | [`sprint-542.md`](./sprint-542.md) | `18.56.0` | Genannte Fusions- und Synchro-Materialien | **PLAN** Must |
-| 543 | [`sprint-543.md`](./sprint-543.md) | `18.57.0` | Status auf Zone und im Blatt | **PLAN** Must |
-| 544 | [`sprint-544.md`](./sprint-544.md) | `18.58.0` | Pendel-Skalen | **PLAN** Must |
-| 545 | [`sprint-545.md`](./sprint-545.md) | `18.58.0` | Pendelbeschwörung | **PLAN** Must |
-| 546 | [`sprint-546.md`](./sprint-546.md) | `18.58.0` | Ritualbeschwörung | **PLAN** Must |
-| 547 | [`sprint-547.md`](./sprint-547.md) | `18.59.0` | Deckeditor mit Filtern | **PLAN** Must |
-| 548 | [`sprint-548.md`](./sprint-548.md) | `18.59.0` | Banlist-Farben und verwandte Karten | **PLAN** Must |
-| 549 | [`sprint-549.md`](./sprint-549.md) | `18.60.0` | Duellprotokoll | **PLAN** Must |
-| 550 | [`sprint-550.md`](./sprint-550.md) | `18.60.0` | Vorlagen-Gate | **PLAN** Must |
+| 531 | [`sprint-531.md`](./sprint-531.md) | `18.52.0` | Aktivieren-Fenster | **CODE** Must |
+| 532 | [`sprint-532.md`](./sprint-532.md) | `18.52.0` | Schalter OFF, AUTO und ON | **CODE** Must |
+| 533 | [`sprint-533.md`](./sprint-533.md) | `18.53.0` | Ziele auf dem Feld antippen | **CODE** Must |
+| 534 | [`sprint-534.md`](./sprint-534.md) | `18.53.0` | Ziele in Friedhof, Deck, Extra und Verbannung | **CODE** Must |
+| 535 | [`sprint-535.md`](./sprint-535.md) | `18.54.0` | Kette als Kartenstapel | **CODE** Must |
+| 536 | [`sprint-536.md`](./sprint-536.md) | `18.54.0` | Reihenfolge gleichzeitiger Trigger | **CODE** Must |
+| 537 | [`sprint-537.md`](./sprint-537.md) | `18.55.0` | Knöpfe Kampf und Ende | **CODE** Must |
+| 538 | [`sprint-538.md`](./sprint-538.md) | `18.55.0` | Kampfschritte und Schadensfenster | **CODE** Must |
+| 539 | [`sprint-539.md`](./sprint-539.md) | `18.55.0` | Angriffspfeil und LP-Zahl | **CODE** Must |
+| 540 | [`sprint-540.md`](./sprint-540.md) | `18.56.0` | Beschworene Spalte selbst wählen | **CODE** Must |
+| 541 | [`sprint-541.md`](./sprint-541.md) | `18.56.0` | Xyz-Material bleibt unter der Karte | **CODE** Must |
+| 542 | [`sprint-542.md`](./sprint-542.md) | `18.56.0` | Genannte Fusions- und Synchro-Materialien | **CODE** Must |
+| 543 | [`sprint-543.md`](./sprint-543.md) | `18.57.0` | Status auf Zone und im Blatt | **CODE** Must |
+| 544 | [`sprint-544.md`](./sprint-544.md) | `18.58.0` | Pendel-Skalen | **CODE** Must |
+| 545 | [`sprint-545.md`](./sprint-545.md) | `18.58.0` | Pendelbeschwörung | **CODE** Must |
+| 546 | [`sprint-546.md`](./sprint-546.md) | `18.58.0` | Ritualbeschwörung | **CODE** Must |
+| 547 | [`sprint-547.md`](./sprint-547.md) | `18.59.0` | Deckeditor mit Filtern | **CODE** Must |
+| 548 | [`sprint-548.md`](./sprint-548.md) | `18.59.0` | Banlist-Farben und verwandte Karten | **CODE** Must |
+| 549 | [`sprint-549.md`](./sprint-549.md) | `18.60.0` | Duellprotokoll | **CODE** Must |
+| 550 | [`sprint-550.md`](./sprint-550.md) | `18.60.0` | Vorlagen-Gate | **CODE** Must |
 
 Sprints 431–466 sind im Test-Build enthalten, der inzwischen `18.51.0` ist; die finale
 Geräte-/Release-Freigabe steht noch aus. Die Folgeschiene 467–482 ist in
@@ -563,8 +563,8 @@ Sprints 511–530 (Regeln, Effektabdeckung, Fidelity) stehen in
 [`../105-next.md`](../105-next.md), **CODE** als TCG-Subset in `18.51.0`.
 Die Zahlen-Gates Coverage ≥70 % und 100 Gold-Karten ≥95 % sind nicht geschlossen.
 Sprints 531–550 (Master-Duel-Bedienung) stehen in
-[`../106-next.md`](../106-next.md), **PLAN** für `18.52.0`–`18.60.0`.
-Sie sind nicht gebaut und setzen `APP_VERSION` nicht.
+[`../106-next.md`](../106-next.md), **CODE** für `18.52.0`–`18.60.0`.
+`engineStamp` ist `18.60.0-ygo-md`. `APP_VERSION` bleibt `18.51.3`.
 
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
@@ -574,7 +574,7 @@ offen. Rework 444–466: [`../100-next.md`](../100-next.md). Gates 467–502:
 [`../101-next.md`](../101-next.md), [`../102-next.md`](../102-next.md),
 [`../103-next.md`](../103-next.md). Duell 503–530:
 [`../104-next.md`](../104-next.md), [`../105-next.md`](../105-next.md).
-Duell-Vorlage 531–550: [`../106-next.md`](../106-next.md), **PLAN**.
+Duell-Vorlage 531–550: [`../106-next.md`](../106-next.md), **CODE**.
 Ältere Sprintfolgen bleiben historisch.
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `18.51.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `18.51` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.

@@ -1,12 +1,12 @@
 # Sprint 550 — Vorlagen-Gate
 
-**Version:** `18.60.0` — **PLAN** Must
+**Version:** `18.60.0` — **CODE** Must
 
 **Plan:** [`../106-next.md`](../106-next.md)
 
 **Hängt an:** 531–549
 
-**Gateway:** offen
+**Gateway:** go
 
 ## Ziel
 

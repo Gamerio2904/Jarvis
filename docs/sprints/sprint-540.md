@@ -1,12 +1,12 @@
 # Sprint 540 — Beschworene Spalte selbst wählen
 
-**Version:** `18.56.0` — **PLAN** Must
+**Version:** `18.56.0` — **CODE** Must
 
 **Plan:** [`../106-next.md`](../106-next.md)
 
 **Hängt an:** 511
 
-**Gateway:** offen
+**Gateway:** go
 
 ## Ziel
 

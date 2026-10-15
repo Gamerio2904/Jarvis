@@ -1,12 +1,12 @@
 # Sprint 545 — Pendelbeschwörung
 
-**Version:** `18.58.0` — **PLAN** Must
+**Version:** `18.58.0` — **CODE** Must
 
 **Plan:** [`../106-next.md`](../106-next.md)
 
 **Hängt an:** 544
 
-**Gateway:** offen
+**Gateway:** go
 
 ## Ziel
 

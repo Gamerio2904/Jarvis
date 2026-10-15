@@ -1,12 +1,12 @@
 # Sprint 542 — Genannte Fusions- und Synchro-Materialien
 
-**Version:** `18.56.0` — **PLAN** Must
+**Version:** `18.56.0` — **CODE** Must
 
 **Plan:** [`../106-next.md`](../106-next.md)
 
 **Hängt an:** 540
 
-**Gateway:** offen
+**Gateway:** go
 
 ## Ziel
 

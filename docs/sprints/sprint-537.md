@@ -1,12 +1,12 @@
 # Sprint 537 — Knöpfe Kampf und Ende
 
-**Version:** `18.55.0` — **PLAN** Must
+**Version:** `18.55.0` — **CODE** Must
 
 **Plan:** [`../106-next.md`](../106-next.md)
 
 **Hängt an:** 532
 
-**Gateway:** offen
+**Gateway:** go
 
 ## Ziel
 

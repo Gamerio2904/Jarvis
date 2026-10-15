@@ -2,6 +2,8 @@ import {
   extraSummonZone,
   freeMainColumn,
   hasFreeMonsterZone,
+  legalExtraSummonZones,
+  legalMainSummonZones,
   isFirstTurnBattleBlocked,
   pointedMonsters,
   registerLinkArrows,
@@ -58,6 +60,39 @@ export type CardRule =
 
 export type EffectTrigger = 'summon' | 'flip' | 'ignition' | 'quick' | 'continuous'
 
+export type MaterialClause =
+  | { status: 'names'; names: string[] }
+  | { status: 'levelSum'; sum: number }
+  | { status: 'ambiguous' }
+
+export type PromptMode = 'off' | 'auto' | 'on'
+export type BattleStep = 'start' | 'declare' | 'damage' | 'end'
+export type PromptSource = 'trigger' | 'response' | 'phase'
+
+export type ActivationPrompt = {
+  side: DuelSide
+  cardId: number
+  chainNumber: number
+  source: PromptSource
+  mandatory: boolean
+}
+
+export type TargetPile = 'field' | 'graveyard' | 'deck' | 'extra' | 'banished'
+
+export type TargetPick = {
+  cardId: number
+  owner: DuelSide
+  pile: TargetPile
+}
+
+export type TargetPrompt = {
+  linkId: number
+  candidates: number[]
+  pile: TargetPile
+}
+
+export const PROMPT_MODE_KEY = 'jarvis_yugioh_prompt_v1'
+
 export type DuelCard = {
   id: number
   catalogId?: number
@@ -94,6 +129,16 @@ export type DuelCard = {
   lockedKey?: number
   // ATK added until the end of the turn.
   boost?: number
+  attribute?: string
+  race?: string
+  archetype?: string
+  pendulumScale?: number
+  materials?: DuelCard[]
+  effectsNegated?: boolean
+  materialClause?: MaterialClause
+  ritual?: boolean
+  ritualSpellName?: string
+  faceUpExtra?: boolean
 }
 
 export type DuelPlayer = {
@@ -108,6 +153,8 @@ export type DuelPlayer = {
   extraDeck: DuelCard[]
   normalSummonUsed: boolean
   usedEffects: number[]
+  scales?: [DuelCard | null, DuelCard | null]
+  pendulumSummonUsed?: boolean
 }
 
 export type DuelPhase = 'draw' | 'standby' | 'main1' | 'battle' | 'main2' | 'end'
@@ -119,6 +166,7 @@ export type ChainLink = {
   effect: DuelEffect
   negated: boolean
   spellSpeed: 1 | 2 | 3
+  targetId?: number
 }
 
 export type DuelAnimation = {
@@ -150,6 +198,15 @@ export type DuelState = {
   winner: 'player' | 'jarvis' | null
   /** Karten, die in der End Phase noch abgeworfen werden müssen (Handlimit 6). */
   discardNeeded?: number
+  phaseIntent?: 'battle' | 'end' | 'next'
+  promptMode?: PromptMode
+  pendingPrompt?: ActivationPrompt | null
+  pendingTarget?: TargetPrompt | null
+  pendingTriggerOrder?: number[] | null
+  battleWindow?: boolean
+  battleStep?: BattleStep | null
+  log?: string[]
+  skipPhasePrompt?: boolean
 }
 
 export type StrategyWeights = {
@@ -241,6 +298,8 @@ export {
   hasFreeMonsterZone,
   hasFreeExtraZone,
   extraSummonZone,
+  legalExtraSummonZones,
+  legalMainSummonZones,
   linkedOwnZones,
 } from './yugioh-zones.ts'
 export { effectFromDescriptionV2, deckEffectCoverage, EFFECT_SCHEMA_VERSION } from './yugioh-effects.ts'
@@ -251,6 +310,14 @@ export function turnKey(state: DuelState): number {
 
 function requirePlayerTurn(state: DuelState): void {
   if ((state.turnOwner ?? 'player') !== 'player') throw new Error('Du bist nicht am Zug.')
+}
+
+function clearNegation(player: DuelPlayer): DuelPlayer {
+  if (!player.monsters.some((card) => card.effectsNegated)) return player
+  return {
+    ...player,
+    monsters: player.monsters.map((card) => card.effectsNegated ? { ...card, effectsNegated: undefined } : card),
+  }
 }
 
 function clearBoosts(player: DuelPlayer): DuelPlayer {
@@ -285,7 +352,84 @@ function withRules(card: DuelCard): DuelCard {
 
 function sendAway(player: DuelPlayer, card: DuelCard): void {
   if (card.token) return
-  player.graveyard.push(leaveField(card))
+  const left = leaveField(card)
+  if (typeof card.pendulumScale === 'number') {
+    player.extraDeck.push({ ...left, pendulumScale: card.pendulumScale, extraDeck: true, faceUpExtra: true })
+    return
+  }
+  player.graveyard.push(left)
+}
+
+function remember(state: DuelState, line: string): DuelState {
+  if (!Array.isArray(state.log)) return state
+  return { ...state, log: [...state.log, line] }
+}
+
+export function parsePromptMode(raw: string | null | undefined): PromptMode {
+  if (raw === 'off' || raw === 'auto' || raw === 'on') return raw
+  return 'auto'
+}
+
+export function isMandatoryCard(card: DuelCard): boolean {
+  return /muss|pflicht|must/i.test(`${card.effectSummary || ''} ${card.name}`)
+}
+
+export function cardStatuses(card: DuelCard): Array<'negated' | 'untargetable' | 'immune'> {
+  const list: Array<'negated' | 'untargetable' | 'immune'> = []
+  if (card.effectsNegated) list.push('negated')
+  if (hasRule(card, 'untargetable')) list.push('untargetable')
+  if (hasRule(card, 'unaffected') || hasRule(card, 'effectProof')) list.push('immune')
+  return list
+}
+
+export function materialClauseFromText(text: string): MaterialClause | null {
+  const raw = text.trim()
+  if (!raw) return null
+  const quoted = [...raw.matchAll(/"([^"]+)"/g)].map((match) => match[1].trim()).filter(Boolean)
+  const level = raw.match(/total levels?(?: equal(?:s)?)?\s*(\d+)/i)
+    || raw.match(/level sum of\s*(\d+)/i)
+    || raw.match(/stufen(?:\s+zusammen)?(?:\s+gleich)?\s*(\d+)/i)
+  if (quoted.length >= 2 && /material/i.test(raw)) return { status: 'names', names: quoted.slice(0, 5) }
+  if (level) return { status: 'levelSum', sum: Number(level[1]) }
+  if (/material/i.test(raw) && (quoted.length === 1 || /must (?:be|include)|benötigt/i.test(raw))) {
+    return { status: 'ambiguous' }
+  }
+  return null
+}
+
+export function banlistTone(copyLimit: number | undefined): 'forbidden' | 'limited' | 'semi' | null {
+  if (copyLimit === 0) return 'forbidden'
+  if (copyLimit === 1) return 'limited'
+  if (copyLimit === 2) return 'semi'
+  return null
+}
+
+export type DeckFilter = {
+  type?: string
+  attribute?: string
+  level?: number | null
+  race?: string
+  archetype?: string
+  text?: string
+}
+
+export function filterDeckPool(cards: readonly DuelCard[], filter: DeckFilter): DuelCard[] {
+  const text = filter.text?.trim().toLowerCase() || ''
+  return cards.filter((card) => {
+    if (filter.type && !card.type.toLowerCase().includes(filter.type.toLowerCase()) && card.kind !== filter.type) return false
+    if (filter.attribute && (card.attribute || '').toLowerCase() !== filter.attribute.toLowerCase()) return false
+    if (filter.level != null && card.level !== filter.level) return false
+    if (filter.race && (card.race || '').toLowerCase() !== filter.race.toLowerCase()) return false
+    if (filter.archetype && (card.archetype || '').toLowerCase() !== filter.archetype.toLowerCase()) return false
+    if (text && !`${card.name} ${card.effectSummary || ''} ${card.type}`.toLowerCase().includes(text)) return false
+    return true
+  })
+}
+
+export function relatedFromCatalog(cards: readonly DuelCard[], card: DuelCard): DuelCard[] {
+  if (!card.archetype) return []
+  const name = card.archetype.toLowerCase()
+  return cards.filter((item) => item.archetype?.toLowerCase() === name && (item.catalogId ?? item.id) !== (card.catalogId ?? card.id))
 }
 
 function grantSpellCounters(player: DuelPlayer): void {
@@ -463,7 +607,9 @@ function runJarvisTurn(state: DuelState): DuelState {
     if (!destination) continue
     const materialIds = new Set(materials.map((monster) => monster.id))
     jarvis.monsters = jarvis.monsters.filter((monster) => !materialIds.has(monster.id))
-    for (const material of materials) sendAway(jarvis, material)
+    if (extra.extraKind !== 'xyz') {
+      for (const material of materials) sendAway(jarvis, material)
+    }
     jarvis.extraDeck = jarvis.extraDeck.filter((monster) => monster.id !== extra.id)
     jarvis.monsters.push({
       ...withRules(extra),
@@ -471,17 +617,18 @@ function runJarvisTurn(state: DuelState): DuelState {
       zoneKind: destination.zoneKind,
       zoneIndex: destination.zoneIndex,
       linkArrows: extra.extraKind === 'link' ? registerLinkArrows(extra) : extra.linkArrows,
+      ...(extra.extraKind === 'xyz' ? { materials: materials.map((material) => leaveField(material)) } : {}),
     })
     extraSummonedName = extra.name
     break
   }
-  const player = clearBoosts({
+  const player = clearNegation(clearBoosts({
     ...state.player,
     monsters: [...state.player.monsters],
     graveyard: [...state.player.graveyard],
     usedEffects: [],
     normalSummonUsed: false,
-  })
+  }))
   const jarvisOpens = (state.firstPlayer ?? 'player') === 'jarvis' && state.turn === 1
   for (const attacker of [...jarvis.monsters]) {
     if (jarvisOpens || state.winner || !jarvis.monsters.includes(attacker)) continue
@@ -591,6 +738,23 @@ export function advanceDuelPhase(state: DuelState): DuelState {
   if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
   if ((state.discardNeeded || 0) > 0) throw new Error('Wirf zuerst Karten ab. Das Handlimit ist 6.')
   if (state.phase === 'end') return runJarvisTurn(state)
+  if (state.promptMode === 'on' && !state.skipPhasePrompt && !state.pendingPrompt) {
+    const card = phasePromptCard(state)
+    if (card) {
+      return {
+        ...state,
+        pendingPrompt: {
+          side: 'player',
+          cardId: card.id,
+          chainNumber: state.chain.length + 1,
+          source: 'phase',
+          mandatory: false,
+        },
+        message: `Vor dem Phasenwechsel: ${card.name}?`,
+        phaseIntent: 'next',
+      }
+    }
+  }
   let phase = skipBlockedPhases(state, nextPhase(state.phase))
   if (phase === 'end' && state.player.hand.length > 6) {
     const extra = state.player.hand.length - 6
@@ -604,19 +768,22 @@ export function advanceDuelPhase(state: DuelState): DuelState {
       message: `Handlimit 6. Wirf ${extra} Karte(n) ab.`,
     }
   }
-  return {
+  const advanced: DuelState = {
     ...state,
     phase,
+    skipPhasePrompt: false,
     selectedAttacker: null,
     attacked: [],
     lastAnimation: null,
+    ...(phase === 'battle' && state.battleWindow ? { battleStep: 'start' as const } : {}),
     message: phase === 'battle' && isFirstTurnBattleBlocked(state)
       ? 'In Turn 1 des Startspielers gibt es keine Battle Phase (TCG).'
       : `Deine Phase: ${phase === 'main1' ? 'Main Phase 1' : phase === 'main2' ? 'Main Phase 2' : phase}.`,
   }
+  return remember(advanced, `Phase: ${phase}`)
 }
 
-export function summonMonster(state: DuelState, cardId: number, tributes: number[] = [], mode: 'attack' | 'set' = 'attack'): DuelState {
+export function summonMonster(state: DuelState, cardId: number, tributes: number[] = [], mode: 'attack' | 'set' = 'attack', zoneIndex?: number): DuelState {
   requirePlayerTurn(state)
   if (state.winner || !['main1', 'main2'].includes(state.phase)) throw new Error('Beschwörungen sind nur in der Main Phase möglich.')
   if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
@@ -641,10 +808,14 @@ export function summonMonster(state: DuelState, cardId: number, tributes: number
   player.hand.splice(cardIndex, 1)
   for (const tribute of tributes) {
     const index = player.monsters.findIndex((monster) => monster.id === tribute)
-    player.graveyard.push(...player.monsters.splice(index, 1))
+    const [removed] = player.monsters.splice(index, 1)
+    if (removed) sendAway(player, removed)
   }
-  const column = freeMainColumn(player.monsters)
-  if (column == null) throw new Error('Deine Monster-Zone ist voll.')
+  const legal = legalMainSummonZones(player.monsters)
+  const column = zoneIndex != null ? zoneIndex : legal[0]?.zoneIndex
+  if (column == null || !legal.some((slot) => slot.zoneKind === 'mmz' && slot.zoneIndex === column)) {
+    throw new Error(zoneIndex != null ? 'Diese Monsterzone ist nicht erlaubt.' : 'Deine Monster-Zone ist voll.')
+  }
   const placed: DuelCard = mode === 'set'
     ? { ...withRules(card), faceDown: true, position: 'defense', lockedKey: turnKey(state), zoneKind: 'mmz', zoneIndex: column }
     : {
@@ -657,12 +828,12 @@ export function summonMonster(state: DuelState, cardId: number, tributes: number
       linkArrows: card.extraKind === 'link' ? registerLinkArrows(card) : card.linkArrows,
     }
   player.monsters.push(placed)
-  const summoned: DuelState = {
+  const summoned = remember({
     ...state,
     player,
     lastAnimation: { id: card.id, kind: mode === 'set' ? 'set' : 'summon', side: 'player' },
     message: mode === 'set' ? 'Ein Monster wurde verdeckt in Verteidigung gesetzt.' : `${card.name} wurde beschworen.`,
-  }
+  }, mode === 'set' ? `Setzen: ${card.name}` : `Beschwörung: ${card.name}`)
   return mode === 'set' ? summoned : settleTrigger(summoned, 'player', card.id, 'summon')
 }
 
@@ -747,18 +918,41 @@ export function extraSummonMaterials(
     const rating = card.linkRating || card.level || 2
     if (selected.length < rating) throw new Error(`Link: wähle mindestens ${rating} Monster als Materialien.`)
   }
+  if (card.materialClause?.status === 'ambiguous') {
+    throw new Error('Der Materialtext ist nicht eindeutig. Es wird keine Materialliste erfunden.')
+  }
+  if (card.materialClause?.status === 'names') {
+    const have = selected.map((monster) => monster.name.toLowerCase())
+    for (const name of card.materialClause.names) {
+      if (!have.includes(name.toLowerCase())) throw new Error(`Diese Beschwörung verlangt ${name} als Material.`)
+    }
+  }
+  if (card.materialClause?.status === 'levelSum') {
+    const total = selected.reduce((sum, monster) => sum + (monster.level || 0), 0)
+    if (total !== card.materialClause.sum) throw new Error(`Die Materialien müssen zusammen Stufe ${card.materialClause.sum} haben.`)
+  }
   return selected
 }
 
-export function summonExtraMonster(state: DuelState, cardId: number, materialIds: number[]): DuelState {
+export function summonExtraMonster(
+  state: DuelState,
+  cardId: number,
+  materialIds: number[],
+  zone?: { zoneKind: 'mmz' | 'emz'; zoneIndex: number },
+): DuelState {
   requirePlayerTurn(state)
   if (state.winner || !['main1', 'main2'].includes(state.phase)) throw new Error('Extra-Deck-Beschwörungen sind nur in der Main Phase möglich.')
   if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
   const card = state.player.extraDeck.find((item) => item.id === cardId)
   if (!card) throw new Error('Diese Karte liegt nicht in deinem Extra Deck.')
   const materials = extraSummonMaterials(card, state.player.monsters, materialIds)
-  const destination = extraSummonZone(state.player.monsters, materialIds)
-  if (!destination) throw new Error('Deine Monster-Zone ist voll.')
+  const legalZones = legalExtraSummonZones(state.player.monsters, materialIds)
+  const destination = zone
+    ? legalZones.find((slot) => slot.zoneKind === zone.zoneKind && slot.zoneIndex === zone.zoneIndex) ?? null
+    : extraSummonZone(state.player.monsters, materialIds)
+  if (!destination) {
+    throw new Error(zone ? 'Diese Zone ist für die Extra-Deck-Beschwörung nicht erlaubt.' : 'Deine Monster-Zone ist voll.')
+  }
   const player = {
     ...state.player,
     monsters: state.player.monsters.filter((monster) => !materialIds.includes(monster.id)),
@@ -766,7 +960,9 @@ export function summonExtraMonster(state: DuelState, cardId: number, materialIds
     extraDeck: state.player.extraDeck.filter((item) => item.id !== cardId),
     usedEffects: [...state.player.usedEffects],
   }
-  for (const material of materials) sendAway(player, material)
+  if (card.extraKind !== 'xyz') {
+    for (const material of materials) sendAway(player, material)
+  }
   player.monsters.push({
     ...withRules(card),
     faceDown: false,
@@ -775,13 +971,14 @@ export function summonExtraMonster(state: DuelState, cardId: number, materialIds
     zoneKind: destination.zoneKind,
     zoneIndex: destination.zoneIndex,
     linkArrows: card.extraKind === 'link' ? registerLinkArrows(card) : card.linkArrows,
+    ...(card.extraKind === 'xyz' ? { materials: materials.map((material) => leaveField(material)) } : {}),
   })
-  const summoned: DuelState = {
+  const summoned = remember({
     ...state,
     player,
     lastAnimation: { id: card.id, kind: 'summon' },
     message: `${card.name} wurde aus dem Extra Deck beschworen.`,
-  }
+  }, `Beschwörung: ${card.name}`)
   return settleTrigger(summoned, 'player', card.id, 'summon')
 }
 
@@ -799,10 +996,25 @@ function triggerOf(card: DuelCard): EffectTrigger | undefined {
 function settleTrigger(state: DuelState, side: DuelSide, cardId: number, trigger: 'summon' | 'flip'): DuelState {
   const me = owner(state, side)
   const card = me.monsters.find((item) => item.id === cardId)
-  if (!card || card.faceDown || !card.effect || triggerOf(card) !== trigger) return state
+  if (!card || card.faceDown || !card.effect || triggerOf(card) !== trigger || card.effectsNegated) return state
   if (checkActivation(state, side, cardId, 'trigger')) return state
+  if (state.promptMode === 'off') {
+    if (!isMandatoryCard(card)) return state
+  } else if ((state.promptMode === 'auto' || state.promptMode === 'on') && side === 'player') {
+    return {
+      ...state,
+      pendingPrompt: {
+        side,
+        cardId,
+        chainNumber: state.chain.length + 1,
+        source: 'trigger',
+        mandatory: isMandatoryCard(card),
+      },
+      message: `${card.name} kann aktiviert werden. Kettenglied ${state.chain.length + 1}.`,
+    }
+  }
   let next = activateDuelEffect(state, side, cardId, 'trigger')
-  if (next.chain.length && next.chainPriority === side) {
+  if (next.chain.length && next.chainPriority === side && !next.pendingPrompt && !next.pendingTarget) {
     try {
       next = passDuelChain(next, side)
     } catch {
@@ -810,6 +1022,17 @@ function settleTrigger(state: DuelState, side: DuelSide, cardId: number, trigger
     }
   }
   return next
+}
+
+function phasePromptCard(state: DuelState): DuelCard | null {
+  if ((state.turnOwner ?? 'player') !== 'player') return null
+  const pool = [...state.player.hand, ...state.player.spells, ...state.player.monsters]
+  return pool.find((card) => card.effect && !card.faceDown && checkActivation(state, 'player', card.id) === null && !isMandatoryCard(card)) || null
+}
+
+function playerResponseCard(state: DuelState): DuelCard | null {
+  const pool = [...state.player.hand, ...state.player.spells, ...state.player.monsters]
+  return pool.find((card) => checkActivation(state, 'player', card.id) === null) || null
 }
 
 function fieldAuraBonus(player: DuelPlayer): number {
@@ -857,7 +1080,7 @@ function zoneCard(player: DuelPlayer, cardId: number): { card: DuelCard | undefi
 }
 
 // Returns null when the card may be activated right now, otherwise the reason (German, for the UI).
-export function checkActivation(state: DuelState, side: DuelSide, cardId: number, via?: 'trigger'): string | null {
+export function checkActivation(state: DuelState, side: DuelSide, cardId: number, via?: 'trigger' | 'simultaneous'): string | null {
   if (state.winner) return 'Das Duell ist bereits beendet.'
   if (side !== 'player' && side !== 'jarvis') return 'Unbekannte Duellseite.'
   const me = owner(state, side)
@@ -870,7 +1093,7 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
   }
   if (zone === 'monsters') {
     if (card.faceDown) return 'Verdeckte Monster haben keinen aktivierbaren Effekt.'
-    if ((card.effectTrigger === 'summon' || card.effectTrigger === 'flip') && via !== 'trigger') {
+    if ((card.effectTrigger === 'summon' || card.effectTrigger === 'flip') && via !== 'trigger' && via !== 'simultaneous') {
       return 'Dieser Effekt löst nur bei Beschwörung oder Umdrehen aus.'
     }
     if (me.usedEffects.includes(cardId)) return 'Der Effekt dieses Monsters wurde in diesem Zug bereits aktiviert.'
@@ -878,9 +1101,9 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
   const ownTurn = (state.turnOwner ?? 'player') === side
   const quickSpell = card.kind === 'spell' && /quick-play/i.test(card.subtype || card.type || '')
   if (state.chain.length) {
-    if (state.chainPriority !== side) return 'Die andere Duellseite hat gerade Priorität.'
+    if (via !== 'simultaneous' && state.chainPriority !== side) return 'Die andere Duellseite hat gerade Priorität.'
     const speed = spellSpeedForCard(card)
-    if (!canChainSpellSpeed(topChainSpellSpeed(state), speed)) {
+    if (via !== 'simultaneous' && !canChainSpellSpeed(topChainSpellSpeed(state), speed)) {
       return 'Diese Karte ist nicht schnell genug, um der Kette beizutreten.'
     }
   } else if (ownTurn) {
@@ -987,7 +1210,73 @@ export function canActivateCard(state: DuelState, side: DuelSide, cardId: number
   return checkActivation(state, side, cardId) === null
 }
 
-export function activateDuelEffect(state: DuelState, side: DuelSide, cardId: number, via?: 'trigger'): DuelState {
+export function legalTargets(state: DuelState, side: DuelSide, cardId: number): TargetPick[] {
+  const me = owner(state, side)
+  const foe = owner(state, opposite(side))
+  const { card } = zoneCard(me, cardId)
+  const effect = card?.effect
+  if (!card || !effect) return []
+  const asPick = (item: DuelCard, ownerSide: DuelSide, pile: TargetPile): TargetPick => ({ cardId: item.id, owner: ownerSide, pile })
+  const foeMonsters = (targeted: boolean) => foe.monsters
+    .filter((monster) => effectHits(monster, targeted))
+    .map((monster) => asPick(monster, opposite(side), 'field'))
+  const ownMonsters = () => me.monsters
+    .filter((monster) => !monster.faceDown && effectHits(monster, false))
+    .map((monster) => asPick(monster, side, 'field'))
+  switch (effect.kind) {
+    case 'destroy':
+      return effect.target === 'monster' ? foeMonsters(true) : []
+    case 'search':
+    case 'summonDeck':
+      return me.deck
+        .filter((item) => item.kind === 'monster' && !item.extraDeck)
+        .map((item) => asPick(item, side, 'deck'))
+    case 'revive':
+      return me.graveyard
+        .filter((item) => item.kind === 'monster' && !item.extraDeck)
+        .map((item) => asPick(item, side, 'graveyard'))
+    case 'recover':
+      return [
+        ...me.graveyard.filter((item) => !item.extraDeck).map((item) => asPick(item, side, 'graveyard')),
+        ...me.banished.filter((item) => !item.faceDown).map((item) => asPick(item, side, 'banished')),
+      ]
+    case 'banish':
+      if (effect.target === 'gyMonster') {
+        return me.graveyard.filter((item) => item.kind === 'monster').map((item) => asPick(item, side, 'graveyard'))
+      }
+      if (effect.target === 'monster') return foeMonsters(true)
+      return []
+    case 'summonPile':
+      if (effect.from === 'deck') {
+        return me.deck.filter((item) => item.kind === 'monster' && !item.extraDeck).map((item) => asPick(item, side, 'deck'))
+      }
+      if (effect.from === 'gy') {
+        return me.graveyard.filter((item) => item.kind === 'monster' && !item.extraDeck).map((item) => asPick(item, side, 'graveyard'))
+      }
+      return me.hand
+        .filter((item) => item.kind === 'monster' && item.id !== cardId)
+        .map((item) => asPick(item, side, 'field'))
+    case 'equip':
+    case 'boost':
+      return ownMonsters()
+    case 'weaken':
+      return effect.all ? [] : foeMonsters(true)
+    case 'position':
+      return effect.target === 'monster' ? foeMonsters(true) : []
+    case 'bounce':
+      return effect.target === 'monster' ? foeMonsters(true) : []
+    default:
+      return []
+  }
+}
+
+export function activateDuelEffect(
+  state: DuelState,
+  side: DuelSide,
+  cardId: number,
+  via?: 'trigger' | 'simultaneous',
+  options?: { targetId?: number; deferResponse?: boolean },
+): DuelState {
   const problem = checkActivation(state, side, cardId, via)
   if (problem) throw new Error(problem)
   const player = owner(state, side)
@@ -1003,15 +1292,23 @@ export function activateDuelEffect(state: DuelState, side: DuelSide, cardId: num
     graveyard: [...player.graveyard],
     usedEffects: zone === 'monsters' ? [...player.usedEffects, cardId] : [...player.usedEffects],
   }
+  const picks = state.promptMode ? legalTargets(state, side, cardId) : []
+  if (options?.targetId != null && picks.length && !picks.some((pick) => pick.cardId === options.targetId)) {
+    throw new Error('Dieses Ziel ist nicht erlaubt.')
+  }
+  const needsChoice = Boolean(state.promptMode) && picks.length >= 2 && options?.targetId == null
+  const autoTarget = !needsChoice && picks.length === 1 ? picks[0].cardId : options?.targetId
+  const linkId = state.chain.length ? state.chain[state.chain.length - 1].id + 1 : 1
   const chain = [...state.chain, {
-    id: state.chain.length ? state.chain[state.chain.length - 1].id + 1 : 1,
+    id: linkId,
     controller: side,
     card: { ...card, faceDown: false },
     effect,
     negated: false,
     spellSpeed: spellSpeedForCard(card),
+    ...(autoTarget != null ? { targetId: autoTarget } : {}),
   }]
-  const updated: DuelState = {
+  const updated = remember({
     ...state,
     [side]: nextOwner,
     chain,
@@ -1019,10 +1316,37 @@ export function activateDuelEffect(state: DuelState, side: DuelSide, cardId: num
     chainPasses: 0,
     lastAnimation: { id: card.id, kind: 'effect', side },
     message: `${side === 'player' ? 'Du aktivierst' : 'Jarvis aktiviert'} ${card.name}. ${opposite(side) === 'player' ? 'Du kannst reagieren.' : 'Jarvis prüft eine Reaktion.'}`,
+  }, `Aktivierung: ${card.name}`)
+  const noted = remember(updated, `Kettenglied ${linkId}: ${card.name}`)
+  if (needsChoice) {
+    return {
+      ...noted,
+      pendingTarget: { linkId, candidates: picks.map((pick) => pick.cardId), pile: picks[0].pile },
+      chainPriority: side,
+      chainPasses: 0,
+      message: 'Wähle ein leuchtendes Ziel.',
+    }
   }
   // Die gespiegelte Sicht von Ultron darf die Karten des Menschen nicht selbst spielen.
   const mirrored = state.turn % 1 !== 0
-  return side === 'player' && !mirrored ? jarvisRespond(updated) : updated
+  let result = side === 'player' && !mirrored && !options?.deferResponse ? jarvisRespond(noted) : noted
+  if ((result.promptMode === 'auto' || result.promptMode === 'on') && side === 'jarvis' && result.chainPriority === 'player' && !result.pendingPrompt && !result.pendingTarget) {
+    const answer = playerResponseCard(result)
+    if (answer) {
+      result = {
+        ...result,
+        pendingPrompt: {
+          side: 'player',
+          cardId: answer.id,
+          chainNumber: result.chain.length + 1,
+          source: 'response',
+          mandatory: isMandatoryCard(answer),
+        },
+        message: `${answer.name} kann auf die gegnerische Aktion antworten.`,
+      }
+    }
+  }
+  return result
 }
 
 function applyEffect(state: DuelState, link: ChainLink): DuelState {
@@ -1099,19 +1423,24 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
           if (monster.position !== 'defense' && effectHits(monster, false)) destroyMonster(monster)
         }
       } else {
-        const targetMonster = weakestHit(true)
+        const named = link.targetId != null ? nextTarget.monsters.find((monster) => monster.id === link.targetId) : null
+        const targetMonster = named && effectHits(named, true) ? named : weakestHit(true)
         if (targetMonster) destroyMonster(targetMonster)
       }
       break
     }
     case 'search': {
-      const index = nextSource.deck.findIndex((item) => item.kind === 'monster' && !item.extraDeck)
+      const named = link.targetId != null ? nextSource.deck.findIndex((item) => item.id === link.targetId) : -1
+      const index = named >= 0 ? named : nextSource.deck.findIndex((item) => item.kind === 'monster' && !item.extraDeck)
       const [found] = nextSource.deck.splice(index >= 0 ? index : nextSource.deck.length - 1, 1)
       if (found) nextSource.hand.push(found)
       break
     }
     case 'revive': {
-      const best = nextSource.graveyard
+      const named = link.targetId != null
+        ? nextSource.graveyard.find((item) => item.id === link.targetId && item.kind === 'monster' && !item.extraDeck) ?? null
+        : null
+      const best = named || nextSource.graveyard
         .filter((item) => item.kind === 'monster' && !item.extraDeck)
         .reduce<DuelCard | null>((top, item) => !top || (item.atk || 0) > (top.atk || 0) ? item : top, null)
       if (best && hasFreeMonsterZone(nextSource.monsters, 0)) {
@@ -1141,6 +1470,20 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
       break
     }
     case 'recover': {
+      if (link.targetId != null) {
+        const gyIndex = nextSource.graveyard.findIndex((item) => item.id === link.targetId)
+        if (gyIndex >= 0) {
+          const [picked] = nextSource.graveyard.splice(gyIndex, 1)
+          nextSource.hand.push(leaveField(picked))
+          break
+        }
+        const banIndex = nextSource.banished.findIndex((item) => item.id === link.targetId && !item.faceDown)
+        if (banIndex >= 0) {
+          const [picked] = nextSource.banished.splice(banIndex, 1)
+          nextSource.hand.push(leaveField(picked))
+          break
+        }
+      }
       const monsters = nextSource.graveyard.filter((item) => item.kind === 'monster' && !item.extraDeck)
       const best = monsters.reduce<DuelCard | null>((top, item) => !top || (item.atk || 0) > (top.atk || 0) ? item : top, null)
         || nextSource.graveyard.find((item) => !item.extraDeck)
@@ -1434,13 +1777,18 @@ function resolveChain(state: DuelState): DuelState {
   for (let index = chain.length - 1; index >= 0; index -= 1) {
     const link = chain[index]
     if (link.negated) {
+      const me = owner(next, link.controller)
+      const monsters = link.card.kind === 'monster'
+        ? me.monsters.map((monster) => monster.id === link.card.id ? { ...monster, effectsNegated: true } : monster)
+        : me.monsters
       next = {
         ...next,
         [link.controller]: {
-          ...owner(next, link.controller),
+          ...me,
+          monsters,
           graveyard: link.card.kind === 'monster' && link.effect.kind !== 'summonHand'
-            ? owner(next, link.controller).graveyard
-            : [...owner(next, link.controller).graveyard, leaveField(link.card)],
+            ? me.graveyard
+            : [...me.graveyard, leaveField(link.card)],
         },
         message: `${link.card.name} wurde negiert.`,
       }
@@ -1500,6 +1848,22 @@ export function passDuelChain(state: DuelState, side: DuelSide): DuelState {
   if (!state.chain.length || state.chainPriority !== side) throw new Error('Diese Duellseite hat gerade keine Ketten-Priorität.')
   if (state.chainPasses === 1) {
     const resolved = resolveChain(state)
+    if (resolved.promptMode === 'on' && !resolved.winner && !resolved.pendingPrompt && !resolved.pendingTarget) {
+      const card = phasePromptCard(resolved)
+      if (card) {
+        return {
+          ...resolved,
+          pendingPrompt: {
+            side: 'player',
+            cardId: card.id,
+            chainNumber: 1,
+            source: 'response',
+            mandatory: false,
+          },
+          message: `Nach der Auflösung: ${card.name}?`,
+        }
+      }
+    }
     return { ...resolved, message: resolved.winner ? resolved.message : `${resolved.message} Die Effektkette wurde aufgelöst.` }
   }
   const nextSide = opposite(side)
@@ -1527,7 +1891,13 @@ export function selectAttacker(state: DuelState, cardId: number): DuelState {
   if (state.attacked.includes(cardId)) throw new Error('Dieses Monster hat in diesem Zug bereits angegriffen.')
   if (card.position === 'defense' || card.faceDown) throw new Error('Monster in Verteidigung können nicht angreifen.')
   if (hasRule(card, 'cannotAttack')) throw new Error(`${card.name} kann nicht angreifen.`)
-  return { ...state, selectedAttacker: state.selectedAttacker === cardId ? null : cardId, message: hasRule(card, 'direct') ? 'Direktangriff oder ein Ziel wählen.' : 'Wähle ein gegnerisches Monster als Ziel.' }
+  const selected = state.selectedAttacker === cardId ? null : cardId
+  return {
+    ...state,
+    selectedAttacker: selected,
+    ...(state.battleWindow && selected != null ? { battleStep: 'declare' as const } : {}),
+    message: hasRule(card, 'direct') ? 'Direktangriff oder ein Ziel wählen.' : 'Wähle ein gegnerisches Monster als Ziel.',
+  }
 }
 
 type BattleOutcome = { destroyAttacker: boolean; destroyTarget: boolean; hurtAttacker: number; hurtDefender: number }
@@ -1644,10 +2014,18 @@ export function attack(state: DuelState, targetId?: number, options: { skipTraps
       lastAnimation: { id: attacker.id, kind: 'attack', side: 'player', targetId: target ? target.id : null },
       message: `${attacker.name} greift an – Jarvis antwortet!`,
     }
-    const trap = jarvisTrapAnswer(declared)
-    if (trap) return activateDuelEffect(declared, 'jarvis', trap.id)
+    const noted = remember(declared, `Angriff: ${attacker.name}`)
+    const trap = jarvisTrapAnswer(noted)
+    if (trap) return activateDuelEffect(noted, 'jarvis', trap.id)
+    if (state.battleWindow) {
+      return {
+        ...noted,
+        battleStep: 'damage',
+        message: `${attacker.name} deklariert den Angriff. Antwort vor der Schadensrechnung.`,
+      }
+    }
   }
-  return resolveBattle(state, attacker, target)
+  return remember(resolveBattle(state, attacker, target), `Angriff: ${attacker.name}`)
 }
 
 export function startJarvisTurn(state: DuelState): DuelState {
@@ -1670,8 +2048,8 @@ export function startJarvisTurn(state: DuelState): DuelState {
   hand.push(top)
   return {
     ...state,
-    player: clearBoosts(state.player),
-    jarvis: { ...jarvis, hand, deck },
+    player: clearNegation(clearBoosts(state.player)),
+    jarvis: clearNegation({ ...jarvis, hand, deck }),
     turnOwner: 'jarvis',
     phase: 'draw',
     attacked: [],
@@ -1690,8 +2068,8 @@ export function endJarvisTurn(state: DuelState): DuelState {
   if (!top) return { ...state, winner: 'jarvis', message: 'Du kannst keine Karte mehr ziehen. Jarvis gewinnt das Duell.' }
   return {
     ...state,
-    player: { ...state.player, deck, hand: [...state.player.hand, top], normalSummonUsed: false, usedEffects: [] },
-    jarvis: clearBoosts(trimHandToLimit(state.jarvis)),
+    player: clearNegation({ ...state.player, deck, hand: [...state.player.hand, top], normalSummonUsed: false, usedEffects: [] }),
+    jarvis: clearNegation(clearBoosts(trimHandToLimit(state.jarvis))),
     turnOwner: 'player',
     phase: 'draw',
     turn: state.turn + 1,
@@ -1702,4 +2080,273 @@ export function endJarvisTurn(state: DuelState): DuelState {
     lastAnimation: { id: 0, kind: 'draw', side: 'player' },
     message: 'Jarvis beendet seinen Zug. Dein Zug beginnt.',
   }
+}
+
+function askBeforePhase(state: DuelState, intent: 'battle' | 'end' | 'next'): DuelState | null {
+  if (state.promptMode !== 'on' || state.skipPhasePrompt || state.pendingPrompt) return null
+  const card = phasePromptCard(state)
+  if (!card) return null
+  return {
+    ...state,
+    phaseIntent: intent,
+    pendingPrompt: {
+      side: 'player',
+      cardId: card.id,
+      chainNumber: state.chain.length + 1,
+      source: 'phase',
+      mandatory: false,
+    },
+    message: `Vor dem Phasenwechsel: ${card.name}?`,
+  }
+}
+
+export function confirmPrompt(state: DuelState): DuelState {
+  const prompt = state.pendingPrompt
+  if (!prompt) throw new Error('Es gibt keine Aktivierungsfrage.')
+  const via = prompt.source === 'trigger' ? 'trigger' as const : undefined
+  const problem = checkActivation(state, prompt.side, prompt.cardId, via)
+  if (problem) throw new Error(problem)
+  return activateDuelEffect({ ...state, pendingPrompt: null }, prompt.side, prompt.cardId, via)
+}
+
+export function declinePrompt(state: DuelState): DuelState {
+  const prompt = state.pendingPrompt
+  if (!prompt) throw new Error('Es gibt keine Aktivierungsfrage.')
+  if (prompt.mandatory) throw new Error('Dieser Effekt ist verpflichtend.')
+  const cleared: DuelState = { ...state, pendingPrompt: null, message: 'Aktivierung abgelehnt.', skipPhasePrompt: true }
+  if (prompt.source === 'phase') {
+    const intent = state.phaseIntent
+    if (intent === 'battle' || intent === 'end') return declareDuelPhase(cleared, intent)
+    return advanceDuelPhase(cleared)
+  }
+  if (prompt.source === 'response' && cleared.chain.length && cleared.chainPriority === 'player') {
+    return passDuelChain(cleared, 'player')
+  }
+  return { ...cleared, skipPhasePrompt: false }
+}
+
+export function chooseChainTarget(state: DuelState, cardId: number): DuelState {
+  const pending = state.pendingTarget
+  if (!pending) throw new Error('Es gibt keine Zielwahl.')
+  if (!pending.candidates.includes(cardId)) throw new Error('Dieses Ziel ist nicht erlaubt.')
+  const chain = state.chain.map((link) => link.id === pending.linkId ? { ...link, targetId: cardId } : link)
+  const link = chain.find((item) => item.id === pending.linkId)
+  const cleared: DuelState = {
+    ...state,
+    chain,
+    pendingTarget: null,
+    chainPriority: link ? opposite(link.controller) : state.chainPriority,
+    chainPasses: 0,
+    message: 'Ziel gewählt.',
+  }
+  return cleared.chainPriority === 'jarvis' ? jarvisRespond(cleared) : cleared
+}
+
+export function beginTriggerOrder(state: DuelState, cardIds: number[]): DuelState {
+  requirePlayerTurn(state)
+  if (cardIds.length < 2) throw new Error('Gleichzeitige Auslöser brauchen mindestens zwei Karten.')
+  if (new Set(cardIds).size !== cardIds.length) throw new Error('Ein Auslöser kann nicht doppelt gewählt werden.')
+  for (const id of cardIds) {
+    const problem = checkActivation({ ...state, chain: [], chainPriority: null }, 'player', id, 'trigger')
+    if (problem) throw new Error(problem)
+  }
+  return { ...state, pendingTriggerOrder: [...cardIds], message: 'Wähle die Reihenfolge der gleichzeitigen Auslöser.' }
+}
+
+export function confirmTriggerOrder(state: DuelState, orderedIds: number[]): DuelState {
+  const pending = state.pendingTriggerOrder
+  if (!pending) throw new Error('Es gibt keine Auslöser-Reihenfolge.')
+  const same = orderedIds.length === pending.length
+    && new Set(orderedIds).size === orderedIds.length
+    && orderedIds.every((id) => pending.includes(id))
+  if (!same) throw new Error('Diese Reihenfolge ist nicht erlaubt.')
+  if (state.chain.length && topChainSpellSpeed(state) >= 2) {
+    const pool = [...state.player.monsters, ...state.player.hand, ...state.player.spells]
+    for (const id of orderedIds) {
+      const card = pool.find((item) => item.id === id)
+      if (card && spellSpeedForCard(card) < 2) throw new Error('Spell Speed 1 kann nicht über eine schnellere Antwort gelegt werden.')
+    }
+  }
+  let next: DuelState = { ...state, pendingTriggerOrder: null }
+  for (const id of orderedIds) {
+    next = activateDuelEffect(next, 'player', id, 'simultaneous', { deferResponse: true })
+  }
+  return next.chainPriority === 'jarvis' ? jarvisRespond(next) : next
+}
+
+export function resolveDeclaredAttack(state: DuelState): DuelState {
+  if (!state.battleWindow) throw new Error('Die Schadensrechnung wartet nicht.')
+  if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
+  if (state.battleStep !== 'damage' || !state.pendingAttack) throw new Error('Es gibt keine offene Angriffsdeklaration.')
+  const resolved = resumePendingAttack(state)
+  return { ...resolved, battleStep: 'end' }
+}
+
+export function declareDuelPhase(state: DuelState, target: 'battle' | 'end'): DuelState {
+  if (state.winner) return state
+  requirePlayerTurn(state)
+  if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
+  if ((state.discardNeeded || 0) > 0) throw new Error('Wirf zuerst Karten ab. Das Handlimit ist 6.')
+  const asked = askBeforePhase(state, target)
+  if (asked) return asked
+  if (target === 'battle') {
+    if (state.phase !== 'main1') throw new Error('Die Battle Phase startet aus der Main Phase 1.')
+    if (isFirstTurnBattleBlocked(state)) throw new Error('In Turn 1 des Startspielers gibt es keine Battle Phase (TCG).')
+    return remember({
+      ...state,
+      phase: 'battle',
+      phaseIntent: undefined,
+      skipPhasePrompt: false,
+      battleStep: state.battleWindow ? 'start' : null,
+      selectedAttacker: null,
+      message: 'Battle Phase: Start.',
+    }, 'Phase: battle')
+  }
+  if (!['main1', 'battle', 'main2'].includes(state.phase)) throw new Error('Die End Phase ist von hier nicht erreichbar.')
+  if (state.player.hand.length > 6) {
+    const extra = state.player.hand.length - 6
+    return {
+      ...state,
+      phase: 'end',
+      phaseIntent: undefined,
+      skipPhasePrompt: false,
+      discardNeeded: extra,
+      message: `Handlimit 6. Wirf ${extra} Karte(n) ab.`,
+    }
+  }
+  return remember({
+    ...state,
+    phase: 'end',
+    phaseIntent: undefined,
+    skipPhasePrompt: false,
+    selectedAttacker: null,
+    attacked: [],
+    battleStep: null,
+    message: 'End Phase.',
+  }, 'Phase: end')
+}
+
+export function placePendulumScale(state: DuelState, cardId: number, slot: 0 | 1): DuelState {
+  requirePlayerTurn(state)
+  if (state.winner || !['main1', 'main2'].includes(state.phase)) throw new Error('Pendel-Skalen setzt du in der Main Phase.')
+  if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
+  const card = state.player.hand.find((item) => item.id === cardId)
+  if (!card) throw new Error('Diese Karte ist nicht auf der Hand.')
+  if (typeof card.pendulumScale !== 'number') throw new Error('Diese Karte hat keine Pendel-Skala. Es wird keine Skala erfunden.')
+  const scales = state.player.scales ?? [null, null]
+  if (scales[slot]) throw new Error('Diese Skala ist belegt.')
+  const nextScales: [DuelCard | null, DuelCard | null] = [scales[0], scales[1]]
+  nextScales[slot] = { ...card, faceDown: false }
+  return remember({
+    ...state,
+    player: {
+      ...state.player,
+      hand: state.player.hand.filter((item) => item.id !== cardId),
+      scales: nextScales,
+    },
+    message: `${card.name} liegt als Skala ${card.pendulumScale}.`,
+  }, `Skala: ${card.name} ${card.pendulumScale}`)
+}
+
+export function pendulumSummon(state: DuelState, cardIds: number[]): DuelState {
+  requirePlayerTurn(state)
+  if (state.winner || !['main1', 'main2'].includes(state.phase)) throw new Error('Pendelbeschwörung geht nur in der Main Phase.')
+  if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
+  if (state.player.pendulumSummonUsed) throw new Error('Die Pendelbeschwörung wurde in diesem Zug schon genutzt.')
+  const scales = state.player.scales ?? [null, null]
+  const left = scales[0]?.pendulumScale
+  const right = scales[1]?.pendulumScale
+  if (typeof left !== 'number' || typeof right !== 'number') throw new Error('Beide Pendel-Skalen müssen liegen.')
+  const low = Math.min(left, right)
+  const high = Math.max(left, right)
+  if (!cardIds.length || new Set(cardIds).size !== cardIds.length) throw new Error('Wähle unterschiedliche Karten für die Pendelbeschwörung.')
+  const player: DuelPlayer = {
+    ...state.player,
+    hand: [...state.player.hand],
+    monsters: [...state.player.monsters],
+    extraDeck: [...state.player.extraDeck],
+    pendulumSummonUsed: true,
+  }
+  for (const id of cardIds) {
+    const fromHand = player.hand.find((card) => card.id === id)
+    const fromExtra = player.extraDeck.find((card) => card.id === id && card.faceUpExtra)
+    const card = fromHand || fromExtra
+    if (!card || card.kind !== 'monster') throw new Error('Diese Karte kann nicht pendelbeschworen werden.')
+    const level = card.level || 0
+    if (level <= low || level >= high) throw new Error(`${card.name} liegt nicht zwischen den Skalen.`)
+    if (fromExtra) {
+      const zone = extraSummonZone(player.monsters)
+      if (!zone) throw new Error('Extra-Deck-Pendelmonster brauchen eine EMZ oder einen eigenen Linkpfeil.')
+      player.extraDeck = player.extraDeck.filter((item) => item.id !== id)
+      player.monsters.push({
+        ...withRules(card),
+        faceDown: false,
+        faceUpExtra: undefined,
+        position: 'attack',
+        zoneKind: zone.zoneKind,
+        zoneIndex: zone.zoneIndex,
+      })
+    } else {
+      const column = freeMainColumn(player.monsters)
+      if (column == null) throw new Error('Deine Monster-Zone ist voll.')
+      player.hand = player.hand.filter((item) => item.id !== id)
+      player.monsters.push({
+        ...withRules(card),
+        faceDown: false,
+        position: 'attack',
+        zoneKind: 'mmz',
+        zoneIndex: column,
+      })
+    }
+  }
+  return remember({
+    ...state,
+    player,
+    message: 'Pendelbeschwörung.',
+  }, 'Beschwörung: Pendel')
+}
+
+export function ritualSummon(state: DuelState, monsterId: number, spellId: number | null, tributeIds: number[]): DuelState {
+  requirePlayerTurn(state)
+  if (state.winner || !['main1', 'main2'].includes(state.phase)) throw new Error('Ritualbeschwörung geht nur in der Main Phase.')
+  if (state.chain.length) throw new Error('Löse zuerst die offene Effektkette auf.')
+  const card = state.player.hand.find((item) => item.id === monsterId)
+  if (!card || card.kind !== 'monster' || !(card.ritual || /ritual/i.test(card.type))) {
+    throw new Error('Das ist keine Ritualbeschwörung.')
+  }
+  let spell: DuelCard | null = null
+  if (card.ritualSpellName) {
+    spell = state.player.hand.find((item) => item.id === spellId) ?? null
+    if (!spell || spell.name.toLowerCase() !== card.ritualSpellName.toLowerCase()) {
+      throw new Error(`Diese Ritualbeschwörung verlangt ${card.ritualSpellName}.`)
+    }
+  }
+  if (new Set(tributeIds).size !== tributeIds.length) throw new Error('Ein Tribut kann nicht mehrfach gewählt werden.')
+  const tributes = tributeIds.map((id) => state.player.monsters.find((monster) => monster.id === id))
+  if (!tributes.length || tributes.some((monster) => !monster)) throw new Error('Wähle gültige Tributmonster.')
+  const selected = tributes as DuelCard[]
+  const sum = selected.reduce((total, monster) => total + (monster.level || 0), 0)
+  if (sum < (card.level || 0)) throw new Error('Die Tributstufe reicht für das Ritual nicht.')
+  const player: DuelPlayer = {
+    ...state.player,
+    hand: state.player.hand.filter((item) => item.id !== monsterId && item.id !== spell?.id),
+    monsters: state.player.monsters.filter((monster) => !tributeIds.includes(monster.id)),
+    graveyard: [...state.player.graveyard],
+  }
+  for (const tribute of selected) sendAway(player, tribute)
+  if (spell) player.graveyard.push(spell)
+  const column = freeMainColumn(player.monsters)
+  if (column == null) throw new Error('Deine Monster-Zone ist voll.')
+  player.monsters.push({
+    ...withRules(card),
+    faceDown: false,
+    position: 'attack',
+    zoneKind: 'mmz',
+    zoneIndex: column,
+  })
+  return remember({
+    ...state,
+    player,
+    message: `${card.name} wurde als Ritual beschworen.`,
+  }, `Beschwörung: ${card.name}`)
 }

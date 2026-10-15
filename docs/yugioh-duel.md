@@ -145,14 +145,15 @@ EMZ/MMZ-Kapazität über Link, Turn-1 ohne Battle Phase, Spell Speed 2/3 in Kett
 Banish-Zone, erweiterte Effektarten (Banish, Bounce, Mill, Field-Aura), Schema v2
 mit Coverage-/Fidelity-Metriken im Nachweis. Details: [`105-next.md`](./105-next.md).
 
-## Was noch fehlt (geplant)
+## Master-Duel-Bedienung
 
-Plan **106** (Sprints **531–550**, Ziel **`18.52.0`–`18.60.0`**) ist **PLAN** und
-nicht gebaut: Aktivieren-Fenster, Zielwahl auf dem Feld, Kettenstapel, Kampf-
-und Endphase, Zonenwahl, Kartenstatus, Pendel, Ritual, Deckeditor und
-Duellprotokoll. Details: [`106-next.md`](./106-next.md). Bis zum Umsetzen bleiben
-Pendel, die volle Tipp-Zielwahl, Competitive-Edge-Cases und offizielle
-Judge-Rulings außerhalb des gebauten Umfangs — siehe **Bewusste Grenzen** unten.
+Plan **106** (Sprints **531–550**, Ziel **`18.52.0`–`18.60.0`**) ist **CODE**.
+Im Duell gibt es das Aktivieren-Fenster (OFF / AUTO / ON), die Tipp-Zielwahl,
+den Kettenstapel, die Knöpfe Kampf und Ende, Kampfschritte mit Antwort vor der
+Schadensrechnung, die Zonenwahl, Statussymbole, Pendel-Skalen, Pendel- und
+Ritualbeschwörung, Filter im Deckeditor und ein Duellprotokoll.
+`engineStamp` ist `18.60.0-ygo-md`. `APP_VERSION` bleibt `18.51.3`, bis ein
+Release gebaut wird. Details: [`106-next.md`](./106-next.md).
 
 ## Self-Play und Zugsuche (Engine, ohne UI)
 
@@ -185,9 +186,11 @@ Karten-/Duellverläufen noch eine Aussage über Turnier-Winrate oder
 Generalisierung.
 
 Die Effekt-Erkennung bleibt heuristisch (Schema v2 + PSCT-Atome), deckt aber nicht
-alle ~1395 Karten ab. Unklare OPT-Texte sind fail-closed. Explizite Spielerauswahl
-für Ziele fehlt oft noch; Errata-Tabelle ist minimal. Viele Turnier-Edge-Cases
-(Pendel, Kettendetails, gleichzeitige Effekte nur grob) sind vereinfacht.
+alle ~1395 Karten ab. Unklare OPT-Texte und unklare Materialtexte sind fail-closed.
+Die Tipp-Zielwahl gilt für Effekte, deren Engine ein einzelnes Ziel kennt.
+Offen bleiben: Xyz-Material abnehmen, Replay, historische Pendel-Ausnahmen und
+der Unterschied OCG gegen TCG. Die Linie bleibt TCG. Errata-Tabelle ist minimal.
+Shop, Rangliste, Crafting, Solo-Story, Sleeves und Replay gehören nicht dazu.
 
 ## Prüfen
 

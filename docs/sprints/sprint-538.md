@@ -1,12 +1,12 @@
 # Sprint 538 — Kampfschritte und Schadensfenster
 
-**Version:** `18.55.0` — **PLAN** Must
+**Version:** `18.55.0` — **CODE** Must
 
 **Plan:** [`../106-next.md`](../106-next.md)
 
 **Hängt an:** 537
 
-**Gateway:** offen
+**Gateway:** go
 
 ## Ziel
 
