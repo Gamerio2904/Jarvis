@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.51.2` — Startbildschirm, Sparring, Duellfeld und Kartentexte — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.2`** (versionCode `185102`). `engineStamp` bleibt **`18.51.0-ygo-tcg`**.
+
+Startbildschirm: Icons lassen sich im Raster verschieben; kurzes Ablegen tauscht, längeres Ablegen legt einen Ordner an. Planung: eine Idee wird Frage für Frage zum Sprint, ohne den Titel als Sprint 1 zu klonen. Einkauf teilt „Milch Eier und Kuchen“ in drei Artikel. Das Duell zeigt Extra-Monsterzonen, Link-Pfeile und ein sichtbares Bot-Duell. Kartentexte nach dem Semikolon sind spielbar. Beschwörungsbedingungen, Dauerregeln, Spielmarken, Token und die Pfeilspalten haben einen Effekt. 923 von 1395 Structure-Deck-Karten tragen einen simulierten Effekt.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.51.1` — Audit-Nachzieher Alltag, Planung, Duell — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.1`** (versionCode `185101`).
@@ -23,7 +31,7 @@ https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.45.0` — Yu-Gi-Oh Self-Play 503–510 — *CODE + TEST-APK*
 
-Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.1`.
+Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.2`.
 
 ### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 

@@ -1,11 +1,17 @@
-# Android-APK — Test-Build `18.51.1`
+# Android-APK — Test-Build `18.51.2`
 
-Test-Build **`18.51.1`** (versionCode `185101`), debug-signiert:
+Test-Build **`18.51.2`** (versionCode `185102`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`. Die
 Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
 keine finale Release-Freigabe.
+
+**Neu in 18.51.2:** Startbildschirm mit Raster, Tausch und Ordnern. Planung im
+Sparring, eine Frage nach der anderen. Einkauf teilt lose Aufzählungen.
+Duell mit Extra-Monsterzonen, Link-Pfeilen und sichtbarem Bot-Duell.
+Kartentexte, Beschwörungsbedingungen, Dauerregeln, Spielmarken und Token
+haben einen Effekt. Fassung: [`yugioh-duel.md`](./yugioh-duel.md).
 
 **Neu in 18.51.1:** Nachzieher zu Alltag, Planung und Duell. Nachtfenster für
 „morgen“, Wochentag ohne Uhr, Erinnerungen mit Tageszeit, aktive Einkaufsliste,

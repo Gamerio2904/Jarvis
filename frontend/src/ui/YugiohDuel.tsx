@@ -50,7 +50,7 @@ import { YugiohNetViz } from './YugiohNetViz.tsx'
 import { YugiohSelfPlayDev } from './YugiohSelfPlayDev.tsx'
 import './yugioh-duel.css'
 
-const APP_VERSION = '18.51.1'
+const APP_VERSION = '18.51.2'
 
 type ApiCard = {
   id?: unknown
