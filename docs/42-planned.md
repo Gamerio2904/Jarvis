@@ -1,14 +1,15 @@
 # 42 — Historischer Planungsindex
 
-> **Aktueller Stand:** Test-Build `18.45.0` / versionCode `184500` (Yu-Gi-Oh!
-> Self-Play 503–510 **CODE**); Geräteabnahme offen. Maßgebliche Pläne:
-> [`100-next.md`](./100-next.md) (444–466), [`101-next.md`](./101-next.md)
-> (467–482, PLAN), [`102-next.md`](./102-next.md) (483–494, PLAN),
-> [`103-next.md`](./103-next.md) (495–502, PLAN), [`104-next.md`](./104-next.md)
-> (503–510, CODE in 18.45.0), [`105-next.md`](./105-next.md) (511–530, PLAN:
-> Regelkomplettheit, Effektabdeckung, Fidelity). Die folgenden älteren
-> Einträge bewahren den damaligen Planungsstand; sie sind keine aktuelle
-> Lieferreihenfolge.
+> **Aktueller Stand:** Test-Build `18.51.0` / versionCode `185100`
+> (Self-Play 503–510 und TCG-Subset 511–530 **CODE**); Geräteabnahme offen.
+> Maßgebliche Pläne: [`100-next.md`](./100-next.md) (444–466),
+> [`101-next.md`](./101-next.md) (467–482, Gates offen),
+> [`102-next.md`](./102-next.md) (483–494, PLAN),
+> [`103-next.md`](./103-next.md) (495–502, Kern im Baum, Release-Gate offen),
+> [`104-next.md`](./104-next.md) (503–510, CODE),
+> [`105-next.md`](./105-next.md) (511–530, CODE als Subset in `18.51.0`).
+> Die folgenden älteren Einträge bewahren den damaligen Planungsstand; sie
+> sind keine aktuelle Lieferreihenfolge.
 
 Der frühere Sideload-/Test-Build-Stand `18.25.13`/`18.25.15` bleibt unten als
 Historie erhalten. Vor Neuinstallation Hausstand exportieren (Export ist CODE,

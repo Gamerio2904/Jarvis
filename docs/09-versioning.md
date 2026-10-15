@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** Test-APK **`18.31.7`**, versionCode `183107`; Android-Geräteabnahme offen. Die Sprintfolge 467–482 (`18.32.0`–`18.35.0`) ist in [`101-next.md`](./101-next.md) geplant. Danach ist Tablet-Server, sicherer Hausstand-Sync und Zwei-Bildschirm-Bedienung in [`102-next.md`](./102-next.md) geplant: Sprints 483–494, `18.36.0`–`18.38.0`. Danach ist Yu-Gi-Oh!-Self-Play in [`104-next.md`](./104-next.md) geplant: Sprints 503–510, `18.42.0`–`18.45.0`. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** App-Code, UI und Test-APK **`18.51.0`**, versionCode `185100`; Android-Geräteabnahme offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1018,7 +1018,9 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | nach `18.25.13` | Tischplatte lesbar | in `100-next.md` Sprints 448, 450–451 integriert |
 | `18.31.5` | Tablet-Server, QR-Kopplung und Zeitstempel-Sync | CODE + Test-APK; Geräteabnahme offen, Ausbau [`102-next.md`](./102-next.md) |
 | `18.31.6` | Yu-Gi-Oh!-Duellprototype, Kartensuche, Grundregeln und Model-Soup-Baseline | CODE + Test-APK; kein RL-Training, Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
-| `18.31.7` | Synthetisches Policy-Gradient-Training, gemessene Holdout-Winrate, Effektketten, Extra-Deck-Regeln und Animationen | CODE + Test-APK; vereinfachte Spiel-/Kartenregeln, Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
+| `18.31.7` | Synthetisches Policy-Gradient-Training, gemessene Holdout-Winrate, Effektketten, Extra-Deck-Regeln und Animationen | historischer Test-APK-Stand; Sideload inzwischen `18.51.0`, [`yugioh-duel.md`](./yugioh-duel.md) |
+| `18.45.0` | Yu-Gi-Oh!-Self-Play, Zugsuche, Nachweis, Elo | CODE, in `18.51.0` enthalten, [`104-next.md`](./104-next.md) |
+| `18.51.0` | TCG-Subset 511–530, `engineStamp` `18.51.0-ygo-tcg`, versionCode `185100` | CODE + Test-APK; Geräteabnahme offen, [`105-next.md`](./105-next.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**
@@ -1108,6 +1110,30 @@ oder Ansichten remote geöffnet.
 | `18.36.0` (`183600`) | Expliziter Server, geschütztes Pairing/Transport, Versionshandshake | 483–486 PLAN |
 | `18.37.0` (`183700`) | Konfliktsicherer automatischer Hausstand-Abgleich | 487–490 PLAN |
 | `18.38.0` (`183800`) | Planung/Sprints auf zwei Geräten und End-to-End-Gate | 491–494 PLAN |
+
+### `18.42`–`18.45` — Yu-Gi-Oh!-Self-Play [`104-next.md`](./104-next.md) **CODE im Test-Build `18.51.0`**
+
+Sprints 503–510 sind im App-Code. Die Zwischennummern `18.42.0`–`18.44.0` wurden nicht als eigene Sideload-Version gesetzt; der erste gebündelte Self-Play-Stand war `18.45.0`, der aktuelle Baum ist `18.51.0`. Geräteabnahme offen.
+
+| Version | Ziel | Sprints |
+|---------|------|---------|
+| `18.42.0` | Self-Play-Runner und Zugsuche | 503–504 CODE |
+| `18.43.0` | Live-Ansicht und Dev-Umschalter | 505–506 CODE |
+| `18.44.0` | Protokoll, Review, Lernen | 507–508 CODE |
+| `18.45.0` | Nachweis, Verify, Elo, Training-Overlay | 509–510 CODE |
+
+### `18.46`–`18.51` — Yu-Gi-Oh! TCG-Subset [`105-next.md`](./105-next.md) **CODE im Test-Build `18.51.0`**
+
+Sprints 511–530 liegen im App-Code (`yugioh-zones.ts`, `yugioh-effects.ts` Schema v2, `yugioh-psct.ts`, `engineStamp` `18.51.0-ygo-tcg`). Die App-Version ist direkt auf `18.51.0` gesetzt. EMZ/MMZ, Turn-1-Battle, Spell Speed, Banish/Bounce/Mill/Field-Aura und PSCT-Atome sind ein Subset. Coverage-Ziel ≥70 %, 100 Gold-Karten mit ≥95 % Texttreue, vollständige Zielwahl und Pendel/Link-Master-Rule sind nicht abgeschlossen.
+
+| Version | Ziel | Sprints |
+|---------|------|---------|
+| `18.46.0` | Zonen, Zug/Phasen, Summon-Limit | 511–514 CODE |
+| `18.47.0` | Ketten, Kosten, Kampf, Banish | 515–518 CODE |
+| `18.48.0` | Schema v2, Enrichment, Archetypen | 519–521 CODE |
+| `18.49.0` | Timing, Field/Continuous, Structure-Gate | 522–524 CODE |
+| `18.50.0` | PSCT-Atome, Zielhinweis, OPT/HOPT | 525–527 CODE |
+| `18.51.0` (`185100`) | Errata-Minimum, Gold-Korpus, Fidelity im Nachweis | 528–530 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

@@ -3,25 +3,19 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
-## Unreleased
+## `18.51.0` — Yu-Gi-Oh TCG-Subset 511–530 — *CODE + TEST-APK*
 
-Der Test-Build `18.31.7` wurde für das Yu-Gi-Oh!-Overlay weiter ausgebaut:
-Schrittweiser Jarvis-Zug (`jarvisStep`), sichtbare Zonen inkl. Deck/Extra/Friedhof/Feldzauber,
-Karten-Detail-Modal, Extra-Deck-Overlay, gesetzte Verteidigungsmonster, zusätzliche
-Effektmuster (search/revive/boost/negateAttack/weitere destroy-Ziele), Trap-Unterbrechung
-über STOP/Weiter sowie stärkeres Battle-Feedback in der GUI. Dazu wurden die
-Deckdaten per `scripts/enrich-ygo-effects.mjs` auf aktuelle Effektmuster erweitert
-(430/1395 Karten mit simuliertem Effekt). Android-Geräteabnahme und Release-Freigabe
-bleiben offen; Umfang und Grenzen stehen in [`yugioh-duel.md`](./yugioh-duel.md).
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.0`** (versionCode `185100`). `engineStamp` **`18.51.0-ygo-tcg`**.
 
-Test-Build **`18.45.0`**: Plan 104 Sprints **503–510** (Self-Play-Zuschauer, Dev ⇄ Spiel, Review, Value-Kopf, Nachweis/Verify, Elo, gegates Speichern). Geräteabnahme offen.
+Plan 105 im Baum: EMZ/MMZ-Kapazität über Link, Turn 1 ohne Battle Phase, Spell Speed in Ketten, Banish/Bounce/Mill/Field-Aura, Effekt-Schema v2, PSCT-Atome (OPT/HOPT, fail-closed), Coverage und Fidelity im Nachweis. Tests: `npm run test:yugioh-duel`, `test:yugioh-rules`, `test:yugioh-fidelity`.
+
+Nicht als erreicht dokumentiert: Deck-Coverage ≥70 %, 100 Gold-Karten ≥95 % Texttreue, vollständige Zielwahl, Pendel und Link-Master-Rule. Android-Geräteabnahme und Release-Freigabe bleiben offen. Umfang: [`yugioh-duel.md`](./yugioh-duel.md), [`105-next.md`](./105-next.md).
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.45.0` — Yu-Gi-Oh Self-Play 503–510 — *CODE + TEST-APK*
 
-Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga.
-
-App-Code und Sideload **`18.45.0`** (versionCode `184500`):
-https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.0`.
 
 ### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 

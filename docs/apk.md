@@ -1,14 +1,22 @@
-# Android-APK — Test-Build `18.31.7`
+# Android-APK — Test-Build `18.51.0`
 
-Test-Build **`18.31.7`** (versionCode `183107`), debug-signiert:
+Test-Build **`18.51.0`** (versionCode `185100`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-Die Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
-keine finale Release-Freigabe. Die Änderungen seit 18.31.3 und die Testschritte
-für 18.31.4/18.31.5 stehen in der
-[detaillierten Testanleitung](./testanleitung-18-31-4-5.md).
+Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`. Die
+Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
+keine finale Release-Freigabe.
 
-**Neu in 18.31.7:** Yu-Gi-Oh!-Duel-KI mit lokalem Policy-Gradient-Training,
+**Neu in 18.51.0:** Yu-Gi-Oh!-TCG-Subset aus Plan 105 (Sprints 511–530):
+Zonenkapazität, Turn-1 ohne Battle, Spell Speed, erweiterte Effekte, Schema v2,
+PSCT-Atome und Fidelity im Nachweis. `engineStamp` `18.51.0-ygo-tcg`. Grenzen:
+[`yugioh-duel.md`](./yugioh-duel.md).
+
+**18.45.0:** Self-Play, Zugsuche, Dev-Umschalter, Nachweis, Verify und Elo
+(Sprints 503–510). Im aktuellen Sideload enthalten, nicht als eigene APK liegen
+geblieben.
+
+**18.31.7:** Yu-Gi-Oh!-Duel-KI mit lokalem Policy-Gradient-Training,
 Holdout-Winrate gegen Baseline, begrenzten Effekten und Chain-Links,
 vereinfachten Fusion-/Synchro-/Xyz-/Link-Beschwörungen sowie Animationen.
 Kein Turnier-RL: Details und Regelgrenzen in
@@ -20,6 +28,7 @@ YGOPRODeck-Kartensuche.
 **Neu seit 18.31.3:** 18.31.4 ergänzt Review-Fixes, Pflichtfeld-Rückfragen,
 responsive Geräteklassen und Datensatz-Governance. 18.31.5 ergänzt Tabletmodus,
 Wake-Wort und Hausstand-Server mit automatischem WLAN-Abgleich sowie Echo-Theme.
+Testschritte für 18.31.4/18.31.5: [testanleitung-18-31-4-5.md](./testanleitung-18-31-4-5.md).
 
 **18.31.3:** Hausstand-Import und Laden normalisieren ältere oder beschädigte
 Projektpläne, damit die Tischplatte bei fehlenden Plan-Listen nicht abstürzt.

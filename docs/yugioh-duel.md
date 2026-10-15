@@ -1,4 +1,4 @@
-# Yu-Gi-Oh! Duel — Test-Build `18.31.7`
+# Yu-Gi-Oh! Duel — Test-Build `18.51.0`
 
 ## Einstieg
 

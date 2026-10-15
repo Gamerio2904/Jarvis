@@ -484,8 +484,36 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 500 | [`sprint-500.md`](./sprint-500.md) | `18.40.0` | Revisionen vergleichen und Konflikte lösen | **CODE*** Must |
 | 501 | [`sprint-501.md`](./sprint-501.md) | `18.41.0` | Projektdateien verlustfrei migrieren | **CODE*** Must |
 | 502 | [`sprint-502.md`](./sprint-502.md) | `18.41.0` | Planungsmodus integrieren und abnehmen | **CODE*** Must |
+| 503 | [`sprint-503.md`](./sprint-503.md) | `18.42.0` | Self-Play-Match-Runner | **CODE** Must |
+| 504 | [`sprint-504.md`](./sprint-504.md) | `18.42.0` | Zugsuche mit Kombinationen | **CODE** Must |
+| 505 | [`sprint-505.md`](./sprint-505.md) | `18.43.0` | Live-Match-Ansicht | **CODE** Must |
+| 506 | [`sprint-506.md`](./sprint-506.md) | `18.43.0` | Dev-Umschalter Game ⇄ Dev | **CODE** Must |
+| 507 | [`sprint-507.md`](./sprint-507.md) | `18.44.0` | Protokoll und Zug-Review | **CODE** Must |
+| 508 | [`sprint-508.md`](./sprint-508.md) | `18.44.0` | Lernen, Liga und Gate | **CODE** Must |
+| 509 | [`sprint-509.md`](./sprint-509.md) | `18.45.0` | Nachweis-Datei, Verify und Elo-Liga | **CODE** Must |
+| 510 | [`sprint-510.md`](./sprint-510.md) | `18.45.0` | Training-Overlay mit Analyse und Verify-Gate | **CODE** Must |
+| 511 | [`sprint-511.md`](./sprint-511.md) | `18.46.0` | Zonenmodell EMZ/MMZ und Link-Register | **CODE** Must |
+| 512 | [`sprint-512.md`](./sprint-512.md) | `18.46.0` | Zugstruktur und Turn-1-Regeln | **CODE** Must |
+| 513 | [`sprint-513.md`](./sprint-513.md) | `18.46.0` | Beschwörungsarten und Limits | **CODE** Must |
+| 514 | [`sprint-514.md`](./sprint-514.md) | `18.46.0` | Gold Regelkern G1–G20 | **CODE** Must |
+| 515 | [`sprint-515.md`](./sprint-515.md) | `18.47.0` | Ketten, Spell Speed, SEG | **CODE** Must |
+| 516 | [`sprint-516.md`](./sprint-516.md) | `18.47.0` | Kosten und Aktivierungsbedingungen | **CODE** Must |
+| 517 | [`sprint-517.md`](./sprint-517.md) | `18.47.0` | Kampfphase vervollständigen | **CODE** Must |
+| 518 | [`sprint-518.md`](./sprint-518.md) | `18.47.0` | Banish, gleichzeitige Effekte, Deck-out | **CODE** Must |
+| 519 | [`sprint-519.md`](./sprint-519.md) | `18.48.0` | Effekt-Schema v2 und Coverage-Metrik | **CODE** Must |
+| 520 | [`sprint-520.md`](./sprint-520.md) | `18.48.0` | Enrichment-Pipeline | **CODE** Must |
+| 521 | [`sprint-521.md`](./sprint-521.md) | `18.48.0` | Archetyp-Muster erweitern | **CODE** Must |
+| 522 | [`sprint-522.md`](./sprint-522.md) | `18.49.0` | Timing-Klassen Quick/Trigger/Flip | **CODE** Must |
+| 523 | [`sprint-523.md`](./sprint-523.md) | `18.49.0` | Feld- und Continuous-Effekte | **CODE** Must |
+| 524 | [`sprint-524.md`](./sprint-524.md) | `18.49.0` | Structure-Deck Gold-Gate | **CODE** Must |
+| 525 | [`sprint-525.md`](./sprint-525.md) | `18.50.0` | PSCT-Atommodell | **CODE** Must |
+| 526 | [`sprint-526.md`](./sprint-526.md) | `18.50.0` | Zielwahl UI und Validator | **CODE** Must |
+| 527 | [`sprint-527.md`](./sprint-527.md) | `18.50.0` | OPT/HOPT und Bedingungen | **CODE** Must |
+| 528 | [`sprint-528.md`](./sprint-528.md) | `18.51.0` | Errata-Tabelle | **CODE** Must |
+| 529 | [`sprint-529.md`](./sprint-529.md) | `18.51.0` | Gold-Kartenkorpus | **CODE** Must |
+| 530 | [`sprint-530.md`](./sprint-530.md) | `18.51.0` | Fidelity-Nachweis und Release-Gate | **CODE** Must |
 
-Sprints 431–466 sind im Test-Build `18.31.5` enthalten; die finale
+Sprints 431–466 sind im Test-Build enthalten, der inzwischen `18.51.0` ist; die finale
 Geräte-/Release-Freigabe steht noch aus. Die Folgeschiene 467–482 ist in
 [`../101-next.md`](../101-next.md) geplant. Der frühere
 [`../tischplatte-plan.md`](../tischplatte-plan.md) ist in 444–466 integriert;
@@ -509,20 +537,23 @@ Plan-/Projektdatei-Tests abgedeckt; Zielversionen 18.39.0–18.41.0 bleiben
 dennoch Platzhalter, bis die vollständigen Geräte-/Release-Gates bestanden
 sind.
 
-Sprints 503–510 (Yu-Gi-Oh!-Self-Play) stehen in [`../104-next.md`](../104-next.md);
-**CODE** im Test-Build `18.45.0`. Folgeplan 511–530 (Regeln, Effektabdeckung,
-Fidelity) in [`../105-next.md`](../105-next.md), Zielversionen `18.46.0`–`18.51.0`,
-**PLAN**.
+Sprints 503–510 (Yu-Gi-Oh!-Self-Play) stehen in [`../104-next.md`](../104-next.md)
+und sind **CODE** im Test-Build `18.51.0` (zuerst als `18.45.0` gebündelt).
+Sprints 511–530 (Regeln, Effektabdeckung, Fidelity) stehen in
+[`../105-next.md`](../105-next.md), **CODE** als TCG-Subset in `18.51.0`.
+Die Zahlen-Gates Coverage ≥70 % und 100 Gold-Karten ≥95 % sind nicht geschlossen.
 
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Test-APK `18.31.7` / versionCode `183107`; finale Geräteabnahme
-offen. Rework 444–466: [`../100-next.md`](../100-next.md). Folgeschienen
-467–482: [`../101-next.md`](../101-next.md) und 483–494:
-[`../102-next.md`](../102-next.md). Ältere Sprintfolgen bleiben historisch.
+**Stände:** Test-APK `18.51.0` / versionCode `185100`; finale Geräteabnahme
+offen. Rework 444–466: [`../100-next.md`](../100-next.md). Gates 467–502:
+[`../101-next.md`](../101-next.md), [`../102-next.md`](../102-next.md),
+[`../103-next.md`](../103-next.md). Duell 503–530:
+[`../104-next.md`](../104-next.md), [`../105-next.md`](../105-next.md).
+Ältere Sprintfolgen bleiben historisch.
 
-**⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
+**⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `18.51.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `18.51` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
 **Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). Schiene `18.0.0` → [`../70-next.md`](../70-next.md). Audit-Reste → [`../71-audit.md`](../71-audit.md). **283–300 CODE + APK** in `18.4.3` (Ideen, Karten-Reste, Watchliste, Körper/Wissen). Schiene **18.6 CODE** → [`../77-next.md`](../77-next.md). Schiene **18.7 CODE** → [`../78-next.md`](../78-next.md). Schiene **18.8 CODE + APK** → [`../79-next.md`](../79-next.md). Schiene **18.5 PLAN** → [`../76-next.md`](../76-next.md). Schiene **18.9 CODE + APK** → [`../80-next.md`](../80-next.md). Schiene **18.15 CODE + APK** → [`../87-next.md`](../87-next.md) (361–368). Schiene **18.16 CODE + APK** → [`../88-next.md`](../88-next.md) (369–376). Schiene **18.18 CODE + APK** → [`../90-next.md`](../90-next.md) (382–384). Schiene **18.19 CODE + APK** → [`../91-next.md`](../91-next.md) (385–391). Schiene **18.20 CODE + APK** → [`../92-next.md`](../92-next.md) (392–397), Sideload `18.20.1`. Schiene **18.21 CODE** → [`../93-next.md`](../93-next.md) (398–403), in `18.22.0`. Schiene **18.22 CODE** → [`../94-next.md`](../94-next.md) (404–409). Schiene **18.23 CODE** → [`../95-next.md`](../95-next.md) (410–416). Schiene **18.24 CODE** → [`../96-next.md`](../96-next.md) (417–423). Schiene **18.25 CODE** → [`../97-next.md`](../97-next.md) (424–430). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
 
