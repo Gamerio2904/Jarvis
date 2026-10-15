@@ -69,8 +69,54 @@ function AppGlyph({ id }: { id: HomeAppId }) {
   if (id === 'overlay') {
     return (
       <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
-        <rect x="4" y="5.5" width="16" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-        <path fill="none" stroke="currentColor" strokeWidth="1.8" d="M8 12h8M12 8.5v7" />
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          d="M5 15.2 6.8 9.4A2 2 0 0 1 8.7 8h6.6a2 2 0 0 1 1.9 1.4l1.8 5.8"
+        />
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+          d="M3.8 15.2h16.4v2.6a1.3 1.3 0 0 1-1.3 1.3H16a1.3 1.3 0 0 1-1.3-1.3v-.4H9.3v.4A1.3 1.3 0 0 1 8 19.1H5.1a1.3 1.3 0 0 1-1.3-1.3v-2.6Z"
+        />
+        <circle cx="7.6" cy="16.6" r="0.85" fill="currentColor" />
+        <circle cx="16.4" cy="16.6" r="0.85" fill="currentColor" />
+      </svg>
+    )
+  }
+  if (id === 'tisch') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+          d="M3.5 8.2h17l-1.5 3.4H5L3.5 8.2Z"
+        />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M7.2 11.6v7.2M16.8 11.6v7.2" />
+      </svg>
+    )
+  }
+  if (id === 'chess') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <rect x="3.8" y="3.8" width="16.4" height="16.4" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path fill="currentColor" d="M4.6 4.6h7.4v7.4H4.6zM12 12h7.4v7.4H12z" />
+      </svg>
+    )
+  }
+  if (id === 'yugioh') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <rect x="6.2" y="3.2" width="11.6" height="17.6" rx="1.6" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <rect x="8" y="5.4" width="8" height="6.2" rx="0.8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" d="M8.2 14.2h7.6M8.2 16.8h5" />
       </svg>
     )
   }

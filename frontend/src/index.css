@@ -7940,6 +7940,8 @@ html.theme-wipe-dark::before {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  max-width: 100%;
   cursor: pointer;
 }
 
@@ -7960,9 +7962,12 @@ html.theme-wipe-dark::before {
 }
 
 .home-app-label {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  max-width: 100%;
   color: var(--text-muted);
   text-align: center;
+  text-wrap: balance;
 }
 
 .home-cell {
