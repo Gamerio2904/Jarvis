@@ -55,6 +55,7 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\btabel[\s-]*modus\b/gi, 'Tabletmodus'],
   [/\btalet[\s-]*modus\b/gi, 'Tabletmodus'],
   [/\btablet[\s-]*modu\b/gi, 'Tabletmodus'],
+  [/\bverinde\b/gi, 'verbinde'],
   [/\bstrte\b/gi, 'starte'],
   [/\bfanseher(?:en|n)?\b/gi, 'Fernseher'],
   [/\bfernseha\b/gi, 'Fernseher'],

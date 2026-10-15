@@ -717,7 +717,13 @@ async function handleIdeaBody(
     return pack(reply, 'portfolio')
   }
   const table = parseAblaufIntent(text)
-  const tableHere = !table || ownsPlan(conversationId) || table.kind === 'open' || table.kind === 'session' || table.kind === 'screen'
+  const tableHere =
+    !table ||
+    ownsPlan(conversationId) ||
+    table.kind === 'open' ||
+    table.kind === 'session' ||
+    table.kind === 'screen' ||
+    table.kind === 'close'
   if (table && tableHere) {
     if (table.kind === 'open' && table.work) {
       const written = await writeProject(table.work, conversationId)
