@@ -12,6 +12,11 @@ Zonenkapazität, Turn-1 ohne Battle, Spell Speed, erweiterte Effekte, Schema v2,
 PSCT-Atome und Fidelity im Nachweis. `engineStamp` `18.51.0-ygo-tcg`. Grenzen:
 [`yugioh-duel.md`](./yugioh-duel.md).
 
+Diese Sideload-Datei enthält zusätzlich die Korrekturen danach: Duellfeld und
+Karteneffekte, keine Battle Phase in Ultrons erstem Zug, Fallenfenster beim
+Angriff, Planungsmodus, Timer-Leiste, geteilte Einkaufsliste und das Handy-Layout.
+Die Fassung steht in [`audit-bugfixes-18-51.md`](./audit-bugfixes-18-51.md).
+
 **18.45.0:** Self-Play, Zugsuche, Dev-Umschalter, Nachweis, Verify und Elo
 (Sprints 503–510). Im aktuellen Sideload enthalten, nicht als eigene APK liegen
 geblieben.
