@@ -522,6 +522,7 @@ test('18.60 die Doku nennt die offenen Lücken und der Stempel ist neu', () => {
   assert.match(doc, /Replay/)
   assert.match(doc, /historische Pendel/)
   assert.match(doc, /OCG/)
+  assert.match(doc, /TEST-18\.60\.md/)
   assert.equal(ENGINE_STAMP, '18.60.0-ygo-md')
   const version = readFileSync(new URL('../package.json', import.meta.url), 'utf8')
   assert.match(version, /"version": "18\.60\.0"/)

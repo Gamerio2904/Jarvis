@@ -121,6 +121,7 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | — | [Test 18.29](./TEST-18.29.md) | **PLAN** — Intake, bestätigte Recherche, Provenienz und Datenschutz |
 | — | [Test 18.30](./TEST-18.30.md) | **PLAN** — deklarative GUI- und Workflow-Simulation |
 | — | [Test 18.31](./TEST-18.31.md) | **Test-Build; Geräte-Gate offen** — WBS, Export-Roundtrip und End-to-End |
+| — | [Test 18.60](./TEST-18.60.md) | **Test-Build `18.60.0`** — Duell-Sätze und Klickfolge für die Master-Duel-Bedienung |
 | — | [Tischplatte lesbar](./tischplatte-plan.md) | Historischer Teilplan; in [`100-next.md`](./100-next.md), Sprints 444–466 integriert |
 | — | [Hausstand nach dem Koppeln](./hausstand-sync-plan.md) | Vorgängerplan; Server/QR-Kopplung/Zeitstempel-Sync teilweise in Test-APK `18.31.5`; Ausbau: [`102-next.md`](./102-next.md) |
 | — | [Formulierung egal](./formulierung-plan.md) | **Unpriorisierter PLAN**; vor Umsetzung mit Routing-Gate 467–470 abgleichen |

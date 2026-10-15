@@ -7,7 +7,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.60.0`** (versionCode `186000`). `engineStamp` **`18.60.0-ygo-md`**.
 
-Plan 106 in einem Sideload: Aktivieren-Fenster (OFF / AUTO / ON), Zielwahl auf dem Feld und in öffentlichen Stapeln, Kettenstapel, Kampf- und Endphase, Kampfschritte mit Antwort vor der Schadensrechnung, Zonenwahl, Statussymbole, Pendel-Skalen, Pendel- und Ritualbeschwörung, Deckeditor mit Filtern und Banlist-Farben, Duellprotokoll. Die Zwischennummern `18.52.0`–`18.59.0` sind in dieser Datei enthalten. Offen bleiben Xyz-Material abnehmen, Replay, historische Pendel-Ausnahmen und OCG gegen TCG. Umfang: [`yugioh-duel.md`](./yugioh-duel.md), [`106-next.md`](./106-next.md).
+Plan 106 in einem Sideload: Aktivieren-Fenster (OFF / AUTO / ON), Zielwahl auf dem Feld und in öffentlichen Stapeln, Kettenstapel, Kampf- und Endphase, Kampfschritte mit Antwort vor der Schadensrechnung, Zonenwahl, Statussymbole, Pendel-Skalen, Pendel- und Ritualbeschwörung, Deckeditor mit Filtern und Banlist-Farben, Duellprotokoll. Die Zwischennummern `18.52.0`–`18.59.0` sind in dieser Datei enthalten. Offen bleiben Xyz-Material abnehmen, Replay, historische Pendel-Ausnahmen und OCG gegen TCG. Umfang: [`yugioh-duel.md`](./yugioh-duel.md), [`106-next.md`](./106-next.md). Die Prüfsätze stehen in der Spur Heute unter **18.60 Duell** und in [`TEST-18.60.md`](./TEST-18.60.md).
 
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 

@@ -1583,7 +1583,7 @@ function App() {
       openYugiohDuel()
       const reply = 'Herausforderung angenommen. Es ist Zeit für ein Duell!'
       void speakText(reply)
-      return { reply }
+      return { reply, tool: { tool: 'yugioh', tool_status: 'executed', action: 'open', label: 'Yu-Gi-Oh' } }
     }
     const conversationHint = opts?.conversationId || activeIdRef.current || undefined
     const ticket = beginTurn({ source, content, conversationId: conversationHint, requestId: opts?.requestId })

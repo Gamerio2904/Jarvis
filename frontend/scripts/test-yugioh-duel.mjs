@@ -16,6 +16,7 @@ import {
   summonMonster,
 } from '../src/engine/yugioh-duel.ts'
 import { isYugiohDuelTrigger } from '../src/engine/yugioh-parse.ts'
+import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import './test-yugioh-md.mjs'
 import { evaluateDuelPolicy, trainDuelPolicy } from '../src/engine/yugioh-training.ts'
 import { EVALUATION_ARCHETYPES, generateDeck, TRAINING_ARCHETYPES } from '../src/engine/yugioh-decks.ts'
@@ -77,6 +78,12 @@ test('der Sprachtrigger erkennt die vereinbarte Herausforderung, aber keine ähn
   assert.equal(isYugiohDuelTrigger('Yu gi oh'), true)
   assert.equal(isYugiohDuelTrigger('yugioh'), true)
   assert.equal(isYugiohDuelTrigger('Ich fordere dich heraus'), false)
+  const prompts = TEST_COPY_GROUPS.find((group) => group.title === '18.60 Duell')
+  assert.ok(prompts && prompts.items.length >= 7)
+  for (const item of prompts.items) {
+    assert.equal(item.expect?.tool, 'yugioh', item.text)
+    assert.equal(isYugiohDuelTrigger(item.text), true, item.text)
+  }
 })
 
 test('ein Bot-Duell läuft auf demselben Feld weiter', () => {

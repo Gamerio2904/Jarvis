@@ -208,6 +208,8 @@ Kettennegation, Synchro-Materialien, reproduzierbares Training und
 Fusion-/Xyz-/Link-Materialien sowie den messbaren Holdout-Vergleich.
 YGOPRODeck-Netzwerkzugriff, Audio, Animationen und
 Android-Gerätebedienung müssen zusätzlich am Zielgerät manuell geprüft werden.
+Die Sätze und die Klickfolge stehen in [`TEST-18.60.md`](./TEST-18.60.md).
+In der App: Einstellungen → Tests → Spur **Heute** → **18.60 Duell**.
 
 ## Version / APK
 

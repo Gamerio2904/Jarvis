@@ -13,6 +13,18 @@ export type TestCopyGroup = { title: string; items: TestCopyItem[] }
 
 export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
+    title: '18.60 Duell',
+    items: [
+      { label: 'Herausforderung', text: 'Jarvis, ich fordere dich zu einem Duell heraus.', expect: { tool: 'yugioh' } },
+      { label: 'Kurz', text: 'Ich fordere dich zu einem Duell heraus', expect: { tool: 'yugioh' } },
+      { label: 'Zeit', text: 'Zeit für ein Duell', expect: { tool: 'yugioh' } },
+      { label: 'Starte', text: 'Starte Yu-Gi-Oh', expect: { tool: 'yugioh' } },
+      { label: 'Spiel', text: 'Spiel Yu-Gi-Oh', expect: { tool: 'yugioh' } },
+      { label: 'Name', text: 'Yu-Gi-Oh', expect: { tool: 'yugioh' } },
+      { label: 'Duell', text: 'Duell', expect: { tool: 'yugioh' } },
+    ],
+  },
+  {
     title: '18.25 Entwurf',
     items: [
       { label: 'App', text: 'Entwirf eine App: Einkaufsliste mit Listen und einem Knopf Fertig', expect: { tool: 'board' } },

@@ -11,7 +11,7 @@ keine finale Release-Freigabe.
 einem Sideload. Aktivieren-Fenster OFF/AUTO/ON, Zielwahl, Kettenstapel,
 Kampf und Ende, Zonenwahl, Statussymbole, Pendel und Ritual, Deckeditor
 und Duellprotokoll. `engineStamp` `18.60.0-ygo-md`. Fassung:
-[`yugioh-duel.md`](./yugioh-duel.md).
+[`yugioh-duel.md`](./yugioh-duel.md). Prüfsätze: [`TEST-18.60.md`](./TEST-18.60.md).
 
 **Neu in 18.51.3:** Chat und Sprache nur in der aufgeklappten Werte-Leiste.
 Der Schalter „Tischplatte an“ und der Leisten-Schalter darunter sind entfernt.
