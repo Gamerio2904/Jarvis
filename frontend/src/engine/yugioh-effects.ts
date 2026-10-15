@@ -82,6 +82,12 @@ function targetInDeck(text: string): boolean {
 function matchClause(clause: string, context: string): { effect: DuelEffect; summary: string } | null {
   const halfLp = /pay half your lp/i.test(clause) || /pay half your lp/i.test(context)
   if (/negate the attack/i.test(clause)) return { effect: { kind: 'negateAttack' }, summary: 'Negiert den gegnerischen Angriff.' }
+  if (/negate all [^.]{0,60}effects/i.test(clause) && !/cannot be negated/i.test(clause)) {
+    return {
+      effect: { kind: 'negate', ...(halfLp ? { cost: 'halfLp' as const } : {}) },
+      summary: 'Negiert Karteneffekte.',
+    }
+  }
   if (/negate (?:that |its |the |their |an )?(?:activated )?(?:(?:target|monster|card)['’]s )?(?:summon|activation|effects?)/i.test(clause)) {
 
     return {
@@ -89,7 +95,7 @@ function matchClause(clause: string, context: string): { effect: DuelEffect; sum
       summary: halfLp ? 'Negiert und zahlt die Hälfte der LP.' : 'Negiert das vorherige Kettenglied (vereinfachte Regel).',
     }
   }
-  if (/destroy all (?:the )?attack position monsters/i.test(clause)) {
+  if (/destroy all [^.]{0,70}attack position monsters/i.test(clause) && !/would be destroyed|cannot be destroyed/i.test(clause)) {
     return { effect: { kind: 'destroy', target: 'attackMonsters' }, summary: 'Zerstört alle Angriffs-Monster des Gegners.' }
   }
   if (/destroy all (?:other )?(?:face-up )?monsters\b/i.test(clause) && !/would be destroyed|cannot be destroyed/i.test(clause)) {
@@ -132,6 +138,9 @@ function matchClause(clause: string, context: string): { effect: DuelEffect; sum
     }
     return { effect: { kind: 'banish', target: 'monster' }, summary: 'Verbannt ein gegnerisches Monster.' }
   }
+  if (/return all [^.]{0,50}(?:spell and trap|spells? and traps?|spell\/trap)[^.]{0,40}to (?:the )?hand/i.test(clause)) {
+    return { effect: { kind: 'bounce', target: 'allSpelltrap' }, summary: 'Gibt alle Zauber und Fallen auf die Hand zurück.' }
+  }
   if (/return (?:it|that target|those targets|them|that (?:opponent's )?monster|(?:1|one|a) (?:face-up )?(?:opponent's )?monster)[^.]{0,50}to (?:the |its owner's |their )?hand/i.test(clause)
     && !targetsOwnField(context) && !targetsOwnField(clause)) {
     return { effect: { kind: 'bounce', target: 'monster' }, summary: 'Gibt ein gegnerisches Monster auf die Hand zurück.' }
@@ -163,6 +172,9 @@ function matchClause(clause: string, context: string): { effect: DuelEffect; sum
   if (discard && !nearOpponent(clause, discard.index || 0)) {
     const amount = Math.max(1, Math.min(5, wordCount(discard[1])))
     return { effect: { kind: 'discard', amount }, summary: `Wirft ${amount} Karte(n) ab.` }
+  }
+  if (/draw (?:that |the )?same number of cards/i.test(clause) && !nearOpponent(clause, clause.toLowerCase().indexOf('draw'))) {
+    return { effect: { kind: 'draw', amount: 1 }, summary: 'Zieht 1 Karte.' }
   }
   const draw = clause.match(/\bdraw (?:up to )?(?:(\d+)|a|one) cards?\b/i)
   if (draw && !nearOpponent(clause, draw.index || 0)) {
@@ -214,7 +226,11 @@ function matchClause(clause: string, context: string): { effect: DuelEffect; sum
     return { effect: { kind: 'setStat', stat: 'def', value }, summary: `Setzt die DEF auf ${value}.` }
   }
   if (/halve [^.]{0,40}atk/i.test(clause) && !/this card/i.test(clause)) {
-    return { effect: { kind: 'weaken', amount: 0, half: true }, summary: 'Halbiert die ATK eines gegnerischen Monsters.' }
+    const all = /halve the atk(?: and def)? of all/i.test(clause)
+    return {
+      effect: { kind: 'weaken', amount: 0, half: true, ...(all ? { all: true } : {}) },
+      summary: all ? 'Halbiert die ATK aller gegnerischen Monster.' : 'Halbiert die ATK eines gegnerischen Monsters.',
+    }
   }
   const lose = clause.match(/(?:it|that target|that monster|1 monster your opponent controls|your opponent(?:'s monster)?) loses (\d{3,4}) atk|(?:reduce|decrease) (?:that target's |its |that monster's )?atk by (\d{3,4})/i)
   if (lose && !/this card loses|monsters you control lose/i.test(clause)) {
@@ -226,10 +242,42 @@ function matchClause(clause: string, context: string): { effect: DuelEffect; sum
     const amount = Math.max(100, Math.min(1000, Number(fieldAura?.[1] || clause.match(/gain (\d{3,4}) atk/i)?.[1] || 0)))
     if (amount) return { effect: { kind: 'fieldAura', stat: 'atk', amount }, summary: `Alle deine Monster erhalten +${amount} ATK (Spielfeld).` }
   }
+  const equipped = clause.match(/(?:the )?equipped monster gains? (\d+) (atk|def)/i)
+  if (equipped) {
+    const amount = Math.max(100, Math.min(3000, Number(equipped[1])))
+    const stat = equipped[2].toLowerCase() === 'def' ? 'def' as const : 'atk' as const
+    return { effect: { kind: 'equip', stat, amount }, summary: `Ausrüstung: +${amount} ${stat.toUpperCase()} für dein stärkstes Monster.` }
+  }
   const boost = clause.match(/gains? (\d{3,4}) atk|(?:atk|attack) (?:is |are )?(?:increased|raised) by (\d{3,4})/i)
   if (boost && !/opponent/i.test(clause.slice(Math.max(0, (boost.index || 0) - 36), (boost.index || 0) + boost[0].length))) {
     const amount = Math.max(100, Math.min(3000, Number(boost[1] || boost[2])))
     return { effect: { kind: 'boost', amount }, summary: `Gibt deinem stärksten Monster bis zum Zugende +${amount} ATK.` }
+  }
+  const fromPile = clause.match(/special summon (?:up to )?(\d+|a|one|two|three) [^.;]{0,90}? from (?:your |the )?(hand|deck|gy|graveyard)/i)
+  if (fromPile && !/token/i.test(clause)) {
+    const where = fromPile[2].toLowerCase()
+    if (where === 'deck') return { effect: { kind: 'summonDeck' }, summary: 'Beschwört das stärkste Monster aus dem Deck.' }
+    if (where === 'hand') return { effect: { kind: 'summonPile', from: 'hand' }, summary: 'Beschwört das stärkste Monster aus der Hand.' }
+    return { effect: { kind: 'revive' }, summary: 'Belebt das stärkste Monster aus dem Friedhof wieder.' }
+  }
+  if (/special summon (?:that target|those targets|it|them|the first target)\b/i.test(clause) && !/token/i.test(clause)) {
+    if (/\bdeck\b/i.test(context) && !/extra deck/i.test(context)) return { effect: { kind: 'summonDeck' }, summary: 'Beschwört das stärkste Monster aus dem Deck.' }
+    if (/\bhand\b/i.test(context)) return { effect: { kind: 'summonPile', from: 'hand' }, summary: 'Beschwört das stärkste Monster aus der Hand.' }
+    return { effect: { kind: 'revive' }, summary: 'Belebt das stärkste Monster aus dem Friedhof wieder.' }
+  }
+  if (/return all [^.]{0,80}monsters?[^.]{0,50} to (?:the |their |your opponent's )?hand/i.test(clause)) {
+    return { effect: { kind: 'bounce', target: 'allMonsters' }, summary: 'Gibt die Angriffsmonster des Gegners auf die Hand zurück.' }
+  }
+  const auraLoose = clause.match(/(?:increase|decrease) the atk of all [^.]{0,50}? by (\d+)/i)
+  if (auraLoose) {
+    const amount = Math.max(100, Math.min(2000, Number(auraLoose[1])))
+    const signed = /decrease/i.test(clause) ? -amount : amount
+    return { effect: { kind: 'fieldAura', stat: 'atk', amount: signed }, summary: `Spielfeld: Monster erhalten ${signed > 0 ? '+' : ''}${signed} ATK.` }
+  }
+  const opponentMill = clause.match(/send (?:the top )?(\d+|a|one|two|three)? ?cards? from the top of your opponent's deck/i)
+  if (opponentMill) {
+    const amount = Math.max(1, Math.min(10, wordCount(opponentMill[1], 1)))
+    return { effect: { kind: 'mill', amount, opponent: true }, summary: `Legt ${amount} Karte(n) vom Deck des Gegners auf den Friedhof.` }
   }
   return null
 }
@@ -249,6 +297,7 @@ function collectRules(text: string): CardRule[] {
   if (/cannot be targeted by/i.test(text)) add('untargetable')
   if (/unaffected by (?:other |your opponent's )?card effects/i.test(text)) add('unaffected')
   if (/each time a spell card is activated, place/i.test(text)) add('spellCounter')
+  if (/normal summon(?:ed)? this card without tribut/i.test(text)) add('freeTribute')
   return rules
 }
 
@@ -263,12 +312,13 @@ function ruleSummary(rule: CardRule): string {
     case 'untargetable': return 'Kann nicht als Ziel gewählt werden.'
     case 'unaffected': return 'Ist von Karteneffekten unberührt.'
     case 'spellCounter': return 'Erhält eine Spielmarke, wenn ein Zauber aktiviert wird.'
+    case 'freeTribute': return 'Kann ohne Tribut normalbeschworen werden.'
   }
 }
 
 function specificForms(text: string): { effect: DuelEffect; summary: string } | null {
-  if (/special summon this card \(from your hand\)/i.test(text)) {
-    const discard = text.match(/discard(?:ing)? (\d+|a|one|two|three) cards?/i)
+  if (/special summon this card (?:\(from your hand\)|from your hand)/i.test(text)) {
+    const discard = text.match(/discard(?:ing)? (\d+|a|one|two|three) (?:other )?(?:cards?|monsters?)/i)
     const tribute = text.match(/tribut(?:e|ing) (\d+|a|one|two|three) monsters?/i)
     const discardCount = discard ? wordCount(discard[1]) : 0
     const tributeCount = tribute ? wordCount(tribute[1]) : 0

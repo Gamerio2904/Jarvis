@@ -88,6 +88,80 @@ test('ein Bot-Duell läuft auf demselben Feld weiter', () => {
   assert.equal(typeof next.message, 'string')
 })
 
+test('Bots legen weiter Karten, eine offene Kette löst sich auf', () => {
+  const spell = {
+    id: 50,
+    name: 'Funke',
+    type: 'Spell Card',
+    kind: 'spell',
+    effect: { kind: 'damage', amount: 500 },
+    effectSummary: '500 Schaden',
+  }
+  const monster = {
+    id: 51,
+    name: 'Wächter',
+    type: 'Effect Monster',
+    kind: 'monster',
+    atk: 1800,
+    def: 1200,
+    level: 4,
+  }
+  let state = createDuel(deck(), deck(), () => 0.2)
+  state = {
+    ...state,
+    phase: 'main1',
+    turnOwner: 'player',
+    player: { ...state.player, hand: [spell, monster, ...state.player.hand.slice(0, 3)] },
+  }
+  let repeats = 0
+  let previous = ''
+  for (let step = 0; step < 8; step += 1) {
+    state = mirrorBotStep(state, null)
+    assert.equal(state.chain.length, 0)
+    const mark = `${state.turn}:${state.phase}:${state.turnOwner}:${state.player.monsters.length}:${state.message}`
+    repeats = mark === previous ? repeats + 1 : 0
+    previous = mark
+    assert.ok(repeats < 3, state.message)
+  }
+})
+
+test('ein eigener Zauber wirkt im selben Zug, danach ist Beschwören frei', () => {
+  let state = enterMainPhase(createDuel(deck(), deck(), () => 0))
+  const spell = {
+    ...state.player.hand[0],
+    id: 77,
+    kind: 'spell',
+    name: 'Topf',
+    effect: { kind: 'draw', amount: 1 },
+    effectSummary: 'Zieht 1 Karte.',
+  }
+  state = { ...state, player: { ...state.player, hand: [spell, ...state.player.hand.slice(1)] } }
+  const before = state.player.hand.length
+  const activated = activateDuelEffect(state, 'player', spell.id)
+  const resolved = activated.chain.length && activated.chainPriority === 'player' && activated.chainPasses === 1
+    ? passDuelChain(activated, 'player')
+    : activated
+  assert.equal(resolved.chain.length, 0)
+  assert.ok(resolved.player.hand.length >= before)
+  const monster = resolved.player.hand.find((card) => card.kind === 'monster')
+  assert.ok(monster)
+  const summoned = summonMonster(resolved, monster.id)
+  assert.equal(summoned.player.monsters.some((card) => card.id === monster.id), true)
+})
+
+test('fehlende Beschwörungs- und Ausrüstungseffekte werden erkannt', () => {
+  assert.equal(effectFromDescription('Once per turn: You can Special Summon 1 Zombie monster from your hand.')?.effect.kind, 'summonPile')
+  assert.equal(effectFromDescription('The equipped monster gains 500 ATK.')?.effect.kind, 'equip')
+  assert.equal(effectFromDescription('You can discard 1 other monster; Special Summon this card from your hand.')?.effect.kind, 'summonHand')
+  assert.equal(effectFromDescription('You can Normal Summon this card without Tributing.')?.rules?.[0], 'freeTribute')
+  assert.equal(effectFromDescription('When an opponent\'s monster declares an attack: Return all your opponent\'s Attack Position monsters to the hand.')?.effect.kind, 'bounce')
+  assert.equal(effectFromDescription('When an opponent\'s monster declares an attack: Destroy all your opponent\'s Attack Position monsters.')?.effect.target, 'attackMonsters')
+  assert.equal(effectFromDescription('Target 1 Zombie monster in your GY and 1 monster in your opponent\'s GY; Special Summon the first target, also banish the second target.')?.effect.kind, 'revive')
+  assert.equal(effectFromDescription('Return all Spell and Trap Cards on the field to the hand.')?.effect.target, 'allSpelltrap')
+  assert.equal(effectFromDescription('Negate all other Trap effects on the field.')?.effect.kind, 'negate')
+  assert.equal(effectFromDescription('Shuffle any number of cards from your hand into the Deck, then draw that same number of cards.')?.effect.kind, 'draw')
+})
+
 test('Start zieht fünf Karten und vektorisiert den Spielzustand', () => {
   const state = createDuel(deck(), deck(), () => 0)
   assert.equal(state.player.lp, 8000)
@@ -473,7 +547,7 @@ test('neue Effekttypen werden aus Kartentext erkannt', () => {
   assert.equal(effectFromDescription('Once per turn, you can shuffle your hand.'), null)
   assert.equal(effectFromDescription('Discard 1 card, then draw 1 card.')?.effect.kind, 'drawDiscard')
   assert.equal(effectFromDescription('If this card is Normal Summoned: Target 1 face-up monster on the field; change that target to face-down Defense Position. Once per turn, during the End Phase: Return it to the hand.')?.effect.kind, 'position')
-  assert.equal(effectFromDescription('Special Summon 1 Fairy monster from your hand. That monster\'s ATK is halved, also it is destroyed during the End Phase.'), null)
+  assert.equal(effectFromDescription('Special Summon 1 Fairy monster from your hand. That monster\'s ATK is halved, also it is destroyed during the End Phase.')?.effect.kind, 'summonPile')
   assert.equal(effectFromDescription('When this face-down card is destroyed and sent to the Graveyard, your opponent selects and executes 1 of the following effects: Discard 1 card. Destroy 1 monster.'), null)
 })
 

@@ -28,12 +28,14 @@ export type DuelEffect =
   | { kind: 'summonDeck' }
   | { kind: 'recover' }
   | { kind: 'boost'; amount: number }
-  | { kind: 'weaken'; amount: number; half: boolean }
+  | { kind: 'weaken'; amount: number; half: boolean; all?: boolean }
   | { kind: 'setStat'; stat: 'atk' | 'def'; value: number }
   | { kind: 'banish'; target: 'monster' | 'gyMonster' | 'spelltrap' }
-  | { kind: 'bounce'; target: 'monster' }
+  | { kind: 'bounce'; target: 'monster' | 'allMonsters' | 'allSpelltrap' }
   | { kind: 'position'; target: 'monster' | 'allMonsters'; faceDown: boolean }
-  | { kind: 'mill'; amount: number }
+  | { kind: 'mill'; amount: number; opponent?: boolean }
+  | { kind: 'summonPile'; from: 'hand' | 'deck' | 'gy' }
+  | { kind: 'equip'; stat: 'atk' | 'def'; amount: number }
   | { kind: 'discard'; amount: number }
   | { kind: 'fieldAura'; stat: 'atk'; amount: number }
   | { kind: 'summonHand'; tributes: number; discard: number }
@@ -52,6 +54,7 @@ export type CardRule =
   | 'untargetable'
   | 'unaffected'
   | 'spellCounter'
+  | 'freeTribute'
 
 export type EffectTrigger = 'summon' | 'flip' | 'ignition' | 'quick' | 'continuous'
 
@@ -623,7 +626,7 @@ export function summonMonster(state: DuelState, cardId: number, tributes: number
   const card = state.player.hand[cardIndex]
   if (!card || card.kind !== 'monster') throw new Error('Diese Karte kann nicht normalbeschworen werden.')
   if (hasRule(card, 'cannotNormal')) throw new Error(`${card.name} kann nicht normalbeschworen oder gesetzt werden.`)
-  const tributeCount = (card.level || 4) >= 7 ? 2 : (card.level || 4) >= 5 ? 1 : 0
+  const tributeCount = hasRule(card, 'freeTribute') ? 0 : (card.level || 4) >= 7 ? 2 : (card.level || 4) >= 5 ? 1 : 0
   if (tributes.length !== tributeCount) throw new Error(`Für ${card.name} brauchst du ${tributeCount} Tribut(e).`)
   if (new Set(tributes).size !== tributes.length || tributes.some((id) => !state.player.monsters.some((monster) => monster.id === id))) {
     throw new Error('Wähle gültige, unterschiedliche Monster für den Tribut.')
@@ -928,7 +931,7 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
       if (effect.amount > me.hand.length) return 'Nicht genug Karten auf der Hand für den Kosten-Effekt.'
       break
     case 'mill':
-      if (!me.deck.length) return 'Das Deck ist leer.'
+      if ((effect.opponent ? foe.deck : me.deck).length === 0) return 'Das Deck ist leer.'
       break
     case 'banish':
       if (effect.target === 'monster' && !foe.monsters.length) return 'Es gibt kein Ziel für diesen Effekt.'
@@ -936,7 +939,9 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
       if (effect.target === 'gyMonster' && !me.graveyard.some((item) => item.kind === 'monster')) return 'Kein Monster im Friedhof zum Verbannen.'
       break
     case 'bounce':
-      if (!foe.monsters.length) return 'Es gibt kein Ziel für diesen Effekt.'
+      if (effect.target === 'allSpelltrap') {
+        if (!foe.spells.length && !foe.fieldSpell) return 'Es gibt kein Ziel für diesen Effekt.'
+      } else if (!foe.monsters.length) return 'Es gibt kein Ziel für diesen Effekt.'
       break
     case 'boost':
       if (!me.monsters.length) return 'Du hast kein Monster, das den Bonus erhalten kann.'
@@ -963,6 +968,15 @@ export function checkActivation(state: DuelState, side: DuelSide, cardId: number
       break
     case 'pointBoost':
       return 'Dieser Pfeilbonus gilt ohne Aktivierung.'
+    case 'summonPile':
+      if (!hasFreeMonsterZone(me.monsters, 0)) return 'Deine Monster-Zone ist voll.'
+      if (effect.from === 'hand' && !me.hand.some((item) => item.kind === 'monster' && item.id !== cardId)) return 'Kein Monster auf der Hand.'
+      if (effect.from === 'deck' && !me.deck.some((item) => item.kind === 'monster' && !item.extraDeck)) return 'Kein Monster im Deck.'
+      if (effect.from === 'gy' && !me.graveyard.some((item) => item.kind === 'monster' && !item.extraDeck)) return 'Kein Monster im Friedhof.'
+      break
+    case 'equip':
+      if (!me.monsters.some((monster) => !monster.faceDown)) return 'Du hast kein offenes Monster für die Ausrüstung.'
+      break
     default:
       break
   }
@@ -1173,31 +1187,82 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
       break
     }
     case 'weaken': {
-      const strongest = nextTarget.monsters.reduce<DuelCard | null>((top, monster) => !top || (monster.atk || 0) > (top.atk || 0) ? monster : top, null)
-      if (strongest) {
-        const amount = link.effect.half ? Math.ceil((strongest.atk || 0) / 2) : link.effect.amount
-        const index = nextTarget.monsters.indexOf(strongest)
+      const hits = link.effect.all
+        ? [...nextTarget.monsters]
+        : [nextTarget.monsters.reduce<DuelCard | null>((top, monster) => !top || (monster.atk || 0) > (top.atk || 0) ? monster : top, null)].filter((monster): monster is DuelCard => Boolean(monster))
+      for (const monster of hits) {
+        const amount = link.effect.half ? Math.ceil((monster.atk || 0) / 2) : link.effect.amount
+        const index = nextTarget.monsters.indexOf(monster)
+        if (index < 0) continue
         nextTarget.monsters[index] = {
-          ...strongest,
-          baseAtk: strongest.baseAtk ?? strongest.atk,
-          atk: Math.max(0, (strongest.atk || 0) - amount),
-          boost: (strongest.boost || 0) - amount,
+          ...monster,
+          baseAtk: monster.baseAtk ?? monster.atk,
+          atk: Math.max(0, (monster.atk || 0) - amount),
+          boost: (monster.boost || 0) - amount,
         }
       }
       break
     }
     case 'bounce': {
-      const targetMonster = weakestHit(true)
-      if (targetMonster) {
-        nextTarget.monsters.splice(nextTarget.monsters.indexOf(targetMonster), 1)
-        if (!targetMonster.token) nextTarget.hand.push(leaveField(targetMonster))
+      if (link.effect.target === 'allSpelltrap') {
+        const returned = [...nextTarget.spells]
+        nextTarget.spells = []
+        if (nextTarget.fieldSpell) {
+          returned.push(nextTarget.fieldSpell)
+          nextTarget.fieldSpell = null
+        }
+        for (const card of returned) nextTarget.hand.push(leaveField(card))
+        break
+      }
+      const hits = link.effect.target === 'allMonsters'
+        ? nextTarget.monsters.filter((monster) => monster.position !== 'defense')
+        : [weakestHit(true)].filter((monster): monster is DuelCard => Boolean(monster))
+      for (const monster of hits) {
+        const index = nextTarget.monsters.indexOf(monster)
+        if (index < 0) continue
+        nextTarget.monsters.splice(index, 1)
+        if (!monster.token) nextTarget.hand.push(leaveField(monster))
       }
       break
     }
     case 'mill': {
-      for (let i = 0; i < link.effect.amount && nextSource.deck.length; i += 1) {
-        const milled = nextSource.deck.pop()
-        if (milled) nextSource.graveyard.push(milled)
+      const pile = link.effect.opponent ? nextTarget : nextSource
+      for (let i = 0; i < link.effect.amount && pile.deck.length; i += 1) {
+        const milled = pile.deck.pop()
+        if (milled) pile.graveyard.push(milled)
+      }
+      break
+    }
+    case 'summonPile': {
+      const pile = link.effect.from === 'hand' ? nextSource.hand : link.effect.from === 'deck' ? nextSource.deck : nextSource.graveyard
+      const best = pile
+        .filter((item) => item.kind === 'monster' && !item.extraDeck && item.id !== link.card.id)
+        .reduce<DuelCard | null>((top, item) => !top || (item.atk || 0) > (top.atk || 0) ? item : top, null)
+      const column = freeMainColumn(nextSource.monsters)
+      if (best && column != null) {
+        pile.splice(pile.indexOf(best), 1)
+        nextSource.monsters.push({
+          ...withRules(leaveField(best)),
+          faceDown: false,
+          position: 'attack',
+          lockedKey: turnKey(state),
+          zoneKind: 'mmz',
+          zoneIndex: column,
+        })
+      }
+      break
+    }
+    case 'equip': {
+      const host = nextSource.monsters.reduce<DuelCard | null>((top, monster) => !top || (monster.atk || 0) > (top.atk || 0) ? monster : top, null)
+      if (host) {
+        const index = nextSource.monsters.indexOf(host)
+        const amount = link.effect.amount
+        nextSource.monsters[index] = link.effect.stat === 'def'
+          ? { ...host, baseDef: host.baseDef ?? host.def, def: (host.def || 0) + amount }
+          : { ...host, baseAtk: host.baseAtk ?? host.atk, atk: (host.atk || 0) + amount, boost: (host.boost || 0) + amount }
+      }
+      if (nextSource.spells.length < 5 && !nextSource.spells.some((spell) => spell.id === link.card.id)) {
+        nextSource.spells.push({ ...link.card, faceDown: false })
       }
       break
     }
@@ -1341,6 +1406,7 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
     || link.effect.kind === 'counter'
     || link.effect.kind === 'rule'
     || link.effect.kind === 'pointBoost'
+    || link.effect.kind === 'equip'
     || /field/i.test(link.card.subtype || '')
   if (link.card.kind !== 'monster' && !staysOnField) nextSource.graveyard.push(link.card)
   if (staysOnField && link.effect.kind !== 'fieldAura' && /field/i.test(link.card.subtype || '') && link.effect.kind !== 'rule' && link.effect.kind !== 'counter') {
@@ -1413,6 +1479,21 @@ function resumePendingAttack(state: DuelState): DuelState {
   }
   const target = state.jarvis.monsters.find((card) => card.id === pending.targetId)
   return target ? resolveBattle(cleared, attacker, target) : { ...cleared, message: `${state.message} Das Ziel ist weg, der Angriff fällt aus.` }
+}
+
+/** Löst eine offene Kette auf, indem beide Seiten passen. Für Bot-Züge, die niemanden fragen. */
+export function drainChain(state: DuelState): DuelState {
+  let next = state
+  for (let guard = 0; guard < 12 && next.chain.length && !next.winner; guard += 1) {
+    const side = next.chainPriority
+    if (side !== 'player' && side !== 'jarvis') return next
+    try {
+      next = passDuelChain(next, side)
+    } catch {
+      return next
+    }
+  }
+  return next
 }
 
 export function passDuelChain(state: DuelState, side: DuelSide): DuelState {
