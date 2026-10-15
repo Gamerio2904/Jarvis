@@ -31,6 +31,11 @@ Materialregeln beschwörbar.
   Monster), Synchro (Empfänger und passende Gesamtstufe), Xyz (mindestens zwei
   Monster gleicher Stufe) und Link (Materialanzahl mindestens Link-Wert).
   Materialien gehen auf den Friedhof; das Extra-Deck wird lokal verwaltet.
+- Beschwörungsbedingungen aus der Hand, Dauerregeln (Durchschlag, Direktangriff,
+  Angriffsverbot, unverwundbar, unzielbar, immun), Spielmarken und Token.
+  Link-Pfeile zeigen auf konkrete Zonen: eine freie Extra-Monsterzone bleibt
+  die erste Wahl. Danach nur eine Hauptspalte, auf die ein eigener Link zeigt.
+  Fünf Hauptzonen bleiben fünf.
 - Effektunterstützung über Kartentext-Erkennung inkl. Ketten: ziehen, Schaden,
   LP-Gewinn, Negation, Angriffs-Negation, Suche aus dem Deck, Wiederbelebung,
   temporärer ATK-Boost sowie Zerstören (ein Monster, alle Monster, Angriffs-
@@ -107,9 +112,10 @@ das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
   zur Laufzeit von images.ygoprodeck.com geladen (Netz nötig). Die Banlist gilt
   nur im Deckbuilder, nicht für diese Decks.
 - Stand der gebündelten Effekte nach Re-Enrichment
-  (`scripts/enrich-ygo-effects.mjs`): 1395 Karten insgesamt, 430 Karten mit
-  simuliertem Effekt (u. a. 118 Boost, 105 Search, 74 Draw, 57 Negate, 32 Damage,
-  24 Destroy, 8 Negate-Attack, 5 Revive).
+  (`scripts/enrich-ygo-effects.mjs`): 1395 Karten insgesamt, 658 Karten mit
+  simuliertem Effekt (u. a. 111 Boost, 108 Dauerregeln, 95 Search, 65 Draw,
+  64 Negate, 46 Handbeschwörungen, 21 Token, 8 Spielmarken). Link-Karten
+  tragen ihre Pfeile.
 - Die generierten Archetyp-Decks dienen weiter nur Training und Auswertung.
 
 ## Münzwurf vor dem Duell

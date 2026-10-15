@@ -16,10 +16,11 @@ import {
   canActivateCard,
   changePosition,
   attack,
+  effectFromDescription,
   startJarvisTurn,
 } from '../src/engine/yugioh-duel.ts'
 import { jarvisStep } from '../src/engine/yugioh-net.ts'
-import { registerLinkArrows, spellSpeedForCard } from '../src/engine/yugioh-zones.ts'
+import { extraSummonZone, linkedOwnZones, registerLinkArrows, spellSpeedForCard } from '../src/engine/yugioh-zones.ts'
 
 function deck(size = 40, atk = 1800) {
   return Array.from({ length: size }, (_, index) => ({
@@ -50,7 +51,7 @@ test('G1–G5: Link öffnet keine sechste Hauptzone', () => {
     atk: 2000,
     level: 2,
   }
-  assert.deepEqual(registerLinkArrows(link), [0, 1, 2])
+  assert.deepEqual(registerLinkArrows(link), [3, 5])
   assert.equal(monsterZoneCapacity([link]), 5)
   assert.equal(monsterZoneCapacity([{ ...link, zoneKind: 'emz' }]), 6)
 })
@@ -289,4 +290,227 @@ test('G16–G20: Extra-Beschwörung respektiert Zonenlimit', () => {
   const next = summonExtraMonster(state, fusion.id, [801, 802])
   assert.equal(next.player.monsters.length, 1)
   assert.equal(next.player.monsters[0].id, fusion.id)
+  assert.equal(next.player.monsters[0].zoneKind, 'emz')
+})
+
+test('Link-Pfeile öffnen nur die getroffenen Hauptspalten', () => {
+  const link = {
+    id: 1,
+    name: 'Pfeil',
+    type: 'Link Monster',
+    kind: 'monster',
+    extraDeck: true,
+    extraKind: 'link',
+    linkRating: 3,
+    atk: 2000,
+    zoneKind: 'emz',
+    zoneIndex: 0,
+    linkArrows: [3, 4, 5],
+  }
+  assert.deepEqual(linkedOwnZones(link).map((zone) => zone.zoneIndex), [0, 1, 2])
+  const blocker = { id: 2, name: 'Sperre', type: 'Fusion Monster', kind: 'monster', extraDeck: true, extraKind: 'fusion', atk: 1000, zoneKind: 'emz', zoneIndex: 1 }
+  const materialA = { id: 3, name: 'A', type: 'Effect Monster', kind: 'monster', atk: 1000, level: 4, zoneKind: 'mmz', zoneIndex: 3 }
+  const materialB = { id: 4, name: 'B', type: 'Effect Monster', kind: 'monster', atk: 1000, level: 4, zoneKind: 'mmz', zoneIndex: 4 }
+  const fusion = { id: 800, name: 'Fusion', type: 'Fusion Monster', kind: 'monster', extraDeck: true, extraKind: 'fusion', atk: 2500, level: 6 }
+  const base = enterMain1(createDuel(deck(), deck(), () => 0))
+  const opened = summonExtraMonster({
+    ...base,
+    player: { ...base.player, monsters: [link, blocker, materialA, materialB], extraDeck: [fusion] },
+  }, 800, [3, 4])
+  const summoned = opened.player.monsters.find((card) => card.id === 800)
+  assert.equal(summoned?.zoneKind, 'mmz')
+  assert.equal(summoned?.zoneIndex, 0)
+  const closed = {
+    ...link,
+    linkArrows: [0],
+  }
+  assert.equal(extraSummonZone([closed, blocker, materialA, materialB], [3, 4]), null)
+  assert.throws(() => summonExtraMonster({
+    ...base,
+    player: { ...base.player, monsters: [closed, blocker, materialA, materialB], extraDeck: [fusion] },
+  }, 800, [3, 4]), /voll/)
+})
+
+function resolve(state, cardId) {
+  return passDuelChain(activateDuelEffect(state, 'player', cardId), 'player')
+}
+
+test('Beschwörung, Dauerregeln, Spielmarken und Token haben einen Effekt', () => {
+  const parsed = effectFromDescription('Cannot be Normal Summoned/Set. You can Special Summon this card (from your hand) by discarding 1 card.')
+  assert.equal(parsed?.effect.kind, 'summonHand')
+  assert.deepEqual(parsed?.rules, ['cannotNormal'])
+  assert.equal(effectFromDescription('This card can attack your opponent directly, and inflict piercing battle damage.')?.effect.kind, 'rule')
+  assert.equal(effectFromDescription('Special Summon 2 "Sheep Tokens" (Beast/ATK 0/DEF 0).')?.effect.kind, 'token')
+  assert.deepEqual(effectFromDescription('You can remove 2 Spell Counters from this card; draw 1 card.')?.effect, { kind: 'counter', amount: 2, mode: 'remove', then: 'draw' })
+  assert.equal(effectFromDescription('This card gains 300 ATK for each monster this card points to.')?.effect.kind, 'pointBoost')
+  assert.equal(effectFromDescription('Once per turn, you can shuffle your hand.'), null)
+  assert.deepEqual(effectFromDescription('This card gains 500 ATK.')?.effect, { kind: 'boost', amount: 500 })
+
+  const base = enterMain1(createDuel(deck(), deck(), () => 0))
+  const special = {
+    id: 50,
+    name: 'Sonder',
+    type: 'Effect Monster',
+    kind: 'monster',
+    atk: 1800,
+    def: 1000,
+    level: 4,
+    effect: parsed.effect,
+    rules: parsed.rules,
+    effectSummary: parsed.summary,
+  }
+  const fodder = { ...base.player.hand[0], id: 51, name: 'Futter' }
+  let state = { ...base, player: { ...base.player, hand: [special, fodder] } }
+  assert.throws(() => summonMonster(state, 50), /normalbeschworen/)
+  state = resolve(state, 50)
+  assert.equal(state.player.monsters.some((card) => card.id === 50), true)
+  assert.equal(state.player.normalSummonUsed, false)
+  assert.equal(state.player.hand.some((card) => card.id === 51), false)
+
+  const negated = effectFromDescription('You can Special Summon this card (from your hand).')
+  const cyber = { ...special, id: 60, name: 'Cyber', effect: negated.effect, rules: undefined }
+  const negate = { id: 61, name: 'Nein', type: 'Spell Card', kind: 'spell', effect: { kind: 'negate' } }
+  const denied = resolve({
+    ...base,
+    player: { ...base.player, hand: [cyber] },
+    jarvis: { ...base.jarvis, hand: [negate] },
+  }, 60)
+  assert.equal(denied.player.monsters.some((card) => card.id === 60), false)
+  assert.equal(denied.player.graveyard.some((card) => card.id === 60), true)
+
+  const piercer = { id: 70, name: 'Stich', type: 'Effect Monster', kind: 'monster', atk: 2000, def: 0, level: 4, position: 'attack', zoneKind: 'mmz', zoneIndex: 0, rules: ['piercing'] }
+  const wall = { id: 71, name: 'Wand', type: 'Effect Monster', kind: 'monster', atk: 0, def: 1000, level: 4, position: 'defense', zoneKind: 'mmz', zoneIndex: 0 }
+  const pierced = attack(selectAttacker({
+    ...base,
+    phase: 'battle',
+    turn: 2,
+    player: { ...base.player, monsters: [piercer] },
+    jarvis: { ...base.jarvis, monsters: [wall] },
+  }, 70), 71)
+  assert.equal(pierced.jarvis.lp, 7000)
+  assert.equal(pierced.jarvis.monsters.length, 0)
+
+  const direct = { ...piercer, id: 72, name: 'Direkt', rules: ['direct'], atk: 1500 }
+  const guard = { ...wall, id: 73, position: 'attack', atk: 3000 }
+  const rushed = attack(selectAttacker({
+    ...base,
+    phase: 'battle',
+    turn: 2,
+    player: { ...base.player, monsters: [direct] },
+    jarvis: { ...base.jarvis, monsters: [guard] },
+  }, 72))
+  assert.equal(rushed.jarvis.lp, 6500)
+  assert.equal(rushed.jarvis.monsters.length, 1)
+
+  const statue = { ...piercer, id: 74, name: 'Standbild', rules: ['cannotAttack'] }
+  assert.throws(() => selectAttacker({
+    ...base,
+    phase: 'battle',
+    turn: 2,
+    player: { ...base.player, monsters: [statue] },
+  }, 74), /nicht angreifen/)
+
+  const proof = { ...wall, id: 75, rules: ['battleProof'], position: 'attack', atk: 1000 }
+  const traded = attack(selectAttacker({
+    ...base,
+    phase: 'battle',
+    turn: 2,
+    player: { ...base.player, monsters: [{ ...piercer, rules: [] }] },
+    jarvis: { ...base.jarvis, monsters: [proof] },
+  }, 70), 75)
+  assert.equal(traded.jarvis.monsters.some((card) => card.id === 75), true)
+
+  const immune = { ...wall, id: 76, rules: ['effectProof'], position: 'attack', atk: 500 }
+  const bolt = { id: 77, name: 'Blitz', type: 'Spell Card', kind: 'spell', effect: { kind: 'destroy', target: 'monster' } }
+  const spared = resolve({
+    ...base,
+    player: { ...base.player, hand: [bolt] },
+    jarvis: { ...base.jarvis, monsters: [immune] },
+  }, 77)
+  assert.equal(spared.jarvis.monsters.some((card) => card.id === 76), true)
+
+  const hidden = { ...immune, id: 78, rules: ['untargetable'] }
+  const mass = { ...bolt, id: 79, effect: { kind: 'destroy', target: 'allMonsters' } }
+  const skipped = resolve({
+    ...base,
+    player: { ...base.player, hand: [bolt] },
+    jarvis: { ...base.jarvis, monsters: [hidden] },
+  }, 77)
+  assert.equal(skipped.jarvis.monsters.some((card) => card.id === 78), true)
+  const wiped = resolve({
+    ...base,
+    player: { ...base.player, hand: [mass] },
+    jarvis: { ...base.jarvis, monsters: [hidden] },
+  }, 79)
+  assert.equal(wiped.jarvis.monsters.length, 0)
+
+  const marker = {
+    id: 80,
+    name: 'Marken',
+    type: 'Spell Card',
+    kind: 'spell',
+    subtype: 'Continuous',
+    effect: { kind: 'rule', rule: 'spellCounter' },
+    rules: ['spellCounter'],
+  }
+  const spark = { id: 77, name: 'Funke', type: 'Spell Card', kind: 'spell', effect: { kind: 'draw', amount: 1 } }
+  const placed = resolve({ ...base, player: { ...base.player, hand: [marker, spark] } }, 80)
+  assert.equal(placed.player.spells.find((card) => card.id === 80)?.counters, 1)
+  const grown = resolve(placed, 77)
+  assert.equal(grown.player.spells.find((card) => card.id === 80)?.counters, 2)
+
+  const bank = {
+    id: 81,
+    name: 'Bank',
+    type: 'Spell Card',
+    kind: 'spell',
+    subtype: 'Continuous',
+    counters: 2,
+    effect: { kind: 'counter', amount: 2, mode: 'remove', then: 'draw' },
+  }
+  const before = base.player.hand.length
+  const drawn = resolve({ ...base, player: { ...base.player, spells: [bank], hand: base.player.hand } }, 81)
+  assert.equal(drawn.player.spells.find((card) => card.id === 81)?.counters, 0)
+  assert.equal(drawn.player.hand.length, before + 1)
+  assert.throws(() => activateDuelEffect(drawn, 'player', 81), /Spielmarken/)
+
+  const herd = { id: 82, name: 'Herde', type: 'Spell Card', kind: 'spell', effect: { kind: 'token', amount: 2, atk: 0, def: 0, name: 'Sheep Token' } }
+  const field = resolve({ ...base, player: { ...base.player, hand: [herd] } }, 82)
+  const tokens = field.player.monsters.filter((card) => card.token)
+  assert.equal(tokens.length, 2)
+  assert.deepEqual(tokens.map((card) => card.zoneIndex), [0, 1])
+  const hunter = { ...piercer, id: 83, atk: 100, rules: [] }
+  const cleared = attack(selectAttacker({
+    ...base,
+    phase: 'battle',
+    turn: 2,
+    player: { ...base.player, monsters: [hunter] },
+    jarvis: { ...base.jarvis, monsters: [tokens[0]] },
+  }, 83), tokens[0].id)
+  assert.equal(cleared.jarvis.monsters.length, 0)
+  assert.equal(cleared.jarvis.graveyard.some((card) => card.token), false)
+
+  const pointer = {
+    id: 84,
+    name: 'Zeiger',
+    type: 'Link Monster',
+    kind: 'monster',
+    extraKind: 'link',
+    atk: 1000,
+    baseAtk: 1000,
+    position: 'attack',
+    zoneKind: 'emz',
+    zoneIndex: 0,
+    linkArrows: [4],
+    effect: { kind: 'pointBoost', amount: 300 },
+  }
+  const ally = { id: 85, name: 'Nachbar', type: 'Effect Monster', kind: 'monster', atk: 500, def: 500, position: 'attack', zoneKind: 'mmz', zoneIndex: 1 }
+  const aimed = attack(selectAttacker({
+    ...base,
+    phase: 'battle',
+    turn: 2,
+    player: { ...base.player, monsters: [pointer, ally] },
+    jarvis: { ...base.jarvis, monsters: [] },
+  }, 84))
+  assert.equal(aimed.jarvis.lp, 6700)
 })

@@ -1,4 +1,4 @@
-import type { DuelCard, DuelEffect, EffectTrigger } from './yugioh-duel.ts'
+import type { CardRule, DuelCard, DuelEffect, EffectTrigger } from './yugioh-duel.ts'
 import { parsePsctAtoms } from './yugioh-psct.ts'
 import { spellSpeedForCard } from './yugioh-zones.ts'
 
@@ -13,6 +13,7 @@ export type EffectSchemaV2 = {
   spellSpeed: 1 | 2 | 3
   effect: DuelEffect
   summary: string
+  rules?: CardRule[]
   oncePerTurn: boolean
   hardOncePerTurn: boolean
   failClosed?: boolean
@@ -44,9 +45,98 @@ function timingFromCard(card: Pick<DuelCard, 'kind' | 'subtype' | 'type' | 'face
   return 'trigger'
 }
 
-function parseLegacyDescription(description: string): { effect: DuelEffect; summary: string } | null {
-  const text = (description || '').replace(/\s+/g, ' ').trim()
-  if (!text) return null
+function wordCount(raw: string | undefined, fallback = 1): number {
+  if (!raw) return fallback
+  const named: Record<string, number> = { a: 1, one: 1, two: 2, three: 3 }
+  const namedCount = named[raw.toLowerCase()]
+  if (namedCount) return namedCount
+  const amount = Number(raw)
+  return Number.isFinite(amount) ? Math.max(1, Math.min(5, amount)) : fallback
+}
+
+function collectRules(text: string): CardRule[] {
+  const rules: CardRule[] = []
+  const add = (rule: CardRule) => {
+    if (!rules.includes(rule)) rules.push(rule)
+  }
+  if (/cannot be normal summoned/i.test(text)) add('cannotNormal')
+  if (/piercing battle damage/i.test(text)) add('piercing')
+  if (/can attack (?:your opponent |the opponent )?directly|(?:^|[.;] )attack directly/i.test(text)) add('direct')
+  if (/\bcannot attack\b/i.test(text) && !/cannot attack directly/i.test(text)) add('cannotAttack')
+  if (/cannot be destroyed by battle/i.test(text)) add('battleProof')
+  if (/cannot be destroyed by (?:card )?effects/i.test(text)) add('effectProof')
+  if (/cannot be targeted by/i.test(text)) add('untargetable')
+  if (/unaffected by (?:other |your opponent's )?card effects/i.test(text)) add('unaffected')
+  if (/each time a spell card is activated, place/i.test(text)) add('spellCounter')
+  return rules
+}
+
+function ruleSummary(rule: CardRule): string {
+  switch (rule) {
+    case 'cannotNormal': return 'Kann nicht normalbeschworen oder gesetzt werden.'
+    case 'piercing': return 'Durchschlagender Kampfschaden.'
+    case 'direct': return 'Kann direkt angreifen.'
+    case 'cannotAttack': return 'Kann nicht angreifen.'
+    case 'battleProof': return 'Wird im Kampf nicht zerstört.'
+    case 'effectProof': return 'Wird von Karteneffekten nicht zerstört.'
+    case 'untargetable': return 'Kann nicht als Ziel gewählt werden.'
+    case 'unaffected': return 'Ist von Karteneffekten unberührt.'
+    case 'spellCounter': return 'Erhält eine Spielmarke, wenn ein Zauber aktiviert wird.'
+  }
+}
+
+function parsePrimaryEffect(text: string): { effect: DuelEffect; summary: string } | null {
+  const summon = /special summon this card \(from your hand\)/i.test(text)
+  if (summon) {
+    const discard = text.match(/discard(?:ing)? (\d+|a|one|two|three) cards?/i)
+    const tribute = text.match(/tribut(?:e|ing) (\d+|a|one|two|three) monsters?/i)
+    const discardCount = discard ? wordCount(discard[1]) : 0
+    const tributeCount = tribute ? wordCount(tribute[1]) : 0
+    const cost = [
+      tributeCount ? `${tributeCount} Tribut` : '',
+      discardCount ? `${discardCount} abwerfen` : '',
+    ].filter(Boolean).join(', ')
+    return {
+      effect: { kind: 'summonHand', tributes: tributeCount, discard: discardCount },
+      summary: cost ? `Spezialbeschwörung aus der Hand (${cost}).` : 'Spezialbeschwörung aus der Hand.',
+    }
+  }
+  const token = text.match(/special summon (\d+|a|one|two|three) [^.]{0,80}?tokens?/i)
+  if (token) {
+    const amount = wordCount(token[1])
+    const atk = Number(text.match(/atk\s*\/?\s*(\d+)/i)?.[1] ?? 0)
+    const def = Number(text.match(/def\s*\/?\s*(\d+)/i)?.[1] ?? 0)
+    const name = text.match(/"([^"]*token[^"]*)"/i)?.[1]
+    return {
+      effect: { kind: 'token', amount, atk, def, ...(name ? { name } : {}) },
+      summary: `Beschwört ${amount} Token (${atk}/${def}).`,
+    }
+  }
+  const removeCounter = text.match(/remove (\d+|a|one|two|three) spell counters?/i)
+  const drawsAfter = /draw (?:up to )?(?:(\d+)|a|one) cards?/i.test(text)
+  if (removeCounter && drawsAfter && !/destroy|banish|negate the/i.test(text)) {
+    const amount = wordCount(removeCounter[1])
+    return {
+      effect: { kind: 'counter', amount, mode: 'remove', then: 'draw' },
+      summary: `Entfernt ${amount} Spielmarke(n) und zieht 1 Karte.`,
+    }
+  }
+  const placeCounter = text.match(/place (\d+|a|one|two|three) spell counters?/i)
+  if (placeCounter && !removeCounter && !/each time a spell card is activated/i.test(text)) {
+    const amount = wordCount(placeCounter[1])
+    return {
+      effect: { kind: 'counter', amount, mode: 'place' },
+      summary: `Legt ${amount} Spielmarke(n) auf diese Karte.`,
+    }
+  }
+  const pointed = text.match(/gains? (\d{2,4}) atk for each (?:monster|card) (?:this card |it )?points to/i)
+  if (pointed) {
+    const amount = Math.max(100, Math.min(1000, Number(pointed[1])))
+    return {
+      effect: { kind: 'pointBoost', amount },
+      summary: `Erhält +${amount} ATK für jedes Monster, auf das sie zeigt.`,
+    }
+  }
   if (/negate the attack/i.test(text)) return { effect: { kind: 'negateAttack' }, summary: 'Negiert den gegnerischen Angriff.' }
   const both = text.match(/draw (?:up to )?(?:(\d+)|a|one) cards?[^.]{0,80}?discard (?:(\d+)|a|one) cards?/i)
   if (both) {
@@ -141,6 +231,18 @@ function parseLegacyDescription(description: string): { effect: DuelEffect; summ
   return null
 }
 
+function parseLegacyDescription(description: string): { effect: DuelEffect; summary: string; rules?: CardRule[] } | null {
+  const text = (description || '').replace(/\s+/g, ' ').trim()
+  if (!text) return null
+  const rules = collectRules(text)
+  const parsed = parsePrimaryEffect(text)
+  if (!parsed) {
+    if (!rules.length) return null
+    return { effect: { kind: 'rule', rule: rules[0] }, summary: rules.map(ruleSummary).join(' '), rules }
+  }
+  return rules.length ? { ...parsed, rules } : parsed
+}
+
 export function resolveEffectSchema(
   description: string,
   card: Pick<DuelCard, 'kind' | 'subtype' | 'type' | 'faceDown'>,
@@ -171,6 +273,7 @@ export function resolveEffectSchema(
     spellSpeed: spellSpeedForCard(card as DuelCard),
     effect: parsed.effect,
     summary: parsed.summary,
+    ...(parsed.rules?.length ? { rules: parsed.rules } : {}),
     oncePerTurn: psct.oncePerTurn,
     hardOncePerTurn: psct.hardOncePerTurn,
   }
@@ -179,10 +282,15 @@ export function resolveEffectSchema(
 export function effectFromDescriptionV2(
   description: string,
   card: Pick<DuelCard, 'kind' | 'subtype' | 'type' | 'faceDown'> = { kind: 'spell', subtype: 'Normal', type: 'Spell Card' },
-): { effect: DuelEffect; summary: string; trigger: EffectTrigger } | null {
+): { effect: DuelEffect; summary: string; trigger: EffectTrigger; rules?: CardRule[] } | null {
   const schema = resolveEffectSchema(description, card)
   if (!schema || schema.failClosed) return null
-  return { effect: schema.effect, summary: schema.summary, trigger: schema.trigger }
+  return {
+    effect: schema.effect,
+    summary: schema.summary,
+    trigger: schema.trigger,
+    ...(schema.rules?.length ? { rules: schema.rules } : {}),
+  }
 }
 
 export type DeckCoverageReport = {
