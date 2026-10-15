@@ -1,4 +1,5 @@
 import type { DuelCard, DuelEffect, ExtraDeckKind } from './yugioh-duel.ts'
+import { defaultLinkArrows } from './yugioh-zones.ts'
 
 export type DeckArchetype = 'aggro' | 'control' | 'combo' | 'burn' | 'balanced'
 
@@ -84,6 +85,7 @@ function extraCard(id: number, kind: ExtraDeckKind, random: () => number): DuelC
     extraDeck: true,
     extraKind: kind,
     linkRating: kind === 'link' ? 2 : undefined,
+    linkArrows: kind === 'link' ? defaultLinkArrows(2) : undefined,
   }
 }
 

@@ -8,8 +8,10 @@ import {
   setSpellTrap,
   createDuel,
   DUEL_STRATEGIES,
+  extraSummonZone,
   findMaterialsForExtra,
   hasFreeMonsterZone,
+  hasRule,
   isFirstTurnBattleBlocked,
   passDuelChain,
   selectAttacker,
@@ -105,9 +107,14 @@ function withEffect(features: number[], card: DuelCard, opponentLp: number): voi
   // New effect kinds reuse the existing inputs so stored networks stay compatible.
   const named: Record<string, (typeof FEATURE_NAMES)[number]> = {
     draw: 'effectDraw', drawDiscard: 'effectDraw', search: 'effectDraw', revive: 'effectDraw', summonDeck: 'effectDraw', recover: 'effectDraw', mill: 'effectDraw',
-    boost: 'effectHeal', setStat: 'effectHeal', fieldAura: 'effectHeal', heal: 'effectHeal',
+    summonHand: 'effectDraw', token: 'effectDraw', counter: 'effectDraw',
+    boost: 'effectHeal', setStat: 'effectHeal', fieldAura: 'effectHeal', heal: 'effectHeal', pointBoost: 'effectHeal',
     damage: 'effectDamage', destroy: 'effectDestroy', banish: 'effectDestroy', bounce: 'effectDestroy', position: 'effectDestroy', weaken: 'effectDestroy',
     negate: 'effectNegate', negateAttack: 'effectNegate',
+  }
+  if (effect.kind === 'rule') {
+    const offensive = effect.rule === 'piercing' || effect.rule === 'direct'
+    features[featureIndex[offensive ? 'effectDamage' : 'effectHeal']] = 1
   }
   const slot = named[effect.kind]
   if (slot) features[featureIndex[slot]] = 1
@@ -143,7 +150,7 @@ export function candidateActions(state: DuelState): DuelAction[] {
     if (state.phase !== 'battle') {
       if (!player.normalSummonUsed) {
         for (const card of player.hand) {
-          if (card.kind !== 'monster') continue
+          if (card.kind !== 'monster' || hasRule(card, 'cannotNormal')) continue
           const tributes = tributesNeeded(card)
           if (player.monsters.length < tributes) continue
           if (!hasFreeMonsterZone(player.monsters, tributes)) continue
@@ -157,7 +164,7 @@ export function candidateActions(state: DuelState): DuelAction[] {
       }
       for (const card of player.extraDeck) {
         const materials = findMaterialsForExtra(card, player.monsters)
-        if (!materials || !hasFreeMonsterZone(player.monsters, materials.length)) continue
+        if (!materials || !extraSummonZone(player.monsters, materials.map((monster) => monster.id))) continue
         const features = base('extra', context, false)
         features[featureIndex.atk] = (card.atk || 0) / 3000
         features[featureIndex.def] = (card.def || 0) / 3000
@@ -166,13 +173,13 @@ export function candidateActions(state: DuelState): DuelAction[] {
       }
     } else if (!isFirstTurnBattleBlocked(state)) {
       for (const attacker of player.monsters) {
-        if (state.attacked.includes(attacker.id) || attacker.position === 'defense' || attacker.faceDown) continue
-        if (!state.jarvis.monsters.length) {
+        if (state.attacked.includes(attacker.id) || attacker.position === 'defense' || attacker.faceDown || hasRule(attacker, 'cannotAttack')) continue
+        if (!state.jarvis.monsters.length || hasRule(attacker, 'direct')) {
           const features = base('direct', context, false)
           features[featureIndex.atk] = (attacker.atk || 0) / 3000
           if ((attacker.atk || 0) >= state.jarvis.lp) features[featureIndex.lethal] = 1
           actions.push({ kind: 'direct', cardId: attacker.id, features })
-          continue
+          if (!state.jarvis.monsters.length) continue
         }
         for (const target of state.jarvis.monsters) {
           const defending = target.position === 'defense'

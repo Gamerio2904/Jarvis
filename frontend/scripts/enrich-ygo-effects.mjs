@@ -3,6 +3,7 @@
 // Needs network access to the YGOPRODeck API. Card text is only read, never stored in the repository.
 import { writeFileSync } from 'node:fs'
 import { effectFromDescription } from '../src/engine/yugioh-duel.ts'
+import { arrowsFromMarkers } from '../src/engine/yugioh-zones.ts'
 
 const target = new URL('../src/engine/yugioh-real-decks.ts', import.meta.url)
 const { REAL_CARDS, REAL_DECKS } = await import(target.href)
@@ -18,7 +19,7 @@ for (let index = 0; index < ids.length; index += 80) {
 const cards = {}
 let withEffect = 0
 for (const id of ids) {
-  const { effect: _effect, effectSummary: _summary, subtype: _subtype, ...rest } = REAL_CARDS[id]
+  const { effect: _effect, effectSummary: _summary, subtype: _subtype, rules: _rules, linkArrows: _arrows, ...rest } = REAL_CARDS[id]
   const api = info.get(id)
   const parsed = api && !/Normal/.test(api.type)
     ? effectFromDescription(api.desc || '', {
@@ -27,10 +28,13 @@ for (const id of ids) {
       subtype: rest.kind !== 'monster' ? api.race : undefined,
     })
     : null
+  const linkArrows = Array.isArray(api?.linkmarkers) ? arrowsFromMarkers(api.linkmarkers) : []
   if (parsed) withEffect += 1
   cards[id] = {
     ...rest,
+    ...(linkArrows.length ? { linkArrows } : {}),
     ...(rest.kind !== 'monster' && api?.race ? { subtype: api.race } : {}),
+    ...(parsed?.rules?.length ? { rules: parsed.rules } : {}),
     ...(parsed ? {
       effect: parsed.effect,
       effectSummary: parsed.summary,

@@ -14,6 +14,7 @@ import {
   DUEL_SOUP_WEIGHTS,
   duelStateVector,
   effectFromDescription,
+  hasRule,
   extraSummonMaterials,
   findMaterialsForExtra,
   giveFirstTurn,
@@ -30,6 +31,7 @@ import {
   type StrategyWeights,
 } from '../engine/yugioh-duel.ts'
 import { REAL_DECK_LIST, buildRealDeck, findRealDeck, pickUltronDeck } from '../engine/yugioh-deck-library.ts'
+import { arrowsFromMarkers } from '../engine/yugioh-zones.ts'
 import { evaluateDuelPolicy, trainDuelPolicy, type EvaluationResult } from '../engine/yugioh-training.ts'
 import {
   createNetModel,
@@ -61,6 +63,7 @@ type ApiCard = {
   banlist_info?: unknown
   desc?: unknown
   linkval?: unknown
+  linkmarkers?: unknown
   race?: unknown
 }
 
@@ -119,6 +122,9 @@ function apiCards(payload: unknown): DuelCard[] {
         subtype: kind !== 'monster' && typeof card.race === 'string' ? card.race : undefined,
       })
     const linkRating = typeof card.linkval === 'number' ? card.linkval : undefined
+    const linkArrows = Array.isArray(card.linkmarkers)
+      ? arrowsFromMarkers(card.linkmarkers.filter((marker): marker is string => typeof marker === 'string'))
+      : []
     const images = Array.isArray(card.card_images) ? card.card_images : []
     const imageUrl =
       images[0] && typeof images[0] === 'object' && typeof (images[0] as { image_url?: unknown }).image_url === 'string'
@@ -144,7 +150,13 @@ function apiCards(payload: unknown): DuelCard[] {
       ...(kind !== 'monster' && typeof card.race === 'string' ? { subtype: card.race } : {}),
       tuner: /\btuner\b/i.test(description),
       ...(extraKind ? { extraKind } : {}),
-      ...(parsedEffect ? { effect: parsedEffect.effect, effectSummary: parsedEffect.summary, effectTrigger: parsedEffect.trigger } : {}),
+      ...(linkArrows.length ? { linkArrows } : {}),
+      ...(parsedEffect ? {
+        effect: parsedEffect.effect,
+        effectSummary: parsedEffect.summary,
+        effectTrigger: parsedEffect.trigger,
+        ...(parsedEffect.rules?.length ? { rules: parsedEffect.rules } : {}),
+      } : {}),
       imageUrl,
       extraDeck: extra,
     }]
@@ -155,8 +167,37 @@ function counts(cards: DuelCard[], card: DuelCard): number {
   return cards.filter((item) => (item.catalogId ?? item.id) === (card.catalogId ?? card.id)).length
 }
 
+const ARROW_MARKS = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖']
+
+function arrowText(card: DuelCard): string {
+  if (!card.linkArrows?.length) return ''
+  return card.linkArrows.map((arrow) => ARROW_MARKS[arrow] ?? '').join('')
+}
+
 function shortCard(card: DuelCard) {
-  return `${card.name}${card.kind === 'monster' ? ` · ${card.atk ?? 0}/${card.def ?? 0}` : ''}`
+  const arrows = arrowText(card)
+  const marks = card.counters ? ` · ${card.counters} Marken` : ''
+  const token = card.token ? ' · Token' : ''
+  return `${card.name}${card.kind === 'monster' ? ` · ${card.atk ?? 0}/${card.def ?? 0}` : ''}${token}${marks}${arrows ? ` ${arrows}` : ''}`
+}
+
+function monsterAt(monsters: DuelCard[], kind: 'mmz' | 'emz', index: number): DuelCard | null {
+  const exact = monsters.find((monster) => (monster.zoneKind === 'emz' ? 'emz' : 'mmz') === kind && monster.zoneIndex === index)
+  if (exact) return exact
+  if (kind !== 'mmz') return null
+  if (monsters.some((monster) => monster.zoneIndex != null)) {
+    const used = new Set(monsters.filter((monster) => monster.zoneKind !== 'emz' && monster.zoneIndex != null).map((monster) => monster.zoneIndex))
+    let cursor = 0
+    for (const monster of monsters) {
+      if (monster.zoneKind === 'emz' || monster.zoneIndex != null) continue
+      while (used.has(cursor)) cursor += 1
+      if (cursor === index) return monster
+      used.add(cursor)
+      cursor += 1
+    }
+    return null
+  }
+  return monsters.filter((monster) => monster.zoneKind !== 'emz')[index] ?? null
 }
 
 function cardArt(card: DuelCard): string | undefined {
@@ -175,28 +216,34 @@ function statTone(current: number, base: number): string {
 function PlayCard({
   card,
   owner,
+  opponent,
   className = '',
   disabled = false,
   onClick,
 }: {
   card: DuelCard | null
   owner?: DuelPlayer | null
+  opponent?: DuelPlayer | null
   className?: string
   disabled?: boolean
   onClick?: () => void
 }) {
-  const stats = card && owner && card.kind === 'monster' && !card.faceDown ? cardBattleStats(card, owner) : null
+  const stats = card && owner && card.kind === 'monster' && !card.faceDown ? cardBattleStats(card, owner, opponent ?? undefined) : null
   const art = card ? cardArt(card) : undefined
+  const arrows = card ? arrowText(card) : ''
   return (
     <button
       type="button"
-      className={`ygo-slot${card ? '' : ' is-empty'}${card?.faceDown ? ' is-facedown' : ''}${card?.position === 'defense' ? ' is-defense' : ''}${className}`}
+      className={`ygo-slot${card ? '' : ' is-empty'}${card?.faceDown ? ' is-facedown' : ''}${card?.position === 'defense' ? ' is-defense' : ''}${card?.zoneKind === 'emz' ? ' is-emz' : ''}${className}`}
       disabled={disabled || !card}
       onClick={onClick}
       title={card ? shortCard(card) : 'Leere Zone'}
     >
       {art ? <img className="ygo-slot-art" src={art} alt="" /> : null}
       {card && !art ? <span className="ygo-slot-name">{card.faceDown ? 'SET' : card.name}</span> : null}
+      {card?.token ? <em className="ygo-mark">Token</em> : null}
+      {card?.counters ? <em className="ygo-mark">{card.counters}</em> : null}
+      {arrows ? <em className="ygo-arrows">{arrows}</em> : null}
       {stats ? (
         <span className="ygo-slot-stats">
           <b className={statTone(stats.atk, stats.baseAtk)}>{stats.atk}</b>
@@ -788,11 +835,12 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                   ))}
                 </div>
                 <div className="ygo-zones-row">
-                  {Array.from({ length: 5 }, (_, index) => game.jarvis.monsters[index] ?? null).map((card, index) => (
+                  {Array.from({ length: 5 }, (_, index) => monsterAt(game.jarvis.monsters, 'mmz', index)).map((card, index) => (
                     <PlayCard
                       key={`jarvis-monster-${index}`}
                       card={card}
                       owner={game.jarvis}
+                      opponent={game.player}
                       className={card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}
                       onClick={() => {
                         if (!card) return
@@ -802,13 +850,46 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                     />
                   ))}
                 </div>
-                <div className="ygo-zones-mid" aria-hidden />
+                <div className="ygo-zones-mid" aria-label="Extra-Monsterzonen von Ultron">
+                  {[0, 1].map((index) => {
+                    const card = monsterAt(game.jarvis.monsters, 'emz', index)
+                    return (
+                      <PlayCard
+                        key={`jarvis-emz-${index}`}
+                        card={card}
+                        owner={game.jarvis}
+                        opponent={game.player}
+                        onClick={() => {
+                          if (!card) return
+                          if (game.selectedAttacker !== null) updateGame((current) => attack(current, card.id))
+                          else if (!card.faceDown) openCard('jarvis', 'monsters', card.id)
+                        }}
+                      />
+                    )
+                  })}
+                </div>
+                <div className="ygo-zones-mid" aria-label="Extra-Monsterzonen">
+                  {[0, 1].map((index) => {
+                    const card = monsterAt(game.player.monsters, 'emz', index)
+                    return (
+                      <PlayCard
+                        key={`player-emz-${index}`}
+                        card={card}
+                        owner={game.player}
+                        opponent={game.jarvis}
+                        className={card && game.selectedAttacker === card.id ? ' is-selected' : ''}
+                        onClick={() => card && (game.phase === 'battle' ? chooseAttacker(card) : openCard('player', 'monsters', card.id))}
+                      />
+                    )
+                  })}
+                </div>
                 <div className="ygo-zones-row">
-                  {Array.from({ length: 5 }, (_, index) => game.player.monsters[index] ?? null).map((card, index) => (
+                  {Array.from({ length: 5 }, (_, index) => monsterAt(game.player.monsters, 'mmz', index)).map((card, index) => (
                     <PlayCard
                       key={`player-monster-${index}`}
                       card={card}
                       owner={game.player}
+                      opponent={game.jarvis}
                       className={`${game.selectedAttacker === card?.id ? ' is-selected' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
                       onClick={() => card && (game.phase === 'battle' ? chooseAttacker(card) : openCard('player', 'monsters', card.id))}
                     />
@@ -870,7 +951,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
               ) : <p>Jarvis reagiert …</p>}
             </section>
           ) : null}
-          {game.phase === 'battle' && game.selectedAttacker !== null && !game.jarvis.monsters.length ? (
+          {game.phase === 'battle' && game.selectedAttacker !== null && (!game.jarvis.monsters.length || game.player.monsters.some((card) => card.id === game.selectedAttacker && hasRule(card, 'direct'))) ? (
             <button className="ygo-primary" type="button" onClick={() => updateGame((current) => attack(current))}>Direktangriff</button>
           ) : null}
           {game.winner ? (

@@ -28,18 +28,19 @@ Dieser Zweig enthält zusätzlich die Duell-Korrekturen und die Timer-, Einkaufs
 | Plan-Ansicht | Quellen, Backlog, Risiken, Abhängigkeiten, Revisionen und Zeitplan stehen in einer 28-Pixel-Spalte. | Diese Listen laufen über die Breite. Die PSP-Kürzel behalten ihre zwei Spalten. |
 | Duell | Die End Phase kennt kein Handlimit. Ein stilles Abwerfen wäre falsch. | Ab 7 Karten bleibt die End Phase stehen. Die Karten werden angetippt. Erst danach startet Ultrons Zug. Training und Ultron werfen die schwächste Karte selbst ab. |
 | Duell | Mirror Force, Solemn Judgment, Feldzauber, „draw then discard“ und „all monsters gain ATK“ haben keinen spielbaren Effekt. | Angriffsposition wird zerstört. Negate von Beschwörung, Aktivierung oder Effekt kostet die Hälfte der Life Points, wenn der Text das sagt. Ein Feldzauber bleibt als Aura liegen. Ziehen und Abwerfen ist ein Effekt. Ein Bonus für alle eigenen Monster ist eine Feldaura. |
-| Duell | Kartentext nach dem Semikolon (Ziel zerstören, verbannen, auf die Hand, aus dem Friedhof oder Deck holen, Position drehen, ATK senken, alle Zauber/Fallen) bleibt ohne Effekt. | Diese Auflösung wird spielbar. 793 der 1395 Structure-Deck-Karten haben danach einen Effekt. Eine Kostenzeile vor dem Semikolon ist nicht der Effekt. „Shuffle your hand“ bleibt geschlossen. |
+| Duell | Kartentext nach dem Semikolon (Ziel zerstören, verbannen, auf die Hand, aus dem Friedhof oder Deck holen, Position drehen, ATK senken, alle Zauber/Fallen) bleibt ohne Effekt. | Diese Auflösung wird spielbar. Zusammen mit Beschwörung, Regeln, Spielmarken und Token haben 923 der 1395 Structure-Deck-Karten einen Effekt. Eine Kostenzeile vor dem Semikolon ist nicht der Effekt. „Shuffle your hand“ bleibt geschlossen. |
 | Duell | Ultrons Angriff deckt ein Monster auf, der Flip-Effekt fehlt in der Kette. | Die gespiegelte Sicht zählt halbe Züge. Der Flip löst trotzdem aus, und ein offener Angriff bleibt stehen, solange die Kette offen ist. |
-| Duell | Link-Pfeile öffnen zwei zusätzliche Hauptzonen. | Es bleiben fünf Hauptzonen. Belegte Extra-Monsterzonen zählen höchstens zwei dazu. Extra-Deck-Monster nehmen eine freie Extra-Monsterzone, sonst eine Hauptzone, wenn dort schon ein Link-Monster liegt. |
+| Duell | Link-Pfeile öffnen zwei zusätzliche Hauptzonen. | Es bleiben fünf Hauptzonen. Belegte Extra-Monsterzonen zählen höchstens zwei dazu. Extra-Deck-Monster nehmen eine freie Extra-Monsterzone, sonst nur eine Hauptspalte, auf die ein Link-Pfeil zeigt. |
 | Duell | Escape beendet das Duell sofort. | Escape fragt „Duell schließen?“. |
 | Planung | `plan_phase` gilt für alle Gespräche. Eine offene Rückfrage hängt am nächsten Chat. | Der Plan merkt sich `plan_conversation_id`. Sparren und der Director ändern ihn nur in diesem Gespräch. „Plane das“, eine Sitzung oder der Bildschirm starten den Plan im aktuellen Chat. |
 | Planung | Zwei gleichzeitige Sätze überschreiben sich beim Speichern. | `handleIdea` läuft nacheinander über eine Kette. |
 | Planung | „Plane das: …“ schreibt die Tabelle und startet keine Agentenkarten. | Liegt Groq oder Gemini bereit, folgen die Karten nach dem Schreiben. Ohne Modell bleibt die Tabellenantwort. |
 | Einkauf | „ich muss noch Brot holen“ ist Einkauf und Aufgabe zugleich. | Kaufen, holen und besorgen nach „ich muss“ sind Einkauf. |
+| Duell | Beschwörungsbedingungen, Dauerregeln, Spielmarken, Token und die Pfeilrichtung haben keinen Effekt. | Eine Handbeschwörung wirft ab oder opfert Tribut und zählt nicht als Normalbeschwörung. Durchschlag, Direktangriff, Angriffsverbot, Kampf- und Effektschutz gelten im Kampf und bei gezielten Effekten. Spielmarken bleiben auf der Karte, Token verschwinden außerhalb des Friedhofs. Ein Link öffnet nur die Spalten seiner Pfeile. |
 
 ## Offen
 
-Beschwörungsbedingungen, Dauerregeln („cannot“, durchbohrend, Direktangriff), Spielmarken, Token und Materialrezepte bleiben ohne eigenen Knopf. Die Engine bildet kein vollständiges Master-Rule-Feld mit Pfeilrichtung ab.
+Pendeln, Ausrüsten und Kartentexte außerhalb der eingebauten Formen bleiben ohne Effekt.
 
 ## Nachzug aus dem Allgemein-Audit
 
