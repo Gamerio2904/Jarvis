@@ -8049,10 +8049,12 @@ html.theme-wipe-dark::before {
 
 .glance-rail {
   position: fixed;
-  top: 50%;
+  top: 0;
+  bottom: 0;
   right: 0;
+  height: fit-content;
+  margin-block: auto;
   z-index: 46;
-  transform: translateY(-50%);
   display: flex;
   flex-direction: row-reverse;
   align-items: stretch;
@@ -8137,7 +8139,8 @@ html.theme-wipe-dark::before {
   font-size: 0.86rem;
 }
 
-.glance-tisch {
+.glance-rail-tools {
+  position: relative;
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid var(--border);
@@ -8145,28 +8148,38 @@ html.theme-wipe-dark::before {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 0.78rem;
 }
 
-.glance-tisch-btns {
-  display: flex;
-  gap: 4px;
+.glance-rail-panel .mini-chat,
+.glance-rail-panel .voice-shortcut {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  z-index: 1;
 }
 
-.glance-tisch-btns button {
-  appearance: none;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-muted);
-  border-radius: 999px;
-  padding: 4px 10px;
-  cursor: pointer;
+.glance-rail-panel .mini-chat.is-open {
+  position: absolute;
+  right: calc(100% + 8px);
+  bottom: 0;
+  z-index: 2;
 }
 
-.glance-tisch-btns button.is-on {
-  color: var(--text);
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
+@media (max-width: 899px) {
+  .glance-rail-panel .mini-chat.is-open {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    z-index: 48;
+  }
+
+  .glance-rail-panel .mini-chat.is-open .mini-chat-panel {
+    width: 100%;
+    max-height: min(420px, 52vh);
+  }
 }
 
 .workbench {

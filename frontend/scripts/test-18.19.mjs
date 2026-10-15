@@ -72,8 +72,8 @@ assert.doesNotMatch(home, /--app-tint/)
 assert.doesNotMatch(home, /WebGL|tldraw|xyflow/)
 
 const glance = src('src/ui/GlanceRail.tsx')
-assert.match(glance, /Tischplatte/)
-assert.match(glance, /onTischplatte/)
+assert.doesNotMatch(glance, /onTischplatte|data-tischplatte|data-leiste/)
+assert.match(glance, /children/)
 
 const app = src('src/App.tsx')
 assert.match(app, /tischplatteOn/)

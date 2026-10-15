@@ -3121,51 +3121,46 @@ function App() {
         <>
           <GlanceRail
             open={railOpen}
-            onToggle={() => setRailOpen((v) => !v)}
-            tischplatteOn={Boolean(liveHud.tischplatte_on)}
-            onTischplatte={(on) => {
-              if (on) showTischplatte()
-              void patchSettings({
-                tischplatte_on: on,
-                ...(on ? { hud_force: false, hud_hidden: true } : {}),
-              }).then((s) => setSettings(s))
+            onToggle={() => {
+              setRailOpen((v) => {
+                if (v) setMiniChatOpen(false)
+                return !v
+              })
             }}
-            leisteOn={!leisteOff}
-            onLeiste={(on) => {
-              if (!on) setSidebarOpen(false)
-              void patchSettings({ leiste_on: on }).then((s) => setSettings(s))
-            }}
-          />
-          {homeOpen ? (
-            <MiniChat
-              open={miniChatOpen}
-              onToggle={() => setMiniChatOpen((v) => !v)}
-              onExpand={() => {
-                setMiniChatOpen(false)
-                goDock('chat')
-              }}
-              messages={messages}
-              streaming={streamingText}
-              busy={busy}
-              draft={draft}
-              setDraft={setDraft}
-              onSend={() => void onSend()}
-              onPasteImage={onPasteImage}
-              pasteImage={pasteImage}
-              onClearPaste={() => setPasteImage(null)}
-              face="ultron"
-            />
-          ) : null}
-          {homeOpen && !voiceOpen ? (
-            <div className="voice-shortcut">
-              <VoiceSphere
-                phase="idle"
-                size={72}
-                label="Sprache"
-                onClick={() => openVoiceMode('', true)}
-              />
-            </div>
-          ) : null}
+          >
+            {homeOpen ? (
+              <div className="glance-rail-tools">
+                <MiniChat
+                  open={miniChatOpen}
+                  onToggle={() => setMiniChatOpen((v) => !v)}
+                  onExpand={() => {
+                    setMiniChatOpen(false)
+                    goDock('chat')
+                  }}
+                  messages={messages}
+                  streaming={streamingText}
+                  busy={busy}
+                  draft={draft}
+                  setDraft={setDraft}
+                  onSend={() => void onSend()}
+                  onPasteImage={onPasteImage}
+                  pasteImage={pasteImage}
+                  onClearPaste={() => setPasteImage(null)}
+                  face="ultron"
+                />
+                {!voiceOpen ? (
+                  <div className="voice-shortcut">
+                    <VoiceSphere
+                      phase="idle"
+                      size={64}
+                      label="Sprache"
+                      onClick={() => openVoiceMode('', true)}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </GlanceRail>
         </>
       ) : null}
       <HausScan
