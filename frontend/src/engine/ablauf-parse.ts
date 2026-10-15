@@ -65,8 +65,41 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
   if (new RegExp(String.raw`^\s*plan(?:e)?\s+das${END}`, 'i').test(t)) return { kind: 'open' }
 
   if (new RegExp(String.raw`^\s*(?:plan|fenster)\s+zu${END}`, 'i').test(t)) return { kind: 'close' }
+  if (new RegExp(String.raw`^\s*plan\s+aus${END}`, 'i').test(t)) return { kind: 'close' }
   if (/^\s*planungsmodus\s+(?:aus|beenden|zu|stoppen|stopp)\s*[.!?]*$/i.test(t)) return { kind: 'close' }
-  if (/^\s*(?:planung\s+zu|planung\s+fertig|bin\s+fertig)$/i.test(t.replace(/[.!?]+$/g, '').trim())) {
+  if (
+    /^\s*(?:planung\s+zu|planung\s+fertig|planung\s+aus|planung\s+beenden|plan\s+beenden|bin\s+fertig)$/i.test(
+      t.replace(/[.!?]+$/g, '').trim(),
+    )
+  ) {
+    return { kind: 'close' }
+  }
+  // „Beende die Planung“ ist derselbe Schluss. „Beende den Scan“ bleibt der Scan.
+  if (
+    new RegExp(
+      String.raw`^\s*(?:beende|beenden|bennede|beenende|stoppe|stopp)(?:\s+bitte)?(?:\s+mal)?\s+(?:die\s+|den\s+|das\s+)?(?:planung|planungsmodus|planungsbildschirm|planen|plan)${END}`,
+      'i',
+    ).test(t)
+  ) {
+    return { kind: 'close' }
+  }
+  if (
+    new RegExp(
+      String.raw`^\s*(?:planungsmodus|planungsbildschirm|planung)\s+(?:bitte\s+)?(?:beenden|beende|stoppen|stopp)${END}`,
+      'i',
+    ).test(t)
+  ) {
+    return { kind: 'close' }
+  }
+  if (
+    new RegExp(
+      String.raw`^\s*(?:schließ(?:e)?|schliess(?:e)?)\s+(?:bitte\s+)?(?:die\s+)?planung${END}`,
+      'i',
+    ).test(t)
+  ) {
+    return { kind: 'close' }
+  }
+  if (/^\s*h(?:ö|oe)r(?:e)?\s+auf\s+(?:zu\s+planen|mit\s+(?:der\s+)?planung)$/i.test(t.replace(/[.!?]+$/g, '').trim())) {
     return { kind: 'close' }
   }
   if (planScriptOpen() && /^\s*fertig$/i.test(t.replace(/[.!?]+$/g, '').trim())) return { kind: 'close' }
