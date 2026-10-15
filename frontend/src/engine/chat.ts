@@ -13,7 +13,7 @@ import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeAllowedForRoute, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
-import { dressDocument, looseAsk, noteSequence } from './work-flex.ts'
+import { dressDocument, noteSequence } from './work-flex.ts'
 import { contradictionSearchAsk, rewriteFollowUp } from './last-step.ts'
 import { applyDurationCorrection } from './duration-correct.ts'
 import { parseBotAskIntent } from './bot-ask.ts'
@@ -689,10 +689,7 @@ export async function streamChat(
         settingsNow.last_taxi_json ||
         settingsNow.last_interrupt_json,
     )
-    const texts = queue.map((p) => {
-      const followed = rewriteFollowUp(p, settingsNow) ?? p
-      return looseAsk(followed) ?? followed
-    })
+    const texts = queue.map((p) => rewriteFollowUp(p, settingsNow) ?? p)
     const rewritten = texts[0] || content
     const botAsk = Boolean(parseBotAskIntent(content))
     const accepted = !deviceBusy && !botAsk ? acceptResearchPending(content, researchPending) : null

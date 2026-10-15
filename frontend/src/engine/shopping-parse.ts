@@ -36,7 +36,7 @@ const GENERIC_LIST =
   /^(?:die|der|das|dem|den|meine[nrs]?|unsere[nrs]?|einkauf(?:s)?(?:liste)?|haupt(?:liste)?|liste)$/i
 
 export function parseShopIntent(text: string): ShopIntent | null {
-  const t = text.trim()
+  const t = text.trim().replace(/[.!]+\s*$/g, '').trim()
   if (!t || t.length > 180) return null
   const create = CREATE_LIST.exec(t)
   if (create) {
@@ -53,7 +53,7 @@ export function parseShopIntent(text: string): ShopIntent | null {
     if (add) return add
   }
   const got = GOT.exec(t)
-  if (got && !/\b(termin|wecker|timer|todo|erinner)\b/i.test(got[1])) {
+  if (got && !/\b(termin|wecker|timer|todo|erinner)\b/i.test(got[1]) && shopSubject(got[1])) {
     const items = splitShopItems(got[1])
     if (items.length) return { kind: 'got', item: items[0], items }
   }
@@ -80,8 +80,16 @@ export function splitShopItems(raw: string): string[] {
   return out
 }
 
+function shopSubject(raw: string): boolean {
+  const subject = raw.trim()
+  if (!subject || subject.split(/\s+/).length > 4) return false
+  if (/^(?:ich|wir|man|mein(?:e|em|en|er)?|unser(?:e|em|en|er)?|mama|papa|der|die|das|es)\b/i.test(subject)) return false
+  return true
+}
+
 function parseAdd(text: string): ShopIntent | null {
   if (TIMED.test(text)) return null
+  if (/\b(?:aufgaben|aufgabenliste|todos?)\b/i.test(text)) return null
   const bare = text.replace(TAIL, '').trim()
   const shop = bare.replace(SHOP_LEAD, '').trim()
   const forced = shop !== bare
@@ -89,9 +97,9 @@ function parseAdd(text: string): ShopIntent | null {
   if (fromList) return fromList
   const prefixed = ADD_PREFIX.exec(shop) || ADD_PREFIX.exec(bare)
   if (prefixed) return asAdd(prefixed[1])
-  if (forced) return asAdd(shop)
+  if (forced && shopSubject(shop)) return asAdd(shop)
   const buy = ADD_BUY.exec(bare)
-  if (buy && !/[?]/.test(bare)) return asAdd(buy[1])
+  if (buy && !/[?]/.test(bare) && shopSubject(buy[1])) return asAdd(buy[1])
   return null
 }
 

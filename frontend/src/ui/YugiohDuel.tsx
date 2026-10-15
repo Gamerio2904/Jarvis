@@ -579,7 +579,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         if (typeof text !== 'string') return
         setCardTextCache((current) => ({ ...current, [focused.catalogId as number]: text }))
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return
         if (focused.catalogId) {
           setCardTextCache((current) => ({ ...current, [focused.catalogId as number]: 'Kartentext konnte nicht geladen werden.' }))
         }

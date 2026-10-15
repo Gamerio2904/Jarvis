@@ -14,12 +14,12 @@ export type ToolIntent =
   | { kind: 'todo_delete'; query: string }
   | { kind: 'todo_delete_last' }
 
-const TODO_WRITE = /^\s*(?:todo|to-?do|aufgabe)(?![sS])\s*[:-]?\s*(.+)$/is
+const TODO_WRITE = /^\s*(?:todo|to-?do|aufgabe)\b(?!n\b)(?![sS])\s*(?!anzeigen\b|liste\b)[:-]?\s*(.+)$/is
 const NOTE_WRITE =
-  /^\s*(?:notiz(?:e)?|notiere|notiz:|schreib(?:e)?\s+auf|merke\s+als\s+notiz)\s*[:-]?\s*(.+)$/is
+  /^\s*(?:notiz(?!en\b)|notiere|notiz:|schreib(?:e)?\s+auf|merke\s+als\s+notiz)\s*[:-]?\s*(.+)$/is
 const LIST_PREFIX =
   /^\s*(?:setz(?:e)?|pack(?:e)?|tu)\s+(?:das\s+)?(?:auf\s+die\s+liste|auf\s+die\s+todos?)[:\s]+(.+)$/is
-const MUST_DO = /^\s*ich\s+muss\s+(?:noch\s+)?(.+)$/is
+const MUST_DO = /^\s*ich\s+muss\s+(?:noch\s+)?(?!(?:los|sagen|mal|kurz|weg|pennen|schlafen)\b)(.{4,})$/is
 const TASK_TAIL =
   /^\s*(?:bitte\s+)?(.{2,40}?)\s+(abholen|anrufen|putzen|waschen)\s*[.!]?\s*$/i
 const TODO_LIST =

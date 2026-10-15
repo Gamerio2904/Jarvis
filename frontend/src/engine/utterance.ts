@@ -171,5 +171,7 @@ export function normalizeUtterance(text: string): string {
     if (!rest || !COMMAND_START.test(rest)) break
     raw = rest
   }
+  // Getippte Punkte und Ausrufezeichen hängen am Satzende und sprengen Parser mit `$`.
+  raw = raw.replace(/[.!]+\s*$/g, '').trim()
   return raw
 }

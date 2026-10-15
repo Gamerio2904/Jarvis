@@ -66,11 +66,31 @@ function nextClock(now: Date, h: number, m: number, dayWord: string | null): Dat
 const WAKE_ME = /\bweck(?:e)?\s+mich\b/i
 const SPAN = /\bin\s+\d{1,3}\s*(?:sekunden?|minuten?|stunden?)\b/i
 
+/** „halb 7“, „viertel vor 7“, „6 Uhr 30“ bevor die erste Zahl gewinnt. */
+function rewriteGermanClock(text: string): string {
+  return text
+    .replace(/\bhalb\s+(\d{1,2})\b/gi, (_, n) => `${clockHour(Number(n) - 1)}:30`)
+    .replace(/\bviertel\s+vor\s+(\d{1,2})\b/gi, (_, n) => `${clockHour(Number(n) - 1)}:45`)
+    .replace(/\bviertel\s+nach\s+(\d{1,2})\b/gi, (_, n) => `${clockHour(Number(n))}:15`)
+    .replace(/\b(\d{1,2})\s*uhr\s+(\d{1,2})\b/gi, (_, h, m) => `${h}:${m}`)
+}
+
+function clockHour(h: number): number {
+  if (h < 0) return 23
+  return h % 24
+}
+
 export function parseAlarmIntent(text: string, now = new Date()): AlarmIntent | null {
   const raw = text.trim()
   if (!raw || raw.length > 180) return null
   const spoken = WAKE_ME.test(raw) && !SPAN.test(raw)
   if (!/\bwecker\b/i.test(raw) && !spoken) return null
+  if (
+    /\b(?:geklingelt|klingelte|verschlafen|nervt)\b/i.test(raw) ||
+    (/^(?:mein|der|ein|unser)\s+wecker\b/i.test(raw) && !/\b(?:stell|weck)\b/i.test(raw))
+  ) {
+    return null
+  }
   if (/^(?:wecker\s+(?:aus|stopp|stop|abbrechen)|stopp(?:e)?\s+(?:den\s+)?wecker)$/i.test(raw)) {
     return { kind: 'stop' }
   }
@@ -80,7 +100,7 @@ export function parseAlarmIntent(text: string, now = new Date()): AlarmIntent | 
   const del = /^(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?wecker\s+(.+)$/i.exec(raw)
   if (del) return { kind: 'delete', query: cleanTitle(del[1]) }
 
-  let t = raw
+  let t = rewriteGermanClock(raw)
     .replace(/stell(?:e)?\s+(?:einen\s+|den\s+)?wecker\s+(?:auf\s+|für\s+)?/i, 'wecker ')
     .replace(/^wecker\s+/i, '')
     .replace(/^weck(?:e)?\s+mich\s*/i, '')

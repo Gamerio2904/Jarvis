@@ -1,4 +1,5 @@
-import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { cancelReminderNotify, notifyIdOf } from './reminders.ts'
 import { parseAlarmIntent } from './alarm-parse.ts'
 import { syncGlance } from './glance.ts'
 import {
@@ -31,7 +32,7 @@ export async function handleAlarms(
     const perm = await requestNotifyPermission()
     const tone = loadSettings().alarm_tone_uri
     const scheduled = await scheduleNotify({
-      id: notifyIdFromKey(row.id),
+      id: notifyIdOf(row),
       title: 'Wecker',
       body: row.title,
       at: intent.due,
@@ -70,7 +71,7 @@ export async function handleAlarms(
     const q = intent.query.toLowerCase()
     const hit = rows.find((r) => r.title.toLowerCase().includes(q) || q.includes(r.title.toLowerCase()))
     if (!hit) return { handled: true, reply: `Kein Wecker zu „${intent.query}“.` }
-    await cancelNotify(notifyIdFromKey(hit.id))
+    await cancelReminderNotify(hit)
     await deleteReminder(hit.id)
     await syncGlance()
     return {
@@ -83,7 +84,7 @@ export async function handleAlarms(
   const rows = await openAlarms()
   if (!rows.length) return { handled: true, reply: 'Kein Wecker zum Stoppen.' }
   for (const r of rows) {
-    await cancelNotify(notifyIdFromKey(r.id))
+    await cancelReminderNotify(r)
     await deleteReminder(r.id)
   }
   await syncGlance()

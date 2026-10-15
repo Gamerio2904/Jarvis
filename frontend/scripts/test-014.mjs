@@ -4,7 +4,9 @@ import { readFileSync } from 'node:fs'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch, isTvDiscover } from '../src/engine/tv-parse.ts'
-import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory, isPrefValue } from '../src/engine/memory-parse.ts'
+import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory, isPrefValue, VERGISS } from '../src/engine/memory-parse.ts'
+import { normalizeCalendarSpeech } from '../src/engine/calendar-parse.ts'
+import { frontVerb } from '../src/engine/verb-front.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, redactSecrets } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
@@ -464,6 +466,20 @@ assert.equal(parseShopIntent('Milch auf die Einkaufsliste')?.listHint, undefined
 assert.equal(parseShopIntent('auch Brot')?.kind, 'add')
 assert.equal(parseShopIntent('was fehlt?')?.kind, 'list')
 assert.equal(parseShopIntent('Milch hab ich')?.kind, 'got')
+assert.equal(parseShopIntent('Milch und Eier auf die Liste.')?.kind, 'add')
+assert.equal(parseShopIntent('Ich will mir ein Haus kaufen'), null)
+assert.equal(parseShopIntent('Mama ist da'), null)
+assert.equal(parseShopIntent('Mein Schmerz ist weg'), null)
+assert.equal(parseShopIntent('füge Zahnarzt zu meinen Aufgaben hinzu'), null)
+assert.equal(parseToolIntent('Notizen anzeigen')?.kind, 'note_list')
+assert.equal(parseToolIntent('Aufgabenliste anzeigen'), null)
+assert.equal(parseToolIntent('Ich muss los'), null)
+assert.equal(parseToolIntent('Notiz: Steuer')?.kind, 'note_create')
+assert.equal(VERGISS.test('vergiss Espresso'), true)
+assert.equal(VERGISS.test('lösche die Erinnerung an den Arzt'), false)
+assert.equal(normalizeCalendarSpeech('Termine heute'), 'Termine heute')
+assert.equal(normalizeCalendarSpeech('Geburtstagsfeier'), 'Geburtstagsfeier')
+assert.equal(frontVerb('Kannst du mir helfen eine Mail zu schreiben'), null)
 const pflanzen = parseShopIntent('Füge Pflanzenmilch, mehl und Deo auf die Einkaufsliste')
 assert.equal(pflanzen?.kind, 'add')
 assert.equal(pflanzen?.listHint, undefined)
@@ -682,6 +698,12 @@ if (timer?.kind === 'create') {
   assert.ok(timer.ms >= 7 * 60_000)
 }
 assert.equal(parseTimerIntent('Timer aus')?.kind, 'stop')
+assert.equal(parseTimerIntent('Stell einen Timer auf 10 Minuten.')?.kind, 'create')
+assert.equal(parseTimerIntent('stell mir einen Timer auf 5 Minuten')?.kind, 'create')
+assert.equal(parseTimerIntent('Timer stoppen')?.kind, 'stop')
+const hourHalf = parseTimerIntent('Timer auf 1 Stunde 30 Minuten', frozen)
+assert.equal(hourHalf?.kind, 'create')
+if (hourHalf?.kind === 'create') assert.equal(hourHalf.ms, 90 * 60_000)
 assert.equal(parseTimerIntent('in 20 Minuten Milch'), null)
 const onceAlarm = parseAlarmIntent('Wecker 7 Uhr', frozen)
 assert.equal(onceAlarm?.kind, 'create')
@@ -698,6 +720,16 @@ if (weekAlarm?.kind === 'create') {
   assert.equal(weekAlarm.recur, 'weekly')
   assert.equal(weekAlarm.title, 'Arbeit')
 }
+const halb = parseAlarmIntent('weck mich um halb 7', frozen)
+assert.equal(halb?.kind, 'create')
+if (halb?.kind === 'create') {
+  assert.equal(halb.due.getHours(), 6)
+  assert.equal(halb.due.getMinutes(), 30)
+}
+const uhr30 = parseAlarmIntent('weck mich um 6 Uhr 30', frozen)
+assert.equal(uhr30?.kind, 'create')
+if (uhr30?.kind === 'create') assert.equal(uhr30.due.getMinutes(), 30)
+assert.equal(parseAlarmIntent('Mein Wecker klingelt jeden Tag um 6, das nervt'), null)
 assert.equal(parseAlarmIntent('Wecker aus')?.kind, 'stop')
 assert.equal(parseAlarmIntent('Timer 8 Minuten'), null)
 assert.match(formatDue(new Date('2026-08-15T17:42:00'), frozen), /heute/)

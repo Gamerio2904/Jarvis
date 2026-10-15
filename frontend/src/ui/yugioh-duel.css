@@ -1511,11 +1511,17 @@
 
 .ygo-hand {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   min-height: 120px;
   padding: 8px 4px 0;
   overflow-x: auto;
+}
+
+@media (min-width: 900px) {
+  .ygo-hand {
+    justify-content: safe center;
+  }
 }
 
 .ygo-hand .ygo-hand-card {

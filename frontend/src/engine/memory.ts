@@ -80,9 +80,24 @@ export async function handleMemory(conversationId: string, text: string): Promis
   }
   const forget = VERGISS.exec(text)
   if (forget) {
-    const q = forget[1].trim().toLowerCase()
+    const q = forget[1].trim().toLowerCase().replace(/[.!?]+$/g, '')
+    // „vergiss es“ / „vergiss das“ ist ein Teilstring von fast jedem Eintrag.
+    if (/^(?:es|das|dies|dem|den|der|die|ein|eine|mal|egal|bitte)$/i.test(q) || q.length < 3) {
+      return packed({
+        domain: 'memory',
+        intent: 'forget:unclear',
+        plan: 'forget',
+        label: 'Gedächtnis',
+        waiting: true,
+        observation: { ask: true, key: q },
+        successReply: 'Was soll ich vergessen?',
+        failReply: 'Was soll ich vergessen?',
+      })
+    }
     const items = await listMemory()
-    const hit = items.find((m) => m.key.toLowerCase() === q || m.value.toLowerCase().includes(q))
+    const needle = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const word = new RegExp(`(?:^|[^\\p{L}\\p{N}])${needle}(?:[^\\p{L}\\p{N}]|$)`, 'iu')
+    const hit = items.find((m) => m.key.toLowerCase() === q || word.test(m.value.toLowerCase()))
     if (hit) {
       await markLastRecallNotUseful()
       await deleteMemory(hit.id)

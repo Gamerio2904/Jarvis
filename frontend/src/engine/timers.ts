@@ -1,4 +1,5 @@
-import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { cancelReminderNotify, notifyIdOf } from './reminders.ts'
 import { syncGlance } from './glance.ts'
 import {
   addReminder,
@@ -35,7 +36,7 @@ export async function handleTimers(
     try {
       perm = await requestNotifyPermission()
       scheduled = await scheduleNotify({
-        id: notifyIdFromKey(row.id),
+        id: notifyIdOf(row),
         ...timerAlarmFields(row.title),
         at: intent.due,
         alarm: true,
@@ -75,7 +76,7 @@ export async function handleTimers(
   const rows = await openTimers()
   if (!rows.length) return { handled: true, reply: 'Kein Timer zum Stoppen.' }
   for (const r of rows) {
-    await cancelNotify(notifyIdFromKey(r.id))
+    await cancelReminderNotify(r)
     await deleteReminder(r.id)
   }
   await syncGlance()

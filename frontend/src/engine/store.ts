@@ -1868,10 +1868,18 @@ export async function markShoppingGotById(id: string): Promise<ShoppingItem | un
   return next
 }
 
+function shopTitleHit(title: string, query: string): boolean {
+  const t = title.toLocaleLowerCase('de-DE')
+  const q = query.toLocaleLowerCase('de-DE')
+  if (!q || q.length < 2) return false
+  if (t === q) return true
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(?:^|\\s)${esc(q)}(?:\\s|$)`, 'i').test(t)
+}
+
 export async function markShoppingGot(query: string): Promise<ShoppingItem | undefined> {
-  const q = query.toLowerCase()
   const rows = (await listShopping()).filter((s) => s.status === 'open')
-  const hit = rows.find((s) => s.title.toLowerCase().includes(q) || q.includes(s.title.toLowerCase()))
+  const hit = rows.find((s) => shopTitleHit(s.title, query))
   if (!hit) return undefined
   return markShoppingGotById(hit.id)
 }

@@ -1,7 +1,8 @@
 import { nextBirthday, parseBirthdayIntent } from './birthday-parse.ts'
 import { addReminder, listReminders, persistLastList } from './store.ts'
 import { rememberPersonPin } from './person-cluster.ts'
-import { requestNotifyPermission, scheduleNotify, notifyIdFromKey } from '../native/notify.ts'
+import { requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { notifyIdOf } from './reminders.ts'
 import { formatDue } from './remind-parse.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -35,7 +36,7 @@ export async function handleBirthday(
   })
   await requestNotifyPermission()
   await scheduleNotify({
-    id: notifyIdFromKey(row.id),
+    id: notifyIdOf(row),
     title: 'Geburtstag',
     body: row.title,
     at: due,

@@ -483,6 +483,18 @@ export function notifyIdOf(row: Reminder): number {
 }
 
 /**
+ * Storniert die gespeicherte Nummer und, falls abweichend, den alten Hash.
+ * Timer und Wecker haben eine Zeit lang den Hash geplant, der Start danach
+ * die gespeicherte Nummer — sonst klingelt der erste Alarm nach dem Löschen weiter.
+ */
+export async function cancelReminderNotify(row: Pick<Reminder, 'id' | 'notify_id'>): Promise<void> {
+  const stored = notifyIdOf(row as Reminder)
+  await cancelNotify(stored)
+  const hashed = notifyIdFromKey(row.id)
+  if (hashed !== stored) await cancelNotify(hashed)
+}
+
+/**
  * Migration: Zeilen von vor 16.5.0 bekommen ihren **heutigen** Hash als festen
  * Wert. Damit bleibt der bereits gestellte Android-Alarm gültig und das Feld
  * wird ab sofort die einzige Quelle.

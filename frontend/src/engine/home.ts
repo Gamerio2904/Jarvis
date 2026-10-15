@@ -1,7 +1,8 @@
 import { parseHomeIntent } from './home-parse.ts'
 import { geocodePlace, haversineM } from './geo-lookup.ts'
 import { readDeviceLocation, hasLocationPermission } from '../native/geo.ts'
-import { scheduleNotify, notifyIdFromKey, requestNotifyPermission } from '../native/notify.ts'
+import { scheduleNotify, requestNotifyPermission } from '../native/notify.ts'
+import { notifyIdOf } from './reminders.ts'
 import {
   addReminder,
   listMemory,
@@ -33,7 +34,7 @@ export async function fireHomeTasks(): Promise<string[]> {
   for (const r of rows) {
     await requestNotifyPermission()
     await scheduleNotify({
-      id: notifyIdFromKey(r.id),
+      id: notifyIdOf(r),
       title: 'Ultron · Zuhause',
       body: r.title,
       at: new Date(Date.now() + 1_200),

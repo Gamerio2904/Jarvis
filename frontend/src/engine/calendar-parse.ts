@@ -152,10 +152,20 @@ const STEAL_BARE =
   /^\s*(?:was|wie|wer|wo|wann|wetter|nachrichten|news|zeig(?:e)?|öffne|kalender|erinner(?:e)?\s+mich|lösch|streich|änder|benenn)\b/i
 const FOREIGN_TITLE =
   /^(?:wetter|nachrichten|news|lage|flugzeuge|satelliten|taschenlampe|timer|wecker|kalender)$/i
-const GLUE_WEEKDAY =
-  /(?<=^|[^A-Za-zÄÖÜäöüß])(montags?|dienstags?|mittwochs?|donnerstags?|freitags?|friday|samestags?|samstags?|sonnabends?|sonntags?)(?=[A-Za-zÄÖÜäöüß])/gi
-const GLUE_EVENT =
-  /(?<=^|[^A-Za-zÄÖÜäöüß])(geburtstag|birthday|termin|zahnarzt)(?=[A-Za-zÄÖÜäöüß])/gi
+const GLUE_WEEKDAYS = ['montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'friday', 'samestag', 'samstag', 'sonnabend', 'sonntag']
+const GLUE_EVENTS = ['geburtstag', 'birthday', 'termin', 'zahnarzt']
+
+/**
+ * STT klebt „SamstagGeburtstag“. Ein folgendes Kleinbuchstaben-Wort
+ * („Termine“, „Geburtstagsfeier“, „Montags“) bleibt ganz.
+ */
+function splitGluedWord(text: string, words: string[]): string {
+  const re = new RegExp(`(?<=^|[^A-Za-zÄÖÜäöüß])(${words.join('|')})s?(?=[A-Za-zÄÖÜäöüß0-9])`, 'gi')
+  return text.replace(re, (full, _word, offset) => {
+    const next = text[offset + full.length] || ''
+    return /[A-ZÄÖÜ0-9]/.test(next) ? `${full} ` : full
+  })
+}
 
 /** STT klebt „SamestagGeburtstagJakob18Uhrher“. Idempotent bei schon getrennten Wörtern. */
 export function normalizeCalendarSpeech(text: string): string {
@@ -163,8 +173,8 @@ export function normalizeCalendarSpeech(text: string): string {
   t = t.replace(/samestags?/gi, 'Samstag')
   t = t.replace(/(\d{1,2})(?:[:.](\d{2}))?uhr(?:her|hör|h[eä]r)?/gi, (_, h, m) => (m ? `${h}:${m} Uhr` : `${h} Uhr`))
   t = t.replace(/\buhr(?:her|hör|h[eä]r)\b/gi, 'Uhr')
-  t = t.replace(GLUE_WEEKDAY, '$1 ')
-  t = t.replace(GLUE_EVENT, '$1 ')
+  t = splitGluedWord(t, GLUE_WEEKDAYS)
+  t = splitGluedWord(t, GLUE_EVENTS)
   t = t.replace(/([A-Za-zÄÖÜäöüß])(\d{1,2}(?:[:.]\d{2})?\s*Uhr)\b/g, '$1 $2')
   t = t.replace(/\s+/g, ' ').trim()
   return t

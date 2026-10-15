@@ -64,6 +64,8 @@ export function frontVerb(text: string): string | null {
   if (!rest || rest.length > 160) return null
   if (/\bplanungsbildschirm\b/i.test(rest)) return null
   if (/\b(?:app|anwendung)\b/i.test(rest) && /\b(?:planen|entwickeln|entwerfen|bauen)\s*[.!?]*$/i.test(rest)) return null
+  // „hilf mir eine Mail zu schreiben“ ist keine Bitte, das Verb nach vorn zu ziehen.
+  if (/\b(?:hilf(?:t|st|e)?|helfen)\b/i.test(rest) && /\bzu\s+\p{L}+\s*[.!?]*$/iu.test(rest)) return null
   if (/\?\s*$/.test(rest) && !LEAD.test(rest)) return null
   const lead = LEAD.exec(rest)
   if (lead) rest = rest.slice(lead[0].length)

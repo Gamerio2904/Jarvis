@@ -1,9 +1,8 @@
 /** „Nein 90 Minuten“ setzt die Zeit, statt sie nur zu wiederholen. */
 
-import { cancelNotify, notifyIdFromKey } from '../native/notify.ts'
 import { formatRemindOffsets } from './calendar-parse.ts'
 import { cancelEventNotifies, scheduleEventNotifies } from './calendar.ts'
-import { handleReminders, removeReminder, upcomingReminders } from './reminders.ts'
+import { cancelReminderNotify, handleReminders, removeReminder, upcomingReminders } from './reminders.ts'
 import { handleTimers } from './timers.ts'
 import {
   deleteReminder,
@@ -59,7 +58,7 @@ export async function applyDurationCorrection(
 async function replaceTimer(conversationId: string, hit: { n: number; unit: string }): Promise<string | null> {
   const open = (await listReminders()).filter((r) => r.status === 'open' && r.kind === 'timer')
   for (const row of open) {
-    await cancelNotify(notifyIdFromKey(row.id))
+    await cancelReminderNotify(row)
     await deleteReminder(row.id)
   }
   const word = unitWord(hit.unit, hit.n)
