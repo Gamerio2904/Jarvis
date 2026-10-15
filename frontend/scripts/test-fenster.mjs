@@ -60,6 +60,8 @@ const peer = (host, kind) => ({
 
 assert.equal(parseFensterConnect('Verbinde das Handy'), 'handy')
 assert.equal(parseFensterConnect('Verbinde das Tablet'), 'tablet')
+assert.equal(parseFensterConnect('verbinde dich mit dem handy'), 'handy')
+assert.equal(parseFensterConnect('Verbinde mit dem Tablet'), 'tablet')
 assert.equal(parseFensterConnect('Kopfhörer verbinden'), null)
 assert.equal(parseFensterShow('Zeig die Tischplatte auf dem Handy')?.surface, 'tisch')
 assert.equal(parseFensterShow('Zeig die Tischplatte auf dem Handy')?.kind, 'handy')

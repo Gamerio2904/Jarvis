@@ -7,6 +7,7 @@ import {
   changePosition,
   checkActivation,
   coinFlip,
+  cardBattleStats,
   createDuel,
   DUEL_SOUP_WEIGHTS,
   duelStateVector,
@@ -21,6 +22,7 @@ import {
   summonExtraMonster,
   summonMonster,
   type DuelCard,
+  type DuelPlayer,
   type DuelSide,
   type DuelState,
   type StrategyWeights,
@@ -106,7 +108,13 @@ function apiCards(payload: unknown): DuelCard[] {
     const extra = /fusion|synchro|xyz|link/i.test(card.type)
     const extraKind = /fusion/i.test(card.type) ? 'fusion' : /synchro/i.test(card.type) ? 'synchro' : /xyz/i.test(card.type) ? 'xyz' : /link/i.test(card.type) ? 'link' : undefined
     const description = typeof card.desc === 'string' ? card.desc : ''
-    const parsedEffect = /normal monster/i.test(card.type) ? null : effectFromDescription(description)
+    const parsedEffect = /normal monster/i.test(card.type)
+      ? null
+      : effectFromDescription(description, {
+        kind,
+        type: card.type,
+        subtype: kind !== 'monster' && typeof card.race === 'string' ? card.race : undefined,
+      })
     const linkRating = typeof card.linkval === 'number' ? card.linkval : undefined
     const images = Array.isArray(card.card_images) ? card.card_images : []
     const imageUrl =
@@ -126,12 +134,14 @@ function apiCards(payload: unknown): DuelCard[] {
       kind,
       atk: typeof card.atk === 'number' ? card.atk : undefined,
       def: typeof card.def === 'number' ? card.def : undefined,
+      baseAtk: typeof card.atk === 'number' ? card.atk : undefined,
+      baseDef: typeof card.def === 'number' ? card.def : undefined,
       level: typeof card.level === 'number' ? card.level : undefined,
       linkRating,
       ...(kind !== 'monster' && typeof card.race === 'string' ? { subtype: card.race } : {}),
       tuner: /\btuner\b/i.test(description),
       ...(extraKind ? { extraKind } : {}),
-      ...(parsedEffect ? { effect: parsedEffect.effect, effectSummary: parsedEffect.summary } : {}),
+      ...(parsedEffect ? { effect: parsedEffect.effect, effectSummary: parsedEffect.summary, effectTrigger: parsedEffect.trigger } : {}),
       imageUrl,
       extraDeck: extra,
     }]
@@ -144,6 +154,54 @@ function counts(cards: DuelCard[], card: DuelCard): number {
 
 function shortCard(card: DuelCard) {
   return `${card.name}${card.kind === 'monster' ? ` · ${card.atk ?? 0}/${card.def ?? 0}` : ''}`
+}
+
+function cardArt(card: DuelCard): string | undefined {
+  if (card.faceDown) return undefined
+  if (card.imageUrl) return card.imageUrl
+  if (card.catalogId) return `https://images.ygoprodeck.com/images/cards_small/${card.catalogId}.jpg`
+  return undefined
+}
+
+function statTone(current: number, base: number): string {
+  if (current > base) return 'is-buff'
+  if (current < base) return 'is-nerf'
+  return ''
+}
+
+function PlayCard({
+  card,
+  owner,
+  className = '',
+  disabled = false,
+  onClick,
+}: {
+  card: DuelCard | null
+  owner?: DuelPlayer | null
+  className?: string
+  disabled?: boolean
+  onClick?: () => void
+}) {
+  const stats = card && owner && card.kind === 'monster' && !card.faceDown ? cardBattleStats(card, owner) : null
+  const art = card ? cardArt(card) : undefined
+  return (
+    <button
+      type="button"
+      className={`ygo-slot${card ? '' : ' is-empty'}${card?.faceDown ? ' is-facedown' : ''}${card?.position === 'defense' ? ' is-defense' : ''}${className}`}
+      disabled={disabled || !card}
+      onClick={onClick}
+      title={card ? shortCard(card) : 'Leere Zone'}
+    >
+      {art ? <img className="ygo-slot-art" src={art} alt="" /> : null}
+      {card && !art ? <span className="ygo-slot-name">{card.faceDown ? 'SET' : card.name}</span> : null}
+      {stats ? (
+        <span className="ygo-slot-stats">
+          <b className={statTone(stats.atk, stats.baseAtk)}>{stats.atk}</b>
+          <b className={statTone(stats.def, stats.baseDef)}>{stats.def}</b>
+        </span>
+      ) : null}
+    </button>
+  )
 }
 
 function CardTile({ card, onClick, disabled = false }: { card: DuelCard; onClick?: () => void; disabled?: boolean }) {
@@ -654,90 +712,95 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <span>{game.turnOwner === 'jarvis' ? 'Jarvis ist dran' : 'Du bist dran'}</span>
           </div>
           <div className="ygo-mat">
-            <section className="ygo-side is-jarvis">
-              <div className="ygo-player-line"><strong>JARVIS</strong><span>{game.jarvis.lp.toLocaleString('de-DE')} LP</span></div>
-              <div className="ygo-lpbar is-jarvis"><i style={{ width: `${Math.max(0, Math.min(100, game.jarvis.lp / 80))}%` }} /></div>
-              <div className="ygo-row ygo-row-meta">
-                <button type="button" className="ygo-zone-pill" onClick={() => setNotice('Jarvis Extra Deck ist verdeckt.')}>Extra {game.jarvis.extraDeck.length}</button>
-                <button type="button" className="ygo-zone-pill" onClick={() => setNotice('Jarvis Deck ist verdeckt.')}>Deck {game.jarvis.deck.length}</button>
-                <button type="button" className="ygo-zone-pill" onClick={() => setShowJarvisGrave(true)}>Friedhof {game.jarvis.graveyard.length}</button>
+            <div className="ygo-lp is-jarvis">
+              <strong>ULTRON</strong>
+              <span>{game.jarvis.lp.toLocaleString('de-DE')} LP</span>
+              <i style={{ width: `${Math.max(0, Math.min(100, game.jarvis.lp / 80))}%` }} />
+            </div>
+            <div className="ygo-field">
+              <div className="ygo-piles">
+                <button type="button" className="ygo-pile" onClick={() => setNotice('Ultrons Extra Deck bleibt verdeckt.')}>Extra<br />{game.jarvis.extraDeck.length}</button>
+                <button type="button" className="ygo-pile is-deck" onClick={() => setNotice('Ultrons Deck bleibt verdeckt.')}>Deck<br />{game.jarvis.deck.length}</button>
+                <PlayCard card={game.jarvis.fieldSpell ?? null} className="ygo-field-slot" onClick={() => game.jarvis.fieldSpell && openCard('jarvis', 'field', game.jarvis.fieldSpell.id)} />
+                <button type="button" className="ygo-pile" onClick={() => setShowJarvisGrave(true)}>
+                  {game.jarvis.graveyard.at(-1) && cardArt(game.jarvis.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.jarvis.graveyard.at(-1) as DuelCard)} alt="" /> : 'Friedhof'}
+                  <em>{game.jarvis.graveyard.length}</em>
+                </button>
               </div>
-              <div className="ygo-row ygo-row-spells">
-                <button type="button" className="ygo-zone-pill" onClick={() => game.jarvis.fieldSpell && openCard('jarvis', 'field', game.jarvis.fieldSpell.id)}>Feld {game.jarvis.fieldSpell ? '1' : '0'}</button>
-                {Array.from({ length: 5 }, (_, index) => game.jarvis.spells[index] ?? null).map((card, index) => (
-                  <button
-                    type="button"
-                    className={`ygo-battle-card${card?.faceDown ? ' is-facedown' : ''}${card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}`}
-                    key={`jarvis-spell-${index}`}
-                    onClick={() => card && !card.faceDown && openCard('jarvis', 'spells', card.id)}
-                    disabled={!card || card.faceDown}
-                  >
-                    {card ? <span>{card.faceDown ? 'SET' : card.name}</span> : <span className="ygo-empty-slot" />}
-                  </button>
-                ))}
+              <div className="ygo-zones">
+                <div className="ygo-zones-row">
+                  {Array.from({ length: 5 }, (_, index) => game.jarvis.spells[index] ?? null).map((card, index) => (
+                    <PlayCard
+                      key={`jarvis-spell-${index}`}
+                      card={card}
+                      className={card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}
+                      onClick={() => card && !card.faceDown && openCard('jarvis', 'spells', card.id)}
+                    />
+                  ))}
+                </div>
+                <div className="ygo-zones-row">
+                  {Array.from({ length: 5 }, (_, index) => game.jarvis.monsters[index] ?? null).map((card, index) => (
+                    <PlayCard
+                      key={`jarvis-monster-${index}`}
+                      card={card}
+                      owner={game.jarvis}
+                      className={card && canActivateCard(game, 'jarvis', card.id) ? ' is-glow' : ''}
+                      onClick={() => {
+                        if (!card) return
+                        if (game.selectedAttacker !== null) updateGame((current) => attack(current, card.id))
+                        else if (!card.faceDown) openCard('jarvis', 'monsters', card.id)
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="ygo-zones-mid" aria-hidden />
+                <div className="ygo-zones-row">
+                  {Array.from({ length: 5 }, (_, index) => game.player.monsters[index] ?? null).map((card, index) => (
+                    <PlayCard
+                      key={`player-monster-${index}`}
+                      card={card}
+                      owner={game.player}
+                      className={`${game.selectedAttacker === card?.id ? ' is-selected' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
+                      onClick={() => card && (game.phase === 'battle' ? chooseAttacker(card) : openCard('player', 'monsters', card.id))}
+                    />
+                  ))}
+                </div>
+                <div className="ygo-zones-row">
+                  {Array.from({ length: 5 }, (_, index) => game.player.spells[index] ?? null).map((card, index) => (
+                    <PlayCard
+                      key={`player-spell-${index}`}
+                      card={card}
+                      className={card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}
+                      onClick={() => card && openCard('player', 'spells', card.id)}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="ygo-row ygo-row-monsters">
-                {Array.from({ length: 5 }, (_, index) => game.jarvis.monsters[index] ?? null).map((card, index) => (
-                  <button
-                    data-card-id={card?.id}
-                    type="button"
-                    className={`ygo-battle-card${card?.position === 'defense' ? ' is-defense' : ''}${card?.faceDown ? ' is-facedown' : ''}`}
-                    key={`jarvis-monster-${index}`}
-                    onClick={() => {
-                      if (!card) return
-                      if (game.selectedAttacker !== null) updateGame((current) => attack(current, card.id))
-                      else if (!card.faceDown) openCard('jarvis', 'monsters', card.id)
-                    }}
-                    disabled={!card}
-                  >
-                    {card ? <span>{card.faceDown ? 'Verdeckt' : `${card.name} ${card.atk ?? 0}/${card.def ?? 0}`}</span> : <span className="ygo-empty-slot" />}
-                  </button>
-                ))}
+              <div className="ygo-piles">
+                <button type="button" className="ygo-pile" onClick={() => setShowPlayerGrave(true)}>
+                  {game.player.graveyard.at(-1) && cardArt(game.player.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.player.graveyard.at(-1) as DuelCard)} alt="" /> : 'Friedhof'}
+                  <em>{game.player.graveyard.length}</em>
+                </button>
+                <PlayCard card={game.player.fieldSpell ?? null} className="ygo-field-slot" onClick={() => game.player.fieldSpell && openCard('player', 'field', game.player.fieldSpell.id)} />
+                <button type="button" className="ygo-pile is-deck">Deck<br />{game.player.deck.length}</button>
+                <button type="button" className="ygo-pile" onClick={() => setShowPlayerExtra(true)}>Extra<br />{game.player.extraDeck.length}</button>
               </div>
-            </section>
-            <section className="ygo-side is-player">
-              <div className="ygo-row ygo-row-monsters">
-                {Array.from({ length: 5 }, (_, index) => game.player.monsters[index] ?? null).map((card, index) => (
-                  <button
-                    data-card-id={card?.id}
-                    type="button"
-                    className={`ygo-battle-card${card?.position === 'defense' ? ' is-defense' : ''}${game.selectedAttacker === card?.id ? ' is-selected' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
-                    key={`player-monster-${index}`}
-                    onClick={() => card && (game.phase === 'battle' ? chooseAttacker(card) : openCard('player', 'monsters', card.id))}
-                    disabled={!card}
-                  >
-                    {card ? <span>{card.faceDown ? 'Verdeckt' : `${card.name} ${card.atk ?? 0}/${card.def ?? 0}`}</span> : <span className="ygo-empty-slot" />}
-                  </button>
-                ))}
-              </div>
-              <div className="ygo-row ygo-row-spells">
-                <button type="button" className="ygo-zone-pill" onClick={() => game.player.fieldSpell && openCard('player', 'field', game.player.fieldSpell.id)}>Feld {game.player.fieldSpell ? '1' : '0'}</button>
-                {Array.from({ length: 5 }, (_, index) => game.player.spells[index] ?? null).map((card, index) => (
-                  <button
-                    type="button"
-                    className={`ygo-battle-card${card?.faceDown ? ' is-facedown' : ''}${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
-                    key={`player-spell-${index}`}
-                    onClick={() => card && openCard('player', 'spells', card.id)}
-                    disabled={!card}
-                  >
-                    {card ? <span>{card.faceDown ? 'SET' : card.name}</span> : <span className="ygo-empty-slot" />}
-                  </button>
-                ))}
-                <button type="button" className="ygo-zone-pill" onClick={() => setShowPlayerGrave(true)}>Friedhof {game.player.graveyard.length}</button>
-              </div>
-              <div className="ygo-row ygo-row-meta">
-                <button type="button" className="ygo-zone-pill" onClick={() => setShowPlayerExtra(true)}>Extra {game.player.extraDeck.length}</button>
-                <button type="button" className="ygo-zone-pill">Deck {game.player.deck.length}</button>
-                <div className="ygo-player-line"><strong>SPIELER</strong><span>{game.player.lp.toLocaleString('de-DE')} LP</span></div>
-              </div>
-              <div className="ygo-lpbar is-player"><i style={{ width: `${Math.max(0, Math.min(100, game.player.lp / 80))}%` }} /></div>
-            </section>
+            </div>
+            <div className="ygo-lp is-player">
+              <strong>DU</strong>
+              <span>{game.player.lp.toLocaleString('de-DE')} LP</span>
+              <i style={{ width: `${Math.max(0, Math.min(100, game.player.lp / 80))}%` }} />
+            </div>
           </div>
           <div className="ygo-hand" aria-label="Deine Handkarten">
             {zoneCards('player', 'hand').map((card) => (
-              <button type="button" key={`hand-${card.id}`} className={`ygo-battle-card ygo-hand-card${canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`} onClick={() => openCard('player', 'hand', card.id)}>
-                <span>{card.name}</span>
-              </button>
+              <PlayCard
+                key={`hand-${card.id}`}
+                card={card}
+                owner={game.player}
+                className={`ygo-hand-card${canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}`}
+                onClick={() => openCard('player', 'hand', card.id)}
+              />
             ))}
           </div>
           <p className="ygo-message" role="status">{game.message}</p>
@@ -850,7 +913,22 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 <h2>{focused.name}</h2>
                 {focused.imageUrl ? <img className="ygo-detail-image" src={focused.imageUrl.replace('/cards_small/', '/cards/')} alt={focused.name} /> : null}
                 <p>{focused.type} {focused.level ? `· Stufe ${focused.level}` : ''}{focused.extraKind ? ` · ${focused.extraKind}` : ''}</p>
-                {focused.kind === 'monster' ? <p>ATK {focused.atk ?? 0} / DEF {focused.def ?? 0}</p> : null}
+                {focused.kind === 'monster' ? (
+                  <p className="ygo-detail-stats">
+                    {(() => {
+                      const owner = focusedCard.side === 'player' ? game.player : game.jarvis
+                      const stats = cardBattleStats(focused, owner)
+                      return (
+                        <>
+                          ATK <b className={statTone(stats.atk, stats.baseAtk)}>{stats.atk}</b>
+                          {stats.atk !== stats.baseAtk ? <small> (Druck {stats.baseAtk})</small> : null}
+                          {' / '}DEF <b className={statTone(stats.def, stats.baseDef)}>{stats.def}</b>
+                          {stats.def !== stats.baseDef ? <small> (Druck {stats.baseDef})</small> : null}
+                        </>
+                      )
+                    })()}
+                  </p>
+                ) : null}
                 <p>{(focused.catalogId && cardTextCache[focused.catalogId]) || focused.effectSummary || (cardTextBusy ? 'Kartentext wird geladen …' : 'Kein Text verfügbar.')}</p>
                 <div className="ygo-actions">
                   {focusedCard.side === 'player' && focusedCard.zone === 'hand' && focused.kind === 'monster' ? (
@@ -869,7 +947,19 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                     <button type="button" onClick={() => updateGame((current) => changePosition(current, focused.id))}>Position wechseln</button>
                   ) : null}
                   {focusedCard.side === 'player' && focused.effect ? (
-                    <button type="button" onClick={() => activateIfPossible(focusedCard.side, focused)}>Effekt aktivieren</button>
+                    <button type="button" onClick={() => {
+                      if (focused.faceDown) {
+                        updateGame((current) => changePosition(current, focused.id))
+                        return
+                      }
+                      activateIfPossible(focusedCard.side, focused)
+                    }}>
+                      {focused.faceDown
+                        ? 'Aufdecken'
+                        : focused.effectTrigger === 'ignition' || focused.effectTrigger === 'flip' || focused.effectTrigger === 'quick'
+                          ? 'Effekt ausführen'
+                          : 'Effekt aktivieren'}
+                    </button>
                   ) : null}
                   <button type="button" onClick={() => setFocusedCard(null)}>Schließen</button>
                 </div>

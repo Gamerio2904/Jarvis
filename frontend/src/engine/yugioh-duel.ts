@@ -22,11 +22,14 @@ export type DuelEffect =
   | { kind: 'search'; amount: number }
   | { kind: 'revive' }
   | { kind: 'boost'; amount: number }
+  | { kind: 'setStat'; stat: 'atk' | 'def'; value: number }
   | { kind: 'banish'; target: 'monster' | 'gyMonster' }
   | { kind: 'bounce'; target: 'monster' }
   | { kind: 'mill'; amount: number }
   | { kind: 'discard'; amount: number }
   | { kind: 'fieldAura'; stat: 'atk'; amount: number }
+
+export type EffectTrigger = 'summon' | 'flip' | 'ignition' | 'quick' | 'continuous'
 
 export type DuelCard = {
   id: number
@@ -37,6 +40,9 @@ export type DuelCard = {
   kind: CardKind
   atk?: number
   def?: number
+  /** Printed ATK/DEF. Current atk/def may differ after a buff or a set-stat effect. */
+  baseAtk?: number
+  baseDef?: number
   level?: number
   imageUrl?: string
   extraDeck?: boolean
@@ -47,6 +53,7 @@ export type DuelCard = {
   tuner?: boolean
   effect?: DuelEffect
   effectSummary?: string
+  effectTrigger?: EffectTrigger
   faceDown?: boolean
   // Spell/Trap subtype from the card data (Normal, Quick-Play, Continuous, Equip, Field, Ritual, Counter).
   subtype?: string
@@ -471,12 +478,13 @@ export function summonMonster(state: DuelState, cardId: number, tributes: number
       linkArrows: card.extraKind === 'link' ? registerLinkArrows(card) : card.linkArrows,
     }
   player.monsters.push(placed)
-  return {
+  const summoned: DuelState = {
     ...state,
     player,
     lastAnimation: { id: card.id, kind: mode === 'set' ? 'set' : 'summon', side: 'player' },
     message: mode === 'set' ? 'Ein Monster wurde verdeckt in Verteidigung gesetzt.' : `${card.name} wurde beschworen.`,
   }
+  return mode === 'set' ? summoned : settleTrigger(summoned, 'player', card.id, 'summon')
 }
 
 export function setSpellTrap(state: DuelState, cardId: number): DuelState {
@@ -522,12 +530,13 @@ export function changePosition(state: DuelState, cardId: number): DuelState {
   const flipped: DuelCard = card.faceDown
     ? { ...card, faceDown: false, position: 'attack', lockedKey: turnKey(state) }
     : { ...card, position: card.position === 'defense' ? 'attack' : 'defense', lockedKey: turnKey(state) }
-  return {
+  const moved: DuelState = {
     ...state,
     player: { ...state.player, monsters: state.player.monsters.map((item) => item.id === cardId ? flipped : item) },
     lastAnimation: { id: cardId, kind: 'position', side: 'player' },
     message: card.faceDown ? `${card.name} wurde offen in Angriff gedreht.` : `${card.name} wechselt in ${flipped.position === 'defense' ? 'Verteidigung' : 'Angriff'}.`,
   }
+  return card.faceDown ? settleTrigger(moved, 'player', cardId, 'flip') : moved
 }
 
 export function extraSummonMaterials(
@@ -578,14 +587,45 @@ export function summonExtraMonster(state: DuelState, cardId: number, materialIds
   }
   player.monsters.push({
     ...card,
+    faceDown: false,
+    position: 'attack',
     zoneKind: card.extraKind === 'link' ? 'emz' : 'mmz',
     linkArrows: card.extraKind === 'link' ? registerLinkArrows(card) : card.linkArrows,
   })
-  return { ...state, player, lastAnimation: { id: card.id, kind: 'summon' }, message: `${card.name} wurde aus dem Extra Deck beschworen.` }
+  const summoned: DuelState = {
+    ...state,
+    player,
+    lastAnimation: { id: card.id, kind: 'summon' },
+    message: `${card.name} wurde aus dem Extra Deck beschworen.`,
+  }
+  return settleTrigger(summoned, 'player', card.id, 'summon')
 }
 
-export function effectFromDescription(description: string): { effect: DuelEffect; summary: string } | null {
-  return effectFromDescriptionV2(description)
+export function effectFromDescription(
+  description: string,
+  card?: Pick<DuelCard, 'kind' | 'subtype' | 'type' | 'faceDown'>,
+): { effect: DuelEffect; summary: string; trigger: EffectTrigger } | null {
+  return effectFromDescriptionV2(description, card)
+}
+
+function triggerOf(card: DuelCard): EffectTrigger | undefined {
+  return card.effectTrigger
+}
+
+function settleTrigger(state: DuelState, side: DuelSide, cardId: number, trigger: 'summon' | 'flip'): DuelState {
+  const me = owner(state, side)
+  const card = me.monsters.find((item) => item.id === cardId)
+  if (!card || card.faceDown || !card.effect || triggerOf(card) !== trigger) return state
+  if (checkActivation(state, side, cardId)) return state
+  let next = activateDuelEffect(state, side, cardId)
+  if (next.chain.length && next.chainPriority === side) {
+    try {
+      next = passDuelChain(next, side)
+    } catch {
+      return next
+    }
+  }
+  return next
 }
 
 function fieldAuraBonus(player: DuelPlayer): number {
@@ -595,7 +635,18 @@ function fieldAuraBonus(player: DuelPlayer): number {
 }
 
 function effectiveAtk(attacker: DuelCard, owner: DuelPlayer): number {
-  return (attacker.atk || 0) + (attacker.boost || 0) + fieldAuraBonus(owner)
+  return (attacker.atk || 0) + fieldAuraBonus(owner)
+}
+
+export function cardBattleStats(card: DuelCard, owner: DuelPlayer): { atk: number; def: number; baseAtk: number; baseDef: number } {
+  const baseAtk = card.baseAtk ?? Math.max(0, (card.atk || 0) - (card.boost || 0))
+  const baseDef = card.baseDef ?? (card.def || 0)
+  return {
+    atk: (card.atk || 0) + fieldAuraBonus(owner),
+    def: card.def || 0,
+    baseAtk,
+    baseDef,
+  }
 }
 
 function owner(state: DuelState, side: DuelSide): DuelPlayer {
@@ -841,7 +892,22 @@ function applyEffect(state: DuelState, link: ChainLink): DuelState {
       const strongest = nextSource.monsters.reduce<DuelCard | null>((top, item) => !top || (item.atk || 0) > (top.atk || 0) ? item : top, null)
       if (strongest) {
         const index = nextSource.monsters.indexOf(strongest)
-        nextSource.monsters[index] = { ...strongest, atk: (strongest.atk || 0) + link.effect.amount, boost: (strongest.boost || 0) + link.effect.amount }
+        nextSource.monsters[index] = {
+          ...strongest,
+          baseAtk: strongest.baseAtk ?? strongest.atk,
+          atk: (strongest.atk || 0) + link.effect.amount,
+          boost: (strongest.boost || 0) + link.effect.amount,
+        }
+      }
+      break
+    }
+    case 'setStat': {
+      const index = nextSource.monsters.findIndex((monster) => monster.id === link.card.id)
+      if (index >= 0) {
+        const monster = nextSource.monsters[index]
+        nextSource.monsters[index] = link.effect.stat === 'atk'
+          ? { ...monster, baseAtk: monster.baseAtk ?? monster.atk, atk: link.effect.value }
+          : { ...monster, baseDef: monster.baseDef ?? monster.def, def: link.effect.value }
       }
       break
     }

@@ -11,7 +11,7 @@ globalThis.localStorage = {
   key: (index) => [...storage.keys()][index] ?? null,
   get length() { return storage.size },
 }
-const { parseConflictChoice, parseTabletMode, parseTabletPair, STAND_UPDATED_LINE } = await import('../src/engine/tablet-mode.ts')
+const { parseConflictChoice, parseTabletMode, parseTabletPair, parseTabletServer, STAND_UPDATED_LINE } = await import('../src/engine/tablet-mode.ts')
 const {
   parsePairCode,
   verdictFor,
@@ -33,6 +33,9 @@ for (const t of ['Tabletmodus aus', 'beende den Tabletmodus', 'Tablet-Modus been
 for (const t of ['Was ist der Tabletmodus und wie geht er genau zu bedienen?', 'tablet', 'Wetter']) {
   assert.equal(parseTabletMode(t), null, t)
 }
+assert.equal(parseTabletServer('server aus'), 'stop')
+assert.equal(parseTabletServer('server an'), 'start')
+assert.equal(parseTabletServer('Starte den Server'), 'start')
 assert.equal(parseTabletPair('Handy koppeln'), 'pair')
 assert.equal(parseTabletPair('Kopplung zurücksetzen'), 'reset')
 assert.equal(parseTabletPair('koppeln sie das bitte irgendwie'), null)

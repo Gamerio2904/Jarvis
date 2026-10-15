@@ -25,6 +25,8 @@ export function buildRealDeck(deck: RealDeck, nextId: () => number): { main: Due
         id: nextId(),
         catalogId: cardId,
         imageUrl: cardImage(cardId),
+        baseAtk: card.atk,
+        baseDef: card.def,
       }))
     })
   return { main: expand(deck.main), extra: expand(deck.extra) }

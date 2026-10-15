@@ -68,6 +68,8 @@ test('der Sprachtrigger erkennt die vereinbarte Herausforderung, aber keine ähn
   assert.equal(isYugiohDuelTrigger('Ich fordere dich zu einem Duell heraus'), true)
   assert.equal(isYugiohDuelTrigger('ich fordere dich zu einem duel auf'), true)
   assert.equal(isYugiohDuelTrigger('Wie wird das Wetter'), false)
+  assert.equal(isYugiohDuelTrigger('zeit für ein duell'), true)
+  assert.equal(isYugiohDuelTrigger('Zeit fuer ein Duell'), true)
 })
 
 test('Start zieht fünf Karten und vektorisiert den Spielzustand', () => {
@@ -162,11 +164,13 @@ test('beschränkte Kartentext-Auswertung erkennt nur unterstützte Effektformen'
   assert.deepEqual(effectFromDescription('You can draw 2 cards.'), {
     effect: { kind: 'draw', amount: 2 },
     summary: 'Zieht 2 Karte(n).',
+    trigger: 'ignition',
   })
   assert.equal(effectFromDescription('Once per turn, you can shuffle your hand.'), null)
   assert.deepEqual(effectFromDescription('Negate the activation of a card.'), {
     effect: { kind: 'negate' },
     summary: 'Negiert das vorherige Kettenglied (vereinfachte Regel).',
+    trigger: 'ignition',
   })
 })
 
@@ -427,6 +431,53 @@ test('neue Effekttypen werden aus Kartentext erkannt', () => {
   assert.equal(effectFromDescription('Add 1 "Blue-Eyes" monster from your Deck to your hand.')?.effect.kind, 'search')
   assert.equal(effectFromDescription('Special Summon 1 monster from your GY.')?.effect.kind, 'revive')
   assert.deepEqual(effectFromDescription('This card gains 500 ATK.')?.effect, { kind: 'boost', amount: 500 })
+  const setAtk = effectFromDescription('When this card is Normal Summoned: its ATK becomes 100.', { kind: 'monster', type: 'Effect Monster' })
+  assert.deepEqual(setAtk?.effect, { kind: 'setStat', stat: 'atk', value: 100 })
+  assert.equal(setAtk?.trigger, 'summon')
+  const flip = effectFromDescription('FLIP: This card\'s DEF becomes 0.', { kind: 'monster', type: 'Flip Effect Monster' })
+  assert.equal(flip?.effect.kind, 'setStat')
+  assert.equal(flip?.trigger, 'flip')
+})
+
+test('Normalbeschwörung setzt die ATK, Flip bleibt manuell bis zum Aufdecken', () => {
+  const parsed = effectFromDescription('When this card is Normal Summoned: its original ATK becomes 100.', { kind: 'monster', type: 'Effect Monster' })
+  let state = duelWith()
+  const host = state.player.hand.find((card) => card.kind === 'monster' && (card.level || 4) <= 4)
+  const card = {
+    ...host,
+    atk: 1800,
+    def: 1500,
+    baseAtk: 1800,
+    baseDef: 1500,
+    effect: parsed.effect,
+    effectSummary: parsed.summary,
+    effectTrigger: parsed.trigger,
+  }
+  state = {
+    ...state,
+    player: { ...state.player, hand: state.player.hand.map((item) => item.id === host.id ? card : item) },
+  }
+  state = summonMonster(state, card.id)
+  const placed = state.player.monsters.find((item) => item.id === card.id)
+  assert.equal(placed.atk, 100)
+  assert.equal(placed.baseAtk, 1800)
+  const stats = engine.cardBattleStats(placed, state.player)
+  assert.equal(stats.atk, 100)
+  assert.ok(stats.atk < stats.baseAtk)
+
+  const manual = effectFromDescription('You can make this card\'s ATK becomes 100.', { kind: 'monster', type: 'Effect Monster' })
+  assert.equal(manual?.trigger, 'ignition')
+  let waiting = duelWith()
+  const ignitionHost = waiting.player.hand.find((item) => item.kind === 'monster' && (item.level || 4) <= 4)
+  const ignition = { ...ignitionHost, atk: 1600, baseAtk: 1600, effect: { kind: 'setStat', stat: 'atk', value: 100 }, effectTrigger: 'ignition' }
+  waiting = {
+    ...waiting,
+    player: { ...waiting.player, hand: waiting.player.hand.map((item) => item.id === ignitionHost.id ? ignition : item) },
+  }
+  waiting = summonMonster(waiting, ignition.id)
+  assert.equal(waiting.player.monsters.find((item) => item.id === ignition.id).atk, 1600)
+  waiting = passDuelChain(activateDuelEffect(waiting, 'player', ignition.id), 'player')
+  assert.equal(waiting.player.monsters.find((item) => item.id === ignition.id).atk, 100)
 })
 
 test('Monster verdeckt in Verteidigung setzen, Verteidigung greift nicht an, Kampf gegen DEF verursacht keinen Schaden', () => {

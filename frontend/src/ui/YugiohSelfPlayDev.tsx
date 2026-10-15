@@ -4,7 +4,6 @@ import {
   attachValueHead,
   trainFromSelfPlaySamples,
   validateNetModel,
-  type NetBundle,
   type NetModel,
 } from '../engine/yugioh-net.ts'
 import {
@@ -62,7 +61,6 @@ export function YugiohSelfPlayDev({
   const [verifyOk, setVerifyOk] = useState<boolean | null>(null)
   const [analysisDone, setAnalysisDone] = useState(false)
   const [gateMsg, setGateMsg] = useState('')
-  const [bundle, setBundle] = useState<NetBundle | null>(null)
   const checkpointRef = useRef<NetModel | null>(null)
 
   useEffect(() => {
@@ -74,9 +72,7 @@ export function YugiohSelfPlayDev({
       const raw = localStorage.getItem(CHECKPOINT_KEY)
       if (raw) checkpointRef.current = validateNetModel(JSON.parse(raw) as NetModel)
     } catch { /* ignore */ }
-    if (netModel) setBundle(attachValueHead(netModel))
-    else setBundle(null)
-  }, [netModel])
+  }, [])
 
   const board = useMemo(() => (spectator ? matchBoard(spectator) : null), [spectator])
 
@@ -146,7 +142,7 @@ export function YugiohSelfPlayDev({
       window.setTimeout(() => step(index + 1), 30)
     }
     window.setTimeout(() => step(0), 30)
-  }, [trainingBusy, netModel, appVersion, setNetModel, trainingCurve, bundle])
+  }, [trainingBusy, netModel, appVersion, setNetModel, trainingCurve])
 
   const runVerify = useCallback(() => {
     if (!proof || !netModel) return
@@ -202,92 +198,77 @@ export function YugiohSelfPlayDev({
     <section className="ygo-dev-panel" aria-label="Yu-Gi-Oh Entwicklermenü">
       <div className="ygo-dev-grid">
         <div className="ygo-dev-col">
-          <h2>Self-Play Zuschauer</h2>
-          <p>Zwei Klone, sichtbarer Stepper. Dein laufendes Duell bleibt erhalten; Jarvis pausiert im Dev-Modus.</p>
+          <h2>Zuschauen</h2>
+          <p>Zwei Kopien der aktuellen KI spielen gegeneinander. Dein eigenes Duell bleibt stehen, solange diese Ansicht offen ist.</p>
           <div className="ygo-actions">
-            <button type="button" className="ygo-primary" onClick={startSpectator}>KI-gegen-KI starten</button>
+            <button type="button" className="ygo-primary" onClick={startSpectator}>Partie starten</button>
             <button type="button" disabled={!spectator} onClick={() => setSpectatorPaused((p) => !p)}>{spectatorPaused ? 'Weiter' : 'Pause'}</button>
-            <button type="button" disabled={!spectator} onClick={() => setSpectator(null)}>Beenden</button>
+            <button type="button" disabled={!spectator} onClick={() => setSpectator(null)}>Schließen</button>
           </div>
-          <label>Tempo
+          <label>Geschwindigkeit
             <select value={pace} onChange={(e) => setPace(e.target.value as Pace)}>
-              <option value="realtime">Echtzeit</option>
+              <option value="realtime">Langsam, Zug für Zug</option>
               <option value="fast">Schnell</option>
-              <option value="hidden">Nur Infos</option>
+              <option value="hidden">Nur das Ergebnis</option>
             </select>
           </label>
           {spectator ? (
             <p className="ygo-muted">{spectator.message} · Zug {spectator.halfTurn}{spectator.end ? ` · Ende: ${spectator.end}` : ''}</p>
-          ) : null}
+          ) : <p className="ygo-muted">Noch keine Partie. „Partie starten“ spielt eine Runde vor.</p>}
           {board && pace !== 'hidden' ? (
             <div className="ygo-mini-board" aria-hidden>
-              <span>Du {board.player.lp} LP</span>
-              <span>Ultron {board.jarvis.lp} LP</span>
+              <span>Klon A {board.player.lp} LP</span>
+              <span>Klon B {board.jarvis.lp} LP</span>
             </div>
           ) : null}
         </div>
 
         <div className="ygo-dev-col">
-          <h2>Training · Liga · Nachweis</h2>
+          <h2>Lernen und prüfen</h2>
+          <p>Das Netz spielt 8 Durchgänge à 3 Partien gegen sich selbst. Danach prüfst du den Nachweis und speicherst nur, wenn die Prüfung grün ist.</p>
           <button type="button" className="ygo-primary" disabled={trainingBusy || !netModel} onClick={runTraining}>
-            {trainingBusy ? `Trainiert … ${trainingProgress.done}/${trainingProgress.total}` : 'Self-Play trainieren (8×3 Matches)'}
+            {trainingBusy ? `Lernt … ${trainingProgress.done}/${trainingProgress.total}` : netModel ? 'Lernen starten' : 'Zuerst ein Duell starten, damit ein Netz da ist'}
           </button>
           {trainingCurve.length ? (
-            <p>Winrate-Kurve: {trainingCurve.map((v) => `${(v * 100).toFixed(0)}%`).join(' → ')}</p>
+            <p>Siegquote nach jedem Durchgang: {trainingCurve.map((v) => `${(v * 100).toFixed(0)}%`).join(' → ')}</p>
           ) : null}
           {stats ? (
-            <p>Review: {stats.mistakeCandidates} Fehlerkandidaten · {stats.totalMoves} Züge</p>
+            <p>Letzte Partie: {stats.mistakeCandidates} fragliche Züge von {stats.totalMoves}.</p>
           ) : null}
           {analysisDone ? (
             <>
               <button type="button" className="ygo-primary" disabled={verifyBusy} onClick={runVerify}>
-                {verifyBusy ? 'Verify läuft …' : 'Verify (Hash + Nachspielen)'}
+                {verifyBusy ? 'Prüfung läuft …' : 'Nachweis prüfen'}
               </button>
               {verifyOk === true ? (
-                <button type="button" className="ygo-primary" onClick={saveCheckpoint}>Checkpoint speichern (Gate + Verify)</button>
+                <button type="button" className="ygo-primary" onClick={saveCheckpoint}>Geprüftes Netz merken</button>
               ) : verifyOk === false ? (
-                <p className="ygo-error" role="alert">Verify rot — nichts wird überschrieben.</p>
+                <p className="ygo-error" role="alert">Prüfung fehlgeschlagen. Das alte Netz bleibt.</p>
               ) : null}
             </>
           ) : null}
           {gateMsg ? <p className="ygo-message">{gateMsg}</p> : null}
           {proof ? (
             <div className="ygo-actions">
-              <button type="button" onClick={downloadProof}>Nachweis-JSON laden</button>
+              <button type="button" onClick={downloadProof}>Nachweis herunterladen</button>
               <button
                 type="button"
                 onClick={() => {
                   const md = proofMarkdownSummary(proof)
                   void navigator.clipboard?.writeText(md)
                 }}
-              >Kurzbericht kopieren</button>
+              >Kurztext kopieren</button>
             </div>
           ) : null}
           {league.length ? (
             <ul className="ygo-league-list">
               {league.map((e) => (
-                <li key={e.id}>{e.label}: {Math.round(e.rating)} ±{Math.round(400 / Math.sqrt(Math.max(1, e.games)))}</li>
+                <li key={e.id}>{e.label}: {Math.round(e.rating)} Punkte</li>
               ))}
             </ul>
           ) : null}
         </div>
       </div>
-
-      {trainingBusy && board && pace !== 'hidden' ? (
-        <div className="ygo-training-overlay">
-          <div className="ygo-training-board">
-            <p>Live Self-Play</p>
-            <div className="ygo-mini-board">
-              <span>{board.player.lp} LP</span>
-              <span>{board.jarvis.lp} LP</span>
-            </div>
-          </div>
-          <div className="ygo-training-side">
-            <p>Match {trainingProgress.done}/{trainingProgress.total}</p>
-            <p>Value-Kopf: {bundle?.schema === 2 ? 'v2 aktiv' : '—'}</p>
-          </div>
-        </div>
-      ) : null}
 
       {lastResult && analysisDone ? (
         <details className="ygo-match-log">

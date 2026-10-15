@@ -1329,6 +1329,209 @@
   font-size: 0.92rem;
 }
 
+.ygo-mat {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 50% 46%, rgba(46, 120, 72, 0.55), transparent 58%),
+    linear-gradient(180deg, #14203a 0%, #0c1830 42%, #0c1830 58%, #14203a 100%);
+  border: 2px solid rgba(212, 175, 90, 0.45);
+  box-shadow: inset 0 0 0 6px rgba(18, 48, 32, 0.45);
+}
+
+.ygo-field {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) 74px;
+  gap: 8px;
+  align-items: center;
+}
+
+.ygo-zones {
+  display: grid;
+  gap: 6px;
+}
+
+.ygo-zones-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ygo-zones-mid {
+  height: 10px;
+  margin: 2px 8%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 90, 0.55), transparent);
+}
+
+.ygo-piles {
+  display: grid;
+  gap: 6px;
+}
+
+.ygo-pile {
+  position: relative;
+  min-height: 64px;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 90, 0.35);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f3e6c0;
+  font-size: 10px;
+  line-height: 1.2;
+  overflow: hidden;
+}
+
+.ygo-pile.is-deck {
+  background:
+    repeating-linear-gradient(135deg, #6a1b2a 0 8px, #3d1018 8px 16px);
+}
+
+.ygo-pile img {
+  width: 100%;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.ygo-pile em {
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-style: normal;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #000;
+}
+
+.ygo-slot {
+  position: relative;
+  aspect-ratio: 59 / 86;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 7px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.ygo-slot.is-empty,
+.ygo-slot:disabled {
+  opacity: 1;
+}
+
+.ygo-slot.is-empty {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.05), transparent 40%),
+    rgba(8, 20, 16, 0.35);
+}
+
+.ygo-slot-art,
+.ygo-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ygo-slot.is-defense .ygo-slot-art {
+  transform: rotate(90deg) scale(1.25);
+}
+
+.ygo-slot.is-facedown {
+  border-style: solid;
+  background:
+    repeating-linear-gradient(135deg, #4a2a86 0 7px, #2a1658 7px 14px);
+}
+
+.ygo-slot.is-glow {
+  box-shadow: 0 0 0 2px #f6d56a, 0 0 16px rgba(246, 213, 106, 0.75);
+}
+
+.ygo-slot.is-selected {
+  box-shadow: 0 0 0 2px #4dc4ff, 0 0 14px rgba(77, 196, 255, 0.7);
+}
+
+.ygo-slot-name {
+  display: block;
+  padding: 6px;
+  font-size: 9px;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.ygo-slot-stats {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 1px 3px 2px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ygo-slot-stats b,
+.ygo-detail-stats b {
+  font-weight: 750;
+  color: #fff;
+}
+
+.ygo-slot-stats b.is-buff,
+.ygo-detail-stats b.is-buff {
+  color: #3dff8a;
+}
+
+.ygo-slot-stats b.is-nerf,
+.ygo-detail-stats b.is-nerf {
+  color: #ff5c6a;
+}
+
+.ygo-lp {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  color: #f6f1e4;
+  font-size: 13px;
+}
+
+.ygo-lp i {
+  grid-column: 1 / -1;
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff4d5a, #f6d56a);
+}
+
+.ygo-hand {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 8px 4px 0;
+  overflow-x: auto;
+}
+
+.ygo-hand .ygo-hand-card {
+  flex: 0 0 clamp(72px, 16vw, 108px);
+  aspect-ratio: 59 / 86;
+}
+
+.ygo-dev-panel h2 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.ygo-dev-panel p {
+  margin: 0 0 8px;
+}
+
 .ygo-match-log {
   margin: 0 16px 16px;
   font-size: 0.9rem;

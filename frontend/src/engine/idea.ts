@@ -410,9 +410,13 @@ function talkWorth(text: string): boolean {
   return true
 }
 
+function deviceTalk(text: string): boolean {
+  return /\b(?:tabletmodus|tabelmodus|taletmodus|tabletmodu|handy\s+koppeln|verbinde(?:\s+dich)?(?:\s+mit)?\s+(?:dem\s+|das\s+)?handy|server\s+(?:an|aus)|starte\s+den\s+server|fernseher|yu-?gi-?oh|zeit\s+für\s+ein\s+duell)\b/i.test(text)
+}
+
 export async function sparPlan(text: string): Promise<string | null> {
   if (loadSettings().plan_phase !== 'live' || !talkWorth(text)) return null
-  if (parseBoardIntent(text) || parseAblaufIntent(text)) return null
+  if (parseBoardIntent(text) || parseAblaufIntent(text) || deviceTalk(text)) return null
   if (/^\s*lade\b/i.test(text)) return null
   const hit = await ideaOnTable()
   if (!hit) return 'Was soll geplant werden?'

@@ -12,12 +12,14 @@ import {
   TABLET_OFF_REPLY,
   TABLET_ON_REPLY,
 } from './tablet-mode.ts'
+import { normalizeUtterance } from './utterance.ts'
 
 export type TabletHit = { reply: string; tool: ToolMeta; blocks?: ChatBlock[] }
 
 /** Chat-Befehle fürs Tablet. Der Umschalter selbst läuft in der Oberfläche über `tool`. */
 export async function handleTabletText(text: string): Promise<TabletHit | null> {
-  const choice = parseConflictChoice(text)
+  const heard = normalizeUtterance(text) || text
+  const choice = parseConflictChoice(text) || (heard !== text ? parseConflictChoice(heard) : null)
   if (choice) {
     const tool = { tool_status: 'executed', tool: 'tablet', action: `conflict_${choice}`, label: 'Sync-Konflikt' }
     const ticket = takePendingConflict()
@@ -26,7 +28,7 @@ export async function handleTabletText(text: string): Promise<TabletHit | null> 
     if (out.kind === 'pulled') window.dispatchEvent(new Event('jarvis-sync-pulled'))
     return { reply: out.line || 'Nichts geändert.', tool }
   }
-  const server = parseTabletServer(text)
+  const server = parseTabletServer(text) || (heard !== text ? parseTabletServer(heard) : null)
   if (server) {
     const tool = { tool_status: 'executed', tool: 'tablet', action: `server_${server}`, label: 'Hausstand-Server' }
     if (!loadSettings().tablet_mode) {
@@ -50,14 +52,14 @@ export async function handleTabletText(text: string): Promise<TabletHit | null> 
     }
   }
 
-  const mode = parseTabletMode(text)
+  const mode = parseTabletMode(text) || (heard !== text ? parseTabletMode(heard) : null)
   if (mode) {
     return {
       reply: mode === 'on' ? TABLET_ON_REPLY : TABLET_OFF_REPLY,
       tool: { tool_status: 'executed', tool: 'tablet', action: mode, label: 'Tabletmodus' },
     }
   }
-  const pair = parseTabletPair(text)
+  const pair = parseTabletPair(text) || (heard !== text ? parseTabletPair(heard) : null)
   if (!pair) return null
   const tool = { tool_status: 'executed', tool: 'tablet', action: pair, label: 'Kopplung' }
   if (pair === 'reset') {

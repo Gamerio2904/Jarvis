@@ -40,6 +40,8 @@ export function parseTabletServer(text: string): TabletServerIntent | null {
   if (!t || t.length > 80) return null
   if (/^(?:bitte\s+)?(?:starte|starten|schalte\s+ein)\s+(?:den\s+)?(?:tablet[\s-]*)?server\s*[.!?]*$/.test(t)) return 'start'
   if (/^(?:bitte\s+)?(?:stoppe|beende|anhalten|schalte\s+aus)\s+(?:den\s+)?(?:tablet[\s-]*)?server\s*[.!?]*$/.test(t)) return 'stop'
+  if (/^(?:bitte\s+)?server\s+an\s*[.!?]*$/.test(t)) return 'start'
+  if (/^(?:bitte\s+)?server\s+aus\s*[.!?]*$/.test(t)) return 'stop'
   if (/^(?:bitte\s+)?(?:serverstatus|status\s+(?:vom\s+)?server|läuft\s+der\s+server)\s*[.!?]*$/.test(t)) return 'status'
   return null
 }

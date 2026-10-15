@@ -8,5 +8,7 @@ export function isYugiohDuelTrigger(text: string): boolean {
     .trim()
   const words = normalized.replace(/[^a-z0-9 ]/g, ' ')
   if (/\b(?:yu ?gi ?oh|yugioh)\b/.test(words) && /\b(?:duell?|spiel\w*|starte\w*)\b/.test(words)) return true
+  if (/\bzeit\s+f(?:u|ue)r\s+ein\s+due+l+\b/.test(words)) return true
+  if (/^(?:ein\s+)?due+l+$/.test(words)) return true
   return /\b(?:fordere|forder|herausfordern|herausforderung)\b/.test(words) && /\bdue+l+\b/.test(words)
 }

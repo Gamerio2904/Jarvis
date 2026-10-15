@@ -1,4 +1,4 @@
-import type { DuelCard, DuelEffect } from './yugioh-duel.ts'
+import type { DuelCard, DuelEffect, EffectTrigger } from './yugioh-duel.ts'
 import { parsePsctAtoms } from './yugioh-psct.ts'
 import { spellSpeedForCard } from './yugioh-zones.ts'
 
@@ -9,12 +9,26 @@ export type EffectTiming = 'normal' | 'quick' | 'trigger' | 'flip' | 'continuous
 export type EffectSchemaV2 = {
   version: typeof EFFECT_SCHEMA_VERSION
   timing: EffectTiming
+  trigger: EffectTrigger
   spellSpeed: 1 | 2 | 3
   effect: DuelEffect
   summary: string
   oncePerTurn: boolean
   hardOncePerTurn: boolean
   failClosed?: boolean
+}
+
+function triggerFrom(text: string, card: Pick<DuelCard, 'kind' | 'subtype' | 'type'>): EffectTrigger {
+  if (/flipped face-up|\bflip:/i.test(text) || /aufgedeckt wird|flip[\s-]*effekt/i.test(text)) return 'flip'
+  if (
+    /when this card is (?:normal |flip |special |tribute )?summoned|if this card is (?:normal |special )?summoned/i.test(text) ||
+    /(?:normal|als)\s+beschw[oö]r|beschworen wird/i.test(text) ||
+    (/summon/i.test(text) && /(?:atk|def) becomes|(?:atk|def) (?:wird|werden)/i.test(text))
+  ) return 'summon'
+  if (/\bflip\b/i.test(card.type || '')) return 'flip'
+  if (card.kind === 'trap' || /quick-play/i.test(card.subtype || '')) return 'quick'
+  if (/continuous|equip|field/i.test(card.subtype || '')) return 'continuous'
+  return 'ignition'
 }
 
 function timingFromCard(card: Pick<DuelCard, 'kind' | 'subtype' | 'type' | 'faceDown'>): EffectTiming {
@@ -88,6 +102,20 @@ function parseLegacyDescription(description: string): { effect: DuelEffect; summ
   if (/add (?:1|one|up to \d) [^.]{0,100}? from your deck to your hand/i.test(text)) {
     return { effect: { kind: 'search', amount: 1 }, summary: 'Nimmt 1 Karte aus dem Deck auf die Hand.' }
   }
+  const setAtk = text.match(
+    /(?:this card(?:'s)? |its |the )?original atk becomes (\d{1,5})|(?:this card(?:'s)? |its )atk becomes (\d{1,5})|becomes atk (\d{1,5})|(?:ihre |seine |die )?atk (?:wird|werden) (?:auf )?(\d{1,5})/i,
+  )
+  if (setAtk) {
+    const value = Math.max(0, Math.min(10000, Number(setAtk[1] || setAtk[2] || setAtk[3] || setAtk[4])))
+    return { effect: { kind: 'setStat', stat: 'atk', value }, summary: `Setzt die ATK auf ${value}.` }
+  }
+  const setDef = text.match(
+    /(?:this card(?:'s)? |its |the )?original def becomes (\d{1,5})|(?:this card(?:'s)? |its )def becomes (\d{1,5})|(?:ihre |seine |die )?def (?:wird|werden) (?:auf )?(\d{1,5})/i,
+  )
+  if (setDef) {
+    const value = Math.max(0, Math.min(10000, Number(setDef[1] || setDef[2] || setDef[3])))
+    return { effect: { kind: 'setStat', stat: 'def', value }, summary: `Setzt die DEF auf ${value}.` }
+  }
   const boost = text.match(/gains? (\d{3,4}) atk|(?:atk|attack) (?:is |are )?(?:increased|raised) by (\d{3,4})/i)
   if (boost) {
     const amount = Math.max(100, Math.min(3000, Number(boost[1] || boost[2])))
@@ -112,6 +140,7 @@ export function resolveEffectSchema(
       return {
         version: EFFECT_SCHEMA_VERSION,
         timing: timingFromCard(card),
+        trigger: triggerFrom(description, card),
         spellSpeed: spellSpeedForCard(card as DuelCard),
         effect: { kind: 'discard', amount: 0 },
         summary: 'Nicht unterstützter OPT-Effekt (fail-closed).',
@@ -126,6 +155,7 @@ export function resolveEffectSchema(
   return {
     version: EFFECT_SCHEMA_VERSION,
     timing: timingFromCard(card),
+    trigger: triggerFrom(description, card),
     spellSpeed: spellSpeedForCard(card as DuelCard),
     effect: parsed.effect,
     summary: parsed.summary,
@@ -134,10 +164,13 @@ export function resolveEffectSchema(
   }
 }
 
-export function effectFromDescriptionV2(description: string): { effect: DuelEffect; summary: string } | null {
-  const schema = resolveEffectSchema(description, { kind: 'spell', subtype: 'Normal', type: 'Spell Card' })
+export function effectFromDescriptionV2(
+  description: string,
+  card: Pick<DuelCard, 'kind' | 'subtype' | 'type' | 'faceDown'> = { kind: 'spell', subtype: 'Normal', type: 'Spell Card' },
+): { effect: DuelEffect; summary: string; trigger: EffectTrigger } | null {
+  const schema = resolveEffectSchema(description, card)
   if (!schema || schema.failClosed) return null
-  return { effect: schema.effect, summary: schema.summary }
+  return { effect: schema.effect, summary: schema.summary, trigger: schema.trigger }
 }
 
 export type DeckCoverageReport = {

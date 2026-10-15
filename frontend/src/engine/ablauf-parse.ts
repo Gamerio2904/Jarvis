@@ -48,7 +48,7 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
   }
   // „Plane eine App …“ ist dieselbe Planung. Der ganze Satz bleibt die Arbeit.
   // „Plane das“ und „Plane das:“ bleiben das live Skript.
-  if (/^\s*plan(?:e)?\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?(?:eine?\s+app|die\s+app|eine?\s+anwendung|die\s+anwendung|ein\s+projekt)\b/i.test(t)) {
+  if (/^\s*plan(?:e)?\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?(?:eine?\s+(?:neue\s+|weitere\s+)?app|die\s+app|eine?\s+(?:neue\s+)?anwendung|die\s+anwendung|ein\s+(?:neues\s+)?projekt)\b/i.test(t)) {
     return { kind: 'session', work: sessionWork(t) }
   }
 

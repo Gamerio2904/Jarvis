@@ -29,8 +29,8 @@ const SURFACE_WORD: Array<[RegExp, FensterSurface]> = [
 export function parseFensterConnect(text: string): FensterKind | null {
   const t = text.trim()
   if (!t || t.length > 80) return null
-  if (/^\s*verbinde\s+(?:das\s+|mein\s+)?handy\s*[.!?]*$/i.test(t)) return 'handy'
-  if (/^\s*verbinde\s+(?:das\s+|mein\s+)?tablet\s*[.!?]*$/i.test(t)) return 'tablet'
+  if (/^\s*verbinde(?:\s+dich)?(?:\s+mit)?\s+(?:das\s+|mein\s+|dem\s+)?handy\s*[.!?]*$/i.test(t)) return 'handy'
+  if (/^\s*verbinde(?:\s+dich)?(?:\s+mit)?\s+(?:das\s+|mein\s+|dem\s+)?tablet\s*[.!?]*$/i.test(t)) return 'tablet'
   return null
 }
 

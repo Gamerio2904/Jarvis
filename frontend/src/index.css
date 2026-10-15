@@ -9358,11 +9358,19 @@ html.theme-wipe-dark::before {
   border-left: 1px solid rgba(154, 239, 255, 0.25);
 }
 
+.script-side .script-wbs li,
 .script-wbs li {
   display: block;
+  grid-template-columns: none;
   padding: 5px 0;
   border-bottom: 1px solid rgba(255, 90, 98, 0.08);
   color: rgba(231, 247, 255, 0.86);
+  overflow-wrap: anywhere;
+}
+
+.script-side .script-wbs li > span {
+  display: block;
+  color: #d7f6ff;
   overflow-wrap: anywhere;
 }
 
@@ -10444,6 +10452,30 @@ html[data-device='tablet'] .app {
 }
 html[data-device='tablet'][data-orient='portrait'] .app {
   grid-template-columns: 200px 1fr;
+}
+.app.is-leiste-collapsed,
+html[data-device='tablet'] .app.is-leiste-collapsed,
+html[data-device='tablet'][data-orient='portrait'] .app.is-leiste-collapsed {
+  grid-template-columns: 76px 1fr;
+}
+.app.is-leiste-collapsed .sidebar {
+  padding: 8px 6px;
+  align-items: center;
+  overflow: hidden;
+}
+.app.is-leiste-collapsed .brand-copy,
+.app.is-leiste-collapsed .new-chat-lab,
+.app.is-leiste-collapsed .chat-list,
+.app.is-leiste-collapsed .status,
+.app.is-leiste-collapsed .nav-island-label,
+.app.is-leiste-collapsed .nav-island-thumb,
+.app.is-leiste-collapsed .chat-folder-label {
+  display: none;
+}
+@media (max-width: 860px) {
+  .app.is-leiste-collapsed .sidebar {
+    width: 76px;
+  }
 }
 html[data-device='tablet'] .messages {
   max-width: 900px;

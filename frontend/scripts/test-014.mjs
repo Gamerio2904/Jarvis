@@ -207,6 +207,8 @@ import {
   serializeResearchPending,
 } from '../src/engine/research-pending.ts'
 
+assert.equal(parseTvIntent('ich möchte mit der app tik tak to lokal auf dem handy spielen', true), null)
+assert.equal(parseTvIntent('spielen', true)?.action, 'play')
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
 assert.equal(parseTvIntent('Fernseher lauter')?.action, 'volume_up')

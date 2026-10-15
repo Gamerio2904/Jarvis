@@ -53,9 +53,18 @@ function clampSteps(n: number): number {
   return Math.max(1, Math.min(100, Math.round(n)))
 }
 
+function looksLikeLocalPlay(t: string): boolean {
+  return /\b(?:handy|tablet|lokal|tik[\s-]*tak|tic[\s-]*tac|tictac|tiktak)\b/i.test(t)
+    || (/\bapps?\b/i.test(t) && /\bspiel/i.test(t))
+}
+
 function fireAction(t: string): TvAction | null {
+  if (looksLikeLocalPlay(t)) return null
   if (/\b(pause|pausier)\b/i.test(t)) return 'pause'
-  if (/\b(play|spiel(?:en)?|weiter\s*spielen)\b/i.test(t) && !/\bspiel(?:e)?\s+\w/i.test(t)) return 'play'
+  if (
+    (/\bplay\b/i.test(t) || /\bweiter\s*spielen\b/i.test(t) || /^\s*spiel(?:en)?\s*[.!?]*$/i.test(t))
+    && !/\bspiel(?:e)?\s+\w/i.test(t)
+  ) return 'play'
   if (/\b(nächste[rs]?|weiter|skip)\b/i.test(t)) return 'next'
   if (/\b(vorherige[rs]?|zurückspulen)\b/i.test(t)) return 'prev'
   if (/\b(home|startseite|start)\b/i.test(t)) return 'home'
@@ -166,6 +175,7 @@ export function parseTvIntent(text: string, followUp = false): TvIntent | null {
   if (!hasAnchor && !followUp && !volish) return null
 
   const via: 'tv' | 'fire' | undefined = fire ? 'fire' : undefined
+  if (!hasAnchor && !fire && looksLikeLocalPlay(t)) return null
 
   const set =
     /(?:lautstärke|volume)\s*(?:auf\s*)?(\d{1,3})\b/i.exec(t) ||
