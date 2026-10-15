@@ -33,9 +33,12 @@ Materialregeln beschwörbar.
   Materialien gehen auf den Friedhof; das Extra-Deck wird lokal verwaltet.
 - Effektunterstützung über Kartentext-Erkennung inkl. Ketten: ziehen, Schaden,
   LP-Gewinn, Negation, Angriffs-Negation, Suche aus dem Deck, Wiederbelebung,
-  temporärer ATK-Boost sowie Zerstören (ein Monster, alle Monster, Angriffs-
-  Positionen oder Zauber/Fallen). Ketten haben Priorität, Pass-Fenster und
-  LIFO-Auflösung. Jarvis kann auf Angriffe und Ketten reagieren.
+  Beschwören aus dem Deck, Zurückholen vom Friedhof, temporärer ATK-Boost oder
+  ATK-Senkung, Positionswechsel sowie Zerstören und Verbannen (ein Monster,
+  alle Monster, Angriffspositionen, eine oder alle Zauber/Fallen). Steht nach
+  einem Semikolon eine dieser Auflösungen, gilt sie; die Kosten davor nicht.
+  Ketten haben Priorität, Pass-Fenster und LIFO-Auflösung. Jarvis kann auf
+  Angriffe und Ketten reagieren.
 - Karten-Details per Tap: eigene Feldkarten immer, gegnerische Feldmonster nur
   offen. Das Detailfenster zeigt große Grafik, Werte und Kartentext (live
   aus YGOPRODeck, mit Fallback).

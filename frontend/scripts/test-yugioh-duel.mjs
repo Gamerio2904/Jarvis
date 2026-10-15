@@ -439,6 +439,28 @@ test('neue Effekttypen werden aus Kartentext erkannt', () => {
   const flip = effectFromDescription('FLIP: This card\'s DEF becomes 0.', { kind: 'monster', type: 'Flip Effect Monster' })
   assert.equal(flip?.effect.kind, 'setStat')
   assert.equal(flip?.trigger, 'flip')
+  assert.deepEqual(effectFromDescription('Target 1 monster your opponent controls; destroy that target.')?.effect, { kind: 'destroy', target: 'monster' })
+  assert.deepEqual(effectFromDescription('Target 1 Spell/Trap on the field; destroy that target.')?.effect, { kind: 'destroy', target: 'spelltrap' })
+  assert.deepEqual(effectFromDescription('Destroy all Spells and Traps your opponent controls.')?.effect, { kind: 'destroy', target: 'allSpelltrap' })
+  assert.deepEqual(effectFromDescription('Target 1 Spell/Trap on the field; banish it.')?.effect, { kind: 'banish', target: 'spelltrap' })
+  assert.equal(effectFromDescription('Target 1 monster in your GY; Special Summon it.')?.effect.kind, 'revive')
+  assert.equal(effectFromDescription('Target 1 monster in your GY; add that target to your hand.')?.effect.kind, 'recover')
+  assert.equal(effectFromDescription('Target 1 monster in your Deck; add it to your hand.')?.effect.kind, 'search')
+  assert.equal(effectFromDescription('You can discard this card; negate that effect.')?.effect.kind, 'negate')
+  assert.equal(effectFromDescription('Pay half your LP; negate the Summon of a monster.')?.effect.cost, 'halfLp')
+  assert.deepEqual(effectFromDescription('Send the top 3 cards of your Deck to the GY.')?.effect, { kind: 'mill', amount: 3 })
+  assert.equal(effectFromDescription('Target 1 card on the field; return it to the hand.')?.effect.kind, 'bounce')
+  assert.deepEqual(effectFromDescription('Target 1 face-up monster on the field; change that target to face-down Defense Position.')?.effect, { kind: 'position', target: 'monster', faceDown: true })
+  assert.equal(effectFromDescription('Special Summon 1 Level 4 monster from your Deck.')?.effect.kind, 'summonDeck')
+  assert.deepEqual(effectFromDescription('All Dragon monsters you control gain 300 ATK.')?.effect, { kind: 'fieldAura', stat: 'atk', amount: 300 })
+  assert.deepEqual(effectFromDescription('Target 1 monster your opponent controls; it loses 500 ATK.')?.effect, { kind: 'weaken', amount: 500, half: false })
+  assert.equal(effectFromDescription('Target 1 monster you control; return that target to the hand.'), null)
+  assert.equal(effectFromDescription('You can discard 1 card; look at your opponent\'s Extra Deck.'), null)
+  assert.equal(effectFromDescription('Once per turn, you can shuffle your hand.'), null)
+  assert.equal(effectFromDescription('Discard 1 card, then draw 1 card.')?.effect.kind, 'drawDiscard')
+  assert.equal(effectFromDescription('If this card is Normal Summoned: Target 1 face-up monster on the field; change that target to face-down Defense Position. Once per turn, during the End Phase: Return it to the hand.')?.effect.kind, 'position')
+  assert.equal(effectFromDescription('Special Summon 1 Fairy monster from your hand. That monster\'s ATK is halved, also it is destroyed during the End Phase.'), null)
+  assert.equal(effectFromDescription('When this face-down card is destroyed and sent to the Graveyard, your opponent selects and executes 1 of the following effects: Discard 1 card. Destroy 1 monster.'), null)
 })
 
 test('Normalbeschwörung setzt die ATK, Flip bleibt manuell bis zum Aufdecken', () => {
@@ -542,6 +564,52 @@ test('Effekte: Suche, Wiederbeleben, Bonus, Zerstören aller Monster', () => {
   out = passDuelChain(activateDuelEffect(state, 'player', 813), 'player')
   assert.equal(out.jarvis.monsters.length, 0)
   assert.equal(out.jarvis.graveyard.length, 2)
+})
+
+test('Weitere Kartentexte zerstören Zauber, holen zurück, beschwören, drehen und senken ATK', () => {
+  const monsterIn = (id, atk, kind = 'monster') => ({ ...deck(1, atk)[0], id, kind, position: 'attack', faceDown: false })
+  const spell = (id) => spellCard(id, { kind: 'draw', amount: 1 })
+  let state = duelWith(
+    { hand: [spellCard(830, { kind: 'destroy', target: 'allSpelltrap' })] },
+    { spells: [spell(831), spell(832)], fieldSpell: spell(833) },
+  )
+  let out = passDuelChain(activateDuelEffect(state, 'player', 830), 'player')
+  assert.equal(out.jarvis.spells.length, 0)
+  assert.equal(out.jarvis.fieldSpell, null)
+  assert.equal(out.jarvis.graveyard.filter((card) => card.kind === 'spell').length, 3)
+
+  state = duelWith(
+    { hand: [spellCard(840, { kind: 'recover' })], graveyard: [monsterIn(841, 1200), spell(842)] },
+  )
+  out = passDuelChain(activateDuelEffect(state, 'player', 840), 'player')
+  assert.equal(out.player.hand.some((card) => card.id === 841), true)
+  assert.equal(out.player.graveyard.some((card) => card.id === 842), true)
+
+  state = duelWith(
+    { hand: [spellCard(850, { kind: 'summonDeck' })], deck: [monsterIn(851, 900), monsterIn(852, 2100)] },
+  )
+  out = passDuelChain(activateDuelEffect(state, 'player', 850), 'player')
+  assert.equal(out.player.monsters[0].id, 852)
+  assert.equal(out.player.deck.some((card) => card.id === 851), true)
+
+  state = duelWith(
+    { hand: [spellCard(860, { kind: 'position', target: 'monster', faceDown: true })] },
+    { monsters: [monsterIn(861, 1000), monsterIn(862, 2500)] },
+  )
+  out = passDuelChain(activateDuelEffect(state, 'player', 860), 'player')
+  const turned = out.jarvis.monsters.find((card) => card.id === 862)
+  assert.equal(turned.position, 'defense')
+  assert.equal(turned.faceDown, true)
+  assert.equal(out.jarvis.monsters.find((card) => card.id === 861).faceDown, false)
+
+  state = duelWith(
+    { hand: [spellCard(870, { kind: 'weaken', amount: 0, half: true })] },
+    { monsters: [monsterIn(871, 1800)] },
+  )
+  out = passDuelChain(activateDuelEffect(state, 'player', 870), 'player')
+  assert.equal(out.jarvis.monsters[0].atk, 900)
+  const ended = engine.endJarvisTurn(engine.startJarvisTurn({ ...out, phase: 'end' }))
+  assert.equal(ended.jarvis.monsters[0].atk, 1800)
 })
 
 test('Jarvis antwortet auf einen Angriff mit einer gesetzten Falle und die Kette hält den Angriff an', () => {
