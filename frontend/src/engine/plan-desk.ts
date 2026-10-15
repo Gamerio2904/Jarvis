@@ -1,4 +1,5 @@
 import type { IdeaPlan } from './idea-plan.ts'
+import { loadSettings } from './store.ts'
 
 const CANNED = new Set([
   'die wege gegeneinander halten.',
@@ -30,6 +31,15 @@ export function cannedRosterLine(text: string): boolean {
   return ROSTER.has(norm(text))
 }
 
+/** Eine Frage je Schritt. Der Plan wächst aus der Antwort, nicht aus dem Titel. */
+export function sparQuestion(step: string): string {
+  if (step === 'goal') return 'Was soll die App konkret können? Ein Satz reicht.'
+  if (step === 'audience') return 'Für wen ist sie gedacht?'
+  if (step === 'slice') return 'Was ist die erste nutzbare Scheibe, die in einem Sprint fertig wird?'
+  if (step === 'done') return 'Woran erkennst du, dass dieser Sprint fertig ist?'
+  return 'Sag den nächsten Schritt für diesen Sprint, oder „nächster Sprint“, wenn ein neuer Sprint beginnt.'
+}
+
 export function planDeskLines(
   idea: { title?: string; plan?: IdeaPlan | null } | undefined,
   phase: string,
@@ -57,8 +67,10 @@ export function planDeskLines(
   }
   const sprints = [...(idea.plan?.sprints || [])].sort((a, b) => Number(a.n) - Number(b.n))
   for (const sprint of sprints) add(`SPRINT ${sprint.n}`, sprint.ziel?.trim() || sprint.title)
-  const status =
-    phase === 'go'
+  const spar = loadSettings().plan_spar_step
+  const status = spar
+    ? sparQuestion(spar)
+    : phase === 'go'
       ? 'Umgesetzt. Export ist bereit.'
       : cardName
         ? 'Die Karte liegt. Sag Fertig, dann geht der Bildschirm zu.'

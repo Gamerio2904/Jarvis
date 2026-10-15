@@ -23,7 +23,7 @@ const MUST_DO = /^\s*ich\s+muss\s+(?:noch\s+)?(?!(?:los|sagen|mal|kurz|weg|penne
 const TASK_TAIL =
   /^\s*(?:bitte\s+)?(.{2,40}?)\s+(abholen|anrufen|putzen|waschen)\s*[.!]?\s*$/i
 const TODO_LIST =
-  /^\s*(?:(?:zeig(?:e)?|liste)\s+(?:mir\s+)?(?:meine\s+)?(?:offenen\s+)?(?:todos?|aufgaben)|(?:offene\s+)?todos?\??|was\s+steht\s+an\??|meine\s+aufgaben)\s*$/i
+  /^\s*(?:(?:zeig(?:e)?|liste)\s+(?:mir\s+)?(?:meine\s+)?(?:offenen\s+)?(?:todos?|aufgaben)|(?:offene\s+)?todos?\??|was\s+steht\s+(?:noch\s+)?an\??|meine\s+aufgaben|was\s+hab(?:e)?\s+ich\s+(?:noch\s+)?(?:zu\s+tun|zu\s+erledigen|offen)|was\s+muss\s+ich\s+(?:noch\s+)?(?:tun|erledigen)|was\s+ist\s+(?:noch\s+)?zu\s+tun|was\s+liegt\s+(?:noch\s+)?an)\s*\??\s*$/i
 const TODO_CLEANUP = /\btodos?\s+aufräumen\b|\berledigte\s+todos?\s+löschen\b/i
 const DONE_FIRST =
   /^\s*(?:erledige\s+(?:das\s+)?(?:erste|1\.?)(?:\s+todo)?|erstes\s+(?:todo\s+)?(?:erledigen|abhaken)|haken\s+beim\s+ersten)\s*[.!]?\s*$/i
@@ -58,6 +58,16 @@ export function parseLocalDeadline(text: string): { date: string; time: string |
   }
   const remaining = `${text.slice(0, match.index)} ${text.slice(match.index + match[0].length)}`.replace(/\s+/g, ' ').trim()
   return { date: localDate(date), time, remaining }
+}
+
+function todoFromText(raw: string): { title: string; deadlineDate: string | null; deadlineTime: string | null } {
+  const cleaned = raw.replace(/[.!?]+$/g, '').replace(/\s+/g, ' ').trim()
+  const deadline = parseLocalDeadline(cleaned)
+  return {
+    title: (deadline?.remaining || cleaned).replace(/\s+/g, ' ').trim(),
+    deadlineDate: deadline?.date ?? null,
+    deadlineTime: deadline?.time ?? null,
+  }
 }
 
 function dayThrough(text: string): { through: string; label: string } | null {
@@ -132,10 +142,10 @@ export function parseToolIntent(text: string): ToolIntent | null {
   }
 
   const listPrefix = LIST_PREFIX.exec(text)
-  if (listPrefix) return { kind: 'todo_create', title: listPrefix[1].trim() }
+  if (listPrefix) return { kind: 'todo_create', ...todoFromText(listPrefix[1]) }
 
   const must = MUST_DO.exec(text)
-  if (must) return { kind: 'todo_create', title: must[1].trim().replace(/[.!?]+$/, '') }
+  if (must) return { kind: 'todo_create', ...todoFromText(must[1]) }
 
   const tail = TASK_TAIL.exec(text)
   if (tail && !/[?]/.test(text) && text.trim().length <= 60 && !/anrufen/i.test(tail[2])) {

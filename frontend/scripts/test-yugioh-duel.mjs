@@ -26,6 +26,7 @@ import {
   FEATURE_COUNT,
   greedyNetPolicy,
   heuristicPolicy,
+  mirrorBotStep,
   randomPolicy,
   runNetJarvisTurn,
   seededRandom,
@@ -72,6 +73,19 @@ test('der Sprachtrigger erkennt die vereinbarte Herausforderung, aber keine ähn
   assert.equal(isYugiohDuelTrigger('Zeit fuer ein Duell'), true)
   assert.equal(isYugiohDuelTrigger('Wie viele Yu-Gi-Oh Spielkarten gibt es?'), false)
   assert.equal(isYugiohDuelTrigger('Starte Yu-Gi-Oh'), true)
+  assert.equal(isYugiohDuelTrigger('Yu gi oh'), true)
+  assert.equal(isYugiohDuelTrigger('yugioh'), true)
+  assert.equal(isYugiohDuelTrigger('Ich fordere dich heraus'), false)
+})
+
+test('ein Bot-Duell läuft auf demselben Feld weiter', () => {
+  const right = deck().map((card, index) => ({ ...card, id: index + 101, catalogId: index + 101, name: `Gegner ${index + 1}` }))
+  let state = createDuel(deck(), right, () => 0.2)
+  state = { ...state, turnOwner: 'player', phase: 'main1' }
+  const next = mirrorBotStep(state, null)
+  assert.equal(next.player.deck.length + next.player.hand.length + next.player.monsters.length > 0, true)
+  assert.equal(next.jarvis.deck.length + next.jarvis.hand.length + next.jarvis.monsters.length > 0, true)
+  assert.equal(typeof next.message, 'string')
 })
 
 test('Start zieht fünf Karten und vektorisiert den Spielzustand', () => {

@@ -439,6 +439,10 @@ export type Settings = {
   /** Idee, die gerade auf der Tischplatte liegt. `Go` nimmt diese, nicht die neueste. */
   plan_idea_id: string
   plan_question_json: string
+  /** Sparring-Schritt auf der Tischplatte: goal, audience, slice, done, build. */
+  plan_spar_step: string
+  /** Startbildschirm: freie Zellen, Ordner. Leer heißt die Werkreihenfolge. */
+  home_layout_json: string
   /** Offenes Projekt auf dem Portfolio. Leer heißt die Kartenliste. */
   portfolio_focus: string
   /** Geöffnete Datei in der Liste. */
@@ -664,6 +668,8 @@ export const DEFAULT_SETTINGS: Settings = {
   plan_script_at: 0,
   plan_idea_id: '',
   plan_question_json: '',
+  plan_spar_step: '',
+  home_layout_json: '',
   portfolio_focus: '',
   portfolio_file: '',
   board_jobs_json: '',

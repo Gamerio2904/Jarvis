@@ -73,16 +73,30 @@ export function parseShopIntent(text: string): ShopIntent | null {
   return parseAdd(t)
 }
 
+const ITEM_MODIFIER =
+  /^(?:rote[rnms]?|frische[rnms]?|extra|bio|ohne|mit|große[rnms]?|grosse[rnms]?|kleine[rnms]?|ganze[rnms]?|halbe[rnms]?|volle[rnms]?|dunkle[rnms]?|helle[rnms]?|süße[rnms]?|suesse[rnms]?|saure[rnms]?|gemahlene[rnms]?|getrocknete[rnms]?|geriebene[rnms]?|gekochte[rnms]?|rohe[rnms]?|italienische[rnms]?|deutsche[rnms]?|griechische[rnms]?|vollfett|fettarm|mager|ein(?:e[mnrs]?)?|den|die|das|dem|zwei|drei|\d+(?:[.,]\d+)?(?:g|kg|ml|l|stk)?)$/i
+
+/** „Milch Eier“ wird zwei Posten. „Rote Paprika“ bleibt einer. */
+function splitBareWords(part: string): string[] {
+  const words = part.trim().split(/\s+/).filter(Boolean)
+  if (words.length < 2 || words.length > 4) return [part]
+  if (words.some((word) => ITEM_MODIFIER.test(word))) return [part]
+  return words
+}
+
 export function splitShopItems(raw: string): string[] {
   const seen = new Set<string>()
   const out: string[] = []
   for (const part of raw.split(/\s*,\s*|\s+und\s+|\s+sowie\s+|\s+plus\s+/i)) {
-    const title = tidyItem(part)
-    if (!title) continue
-    const key = title.toLocaleLowerCase('de-DE')
-    if (seen.has(key)) continue
-    seen.add(key)
-    out.push(title)
+    for (const piece of splitBareWords(part)) {
+      const title = tidyItem(piece)
+      if (!title) continue
+      const key = title.toLocaleLowerCase('de-DE')
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push(title)
+      if (out.length >= 12) break
+    }
     if (out.length >= 12) break
   }
   return out

@@ -18,7 +18,7 @@ import { ablaufWaiting } from './ablauf-state.ts'
 import { parseAblaufIntent, type AblaufIntent } from './ablauf-parse.ts'
 import { commitPortfolio, currentIdeaForTable, handlePortfolio, listPortfolio } from './portfolio.ts'
 import { artLabel } from './entwurf-muster.ts'
-import { cannedPlanLine, cannedRosterLine } from './plan-desk.ts'
+import { cannedPlanLine, cannedRosterLine, sparQuestion } from './plan-desk.ts'
 import { parseBoardIntent } from './board-parse.ts'
 import { fallbackFromWork } from './entwurf-fill.ts'
 import { parsePortfolioIntent } from './portfolio-parse.ts'
@@ -184,6 +184,43 @@ function genericAppTitle(title: string): boolean {
   return /^(?:eine neue app|neue app|eine app|app)$/i.test(title.trim())
 }
 
+function thinClause(part: string): boolean {
+  const stripped = part
+    .replace(/^(?:ich\s+(?:möchte|moechte|will)|lass(?:\s+uns)?|wir\s+wollen)\s+(?:bitte\s+)?(?:mal\s+)?(?:zusammen\s+)?/i, '')
+    .replace(/^(?:plane|plan)\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?/i, '')
+    .replace(/^(?:eine\s+)?(?:neue\s+)?(?:app|anwendung)\s*(?::|(?:für|fuer))?\s*/i, '')
+    .replace(/^(?:planen|entwickeln|bauen|entwerfen)\s*/i, '')
+    .trim()
+  return stripped.length < 3 || /^(?:eine neue app|neue app|eine app|app|anwendung)$/i.test(stripped)
+}
+
+function thinWork(work: string): boolean {
+  const parts = clausesOf(work)
+  return !parts.length || parts.every((part) => thinClause(part))
+}
+
+function sameLine(value: string): string {
+  return value.replace(/[.?!,;:]+$/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
+}
+
+function planIsTitleClone(plan: IdeaPlan, title: string): boolean {
+  if (!thinClause(title) && !thinWork(title)) return false
+  const lines = [
+    ...plan.anforderungen.filter((row) => !row.id.startsWith('O')).map((row) => row.satz),
+    ...plan.sprints.flatMap((sprint) => [sprint.title, sprint.ziel, ...sprint.lieferumfang.map((task) => task.task)]),
+  ]
+  return lines.every((line) => !line.trim() || thinClause(line) || sameLine(line) === sameLine(title))
+}
+
+function armSpar(plan: IdeaPlan, title: string, fresh: boolean): void {
+  if (!planIsTitleClone(plan, title)) {
+    saveSettings({ plan_spar_step: '' })
+    return
+  }
+  const current = loadSettings().plan_spar_step
+  saveSettings({ plan_spar_step: fresh || !current ? 'goal' : current })
+}
+
 function ownsPlan(conversationId: string): boolean {
   const owner = loadSettings().plan_conversation_id
   return !owner || owner === conversationId
@@ -197,6 +234,7 @@ function clearShownPlan(): string {
     plan_conversation_id: '',
     plan_script_at: 0,
     plan_idea_id: '',
+    plan_spar_step: '',
     workbench_open: false,
     board_jobs_json: serializeBoardJobs(jobs),
   })
@@ -283,11 +321,11 @@ async function closePlanningScreen(raw: string): Promise<string> {
   const settings = loadSettings()
   const phase = settings.plan_phase
   if (phase === 'go') {
-    saveSettings({ tischplatte_on: true, workbench_open: false })
+    saveSettings({ tischplatte_on: true, workbench_open: false, plan_spar_step: '' })
     return 'Der Planungsbildschirm ist zu. Das Skript bleibt fest.'
   }
   if (phase === 'live' || settings.workbench_open) {
-    saveSettings({ plan_phase: '', plan_conversation_id: '', plan_script_at: 0, tischplatte_on: true, workbench_open: false })
+    saveSettings({ plan_phase: '', plan_conversation_id: '', plan_script_at: 0, plan_spar_step: '', tischplatte_on: true, workbench_open: false })
     return 'Der Planungsbildschirm ist zu. Der Plan bleibt.'
   }
   return 'Das Planfenster ist zu. Die Sprints bleiben auf der Tischplatte.'
@@ -364,9 +402,14 @@ async function ensurePlanningDocs(idea: Idea, work: string): Promise<Idea> {
       plan.anforderungen.push({ id: `A${n}`, satz, abnahme: '', gateway: 'offen' })
     }
   }
-  if (!plan.sprints.length) fillFromClauses(plan, parts.length ? parts : [idea.title], planTitle(source || idea.title))
+  const thin = thinWork(source)
+  if (!plan.sprints.length && !thin) fillFromClauses(plan, parts.length ? parts : [idea.title], planTitle(source || idea.title))
+  if (thin && planIsTitleClone(plan, idea.title)) {
+    plan.anforderungen = plan.anforderungen.filter((row) => row.id.startsWith('O') && !thinClause(row.satz))
+    plan.sprints = []
+  }
   dropCannedRoster(plan)
-  addSurface(plan, source)
+  if (!thin) addSurface(plan, source)
   const nextBody = source.trim().length > idea.title.trim().length ? source.trim() : idea.body || source
   const next = { ...idea, body: nextBody, plan }
   await putIdea(next)
@@ -395,7 +438,8 @@ function formatSession(plan: IdeaPlan, title: string, cardName = ''): string {
   const face = plan.anforderungen.filter((row) => row.id.startsWith('O') && mark(row.satz))
   if (face.length) bits.push(`Oberfläche: ${face.map((row) => row.satz).join(', ')}.`)
   if (cardName) bits.push(`Die Karte ${cardName} liegt im Portfolio.`)
-  bits.push('Sag Fertig, dann geht der Bildschirm zu.')
+  const step = loadSettings().plan_spar_step
+  bits.push(step ? sparQuestion(step) : 'Sag Fertig, dann geht der Bildschirm zu.')
   return bits.join(' ')
 }
 
@@ -431,6 +475,7 @@ async function openPlanningSession(work: string, conversationId = ''): Promise<s
   const ready = await ensurePlanningDocs(hit, text || hit.body || hit.title)
   const saved = await commitPortfolio(ready)
   await showPlanning(ready, conversationId)
+  armSpar(ready.plan || emptyPlan(ready.id), text || ready.title, !loadSettings().plan_spar_step)
   const cardName = saved.row && !saved.full ? saved.row.name : ''
   return formatSession(ready.plan || emptyPlan(ready.id), ready.title, cardName)
 }
@@ -449,6 +494,71 @@ function deviceTalk(text: string): boolean {
   return /\b(?:tablet\s*modus|tabel\s*modus|talet\s*modus|tabletmodus|tabelmodus|taletmodus|tabletmodu|handy\s+koppeln|verbinde(?:\s+dich)?(?:\s+mit)?\s+(?:dem\s+|das\s+)?handy|server\s+(?:an|aus)|starte(?:\s+bitte)?(?:\s+mal)?\s+den\s+server|fernseher|yu-?gi-?oh|zeit\s+für\s+ein\s+duell)\b/i.test(text)
 }
 
+async function advanceSpar(hit: Idea, plan: IdeaPlan, line: string, step: string): Promise<string> {
+  let next = step
+  let reply = ''
+  let current = hit
+  if (step === 'goal') {
+    plan.anforderungen = plan.anforderungen.filter((row) => row.id.startsWith('O'))
+    plan.anforderungen.unshift({ id: 'A1', satz: line, abnahme: '', gateway: 'offen' })
+    if (thinClause(current.title) || thinWork(current.title)) {
+      current = { ...current, title: line.replace(/[.!?]+$/g, '').slice(0, 48) }
+    }
+    if (!plan.bedingung || thinWork(plan.bedingung)) plan.bedingung = line
+    next = 'audience'
+    reply = `Ziel festgehalten: ${line}. ${sparQuestion('audience')}`
+  } else if (step === 'audience') {
+    plan.entscheidungen = plan.entscheidungen.filter((cut) => cut.schnitt !== 'Zielgruppe')
+    plan.entscheidungen.push({ id: 'E1', schnitt: 'Zielgruppe', grund: line, gateway: 'offen' })
+    next = 'slice'
+    reply = `Zielgruppe: ${line}. ${sparQuestion('slice')}`
+  } else if (step === 'slice' || (step === 'build' && /n(?:ä|ae)chster\s+sprint|neuer\s+sprint/i.test(line))) {
+    const rest = step === 'build'
+      ? line.replace(/n(?:ä|ae)chster\s+sprint|neuer\s+sprint/ig, '').replace(/^[\s,:.\-]+/, '').trim()
+      : line
+    if (step === 'build' && rest.length < 3) {
+      saveSettings({ plan_spar_step: 'slice' })
+      await showPlanning(current)
+      return sparQuestion('slice')
+    }
+    const slice = rest || line
+    const n = plan.sprints.length ? nextSprintN(plan) : '1'
+    const sprint = blankSprint(n, slice.slice(0, 48), slice.slice(0, 160))
+    const need = plan.anforderungen.find((row) => row.id.startsWith('A'))
+    sprint.anforderungen = need ? [need.id] : []
+    sprint.lieferumfang = [{ id: `S${n}-1`, task: slice.slice(0, 120), anleitung: WEG_ANLEITUNG }]
+    plan.sprints.push(sprint)
+    next = 'done'
+    reply = `Sprint ${n}: ${slice}. ${sparQuestion('done')}`
+  } else if (step === 'done') {
+    const sprint = plan.sprints[plan.sprints.length - 1]
+    if (sprint) {
+      sprint.go_wenn = line.slice(0, 180)
+      const need = plan.anforderungen.find((row) => sprint.anforderungen.includes(row.id))
+        || plan.anforderungen.find((row) => row.id.startsWith('A'))
+      if (need) need.abnahme = line.slice(0, 180)
+    }
+    next = 'build'
+    reply = `Sprint ${sprint?.n || '1'} ist nutzbar. Fertig, wenn: ${line}. ${sparQuestion('build')}`
+  } else {
+    const sprint = plan.sprints[plan.sprints.length - 1] || blankSprint('1', line.slice(0, 48), line.slice(0, 160))
+    if (!plan.sprints.length) plan.sprints = [sprint]
+    if (!sprint.lieferumfang.some((row) => sameLine(row.task) === sameLine(line))) {
+      sprint.lieferumfang.push({
+        id: `S${sprint.n}-${sprint.lieferumfang.length + 1}`,
+        task: line.slice(0, 120),
+        anleitung: WEG_ANLEITUNG,
+      })
+    }
+    reply = `Im Sprint ${sprint.n}: ${line}. ${sparQuestion('build')}`
+  }
+  dropCannedRoster(plan)
+  await putIdea({ ...current, plan })
+  await showPlanning({ ...current, plan })
+  saveSettings({ plan_spar_step: next, plan_idea_id: current.id })
+  return reply
+}
+
 export async function sparPlan(text: string, conversationId = ''): Promise<string | null> {
   if (loadSettings().plan_phase !== 'live' || !talkWorth(text)) return null
   if (conversationId && !ownsPlan(conversationId)) return null
@@ -458,6 +568,8 @@ export async function sparPlan(text: string, conversationId = ''): Promise<strin
   if (!hit) return 'Was soll geplant werden?'
   const plan = hit.plan || emptyPlan(hit.id, hit.body || hit.title)
   const line = text.replace(/\s+/g, ' ').trim().slice(0, 160)
+  const step = loadSettings().plan_spar_step
+  if (step) return advanceSpar(hit, plan, line, step)
   const same = (value: string) => value.replace(/[.?!,;:]+$/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
   const known = plan.anforderungen.some((row) => same(row.satz) === same(line))
   if (!known) {
@@ -493,14 +605,19 @@ async function writeProject(work: string, conversationId = ''): Promise<string> 
   const title = planTitle(work)
   const rows = await listIdeas()
   let hit = genericAppTitle(title) ? undefined : rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
-  if (hit?.plan) {
+  if (hit?.plan && !planIsTitleClone(hit.plan, hit.title)) {
     await showPlanning(hit)
+    saveSettings({ plan_spar_step: '' })
     return `Das vorhandene Projekt „${hit.title}“ ist geöffnet. Der gespeicherte Plan und der ursprüngliche Wunsch wurden nicht überschrieben.`
   }
   if (!hit) hit = await addIdea(title, work)
-  const plan = emptyPlan(hit.id, work)
+  const plan = hit.plan && planIsTitleClone(hit.plan, hit.title) ? hit.plan : emptyPlan(hit.id, work)
+  if (planIsTitleClone(plan, title)) {
+    plan.anforderungen = []
+    plan.sprints = []
+  }
   keepOriginalIntake(plan, hit, work)
-  fillFromClauses(plan, parts, title)
+  if (!thinWork(work)) fillFromClauses(plan, parts, title)
   await putIdea({ ...hit, body: work, plan })
   persistLastList('idea', [hit.title, ...titlesOf(await listIdeas('open')).filter((t) => t !== hit.title)])
   saveSettings({
@@ -512,6 +629,8 @@ async function writeProject(work: string, conversationId = ''): Promise<string> 
     tischplatte_view: 'psp',
     workbench_open: true,
   })
+  armSpar(plan, hit.title, true)
+  if (loadSettings().plan_spar_step) return formatSession(plan, hit.title)
   return `${formatPlan(plan, hit.title)}\n\nDas Skript läuft live auf der Tischplatte. Sag Go, dann ist der Export bereit. Sag: Lade den PSP runter. Oder: Lade alles zu Projekt ${hit.title}.`
 }
 

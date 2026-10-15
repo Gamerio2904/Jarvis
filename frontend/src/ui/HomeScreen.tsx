@@ -1,4 +1,13 @@
 import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
+import {
+  applyHomeDrop,
+  ejectHomeApp,
+  parseHomeLayout,
+  renameHomeFolder,
+  serializeHomeLayout,
+  type HomeLayout,
+} from '../engine/home-layout.ts'
+import { loadSettings, saveSettings } from '../engine/store.ts'
 import { clockLabel, weekdayLabel } from '../engine/glance-snap.ts'
 import { parseThemeHint, DEFAULT_THEME, type BoardTheme } from '../engine/board-theme.ts'
 import { draftFramesOpen } from '../engine/entwurf-parse.ts'
@@ -6,7 +15,7 @@ import { PortfolioStage } from './PortfolioStage.tsx'
 import { scanPhase, ScanStage } from './ScanStage.tsx'
 import { EntwurfStage } from './EntwurfStage.tsx'
 import { Workbench } from './Workbench.tsx'
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect, useRef, useState, type PointerEvent } from 'react'
 
 function AppGlyph({ id }: { id: HomeAppId }) {
   if (id === 'chat') {
@@ -138,6 +147,155 @@ function AppGlyph({ id }: { id: HomeAppId }) {
   )
 }
 
+function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
+  const [layout, setLayout] = useState<HomeLayout>(() => parseHomeLayout(loadSettings().home_layout_json))
+  const [openFolder, setOpenFolder] = useState<string | null>(null)
+  const [ghost, setGhost] = useState<{ x: number; y: number; label: string } | null>(null)
+  const [hover, setHover] = useState<number | null>(null)
+  const drag = useRef<{
+    pointerId: number
+    from: number
+    x: number
+    y: number
+    dragging: boolean
+    hover: number | null
+    hoverAt: number
+    hold: number
+  } | null>(null)
+
+  useEffect(() => {
+    const sync = () => setLayout(parseHomeLayout(loadSettings().home_layout_json))
+    window.addEventListener('jarvis-settings', sync)
+    return () => window.removeEventListener('jarvis-settings', sync)
+  }, [])
+
+  function commit(next: HomeLayout) {
+    setLayout(next)
+    saveSettings({ home_layout_json: serializeHomeLayout(next) })
+  }
+
+  function labelOf(index: number): string {
+    const cell = layout.cells[index]
+    if (!cell) return ''
+    if (cell.kind === 'folder') return cell.folder.name
+    return HOME_APPS.find((app) => app.id === cell.id)?.label || cell.id
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLButtonElement>, index: number) {
+    if (event.button !== 0 || !layout.cells[index]) return
+    const hold = window.setTimeout(() => {
+      const current = drag.current
+      if (!current || current.from !== index || current.dragging) return
+      current.dragging = true
+      setGhost({ x: event.clientX, y: event.clientY, label: labelOf(index) })
+    }, 280)
+    drag.current = {
+      pointerId: event.pointerId,
+      from: index,
+      x: event.clientX,
+      y: event.clientY,
+      dragging: false,
+      hover: null,
+      hoverAt: 0,
+      hold,
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const current = drag.current
+    if (!current || event.pointerId !== current.pointerId) return
+    const distance = Math.hypot(event.clientX - current.x, event.clientY - current.y)
+    if (!current.dragging && distance > 8) {
+      current.dragging = true
+      window.clearTimeout(current.hold)
+    }
+    if (!current.dragging) return
+    setGhost({ x: event.clientX, y: event.clientY, label: labelOf(current.from) })
+    const hit = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-home-cell]')
+    const index = hit ? Number(hit.getAttribute('data-home-cell')) : null
+    const next = Number.isInteger(index) ? index : null
+    if (next !== current.hover) {
+      current.hover = next
+      current.hoverAt = Date.now()
+      setHover(next)
+    }
+  }
+
+  function onPointerUp(event: PointerEvent<HTMLButtonElement>) {
+    const current = drag.current
+    if (!current || event.pointerId !== current.pointerId) return
+    window.clearTimeout(current.hold)
+    drag.current = null
+    setGhost(null)
+    setHover(null)
+    if (!current.dragging) {
+      const cell = layout.cells[current.from]
+      if (!cell) return
+      if (cell.kind === 'app') onOpen(cell.id)
+      else setOpenFolder(cell.folder.id)
+      return
+    }
+    if (current.hover === null || current.hover === current.from) return
+    const hoverMs = Date.now() - current.hoverAt
+    commit(applyHomeDrop(layout, current.from, current.hover, hoverMs))
+  }
+
+  const folder = layout.cells.find((cell) => cell?.kind === 'folder' && cell.folder.id === openFolder)
+  const open = folder?.kind === 'folder' ? folder.folder : null
+
+  return (
+    <div className={`home-grid${ghost ? ' is-dragging' : ''}`} aria-label="Apps">
+      {layout.cells.map((cell, index) => cell ? (
+        <button
+          key={cell.kind === 'app' ? cell.id : cell.folder.id}
+          type="button"
+          className={`home-app${hover === index ? ' is-hover' : ''}`}
+          data-home-app={cell.kind === 'app' ? cell.id : cell.folder.id}
+          data-home-cell={index}
+          onPointerDown={(event) => onPointerDown(event, index)}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+        >
+          <span className={`home-app-ico${cell.kind === 'folder' ? ' is-folder' : ''}`}>
+            {cell.kind === 'app' ? <AppGlyph id={cell.id} /> : (
+              <span className="home-folder-stack" aria-hidden>
+                {cell.folder.apps.slice(0, 4).map((id) => <AppGlyph key={id} id={id} />)}
+              </span>
+            )}
+          </span>
+          <span className="home-app-label">{cell.kind === 'app' ? (HOME_APPS.find((app) => app.id === cell.id)?.label || cell.id) : cell.folder.name}</span>
+        </button>
+      ) : (
+        <div key={`leer-${index}`} className="home-cell" data-home-cell={index} />
+      ))}
+      {ghost ? <div className="home-app-ghost" style={{ left: ghost.x, top: ghost.y }}>{ghost.label}</div> : null}
+      {open ? (
+        <div className="home-folder" role="dialog" aria-label={open.name}>
+          <label>
+            Ordnername
+            <input
+              value={open.name}
+              maxLength={24}
+              onChange={(event) => commit(renameHomeFolder(layout, open.id, event.target.value))}
+            />
+          </label>
+          <ul>
+            {open.apps.map((id) => (
+              <li key={id}>
+                <button type="button" onClick={() => onOpen(id)}>{HOME_APPS.find((app) => app.id === id)?.label || id}</button>
+                <button type="button" onClick={() => commit(ejectHomeApp(layout, open.id, id))}>Herausnehmen</button>
+              </li>
+            ))}
+          </ul>
+          <button type="button" onClick={() => setOpenFolder(null)}>Schließen</button>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 export const HomeScreen = memo(function HomeScreen({
   face,
   onOpen,
@@ -227,21 +385,8 @@ export const HomeScreen = memo(function HomeScreen({
       ) : null}
       {tischplatteOn && scan !== 'off' ? <ScanStage phase={scan} /> : null}
       {tischplatteOn && scan === 'off' ? <EntwurfStage /> : null}
-      <div className="home-grid" hidden={tischplatteOn} inert={tischplatteOn} aria-hidden={tischplatteOn}>
-        {HOME_APPS.map((app) => (
-          <button
-            key={app.id}
-            type="button"
-            className="home-app"
-            data-home-app={app.id}
-            onClick={() => onOpen(app.id)}
-          >
-            <span className="home-app-ico">
-              <AppGlyph id={app.id} />
-            </span>
-            <span className="home-app-label">{app.label}</span>
-          </button>
-        ))}
+      <div hidden={tischplatteOn} inert={tischplatteOn} aria-hidden={tischplatteOn}>
+        <HomeLauncher onOpen={onOpen} />
       </div>
     </section>
   )
