@@ -9,9 +9,11 @@ nur generischen Regex-Mustern auf Englisch.
 **`18.45.0`** (Plan 104) auf. Gates: `test:yugioh-duel`, `test:yugioh-rules`,
 `test:yugioh-fidelity` grün; `engineStamp` **`18.51.0-ygo-tcg`**.
 
-**Ist-Stand (gemessen / im Code):**
+**Geliefert in `18.51.0` (Subset, Geräte-Gate offen):** EMZ/MMZ-Kapazität über Link-Wertung, Turn 1 ohne Battle Phase, Spell Speed 1–3, Banish/Bounce/Mill/Field-Aura, Effekt-Schema v2, PSCT-Atome (OPT/HOPT, Trigger/Cost/Target-Hinweis, fail-closed), Coverage und Fidelity im Nachweis (`engineStamp` `18.51.0-ygo-tcg`). Tests: `test:yugioh-rules`, `test:yugioh-fidelity`. Nicht geschlossen: Coverage ≥70 % Ultron-Pool, 100 Gold-Karten ≥95 %, vollständige Zielwahl-UI, Pendel und Link-Pfeil-Geometrie.
 
-| Bereich | Heute | Lücke |
+**Ausgangslage vor Sprint 511 (nicht der heutige Code):**
+
+| Bereich | Vor Sprint 511 | Damalige Lücke |
 |---|---|---|
 | Regeln | 8000 LP, 6 Phasen, Normal/Tribut, vereinfachter Kampf, Extra mit Materialcheck | EMZ/MMZ, Link-Pfeile, Turn-1-Battle, Kosten, Spell Speed, Banish, Pendel, … |
 | Effekte | ~**430 / 1395** Karten (~31 %) mit simuliertem Effekt; 8 generische Effektarten | ~965 Karten ohne Effekt; echte Decks ~52 % Self-Play ≈ Münze |

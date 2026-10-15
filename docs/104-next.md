@@ -1,4 +1,4 @@
-# 104 — Yu-Gi-Oh!-Self-Play, Zugsuche und Dev-Umschalter **PLAN** (`18.42`–`18.45`)
+# 104 — Yu-Gi-Oh!-Self-Play, Zugsuche und Dev-Umschalter **CODE** (`18.42`–`18.45`, gebündelt in `18.51.0`)
 
 **Zweck:** Die Duell-KI soll gegen einen Klon ihrer selbst spielen, Züge per
 begrenzter Suche wählen, Matches live zeigen und aus den Protokollen lernen.
@@ -14,7 +14,8 @@ haben. Geräteabnahme und Release-Freigabe bleiben offen. Kein Test-Build ist ei
 Release-Freigabe.
 
 **Folgeplan Regeln/Effekte/Texttreue:** [`105-next.md`](./105-next.md) (Sprints
-511–530, `18.46.0`–`18.51.0`, **PLAN**).
+511–530, `18.46.0`–`18.51.0`, **CODE** im App-Stand `18.51.0`). Die ursprünglichen
+Zahlen-Gates (Deck-Coverage, 100 Gold-Karten) sind nicht alle geschlossen.
 
 ## 1. Ausgangslage (gemessen, nicht angenommen)
 

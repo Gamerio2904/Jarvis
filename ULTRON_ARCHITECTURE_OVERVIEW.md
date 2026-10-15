@@ -1,6 +1,6 @@
 # Ultron — Architekturüberblick
 
-Stand: App-Code **18.31.7**. Diese Datei beschreibt die bestehende Planungsarchitektur und den aktuellen Hausstand-/Tablet-Unterbau, nicht die noch geplanten Ausbaustufen. Der lokale Arbeitsbaum enthält zusätzliche, noch nicht als Release abgenommene Änderungen; maßgeblich für die Folgeschritte ist [`docs/102-next.md`](docs/102-next.md).
+Stand: App-Code **18.51.0** (`package.json` und `APP_VERSION`). Diese Datei beschreibt die bestehende Planungsarchitektur und den Hausstand-/Tablet-Unterbau. Yu-Gi-Oh! ist in Abschnitt 4 auf demselben Stand. Offene Sync- und Planungs-Gates: [`docs/102-next.md`](docs/102-next.md), [`docs/103-next.md`](docs/103-next.md). Duell: [`docs/yugioh-duel.md`](docs/yugioh-duel.md).
 
 Ultron ist eine Android-App (Capacitor-WebView) plus dieselbe Oberfläche im Browser. Es gibt keinen separaten Anwendungs-Server. Hirn, Agenten, Planung und Speicher laufen in TypeScript im Client.
 
@@ -125,26 +125,18 @@ Gespeichert wird das als `Idea.plan` (`IdeaPlan` in `idea-plan.ts`) in der Index
 - Zustand zwischen den Planungsschritten liegt in `ideas.plan` und `jarvis_settings_v13`. Der Hausstand-Sync kann diese Daten übertragen, entscheidet aber noch nach `stand_at`; Projekt-/Sprintansichten werden nicht gezielt auf einem zweiten Gerät geöffnet. Die Fenster-Kopplung bleibt ein separater Kanal.
 - `prompt` ist Text zum Kopieren, kein Start eines Programmier-Agenten in der App.
 
-## 4. Yu-Gi-Oh!-Duell (`18.31.6`–`18.31.7`)
+## 4. Yu-Gi-Oh!-Duell (`18.51.0`)
 
 Das Duell ist ein lokales React-Overlay (`frontend/src/ui/YugiohDuel.tsx`) mit
-separater Regellogik (`frontend/src/engine/yugioh-duel.ts`). Der festgelegte
-Sprachsatz wird vor dem LLM-Routing erkannt. Kartensuche und Bilder kommen auf
-Anfrage direkt von YGOPRODeck; Main- und Extra-Deck liegen im lokalen
-`localStorage`. Die drei statischen Strategie-Vektoren (Aggro, Control, Combo)
-werden beim Laden uniform gemittelt und für eine einfache deterministische
-Monsterwahl verwendet. Das ist **kein trainiertes neuronales Modell** und kein
-abgeschlossenes Reinforcement-Learning-/Winrate-Projekt.
+Regellogik in `frontend/src/engine/yugioh-duel.ts`. Der Sprachsatz wird vor dem
+LLM-Routing erkannt. Kartensuche und Bilder kommen auf Anfrage von YGOPRODeck.
+46 Structure Decks sind eingebettet. Jarvis kann über ein kleines Netz
+(`yugioh-net.ts`) oder die Skript-KI ziehen. Self-Play, Zugsuche, Nachweis und
+Elo liegen in `yugioh-selfplay.ts`, `yugioh-search.ts`, `yugioh-proof.ts` und
+`yugioh-league.ts` (`engineStamp` `18.51.0-ygo-tcg`).
 
-Die Umsetzung bildet Eröffnungs-Hand, Züge, Phasen, LP, Normal-/Tribut-
-Beschwörung, Monster-Kampf, Friedhof und Deck-out ab. Seit `18.31.7` führt ein
-begrenzter textbasierter Effect-Adapter Ziehen, Schaden, LP-Gewinn, Zerstörung
-und Negation über priorisierte Chain-Links aus. Fusion/Synchro/Xyz/Link
-verbrauchen vereinfachte Materialien. Das Trainingslabor optimiert dieselbe
-lineare Policy mit episodischem Softmax-Policy-Gradient auf synthetischen
-Duellen, persistiert die resultierenden Gewichte und misst eine getrennte
-Holdout-Winrate gegen die eingebaute Baseline. Animationen respektieren
-`prefers-reduced-motion`. Das sind keine vollständigen offiziellen Regeln,
-keine realen Karten-Trainingsdaten und keine Turnier-Winrate. Die komplette
-Funktionsabgrenzung und Tests stehen in
+`18.51.0` ergänzt ein TCG-Subset: Zonenkapazität (`yugioh-zones.ts`), Spell
+Speed, Effekt-Schema v2 (`yugioh-effects.ts`) und PSCT-Atome (`yugioh-psct.ts`).
+Das bleibt ein Prototyp, keine Turnier-Engine. Funktionsabgrenzung und Tests
+stehen in
 [`docs/yugioh-duel.md`](docs/yugioh-duel.md).
