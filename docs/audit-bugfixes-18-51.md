@@ -1,6 +1,6 @@
 # Audit 18.51.0: Yu-Gi-Oh, Planungsmodus, Alltag
 
-Stand: Code und Test-APK `18.51.3` (versionCode `185103`).
+Stand des Audits: `18.51.3` (versionCode `185103`). Der aktuelle Sideload ist `18.60.0` (versionCode `186000`).
 Gerät mit 18.31.7 sieht die Korrekturen erst nach einer neueren Installation.
 Dieser Zweig enthält zusätzlich die Duell-Korrekturen und die Timer-, Einkaufs- und Handy-Korrekturen.
 
@@ -72,4 +72,4 @@ Die drei Code-Audits liefen parallel zum ersten Fix. Der Alltagsteil kam danach 
 
 Parser, Alltag, Kalender, Erinnerungen, Ideen, Plan, Portfolio, Yu-Gi-Oh-Regeln und Duell nach diesem Nachzug: grün. Typprüfung grün.
 `test-portfolio` liest `psp.json` als `{ art, struktur }`.
-Test-APK `18.51.3` (versionCode `185103`) liegt auf `main` unter `releases/Jarvis.apk`.
+Der aktuelle Sideload `18.60.0` (versionCode `186000`) liegt unter `releases/Jarvis.apk`.

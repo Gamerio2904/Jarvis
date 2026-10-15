@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.60.0` — Yu-Gi-Oh! Master-Duel-Bedienung 531–550 — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.60.0`** (versionCode `186000`). `engineStamp` **`18.60.0-ygo-md`**.
+
+Plan 106 in einem Sideload: Aktivieren-Fenster (OFF / AUTO / ON), Zielwahl auf dem Feld und in öffentlichen Stapeln, Kettenstapel, Kampf- und Endphase, Kampfschritte mit Antwort vor der Schadensrechnung, Zonenwahl, Statussymbole, Pendel-Skalen, Pendel- und Ritualbeschwörung, Deckeditor mit Filtern und Banlist-Farben, Duellprotokoll. Die Zwischennummern `18.52.0`–`18.59.0` sind in dieser Datei enthalten. Offen bleiben Xyz-Material abnehmen, Replay, historische Pendel-Ausnahmen und OCG gegen TCG. Umfang: [`yugioh-duel.md`](./yugioh-duel.md), [`106-next.md`](./106-next.md).
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.51.3` — Chat und Sprache in der Werte-Leiste — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.3`** (versionCode `185103`). `engineStamp` bleibt **`18.51.0-ygo-tcg`**.
@@ -39,7 +47,7 @@ https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.45.0` — Yu-Gi-Oh Self-Play 503–510 — *CODE + TEST-APK*
 
-Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.3`.
+Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` ist inzwischen `18.60.0`.
 
 ### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 

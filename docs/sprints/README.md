@@ -564,12 +564,12 @@ Sprints 511–530 (Regeln, Effektabdeckung, Fidelity) stehen in
 Die Zahlen-Gates Coverage ≥70 % und 100 Gold-Karten ≥95 % sind nicht geschlossen.
 Sprints 531–550 (Master-Duel-Bedienung) stehen in
 [`../106-next.md`](../106-next.md), **CODE** für `18.52.0`–`18.60.0`.
-`engineStamp` ist `18.60.0-ygo-md`. `APP_VERSION` bleibt `18.51.3`.
+`engineStamp` ist `18.60.0-ygo-md`. `APP_VERSION` ist `18.60.0`.
 
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Test-APK `18.51.3` / versionCode `185103`; finale Geräteabnahme
+**Stände:** Test-APK `18.60.0` / versionCode `186000`; finale Geräteabnahme
 offen. Rework 444–466: [`../100-next.md`](../100-next.md). Gates 467–502:
 [`../101-next.md`](../101-next.md), [`../102-next.md`](../102-next.md),
 [`../103-next.md`](../103-next.md). Duell 503–530:

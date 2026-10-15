@@ -1,4 +1,4 @@
-# Yu-Gi-Oh! Duel — Test-Build `18.51.3`
+# Yu-Gi-Oh! Duel — Test-Build `18.60.0`
 
 ## Einstieg
 
@@ -152,8 +152,8 @@ Im Duell gibt es das Aktivieren-Fenster (OFF / AUTO / ON), die Tipp-Zielwahl,
 den Kettenstapel, die Knöpfe Kampf und Ende, Kampfschritte mit Antwort vor der
 Schadensrechnung, die Zonenwahl, Statussymbole, Pendel-Skalen, Pendel- und
 Ritualbeschwörung, Filter im Deckeditor und ein Duellprotokoll.
-`engineStamp` ist `18.60.0-ygo-md`. `APP_VERSION` bleibt `18.51.3`, bis ein
-Release gebaut wird. Details: [`106-next.md`](./106-next.md).
+`engineStamp` ist `18.60.0-ygo-md`. `APP_VERSION` und die Test-APK sind
+`18.60.0` (versionCode `186000`). Details: [`106-next.md`](./106-next.md).
 
 ## Self-Play und Zugsuche (Engine, ohne UI)
 
@@ -211,6 +211,6 @@ Android-Gerätebedienung müssen zusätzlich am Zielgerät manuell geprüft werd
 
 ## Version / APK
 
-App-Version **`18.51.3`**, Android `versionCode 185103`, debug-signierter
-Test-Build (Self-Play 503–510 + TCG-Subset 511–530). Build: `./build-apk.sh`;
-Sideload: `releases/Jarvis.apk`.
+App-Version **`18.60.0`**, Android `versionCode 186000`, debug-signierter
+Test-Build (Self-Play 503–510, TCG-Subset 511–530, Master-Duel-Bedienung
+531–550). Build: `./build-apk.sh`; Sideload: `releases/Jarvis.apk`.

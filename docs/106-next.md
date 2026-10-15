@@ -5,12 +5,12 @@ direkte Vorlage: Aktivieren-Fenster, Zielwahl auf dem Feld, Kettenstapel,
 Kampf- und Endphase, Zonenwahl, Kartenstatus, Pendel und Ritual, Deckeditor
 und Duellprotokoll.
 
-**Planungsstand:** **CODE**. Baut auf Plan 105 auf (Sprints 511–530, Stand
-`18.51.3`). Sprints 531–550 sind umgesetzt, die Gateways stehen auf Go.
-`APP_VERSION`, `package.json` und die Test-APK bleiben `18.51.3`; die
-versionCodes `185200`–`186000` gelten erst, wenn eine Version gebaut wird.
-`engineStamp` ist `18.60.0-ygo-md`, weil 538, 540–542 und 544–546 die
-Auflösung ändern.
+**Planungsstand:** **CODE**. Baut auf Plan 105 auf (Sprints 511–530). Sprints
+531–550 sind umgesetzt, die Gateways stehen auf Go. Der Release-Schritt setzt
+`APP_VERSION`, `package.json` und die Test-APK auf `18.60.0` (versionCode
+`186000`). Die Zwischennummern `18.52.0`–`18.59.0` sind in diesem einen
+Sideload enthalten. `engineStamp` ist `18.60.0-ygo-md`, weil 538, 540–542
+und 544–546 die Auflösung ändern.
 
 **Vorlage, kein Nachbau der App-Hülle.** Shop, Gems, Secret Packs, Crafting,
 Rangliste, Einsatz-Uhr, Solo-Story, Sleeves, Feld-Skins, Mates und Replay
@@ -161,7 +161,7 @@ Sprints 544–546 erhöhen `engineStamp`.
 1. `npm run test:yugioh-duel`, `test:yugioh-rules` und `test:yugioh-fidelity` bleiben grün.
 2. Jede Version 18.52 bis 18.59 hat die Goldfälle aus ihrem Sprint.
 3. [`yugioh-duel.md`](./yugioh-duel.md) nennt die neuen Grenzen und die offenen Lücken.
-4. Kein Sprint dieses Plans setzt `APP_VERSION` oder baut eine APK. Das bleibt ein eigener Release-Schritt nach Go.
+4. Kein Sprint dieses Plans setzt `APP_VERSION`. Der Release-Schritt danach setzt `18.60.0` / versionCode `186000` und baut die Test-APK.
 
 ## 7. Lücken
 

@@ -1,4 +1,4 @@
-Privater Assistant. Die aktuelle App-Version ist **`18.51.3`** (versionCode `185103`). Sie läuft als Android-App; zusätzlich gibt es eine Browser-Dev-Oberfläche. Der Stand ist ein Test-Build, keine finale Geräte- oder Release-Freigabe. Dieselbe Nummer steht in `frontend/package.json`, `APP_VERSION` und in `releases/Jarvis.apk`. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
+Privater Assistant. Die aktuelle App-Version ist **`18.60.0`** (versionCode `186000`). Sie läuft als Android-App; zusätzlich gibt es eine Browser-Dev-Oberfläche. Der Stand ist ein Test-Build, keine finale Geräte- oder Release-Freigabe. Dieselbe Nummer steht in `frontend/package.json`, `APP_VERSION` und in `releases/Jarvis.apk`. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
 
 **Hirn:** **Groq primär** (API-Key). **Gemini Spezialist** (Vision, Deep Research). Lokales 0,5B **Fallback**. Agenten-Netzwerk: Director + 60 Domänen-Agenten, Agenten-Karte in Lage. Parser wählen Geräte; Groq/Gemini formuliert Smalltalk.
 
@@ -16,7 +16,7 @@ Browser: http://localhost:5173 — Groq-Key für Smalltalk. Gemini für Vision/D
 
 Die Android-App enthält Notizen/Todos, die überarbeitete Tischplatte, Echo-Theme, Tabletmodus und das Yu-Gi-Oh!-Duell: Self-Play, Zugsuche, Nachweis (`18.45.0`), das TCG-Subset aus Plan 105 und die Master-Duel-Bedienung aus Plan 106 (`engineStamp` `18.60.0-ygo-md`). Einstieg und Grenzen stehen in [`docs/yugioh-duel.md`](docs/yugioh-duel.md). Der Tabletmodus zeigt die Lage im Vollbild; der Hausstand-Server wird separat und ausdrücklich gestartet. Die Hausstand-Kopplung nutzt TLS mit Geräte-Zertifikat-Pinning und blockiert Sync bei abweichender App-/Protokollversion. Hausstand-Abgleich beruht derzeit noch auf Zeitstempeln, nicht auf kausalen Revisionen.
 
-Der neueste lokale Test-Build heißt **`Jarvis.apk` `18.51.3`** (versionCode `185103`):
+Der neueste lokale Test-Build heißt **`Jarvis.apk` `18.60.0`** (versionCode `186000`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat
@@ -31,7 +31,7 @@ PC-Test: [`docs/TEST-PC.md`](docs/TEST-PC.md) · Seit 1.16: [`docs/TEST-1.16-plu
 2. **Groq-Key** eintragen (Smalltalk). Optional **Gemini** (Vision/Research).
 3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
 
-Im Code dieses Stands liegen Self-Play und Zugsuche ([`docs/104-next.md`](docs/104-next.md), Sprints 503–510), das TCG-Subset ([`docs/105-next.md`](docs/105-next.md), Sprints 511–530) und die Master-Duel-Bedienung ([`docs/106-next.md`](docs/106-next.md), Sprints 531–550, `engineStamp` `18.60.0-ygo-md`). Die App-Version bleibt `18.51.3`. Routing, Tablet-Sync und Projektplanung in [`docs/101-next.md`](docs/101-next.md) bis [`docs/103-next.md`](docs/103-next.md) sind teilweise vorbereitet; ihre Geräte-Gates `18.32.0`–`18.41.0` sind nicht als eigene Releases freigegeben. Vorhandener Code gilt nicht automatisch als abgenommenes Release.
+Im Code dieses Stands liegen Self-Play und Zugsuche ([`docs/104-next.md`](docs/104-next.md), Sprints 503–510), das TCG-Subset ([`docs/105-next.md`](docs/105-next.md), Sprints 511–530) und die Master-Duel-Bedienung ([`docs/106-next.md`](docs/106-next.md), Sprints 531–550, `engineStamp` `18.60.0-ygo-md`). Die App-Version ist `18.60.0`. Routing, Tablet-Sync und Projektplanung in [`docs/101-next.md`](docs/101-next.md) bis [`docs/103-next.md`](docs/103-next.md) sind teilweise vorbereitet; ihre Geräte-Gates `18.32.0`–`18.41.0` sind nicht als eigene Releases freigegeben. Vorhandener Code gilt nicht automatisch als abgenommenes Release.
 
 ## Prüfen
 
