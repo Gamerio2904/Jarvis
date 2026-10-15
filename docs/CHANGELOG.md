@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.51.3` — Chat und Sprache in der Werte-Leiste — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.3`** (versionCode `185103`). `engineStamp` bleibt **`18.51.0-ygo-tcg`**.
+
+Chat und Sprache erscheinen nur in der rechten Werte-Leiste, und nur solange sie aufgeklappt ist. Der Schalter „Tischplatte an“ und der Leisten-Schalter darunter sind entfernt. Die Tischplatte bleibt über den Satz und den Tisch-Knopf erreichbar.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.51.2` — Startbildschirm, Sparring, Duellfeld und Kartentexte — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.2`** (versionCode `185102`). `engineStamp` bleibt **`18.51.0-ygo-tcg`**.
@@ -31,7 +39,7 @@ https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.45.0` — Yu-Gi-Oh Self-Play 503–510 — *CODE + TEST-APK*
 
-Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.2`.
+Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.3`.
 
 ### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 

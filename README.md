@@ -1,4 +1,4 @@
-Privater Assistant. Die aktuelle App-Version ist **`18.51.2`** (versionCode `185102`). Sie läuft als Android-App; zusätzlich gibt es eine Browser-Dev-Oberfläche. Der Stand ist ein Test-Build, keine finale Geräte- oder Release-Freigabe. Dieselbe Nummer steht in `frontend/package.json`, `APP_VERSION` und in `releases/Jarvis.apk`. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
+Privater Assistant. Die aktuelle App-Version ist **`18.51.3`** (versionCode `185103`). Sie läuft als Android-App; zusätzlich gibt es eine Browser-Dev-Oberfläche. Der Stand ist ein Test-Build, keine finale Geräte- oder Release-Freigabe. Dieselbe Nummer steht in `frontend/package.json`, `APP_VERSION` und in `releases/Jarvis.apk`. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen. YouTube-Schnitt schreibt die Datei erst, wenn JarvisPC auf Windows läuft.
 
 **Hirn:** **Groq primär** (API-Key). **Gemini Spezialist** (Vision, Deep Research). Lokales 0,5B **Fallback**. Agenten-Netzwerk: Director + 60 Domänen-Agenten, Agenten-Karte in Lage. Parser wählen Geräte; Groq/Gemini formuliert Smalltalk.
 
@@ -16,7 +16,7 @@ Browser: http://localhost:5173 — Groq-Key für Smalltalk. Gemini für Vision/D
 
 Die Android-App enthält Notizen/Todos, die überarbeitete Tischplatte, Echo-Theme, Tabletmodus und das Yu-Gi-Oh!-Duell: Self-Play, Zugsuche, Nachweis (`18.45.0`) und das TCG-Subset aus Plan 105 (`18.51.0`, `engineStamp` `18.51.0-ygo-tcg`). Einstieg und Grenzen stehen in [`docs/yugioh-duel.md`](docs/yugioh-duel.md). Der Tabletmodus zeigt die Lage im Vollbild; der Hausstand-Server wird separat und ausdrücklich gestartet. Die Hausstand-Kopplung nutzt TLS mit Geräte-Zertifikat-Pinning und blockiert Sync bei abweichender App-/Protokollversion. Hausstand-Abgleich beruht derzeit noch auf Zeitstempeln, nicht auf kausalen Revisionen.
 
-Der neueste lokale Test-Build heißt **`Jarvis.apk` `18.51.2`** (versionCode `185102`):
+Der neueste lokale Test-Build heißt **`Jarvis.apk` `18.51.3`** (versionCode `185103`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat

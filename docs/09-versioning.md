@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** App-Code, UI und Test-APK **`18.51.2`**, versionCode `185102`; Android-Geräteabnahme offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** App-Code, UI und Test-APK **`18.51.3`**, versionCode `185103`; Android-Geräteabnahme offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1020,9 +1020,10 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.31.6` | Yu-Gi-Oh!-Duellprototype, Kartensuche, Grundregeln und Model-Soup-Baseline | CODE + Test-APK; kein RL-Training, Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
 | `18.31.7` | Synthetisches Policy-Gradient-Training, gemessene Holdout-Winrate, Effektketten, Extra-Deck-Regeln und Animationen | historischer Test-APK-Stand; Sideload inzwischen `18.51.0`, [`yugioh-duel.md`](./yugioh-duel.md) |
 | `18.45.0` | Yu-Gi-Oh!-Self-Play, Zugsuche, Nachweis, Elo | CODE, in `18.51.0` enthalten, [`104-next.md`](./104-next.md) |
-| `18.51.0` | TCG-Subset 511–530, `engineStamp` `18.51.0-ygo-tcg`, versionCode `185100` | CODE; Sideload inzwischen `18.51.2`, [`105-next.md`](./105-next.md) |
-| `18.51.1` | Audit-Nachzieher Alltag, Planung, Duell, versionCode `185101` | CODE; Sideload inzwischen `18.51.2`, [`audit-bugfixes-18-51.md`](./audit-bugfixes-18-51.md) |
-| `18.51.2` | Startbildschirm, Sparring, Bot-Duell, Kartentexte, Beschwörung, Regeln, Spielmarken, Token, Link-Pfeile, versionCode `185102` | CODE + Test-APK; Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
+| `18.51.0` | TCG-Subset 511–530, `engineStamp` `18.51.0-ygo-tcg`, versionCode `185100` | CODE; Sideload inzwischen `18.51.3`, [`105-next.md`](./105-next.md) |
+| `18.51.1` | Audit-Nachzieher Alltag, Planung, Duell, versionCode `185101` | CODE; Sideload inzwischen `18.51.3`, [`audit-bugfixes-18-51.md`](./audit-bugfixes-18-51.md) |
+| `18.51.2` | Startbildschirm, Sparring, Bot-Duell, Kartentexte, Beschwörung, Regeln, Spielmarken, Token, Link-Pfeile, versionCode `185102` | CODE; Sideload inzwischen `18.51.3`, [`yugioh-duel.md`](./yugioh-duel.md) |
+| `18.51.3` | Chat und Sprache nur in der offenen Werte-Leiste, versionCode `185103` | CODE + Test-APK; Geräteabnahme offen, [`yugioh-duel.md`](./yugioh-duel.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**

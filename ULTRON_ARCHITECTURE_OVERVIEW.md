@@ -1,6 +1,6 @@
 # Ultron — Architekturüberblick
 
-Stand: App-Code **18.51.2** (`package.json` und `APP_VERSION`). Diese Datei beschreibt die bestehende Planungsarchitektur und den Hausstand-/Tablet-Unterbau. Yu-Gi-Oh! ist in Abschnitt 4 auf demselben Stand. Offene Sync- und Planungs-Gates: [`docs/102-next.md`](docs/102-next.md), [`docs/103-next.md`](docs/103-next.md). Duell: [`docs/yugioh-duel.md`](docs/yugioh-duel.md).
+Stand: App-Code **18.51.3** (`package.json` und `APP_VERSION`). Diese Datei beschreibt die bestehende Planungsarchitektur und den Hausstand-/Tablet-Unterbau. Yu-Gi-Oh! ist in Abschnitt 4 auf demselben Stand. Offene Sync- und Planungs-Gates: [`docs/102-next.md`](docs/102-next.md), [`docs/103-next.md`](docs/103-next.md). Duell: [`docs/yugioh-duel.md`](docs/yugioh-duel.md).
 
 Ultron ist eine Android-App (Capacitor-WebView) plus dieselbe Oberfläche im Browser. Es gibt keinen separaten Anwendungs-Server. Hirn, Agenten, Planung und Speicher laufen in TypeScript im Client.
 
