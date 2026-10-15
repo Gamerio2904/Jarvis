@@ -2261,7 +2261,34 @@ function App() {
       return
     }
     if (id === 'overlay') {
+      setYugiohOpen(false)
       openDrive()
+      return
+    }
+    if (id === 'tisch') {
+      setYugiohOpen(false)
+      goDock('tisch')
+      return
+    }
+    if (id === 'chess') {
+      setYugiohOpen(false)
+      setChessOpen(true)
+      setDriveOpen(false)
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setWatchlistOpen(false)
+      setShoppingOpen(false)
+      setNotesOpen(false)
+      setTodosOpen(false)
+      setSidebarOpen(false)
+      closeVoice()
+      closeSheet('drive')
+      closeSheet('calendar')
+      closeSheet('watchlist')
+      return
+    }
+    if (id === 'yugioh') {
+      openYugiohDuel()
       return
     }
     if (id === 'hirn') {

@@ -31,9 +31,11 @@ assert.equal(versionCodeOf('18.18.0'), 181800)
 const { HOME_APPS, HOME_APP_IDS, isHomeAppId } = await import('../src/engine/home-apps.ts')
 assert.deepEqual(
   HOME_APP_IDS.slice(),
-  ['chat', 'voice', 'calendar', 'globe', 'lage', 'overlay', 'hirn', 'settings', 'watchlist', 'shopping', 'notes', 'todos'],
+  ['chat', 'voice', 'calendar', 'globe', 'lage', 'overlay', 'hirn', 'settings', 'watchlist', 'shopping', 'notes', 'todos', 'tisch', 'chess', 'yugioh'],
 )
-assert.equal(HOME_APPS.length, 12)
+assert.equal(HOME_APPS.length, 15)
+assert.equal(HOME_APPS.find((a) => a.id === 'overlay')?.label, 'CarPlay')
+assert.equal(HOME_APPS.find((a) => a.id === 'tisch')?.label, 'Tischplatte')
 assert.ok(HOME_APPS.every((a) => isHomeAppId(a.id) && a.label && a.tint))
 
 const { parseAppIntent } = await import('../src/engine/app-parse.ts')
@@ -78,6 +80,9 @@ assert.match(app, /GlanceRail/)
 assert.match(app, /MiniChat/)
 assert.match(app, /VoiceSphere/)
 assert.match(app, /launchHomeApp/)
+assert.match(app, /id === 'tisch'/)
+assert.match(app, /id === 'chess'/)
+assert.match(app, /id === 'yugioh'/)
 assert.doesNotMatch(app, /WebGL|ical\.js/)
 
 const css = src('src/index.css')

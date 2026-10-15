@@ -33,5 +33,17 @@ export async function wireFor(id: HomeAppId, now = new Date()): Promise<WireFram
   if (id === 'lage') {
     return { id, label, lines: ['Lage', 'Pins aus Feldern', 'Kein CCTV.'] }
   }
+  if (id === 'overlay') {
+    return { id, label, lines: ['CarPlay', 'Karte im Fahrmodus', 'Kein Apple CarPlay.'] }
+  }
+  if (id === 'tisch') {
+    return { id, label, lines: ['Tischplatte', 'Werkbank ohne Gesicht', 'Icons aus.'] }
+  }
+  if (id === 'chess') {
+    return { id, label, lines: ['Schach', 'Brett auf dem Feld', 'Kein Online-Gegner.'] }
+  }
+  if (id === 'yugioh') {
+    return { id, label, lines: ['Yu-Gi-Oh', 'Duell auf dem Feld', 'Vereinfachte Effekte.'] }
+  }
   return { id, label, lines: [label, 'Modul existiert', 'Simulation, nicht die Live-App.'] }
 }
