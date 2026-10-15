@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   activateDuelEffect,
   advanceDuelPhase,
@@ -36,6 +37,7 @@ import {
   greedyNetPolicy,
   heuristicPolicy,
   jarvisStep,
+  mirrorBotStep,
   randomPolicy,
   trainNetPolicy,
   validateNetModel,
@@ -233,6 +235,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const [results, setResults] = useState<DuelCard[]>([])
   const [searchBusy, setSearchBusy] = useState(false)
   const [game, setGame] = useState<DuelState | null>(null)
+  const [spectator, setSpectator] = useState(false)
+  const [spectatorPaused, setSpectatorPaused] = useState(false)
   const [weights, setWeights] = useState<StrategyWeights>({ ...BASELINE_WEIGHTS })
   const [trainingBusy, setTrainingBusy] = useState(false)
   const [trainingResult, setTrainingResult] = useState<ReturnType<typeof trainDuelPolicy> | null>(null)
@@ -376,6 +380,29 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     setNotice(`Echtes Deck „${real.title}“ geladen (${deck.main.length} Main, ${deck.extra.length} Extra). Du kannst es noch ändern.`)
   }
 
+  function startBotDuel() {
+    const leftDeck = REAL_DECK_LIST[0]
+    const rightDeck = REAL_DECK_LIST.find((deck) => deck.id !== leftDeck?.id) || leftDeck
+    if (!leftDeck || !rightDeck) return
+    try {
+      const left = buildRealDeck(leftDeck, () => nextCardId.current++)
+      const right = buildRealDeck(rightDeck, () => nextCardId.current++)
+      const opened = giveFirstTurn(
+        createDuel(left.main, right.main, Math.random, left.extra, right.extra, weights),
+        coinFlip(),
+      )
+      setCoin(null)
+      setGame(opened)
+      setSpectator(true)
+      setSpectatorPaused(false)
+      setFocusedCard(null)
+      setJarvisPaused(false)
+      setNotice(`Bot-Duell: ${leftDeck.title} gegen ${rightDeck.title}.`)
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Das Bot-Duell konnte nicht starten.')
+    }
+  }
+
   function startDuel() {
     if (startBusy) return
     setStartBusy(true)
@@ -409,6 +436,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         setExtraCardId(null)
         setExtraMaterials([])
         setJarvisPaused(false)
+        setSpectator(false)
+        setSpectatorPaused(false)
         setNotice(drawn)
       } catch (error) {
         setNotice(error instanceof Error ? error.message : 'Das Duell konnte nicht gestartet werden.')
@@ -605,7 +634,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
   const holdAttack = Boolean(attackKey && playerReactiveTrap && releasedAttack !== attackKey)
 
   useEffect(() => {
-    if (uiMode !== 'game' || !game || game.winner || game.turnOwner !== 'jarvis' || game.chain.length || jarvisPaused || holdAttack) return
+    if (spectator || uiMode !== 'game' || !game || game.winner || game.turnOwner !== 'jarvis' || game.chain.length || jarvisPaused || holdAttack) return
     const delay = game.pendingAttack ? 2200 : 1500
     setJarvisThinking(true)
     const timeout = window.setTimeout(() => {
@@ -619,7 +648,16 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       window.clearTimeout(timeout)
       setJarvisThinking(false)
     }
-  }, [game, jarvisBrain, netModel, jarvisPaused, holdAttack, uiMode])
+  }, [game, jarvisBrain, netModel, jarvisPaused, holdAttack, uiMode, spectator])
+
+  useEffect(() => {
+    if (!spectator || spectatorPaused || !game || game.winner) return
+    const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const timeout = window.setTimeout(() => {
+      setGame((current) => (current && !current.winner ? mirrorBotStep(current, null) : current))
+    }, reduced ? 80 : 720)
+    return () => window.clearTimeout(timeout)
+  }, [spectator, spectatorPaused, game])
 
   useEffect(() => {
     if (!game || game.turnOwner !== 'jarvis') setJarvisPaused(false)
@@ -677,8 +715,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     return Boolean(findMaterialsForExtra(card, game.player.monsters))
   }
 
-  return (
-    <main className="ygo-overlay" data-last-action={game?.lastAnimation?.kind || ''} role="dialog" aria-modal="true" aria-labelledby="ygo-title">
+  const board = (
+    <main className={`ygo-overlay${spectator ? ' is-spectator' : ''}`} data-last-action={game?.lastAnimation?.kind || ''} role="dialog" aria-modal="true" aria-labelledby="ygo-title">
       <header className="ygo-header">
         <div>
           <p className="ygo-eyebrow">ULTRON · DUEL PROTOCOL</p>
@@ -720,7 +758,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           <div className="ygo-duel-status">
             <span>Zug {game.turn}</span>
             <strong>{phaseLabel}</strong>
-            <span>{game.turnOwner === 'jarvis' ? 'Jarvis ist dran' : 'Du bist dran'}</span>
+            <span>{spectator ? (game.turnOwner === 'jarvis' ? 'Ultron ist dran' : 'Gegner-Bot ist dran') : (game.turnOwner === 'jarvis' ? 'Jarvis ist dran' : 'Du bist dran')}</span>
           </div>
           <div className="ygo-mat">
             <div className="ygo-lp is-jarvis">
@@ -733,8 +771,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 <button type="button" className="ygo-pile" onClick={() => setNotice('Ultrons Extra Deck bleibt verdeckt.')}>Extra<br />{game.jarvis.extraDeck.length}</button>
                 <button type="button" className="ygo-pile is-deck" onClick={() => setNotice('Ultrons Deck bleibt verdeckt.')}>Deck<br />{game.jarvis.deck.length}</button>
                 <PlayCard card={game.jarvis.fieldSpell ?? null} className="ygo-field-slot" onClick={() => game.jarvis.fieldSpell && openCard('jarvis', 'field', game.jarvis.fieldSpell.id)} />
-                <button type="button" className="ygo-pile" onClick={() => setShowJarvisGrave(true)}>
-                  {game.jarvis.graveyard.at(-1) && cardArt(game.jarvis.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.jarvis.graveyard.at(-1) as DuelCard)} alt="" /> : 'Friedhof'}
+                <button type="button" className="ygo-pile" aria-label={`Friedhof Ultron, ${game.jarvis.graveyard.length}`} onClick={() => setShowJarvisGrave(true)}>
+                  {game.jarvis.graveyard.at(-1) && cardArt(game.jarvis.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.jarvis.graveyard.at(-1) as DuelCard)} alt="" /> : <span className="ygo-pile-name">Friedhof</span>}
                   <em>{game.jarvis.graveyard.length}</em>
                 </button>
               </div>
@@ -788,8 +826,8 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
               <div className="ygo-piles">
-                <button type="button" className="ygo-pile" onClick={() => setShowPlayerGrave(true)}>
-                  {game.player.graveyard.at(-1) && cardArt(game.player.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.player.graveyard.at(-1) as DuelCard)} alt="" /> : 'Friedhof'}
+                <button type="button" className="ygo-pile" aria-label={`Friedhof, ${game.player.graveyard.length}`} onClick={() => setShowPlayerGrave(true)}>
+                  {game.player.graveyard.at(-1) && cardArt(game.player.graveyard.at(-1) as DuelCard) ? <img src={cardArt(game.player.graveyard.at(-1) as DuelCard)} alt="" /> : <span className="ygo-pile-name">Friedhof</span>}
                   <em>{game.player.graveyard.length}</em>
                 </button>
                 <PlayCard card={game.player.fieldSpell ?? null} className="ygo-field-slot" onClick={() => game.player.fieldSpell && openCard('player', 'field', game.player.fieldSpell.id)} />
@@ -798,7 +836,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
               </div>
             </div>
             <div className="ygo-lp is-player">
-              <strong>DU</strong>
+              <strong>{spectator ? 'BOT' : 'DU'}</strong>
               <span>{game.player.lp.toLocaleString('de-DE')} LP</span>
               <i style={{ width: `${Math.max(0, Math.min(100, game.player.lp / 80))}%` }} />
             </div>
@@ -836,11 +874,16 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <button className="ygo-primary" type="button" onClick={() => updateGame((current) => attack(current))}>Direktangriff</button>
           ) : null}
           {game.winner ? (
-            <button className="ygo-primary" type="button" onClick={() => setGame(null)}>Neues Duell vorbereiten</button>
+            <button className="ygo-primary" type="button" onClick={() => { setGame(null); setSpectator(false) }}>Neues Duell vorbereiten</button>
           ) : (
-            <button className="ygo-next-phase" type="button" onClick={advancePhase} disabled={game.turnOwner === 'jarvis' || game.chain.length > 0}>
-              {game.phase === 'end' ? 'Jarvis Zug starten' : 'Nächste Phase'}
-            </button>
+            <>
+              <button className="ygo-next-phase" type="button" onClick={advancePhase} disabled={spectator || game.turnOwner === 'jarvis' || game.chain.length > 0}>
+                {game.phase === 'end' ? 'Jarvis Zug starten' : 'Nächste Phase'}
+              </button>
+              {spectator ? (
+                <button className="ygo-stop-turn" type="button" onClick={() => setSpectatorPaused((current) => !current)}>{spectatorPaused ? 'Bot-Duell weiter' : 'Bot-Duell pausieren'}</button>
+              ) : null}
+            </>
           )}
           {game.turnOwner === 'jarvis' && (playerReactiveTrap || jarvisPaused) ? (
             <button className="ygo-stop-turn" type="button" onClick={() => setJarvisPaused((current) => !current)}>{jarvisPaused ? 'Weiter' : 'STOP'}</button>
@@ -1013,6 +1056,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             <button className="ygo-primary" type="button" disabled={startBusy || mainDeck.length < 40 || mainDeck.length > 60} onClick={startDuel}>
               {startBusy ? 'Startet …' : 'Duell starten'}
             </button>
+            <button className="ygo-primary" type="button" onClick={startBotDuel}>Bot-Duell ansehen</button>
           </div>
           <section className="ygo-demo">
             <strong>Echte Decks – ein Tippen und spielen</strong>
@@ -1135,4 +1179,5 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       {notice && game ? <p className="ygo-notice" role="status">{notice}</p> : null}
     </main>
   )
+  return typeof document === 'undefined' ? board : createPortal(board, document.body)
 }

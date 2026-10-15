@@ -241,7 +241,10 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
     if (!open.length) return { handled: true, reply: selected ? `Keine offenen Todos in „${selected.name}“.` : 'Keine offenen Todos.' }
     const names = new Map(lists.map((list) => [list.id, list.name]))
     const sorted = open.sort((a, b) => a.created_at < b.created_at ? -1 : 1)
-    const lines = sorted.map((todo, index) => `${index + 1}. ${todo.title}${selected ? '' : ` — ${names.get(todo.list_id || 'todo-list-general') || 'Allgemein'}`}`)
+    const lines = sorted.map((todo, index) => {
+      const due = todo.deadline_date ? `, fällig ${todo.deadline_date}${todo.deadline_time ? ` ${todo.deadline_time}` : ''}` : ''
+      return `${index + 1}. ${todo.title}${due}${selected ? '' : ` — ${names.get(todo.list_id || 'todo-list-general') || 'Allgemein'}`}`
+    })
     persistLastList('todo', sorted.map((todo) => todo.title))
     return { handled: true, reply: `Offen:\n${lines.join('\n')}` }
   }

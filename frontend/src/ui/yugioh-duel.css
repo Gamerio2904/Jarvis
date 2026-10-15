@@ -1389,6 +1389,16 @@
     repeating-linear-gradient(135deg, #6a1b2a 0 8px, #3d1018 8px 16px);
 }
 
+.ygo-pile-name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+}
+
 .ygo-pile img {
   width: 100%;
   height: 52px;
@@ -1541,4 +1551,87 @@
 .ygo-match-log {
   margin: 0 16px 16px;
   font-size: 0.9rem;
+}
+
+.ygo-hand {
+  padding-bottom: 12px;
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .ygo-overlay {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .ygo-header h1 {
+    font-size: 18px;
+  }
+
+  .ygo-game,
+  .ygo-mat {
+    width: 100%;
+  }
+
+  .ygo-mat {
+    padding: 8px;
+  }
+
+  .ygo-field {
+    grid-template-columns: 56px minmax(0, 1fr) 56px;
+    gap: 4px;
+  }
+
+  .ygo-pile {
+    min-height: 42px;
+  }
+
+  .ygo-hand {
+    min-height: 0;
+    padding-bottom: 0;
+  }
+
+  .ygo-hand .ygo-hand-card {
+    flex-basis: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ygo-overlay[data-last-action="summon"] .ygo-slot:not(.is-empty),
+  .ygo-overlay[data-last-action="set"] .ygo-slot:not(.is-empty) {
+    animation: ygo-ultron-summon 680ms cubic-bezier(0.16, 0.84, 0.24, 1);
+  }
+
+  .ygo-overlay[data-last-action="effect"] .ygo-mat {
+    animation: ygo-ultron-core 640ms ease;
+  }
+
+  .ygo-overlay[data-last-action="draw"] .ygo-hand-card:last-child {
+    animation: ygo-ultron-draw 520ms ease;
+  }
+}
+
+@keyframes ygo-ultron-summon {
+  0% {
+    filter: brightness(2.1) saturate(1.35);
+    transform: translateY(12px) scale(0.84);
+    box-shadow: 0 0 0 0 rgba(255, 42, 54, 0.85);
+  }
+  55% {
+    box-shadow: 0 0 22px 4px rgba(255, 60, 84, 0.7);
+  }
+  100% {
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes ygo-ultron-core {
+  0% { box-shadow: inset 0 0 0 0 rgba(255, 42, 54, 0); }
+  40% { box-shadow: inset 0 0 48px 6px rgba(255, 42, 54, 0.42); }
+  100% { box-shadow: inset 0 0 0 6px rgba(18, 48, 32, 0.45); }
+}
+
+@keyframes ygo-ultron-draw {
+  from { transform: translateY(18px) scale(0.9); filter: brightness(1.7); }
+  to { transform: none; filter: none; }
 }

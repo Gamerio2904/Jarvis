@@ -16,6 +16,7 @@ import {
   summonExtraMonster,
   summonMonster,
   type DuelCard,
+  type DuelSide,
   type DuelState,
 } from './yugioh-duel.ts'
 import {
@@ -822,6 +823,38 @@ export function jarvisStep(state: DuelState, model: NetModel | null): DuelState 
     return advance()
   }
   return advance()
+}
+
+function flipActors(state: DuelState): DuelState {
+  const side = (value: DuelSide | null | undefined): DuelSide | null =>
+    value === 'player' ? 'jarvis' : value === 'jarvis' ? 'player' : null
+  return {
+    ...state,
+    player: state.jarvis,
+    jarvis: state.player,
+    turnOwner: side(state.turnOwner) ?? state.turnOwner,
+    firstPlayer: side(state.firstPlayer) ?? state.firstPlayer,
+    winner: state.winner === 'player' ? 'jarvis' : state.winner === 'jarvis' ? 'player' : state.winner,
+    chainPriority: side(state.chainPriority),
+    chain: state.chain.map((link) => ({ ...link, controller: side(link.controller) ?? link.controller })),
+    pendingAttack: state.pendingAttack
+      ? { ...state.pendingAttack, side: side(state.pendingAttack.side) ?? state.pendingAttack.side }
+      : state.pendingAttack,
+    lastAnimation: state.lastAnimation
+      ? { ...state.lastAnimation, side: side(state.lastAnimation.side) ?? state.lastAnimation.side }
+      : null,
+  }
+}
+
+/** Ein Zug des Spielers, mit derselben Entscheidung wie Ultron, zurück auf das sichtbare Feld gelegt. */
+export function mirrorBotStep(state: DuelState, model: NetModel | null): DuelState {
+  if (state.winner) return state
+  if (state.turnOwner === 'jarvis') return jarvisStep(state, model)
+  const stepped = flipActors(jarvisStep(flipActors({ ...state, turnOwner: 'player' }), model))
+  return {
+    ...stepped,
+    message: stepped.message.replace(/\bJarvis\b/g, 'Der Gegner'),
+  }
 }
 
 // --- Value head (schema v2) and search-guided imitation ---

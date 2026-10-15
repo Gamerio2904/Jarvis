@@ -7919,9 +7919,10 @@ html.theme-wipe-dark::before {
 
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px 10px;
   padding: 4px 2px 28px;
+  position: relative;
 }
 
 /* display:grid würde sonst das HTML-hidden überdecken — Icons lägen auf der Werkbank. */
@@ -7961,6 +7962,89 @@ html.theme-wipe-dark::before {
 .home-app-label {
   font-size: 0.78rem;
   color: var(--text-muted);
+  text-align: center;
+}
+
+.home-cell {
+  min-height: 86px;
+}
+
+.home-app.is-hover .home-app-ico {
+  box-shadow: 0 0 0 2px var(--board-accent, #ff4d5a), 0 0 16px color-mix(in srgb, var(--board-accent, #ff4d5a) 45%, transparent);
+}
+
+.home-app-ico.is-folder {
+  background:
+    linear-gradient(180deg, rgba(255, 42, 54, 0.22), rgba(4, 16, 24, 0.55));
+}
+
+.home-folder-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 40px;
+  height: 40px;
+}
+
+.home-folder-stack svg {
+  width: 16px;
+  height: 16px;
+}
+
+.home-app-ghost {
+  position: fixed;
+  z-index: 70;
+  transform: translate(-50%, -70%);
+  pointer-events: none;
+  padding: 8px 12px;
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(20, 8, 12, 0.88);
+  border: 1px solid rgba(255, 90, 98, 0.7);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.home-folder {
+  position: fixed;
+  left: 50%;
+  bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: min(360px, calc(100vw - 28px));
+  z-index: 60;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  color: #f4f7fb;
+  background: rgba(8, 12, 18, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.home-folder label,
+.home-folder li {
+  display: grid;
+  gap: 6px;
+}
+
+.home-folder ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.home-folder input,
+.home-folder button {
+  font: inherit;
+}
+
+.home-folder input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  padding: 8px 10px;
 }
 
 .glance-rail {
@@ -10931,4 +11015,43 @@ html[data-device='desktop'] .messages {
     flex: 1 1 8rem;
     max-width: 100%;
   }
+}
+
+.script-side {
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+}
+
+.script-side label,
+.script-side li label {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.script-side ul li,
+.script-side ol li {
+  color: #f4f7fb;
+}
+
+.script-side ul li strong,
+.script-side ul li span,
+.script-side ol li strong,
+.script-side ol li span,
+.script-side ol li time {
+  display: block;
+}
+
+.script-side ul li span,
+.script-side ol li span {
+  margin-top: 4px;
+  color: rgba(215, 246, 255, 0.78);
+}
+
+.script-side input,
+.script-side select,
+.script-side textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  box-sizing: border-box;
 }

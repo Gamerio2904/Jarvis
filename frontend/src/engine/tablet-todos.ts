@@ -1,6 +1,6 @@
 import type { Todo } from './store.ts'
 
-const TODO_WORD = /\b(to-?dos?|aufgaben?|erledigen|erledigt|offen(?:e|en)?)\b/i
+const TODO_WORD = /\b(to-?dos?|aufgaben?|erledigen|erledigt|offen(?:e|en)?|zu\s+tun)\b/i
 const ASK_WORD = /\b(was|welche|zeig|zeige|nenn|nenne|sag|sage|lies|liste|hab|habe|hast|habt|steht|gibt|muss|noch|alle|meine|anstehen)/i
 
 /** „Was hab ich für Todos?“, „was muss ich noch erledigen“, „zeig meine Aufgaben“. */
@@ -11,7 +11,7 @@ export function isTodoQuery(text: string): boolean {
 
 export function openTodos(todos: Todo[]): Todo[] {
   return todos
-    .filter((t) => t.status !== 'done')
+    .filter((t) => t.status === 'open')
     .sort((a, b) => {
       const da = a.deadline_date ? `${a.deadline_date} ${a.deadline_time || '99:99'}` : '9999'
       const db = b.deadline_date ? `${b.deadline_date} ${b.deadline_time || '99:99'}` : '9999'
@@ -23,7 +23,7 @@ export function todoSpeech(todos: Todo[]): string {
   const open = openTodos(todos)
   if (!open.length) return 'Sir, Sie haben nichts mehr zu erledigen.'
   const head = open.length === 1 ? 'Sir, Sie haben eine offene Aufgabe: ' : `Sir, Sie haben ${open.length} offene Aufgaben: `
-  return head + open.map((t) => t.title).join(', ') + '.'
+  return head + open.map((t) => `${t.title}${t.deadline_date ? ` bis ${t.deadline_date}${t.deadline_time ? ` ${t.deadline_time}` : ''}` : ''}`).join(', ') + '.'
 }
 
 const ACKS = ['Ja, Sir?', 'Zu Diensten, Sir.', 'Wie kann ich helfen, Sir?', 'Ich höre, Sir.', 'Sie wünschen, Sir?']
