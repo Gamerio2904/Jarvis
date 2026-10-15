@@ -60,16 +60,17 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
   if (new RegExp(String.raw`^\s*plan(?:e)?\s+das${END}`, 'i').test(t)) return { kind: 'open' }
 
   if (new RegExp(String.raw`^\s*(?:plan|fenster)\s+zu${END}`, 'i').test(t)) return { kind: 'close' }
+  if (/^\s*planungsmodus\s+(?:aus|beenden|zu|stoppen|stopp)\s*[.!?]*$/i.test(t)) return { kind: 'close' }
   if (/^\s*(?:planung\s+zu|planung\s+fertig|bin\s+fertig)$/i.test(t.replace(/[.!?]+$/g, '').trim())) {
     return { kind: 'close' }
   }
   if (planScriptOpen() && /^\s*fertig$/i.test(t.replace(/[.!?]+$/g, '').trim())) return { kind: 'close' }
 
   const change = new RegExp(String.raw`^\s*änder(?:e)?\s+(?:den|die|das)?\s*(.+?)\s*:\s*(.+)$`, 'i').exec(t)
-  if (change) return { kind: 'revise', via: 'name', name: change[1].trim(), text: change[2].trim() }
+  if (change && planScriptOpen()) return { kind: 'revise', via: 'name', name: change[1].trim(), text: change[2].trim() }
 
   const rest = new RegExp(String.raw`^\s*(.+?)\s*,\s*rest\s+so${END}`, 'i').exec(t)
-  if (rest) return { kind: 'revise', via: 'rest', name: rest[1].trim(), text: rest[1].trim() }
+  if (rest && planScriptOpen()) return { kind: 'revise', via: 'rest', name: rest[1].trim(), text: rest[1].trim() }
 
   const over = new RegExp(String.raw`^\s*(?:überarbeite|ueberarbeite)\s+den\s+plan\s*:\s*(.+)$`, 'i').exec(t)
   if (over) return { kind: 'revise', via: 'plan', name: '', text: over[1].trim() }
@@ -99,14 +100,10 @@ function isPlanningScreenAsk(t: string): boolean {
 }
 
 function planningInvite(t: string): string | null {
-  if (
-    !/^\s*(?:lass(?:\s+uns)?|wir\s+wollen|ich\s+will|ich\s+möchte|ich\s+moechte)\s+(?:mal\s+)?(?:zusammen\s+)?(?:eine\s+neue|eine|die|neue)?\s*(?:app|anwendung)\s+(?:planen|entwickeln|bauen|entwerfen)\s*[.!?]*$/i.test(
-      t,
-    )
-  ) {
-    return null
-  }
-  return 'eine neue App'
+  const match = /^\s*(?:lass(?:\s+uns)?|wir\s+wollen|ich\s+will|ich\s+möchte|ich\s+moechte)\s+(?:mal\s+)?(?:zusammen\s+)?(?:eine\s+neue|eine|die|neue)?\s*(?:app|anwendung)(?:\s+(?:für|fuer)\s+(.+?))?\s+(?:planen|entwickeln|bauen|entwerfen)\s*[.!?]*$/i.exec(t)
+  if (!match) return null
+  const topic = (match[1] || '').replace(/[.!?]+$/g, '').trim()
+  return topic ? topic.slice(0, 72) : 'eine neue App'
 }
 
 /** Ein Plansatz, den kein Parser angenommen hat. Das Modell darf ihn nicht als Projekt erzählen. */

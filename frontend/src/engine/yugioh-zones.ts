@@ -32,7 +32,8 @@ export function registerLinkArrows(card: DuelCard): number[] {
 
 /** TCG: the player who goes first cannot conduct battle on turn 1. */
 export function isFirstTurnBattleBlocked(state: DuelState): boolean {
-  if (state.turn !== 1) return false
+  // Jarvis' Sicht addiert 0,5 auf die Zugnummer, damit turnKey() gleich bleibt.
+  if (Math.floor(state.turn) !== 1) return false
   const owner = state.turnOwner ?? 'player'
   const first = state.firstPlayer ?? 'player'
   return owner === first
@@ -45,8 +46,8 @@ export function battleActionsAllowed(state: DuelState): boolean {
 }
 
 export function spellSpeedForCard(card: DuelCard): 1 | 2 | 3 {
-  if (card.effect?.kind === 'negate' || card.effect?.kind === 'negateAttack') return 2
   if (card.kind === 'trap' && /counter/i.test(card.subtype || card.type || '')) return 3
+  if (card.effect?.kind === 'negate' || card.effect?.kind === 'negateAttack') return 2
   if (card.kind === 'trap') return 2
   if (card.kind === 'spell' && /quick-play/i.test(card.subtype || card.type || '')) return 2
   return 1

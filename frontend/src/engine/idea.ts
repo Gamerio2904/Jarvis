@@ -171,8 +171,17 @@ function planTitle(work: string): string {
   if (/ein-?\s*und\s+ausgaben|einnahmen\s+und\s+ausgaben/i.test(text)) return 'Ein- und Ausgaben'
   const head = (text.split(/[,;]/)[0] || text).replace(/\s+/g, ' ').trim()
   if (/\bhaushaltsbuch\b/i.test(head)) return 'Haushaltsbuch'
-  const stripped = head.replace(/^(?:plane|plan)\s+(?:mir\s+)?(?:eine\s+)?app\s+/i, '').trim()
+  const stripped = head
+    .replace(/^(?:ich\s+(?:möchte|moechte|will)|lass(?:\s+uns)?|wir\s+wollen)\s+(?:bitte\s+)?(?:mal\s+)?(?:zusammen\s+)?/i, '')
+    .replace(/^(?:plane|plan)\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?/i, '')
+    .replace(/^(?:eine\s+)?(?:neue\s+)?(?:app|anwendung)\s*(?::|(?:für|fuer))?\s*/i, '')
+    .replace(/^(?:planen|entwickeln|bauen|entwerfen)\s*/i, '')
+    .trim()
   return (stripped || head || text).slice(0, 72)
+}
+
+function genericAppTitle(title: string): boolean {
+  return /^(?:eine neue app|neue app|eine app|app)$/i.test(title.trim())
 }
 
 function clearShownPlan(): string {
@@ -266,7 +275,11 @@ async function closePlanningScreen(raw: string): Promise<string> {
   if (/^\s*fenster\s+zu\b/i.test(raw.trim())) await closeDraftRow()
   const settings = loadSettings()
   const phase = settings.plan_phase
-  if (phase === 'live' || phase === 'go' || settings.workbench_open) {
+  if (phase === 'go') {
+    saveSettings({ tischplatte_on: true, workbench_open: false })
+    return 'Der Planungsbildschirm ist zu. Das Skript bleibt fest.'
+  }
+  if (phase === 'live' || settings.workbench_open) {
     saveSettings({ plan_phase: '', plan_script_at: 0, tischplatte_on: true, workbench_open: false })
     return 'Der Planungsbildschirm ist zu. Der Plan bleibt.'
   }
@@ -292,10 +305,12 @@ function addSurface(plan: IdeaPlan, source: string, refresh = false): void {
   if (!refresh && plan.anforderungen.some((row) => row.id.startsWith('O'))) return
   plan.anforderungen = plan.anforderungen.filter((row) => !row.id.startsWith('O'))
   blocks.forEach((block, i) => {
-    const zeile = block.zeile && block.zeile !== 'Noch leer.' ? block.zeile : artLabel(block.art)
+    const label = artLabel(block.art)
+    const raw = block.zeile && block.zeile !== 'Noch leer.' ? block.zeile.trim() : ''
+    const zeile = raw && raw.toLowerCase() !== label.toLowerCase() ? raw : ''
     plan.anforderungen.push({
       id: `O${i + 1}`,
-      satz: `${artLabel(block.art)}: ${zeile}`,
+      satz: zeile ? `${label}: ${zeile}` : label,
       abnahme: '',
       gateway: 'offen',
     })
@@ -381,7 +396,7 @@ async function showPlanning(idea: Idea): Promise<void> {
 
 async function openPlanningSession(work: string): Promise<string> {
   const text = work.replace(/\s+/g, ' ').trim()
-  let hit = text ? await namedProject(text) : await ideaOnTable()
+  let hit = text ? (genericAppTitle(text) ? undefined : await namedProject(text)) : await ideaOnTable()
   if (!text && !hit) {
     const cards = (await listPortfolio()).filter((row) => !row.archived)
     if (cards.length > 1) return `Welches: ${cards.map((row) => row.name).join(', ')}.`
@@ -407,11 +422,14 @@ function talkWorth(text: string): boolean {
   const t = text.replace(/\s+/g, ' ').trim()
   if (t.length < 8) return false
   if (/^(?:hallo|hi|hey|danke|ok(?:ay)?|ja|nein|stopp)\b/i.test(t) && t.split(/\s+/).length < 4) return false
+  if (/^(?:abbrechen|abbruch|stopp|danke(?:\s+schön|\s+schoen)?|das war'?s|das wars)\b/i.test(t)) return false
+  if (/\?\s*$/.test(t)) return false
+  if (/^(?:was|wie|warum|wieso|wer|wo|wann|welche)\b/i.test(t) && !/\b(?:soll|muss|müssen|muessen|brauchen|will|möchte|moechte|bitte)\b/i.test(t)) return false
   return true
 }
 
 function deviceTalk(text: string): boolean {
-  return /\b(?:tabletmodus|tabelmodus|taletmodus|tabletmodu|handy\s+koppeln|verbinde(?:\s+dich)?(?:\s+mit)?\s+(?:dem\s+|das\s+)?handy|server\s+(?:an|aus)|starte\s+den\s+server|fernseher|yu-?gi-?oh|zeit\s+für\s+ein\s+duell)\b/i.test(text)
+  return /\b(?:tablet\s*modus|tabel\s*modus|talet\s*modus|tabletmodus|tabelmodus|taletmodus|tabletmodu|handy\s+koppeln|verbinde(?:\s+dich)?(?:\s+mit)?\s+(?:dem\s+|das\s+)?handy|server\s+(?:an|aus)|starte(?:\s+bitte)?(?:\s+mal)?\s+den\s+server|fernseher|yu-?gi-?oh|zeit\s+für\s+ein\s+duell)\b/i.test(text)
 }
 
 export async function sparPlan(text: string): Promise<string | null> {
@@ -422,7 +440,8 @@ export async function sparPlan(text: string): Promise<string | null> {
   if (!hit) return 'Was soll geplant werden?'
   const plan = hit.plan || emptyPlan(hit.id, hit.body || hit.title)
   const line = text.replace(/\s+/g, ' ').trim().slice(0, 160)
-  const known = plan.anforderungen.some((row) => row.satz.toLowerCase() === line.toLowerCase())
+  const same = (value: string) => value.replace(/[.?!,;:]+$/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
+  const known = plan.anforderungen.some((row) => same(row.satz) === same(line))
   if (!known) {
     const n = plan.anforderungen.filter((row) => row.id.startsWith('A')).length + 1
     plan.anforderungen.push({ id: `A${n}`, satz: line, abnahme: '', gateway: 'offen' })
@@ -455,7 +474,7 @@ async function writeProject(work: string): Promise<string> {
   const parts = clausesOf(work)
   const title = planTitle(work)
   const rows = await listIdeas()
-  let hit = rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
+  let hit = genericAppTitle(title) ? undefined : rows.find((r) => r.title.toLowerCase() === title.toLowerCase() && r.status !== 'done')
   if (hit?.plan) {
     await showPlanning(hit)
     return `Das vorhandene Projekt „${hit.title}“ ist geöffnet. Der gespeicherte Plan und der ursprüngliche Wunsch wurden nicht überschrieben.`

@@ -425,17 +425,17 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
 
   if (pick.kind === 'none') {
     if (isDeepResearch(ctx.text)) return { hit: null }
-    if (missedPlanSentence(ctx.text)) {
-      const reply = 'Der Satz ist nicht angekommen. Die Tischplatte ist unverändert.'
-      setLastUserFacts(reply)
-      return { hit: { reply, lastTool: 'idea' }, userFacts: reply }
-    }
     if (loadSettings().plan_phase === 'live') {
       const talked = await handleIdea(conversationId, text)
       if (talked.handled && talked.reply) {
         setLastUserFacts(talked.reply)
         return { hit: { reply: talked.reply, lastTool: 'idea', tool: talked.tool }, userFacts: talked.reply }
       }
+    }
+    if (missedPlanSentence(ctx.text)) {
+      const reply = 'Der Satz ist nicht angekommen. Die Tischplatte ist unverändert.'
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: 'idea' }, userFacts: reply }
     }
     const rescued = await rescueByProposal(conversationId, ctx)
     if (rescued) return rescued

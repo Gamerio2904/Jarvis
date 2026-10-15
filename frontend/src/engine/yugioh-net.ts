@@ -691,12 +691,16 @@ function mirrorAnimation(animation: DuelState['lastAnimation']): DuelState['last
 
 // Jarvis' board as "player". The half-turn offset keeps turnKey() equal to the real Jarvis turn.
 function jarvisView(state: DuelState): DuelState {
+  const first = state.firstPlayer ?? 'player'
   return {
     ...state,
     player: state.jarvis,
     jarvis: state.player,
     turn: state.turn + 0.5,
     turnOwner: 'player',
+    // Die Sicht tauscht die Seiten. Der Startspieler muss mitgetauscht werden,
+    // sonst hält die Battle-Sperre von Zug 1 Ultron nicht.
+    firstPlayer: first === 'jarvis' ? 'player' : 'jarvis',
     pendingAttack: null,
     selectedAttacker: null,
     chain: [],
@@ -715,6 +719,9 @@ function fromJarvisView(view: DuelState, real: DuelState): DuelState {
     winner,
     lastAnimation: mirrorAnimation(view.lastAnimation),
     message: winner === 'jarvis' ? 'Jarvis gewinnt das Duell.' : winner === 'player' ? 'Du gewinnst das Duell!' : view.message,
+    chain: view.chain.map((link) => ({ ...link, controller: link.controller === 'player' ? 'jarvis' as const : 'player' as const })),
+    chainPriority: view.chainPriority === 'player' ? 'jarvis' : view.chainPriority === 'jarvis' ? 'player' : null,
+    chainPasses: view.chainPasses,
   }
 }
 
@@ -750,11 +757,12 @@ export function jarvisStep(state: DuelState, model: NetModel | null): DuelState 
   if (steps > 40) return { ...base, phase: 'end', message: 'Jarvis beendet seinen Zug.' }
   const view = jarvisView(base)
   const advance = (): DuelState => {
-    const phase = NEXT_JARVIS_PHASE[base.phase as 'main1' | 'battle' | 'main2']
+    let phase: DuelState['phase'] = NEXT_JARVIS_PHASE[base.phase as 'main1' | 'battle' | 'main2']
+    if (phase === 'battle' && isFirstTurnBattleBlocked(base)) phase = 'main2'
     return { ...base, phase, attacked: [], lastAnimation: null, message: phase === 'end' ? 'Jarvis: End Phase.' : `Jarvis wechselt in die ${PHASE_LABEL[phase]}.` }
   }
   if (base.phase !== 'battle') {
-    const toSet = view.player.hand.find((card) => card.kind === 'trap' || (card.kind === 'spell' && !card.effect))
+    const toSet = view.player.hand.find((card) => card.kind === 'trap' && card.effect)
     if (toSet) {
       try {
         const set = setSpellTrap(view, toSet.id)
@@ -772,7 +780,11 @@ export function jarvisStep(state: DuelState, model: NetModel | null): DuelState 
   const chosen = actions[actions.length === 1 ? 0 : policy(actions, random)]
   try {
     if (chosen.kind === 'pass') return advance()
-    if (chosen.kind === 'effect' && chosen.cardId !== undefined) return activateDuelEffect(base, 'jarvis', chosen.cardId)
+    if (chosen.kind === 'effect' && chosen.cardId !== undefined) {
+      const played = [...base.jarvis.hand, ...base.jarvis.spells, ...base.jarvis.monsters].find((card) => card.id === chosen.cardId)
+      if (played?.effect?.kind === 'discard' || played?.effect?.kind === 'mill') return advance()
+      return activateDuelEffect(base, 'jarvis', chosen.cardId)
+    }
     if ((chosen.kind === 'attack' || chosen.kind === 'direct') && chosen.cardId !== undefined) {
       const attacker = base.jarvis.monsters.find((card) => card.id === chosen.cardId)
       return {

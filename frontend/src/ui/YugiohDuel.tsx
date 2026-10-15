@@ -593,8 +593,14 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     return game.player.spells.some((card) => card.kind === 'trap' && canActivateCard(game, 'player', card.id))
   }, [game])
 
+  const attackKey = game?.pendingAttack?.side === 'jarvis'
+    ? `${game.pendingAttack.attackerId}:${game.pendingAttack.targetId ?? 'direct'}`
+    : ''
+  const [releasedAttack, setReleasedAttack] = useState('')
+  const holdAttack = Boolean(attackKey && playerReactiveTrap && releasedAttack !== attackKey)
+
   useEffect(() => {
-    if (uiMode !== 'game' || !game || game.winner || game.turnOwner !== 'jarvis' || game.chain.length || jarvisPaused) return
+    if (uiMode !== 'game' || !game || game.winner || game.turnOwner !== 'jarvis' || game.chain.length || jarvisPaused || holdAttack) return
     const delay = game.pendingAttack ? 2200 : 1500
     setJarvisThinking(true)
     const timeout = window.setTimeout(() => {
@@ -608,7 +614,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       window.clearTimeout(timeout)
       setJarvisThinking(false)
     }
-  }, [game, jarvisBrain, netModel, jarvisPaused, uiMode])
+  }, [game, jarvisBrain, netModel, jarvisPaused, holdAttack, uiMode])
 
   useEffect(() => {
     if (!game || game.turnOwner !== 'jarvis') setJarvisPaused(false)
@@ -824,12 +830,15 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           {game.winner ? (
             <button className="ygo-primary" type="button" onClick={() => setGame(null)}>Neues Duell vorbereiten</button>
           ) : (
-            <button className="ygo-next-phase" type="button" onClick={advancePhase}>
+            <button className="ygo-next-phase" type="button" onClick={advancePhase} disabled={game.turnOwner === 'jarvis' || game.chain.length > 0}>
               {game.phase === 'end' ? 'Jarvis Zug starten' : 'Nächste Phase'}
             </button>
           )}
           {game.turnOwner === 'jarvis' && (playerReactiveTrap || jarvisPaused) ? (
             <button className="ygo-stop-turn" type="button" onClick={() => setJarvisPaused((current) => !current)}>{jarvisPaused ? 'Weiter' : 'STOP'}</button>
+          ) : null}
+          {holdAttack ? (
+            <button className="ygo-stop-turn" type="button" onClick={() => setReleasedAttack(attackKey)}>Angriff zulassen</button>
           ) : null}
           <details className="ygo-ai-info">
             <summary>Jarvis KI · {stateVector.length} Zustandswerte · Policy Gradient</summary>

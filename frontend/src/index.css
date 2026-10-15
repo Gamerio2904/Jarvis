@@ -9465,13 +9465,19 @@ html.theme-wipe-dark::before {
   padding: 0;
 }
 
-.script-psp li,
-.script-side ul li {
+.script-psp li {
   display: grid;
   grid-template-columns: 28px 1fr;
   gap: 2px 8px;
   padding: 8px 0;
   border-bottom: 1px solid rgba(255, 90, 98, 0.08);
+}
+
+.script-side ul li {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 90, 98, 0.08);
+  overflow-wrap: anywhere;
 }
 
 .script-psp li span,
