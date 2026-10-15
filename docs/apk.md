@@ -1,11 +1,16 @@
-# Android-APK — Test-Build `18.51.0`
+# Android-APK — Test-Build `18.51.1`
 
-Test-Build **`18.51.0`** (versionCode `185100`), debug-signiert:
+Test-Build **`18.51.1`** (versionCode `185101`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`. Die
 Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
 keine finale Release-Freigabe.
+
+**Neu in 18.51.1:** Nachzieher zu Alltag, Planung und Duell. Nachtfenster für
+„morgen“, Wochentag ohne Uhr, Erinnerungen mit Tageszeit, aktive Einkaufsliste,
+Backup der Todo-Listen, Timer-Abbrechen, Plan pro Gespräch, Handlimit 6 mit
+Auswahl und Escape-Rückfrage. Fassung: [`audit-bugfixes-18-51.md`](./audit-bugfixes-18-51.md).
 
 **Neu in 18.51.0:** Yu-Gi-Oh!-TCG-Subset aus Plan 105 (Sprints 511–530):
 Zonenkapazität, Turn-1 ohne Battle, Spell Speed, erweiterte Effekte, Schema v2,

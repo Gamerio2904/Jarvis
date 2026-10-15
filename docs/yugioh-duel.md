@@ -1,4 +1,4 @@
-# Yu-Gi-Oh! Duel — Test-Build `18.51.0`
+# Yu-Gi-Oh! Duel — Test-Build `18.51.1`
 
 ## Einstieg
 
@@ -195,6 +195,6 @@ Android-Gerätebedienung müssen zusätzlich am Zielgerät manuell geprüft werd
 
 ## Version / APK
 
-App-Version **`18.51.0`**, Android `versionCode 185100`, debug-signierter
+App-Version **`18.51.1`**, Android `versionCode 185101`, debug-signierter
 Test-Build (Self-Play 503–510 + TCG-Subset 511–530). Build: `./build-apk.sh`;
 Sideload: `releases/Jarvis.apk`.

@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Stände:** App-Code, UI und Test-APK `18.51.0` / versionCode `185100`. Android-Geräteabnahme und Release-Freigabe sind offen. Notizen/Todos (431–443), Tischplatten-Rework (444–466) und die Tablet-/Hausstand-Basis liegen im Code. Das Yu-Gi-Oh!-Duell umfasst den Prototyp ab `18.31.6`, Self-Play 503–510 und das TCG-Subset 511–530. Details: [`yugioh-duel.md`](./yugioh-duel.md). [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) beschreiben Gates `18.32.0`–`18.41.0` mit offener Geräteabnahme. [`104-next.md`](./104-next.md) und [`105-next.md`](./105-next.md) sind im Baum von `18.51.0` **CODE**. Keine dieser Planungen ist eine Release-Freigabe.
+**Stände:** App-Code, UI und Test-APK `18.51.1` / versionCode `185101`. Android-Geräteabnahme und Release-Freigabe sind offen. Notizen/Todos (431–443), Tischplatten-Rework (444–466) und die Tablet-/Hausstand-Basis liegen im Code. Das Yu-Gi-Oh!-Duell umfasst den Prototyp ab `18.31.6`, Self-Play 503–510 und das TCG-Subset 511–530. Details: [`yugioh-duel.md`](./yugioh-duel.md). [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) beschreiben Gates `18.32.0`–`18.41.0` mit offener Geräteabnahme. [`104-next.md`](./104-next.md) und [`105-next.md`](./105-next.md) sind im Baum von `18.51.0` **CODE**. Keine dieser Planungen ist eine Release-Freigabe.
 
 Eine Planvorlage, beliebige Sprints: [`plan-vorlage.md`](./plan-vorlage.md). Zwei Fenster, Handy per Satz: [`handy-flaeche-plan.md`](./handy-flaeche-plan.md), bestehende Basis `18.25.12`/`18.25.13`; Ausbau für sichere Projekt-/Sprintansicht: [`102-next.md`](./102-next.md). Bestehende Hausstand-Sync-Basis und Vorgängerplanung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Der alte Teilplan „Tischplatte lesbar“ ist in den Tischplatten-Rework [`100-next.md`](./100-next.md) integriert. [`formulierung-plan.md`](./formulierung-plan.md) bleibt ein unpriorisierter, noch nicht gebauter Plan und muss vor Umsetzung mit dem Routing-Gate 467–470 abgeglichen werden. Historische Flächen-Bugs: [`flaechen-bugs-plan.md`](./flaechen-bugs-plan.md). Raum- und Objekt-Scan auf der Tischplatte, Code `18.24.7`: [`roomar-openscan-plan.md`](./roomar-openscan-plan.md). Test: [`TEST-18.24.6.md`](./TEST-18.24.6.md). Stumme App-Entwürfe, Code `18.25.0`: [`97-next.md`](./97-next.md).
 
@@ -113,7 +113,7 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | 103 | [Projektplanung](./103-next.md) | **Kern im Baum, Release-Gate offen** `18.39.0`–`18.41.0` — Sprints 495–502 |
 | 104 | [Yu-Gi-Oh!-Self-Play](./104-next.md) | **CODE** in `18.51.0` — Sprints 503–510, zuerst gebündelt als `18.45.0` |
 | 105 | [Yu-Gi-Oh! TCG-Subset](./105-next.md) | **CODE** `18.51.0` — Sprints 511–530; Zahlen-Gates nicht alle geschlossen |
-| — | [Stände bis 18.51.0](./09-versioning.md) | **CODE + Test-APK** `18.51.0`, Geräte-Gate offen |
+| — | [Stände bis 18.51.1](./09-versioning.md) | **CODE + Test-APK** `18.51.1`, Geräte-Gate offen |
 | — | [Test 18.26](./TEST-18.26.md) | **PLAN** — Notizen-GUI, Sprachzugriff und belegbarer Rückruf |
 | — | [Test 18.27](./TEST-18.27.md) | **PLAN** — Todo-Listen, Swipe-Aktionen, Deadline und Abfrage bis morgen |
 | — | [Test 18.28](./TEST-18.28.md) | **PLAN** — Projektzustand, Routing, PSP/Sprints und Resume |
@@ -129,7 +129,7 @@ Die leere Vorlage für einen Satz (`Plane das`) steht in [`plan-vorlage.md`](./p
 | — | [Test 18.24](./TEST-18.24.md) | Portfolio-Sätze, in der App ab `18.24.0` |
 | — | [Test 18.24.6](./TEST-18.24.6.md) | Raum- und Objekt-Scan, Sideload `18.24.7` |
 | — | [Test 18.25](./TEST-18.25.md) | Entwurf-Sätze, in der App ab `18.25.0` |
-| — | [APK](./apk.md) | Test-Build `18.51.0` / versionCode `185100`; Geräte-Gate offen: [`yugioh-duel.md`](./yugioh-duel.md) |
+| — | [APK](./apk.md) | Test-Build `18.51.1` / versionCode `185101`; Geräte-Gate offen: [`yugioh-duel.md`](./yugioh-duel.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -394,9 +394,10 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | — | — | Tischplatte lesbar: historischer Teilplan, in [`100-next.md`](./100-next.md) Sprints 444–466 integriert |
 | — | `18.31.5` | **CODE; Geräteabnahme offen** Tablet-Server, QR-Kopplung und Zeitstempel-Sync; sichere Weiterentwicklung in [`102-next.md`](./102-next.md) |
 | — | `18.31.6` | **CODE + Test-APK; Geräteabnahme offen** Yu-Gi-Oh!-Duellprototype |
-| — | `18.31.7` | **CODE**, historisch. Policy-Gradient, Effektketten, Extra-Deck; Sideload inzwischen `18.51.0` |
-| — | `18.45.0` | **CODE**. Self-Play 503–510; im Sideload `18.51.0` enthalten |
-| 503–530 | `18.51.0` | **CODE + Test-APK; Geräteabnahme offen**. TCG-Subset und Self-Play, `engineStamp` `18.51.0-ygo-tcg` |
+| — | `18.31.7` | **CODE**, historisch. Policy-Gradient, Effektketten, Extra-Deck; Sideload inzwischen `18.51.1` |
+| — | `18.45.0` | **CODE**. Self-Play 503–510; im Sideload `18.51.1` enthalten |
+| 503–530 | `18.51.0` | **CODE**. TCG-Subset und Self-Play, `engineStamp` `18.51.0-ygo-tcg`; Sideload inzwischen `18.51.1` |
+| — | `18.51.1` | **CODE + Test-APK; Geräteabnahme offen**. Audit-Nachzieher Alltag, Planung, Duell |
 | — | unpriorisiert | **PLAN** Formulierung egal, [`formulierung-plan.md`](./formulierung-plan.md); vor Start mit 467–470 abgleichen |
 
-**Stände:** Test-APK `18.51.0` / `185100`; finale Geräteabnahme offen. Umsetzung Tischplatte 444–466 und Tablet-/Hausstand-Basis liegen im Code; Duellstand steht in [`yugioh-duel.md`](./yugioh-duel.md). 503–530 sind CODE in diesem Baum. 467–494 bleiben Gates. Vorheriger Plan: [`100-next.md`](./100-next.md). Historische Hausstand-Planung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Index: [`42-planned.md`](./42-planned.md).
+**Stände:** Test-APK `18.51.1` / `185101`; finale Geräteabnahme offen. Umsetzung Tischplatte 444–466 und Tablet-/Hausstand-Basis liegen im Code; Duellstand steht in [`yugioh-duel.md`](./yugioh-duel.md). 503–530 sind CODE in diesem Baum. 467–494 bleiben Gates. Vorheriger Plan: [`100-next.md`](./100-next.md). Historische Hausstand-Planung: [`hausstand-sync-plan.md`](./hausstand-sync-plan.md). Index: [`42-planned.md`](./42-planned.md).

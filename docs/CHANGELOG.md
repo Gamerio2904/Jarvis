@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.51.1` — Audit-Nachzieher Alltag, Planung, Duell — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.1`** (versionCode `185101`).
+
+Nachzieher auf `18.51.0`: Nachtfenster für „morgen“, Termine am Wochentag ohne Uhr, Erinnerungen mit Datum und Tageszeit, aktive Einkaufsliste, Backup der Todo-Listen, Timer-Abbrechen, Plan nur im eigenen Gespräch, Handlimit 6 mit Auswahl, Flip bei Ultrons Angriff, fünf Hauptzonen und Escape-Rückfrage. `engineStamp` bleibt **`18.51.0-ygo-tcg`**. Liste: [`audit-bugfixes-18-51.md`](./audit-bugfixes-18-51.md).
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.51.0` — Yu-Gi-Oh TCG-Subset 511–530 — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.51.0`** (versionCode `185100`). `engineStamp` **`18.51.0-ygo-tcg`**.
@@ -15,7 +23,7 @@ https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.45.0` — Yu-Gi-Oh Self-Play 503–510 — *CODE + TEST-APK*
 
-Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.0`.
+Self-Play live, Entwicklermenü, Match-Protokoll, Fehlerkandidaten, Value-Kopf v2, Holdout-Gate, Nachweis-JSON + Verify, Elo-Liga. Münzwurf vor dem Duell gegen Ultron. Damaliger versionCode `184500`. Die Datei `releases/Jarvis.apk` auf `main` ist seitdem `18.51.1`.
 
 ### `18.31.7` — Duel-KI, Effektketten und Board-Upgrade — *CODE + TEST-APK*
 

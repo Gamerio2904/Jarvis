@@ -546,7 +546,7 @@ Die Zahlen-Gates Coverage ≥70 % und 100 Gold-Karten ≥95 % sind nicht geschlo
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Test-APK `18.51.0` / versionCode `185100`; finale Geräteabnahme
+**Stände:** Test-APK `18.51.1` / versionCode `185101`; finale Geräteabnahme
 offen. Rework 444–466: [`../100-next.md`](../100-next.md). Gates 467–502:
 [`../101-next.md`](../101-next.md), [`../102-next.md`](../102-next.md),
 [`../103-next.md`](../103-next.md). Duell 503–530:
