@@ -2849,7 +2849,6 @@ function App() {
 
         {!calendarOpen && !watchlistOpen && !shoppingOpen && !notesOpen && !todosOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
-          <TimerChip />
           <PcDashboard busy={busy} />
           <PcLiveDock />
           {statusNote ? <div className="status-note">{statusNote}</div> : null}
@@ -2899,6 +2898,7 @@ function App() {
               </div>
             </>
           ) : null}
+          <TimerChip />
           <div className={`composer ${composerFocused ? 'is-focused' : ''} ${busy ? 'is-busy' : ''}`}>
             {pasteImage ? (
               <div className="paste-preview">
