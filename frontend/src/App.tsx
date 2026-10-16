@@ -2729,7 +2729,13 @@ function App() {
           <ServerOverlay leaving={serverLayer.leaving} onClose={() => setServerOpen(false)} />
         ) : null}
         {weltLayer.shown ? (
-          <WeltOverlay leaving={weltLayer.leaving} onClose={() => setWeltOpen(false)} />
+          <WeltOverlay
+            leaving={weltLayer.leaving}
+            onClose={() => setWeltOpen(false)}
+            onVoice={(text) => {
+              void sendVoiceTurn(text)
+            }}
+          />
         ) : null}
         {watchlistLayer.shown ? (
           <WatchlistOverlay

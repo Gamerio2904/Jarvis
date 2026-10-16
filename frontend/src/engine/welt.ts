@@ -49,6 +49,7 @@ export type WeltSession = {
   camera: WeltCamera | null
   note: WeltNote
   heldId: string | null
+  dragId: string | null
 }
 
 export const IDENT: Q = { x: 0, y: 0, z: 0, w: 1 }
@@ -111,6 +112,7 @@ export function leereWelt(): WeltSession {
     camera: null,
     note: '',
     heldId: null,
+    dragId: null,
   }
 }
 
@@ -158,6 +160,66 @@ export function setzeFlaechen(s: WeltSession, planes: WeltPlane[]): WeltSession 
   let next = s
   for (const plane of planes) next = setzeUrsprung(next, plane)
   return next
+}
+
+/** Kamera und Boden, wenn ARCore die Fläche nicht liefert. */
+export function legeAuge(s: WeltSession, width: number, height: number): WeltSession {
+  const w = Math.max(width, 1)
+  const h = Math.max(height, 1)
+  const floor: WeltPlane = {
+    id: 'boden',
+    point: v3(0, 0, -0.7),
+    normal: v3(0, 1, 0),
+    halfX: 3,
+    halfZ: 3,
+  }
+  return {
+    ...s,
+    probed: true,
+    tracker: true,
+    origin: { ...floor.point },
+    planes: [floor],
+    tracking: 'hält',
+    note: '',
+    camera: {
+      position: v3(0, 1.45, 0),
+      rotation: { ...IDENT },
+      fx: w * 0.95,
+      fy: h * 0.95,
+      cx: w / 2,
+      cy: h / 2,
+    },
+  }
+}
+
+/** Würfel vor die Kamera. Die Lage bleibt, bis Griff oder Schieben sie ändert. */
+export function fuegeWuerfel(s: WeltSession): WeltSession {
+  if (!s.camera || !s.origin || s.objects.length >= MAX_CUBES) return s
+  const i = s.objects.length
+  const ahead = add(s.camera.position, rot(s.camera.rotation, v3((i % 3) * 0.14 - 0.14, -0.2, -0.7)))
+  const n = i + 1
+  const cube: WeltCube = {
+    id: `w${n}`,
+    anchorId: `a${n}`,
+    position: ahead,
+    rotation: { ...IDENT },
+    velocity: v3(),
+    state: 'liegt',
+  }
+  return { ...s, objects: [...s.objects, cube], note: '' }
+}
+
+export function schiebe(s: WeltSession, id: string, position: V3): WeltSession {
+  if (!s.objects.some((c) => c.id === id)) return s
+  return {
+    ...s,
+    dragId: id,
+    heldId: id,
+    note: 'gegriffen',
+    objects: s.objects.map((c) =>
+      c.id === id ? { ...c, position: { ...position }, velocity: v3(), state: 'gehalten' } : c,
+    ),
+  }
 }
 
 export function setzen(s: WeltSession, point: V3): WeltSession {
@@ -254,6 +316,7 @@ export function loslassen(s: WeltSession, handVelocity: V3): WeltSession {
   return {
     ...s,
     heldId: null,
+    dragId: null,
     note: 'abgesetzt',
     objects: s.objects.map((c) =>
       c.id === id

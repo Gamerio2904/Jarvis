@@ -13,12 +13,15 @@ const {
   IDENT,
   blick,
   gegenstaende,
+  fuegeWuerfel,
+  legeAuge,
   leereWelt,
   loslassen,
   ohneTracker,
   orientierung,
   parseWeltOpen,
   poseGleich,
+  schiebe,
   schliessen,
   setzeHand,
   setzeUrsprung,
@@ -54,6 +57,16 @@ const auge = {
 assert.equal(gegenstaende(leereWelt()), 0)
 assert.equal(weltZeile(leereWelt()), '0 Gegenstände')
 assert.equal(weltZeile(ohneTracker(leereWelt())), 'ARCore fehlt')
+const augeLokal = legeAuge(ohneTracker(leereWelt()), 1280, 720)
+assert.equal(weltZeile(augeLokal), 'Fläche')
+assert.equal(augeLokal.objects.length, 0)
+const mitWuerfel = fuegeWuerfel(augeLokal)
+assert.equal(mitWuerfel.objects.length, 1)
+assert.equal(mitWuerfel.objects[0].id, 'w1')
+const geschoben = schiebe(mitWuerfel, 'w1', v3(0.2, 1, -0.7))
+const nachHalt = schritt(geschoben, 0.5)
+assert.ok(Math.abs(nachHalt.objects[0].position.x - 0.2) < 1e-6)
+assert.ok(Math.abs(nachHalt.objects[0].position.y - 1) < 1e-6)
 assert.equal(setzen(leereWelt(), v3()).objects.length, 0)
 
 let welt = setzeUrsprung(leereWelt(), boden)
@@ -199,6 +212,11 @@ assert.match(overlay, /getUserMedia/)
 assert.match(overlay, /track\.stop/)
 assert.match(overlay, /Schließen/)
 assert.match(overlay, /ohneTracker/)
+assert.match(overlay, /welt-menu-btn/)
+assert.match(overlay, /Würfel/)
+assert.match(overlay, /Sprache an/)
+assert.match(overlay, /welt-mic/)
+assert.doesNotMatch(overlay, /ARCore fehlt/)
 const home = src('src/ui/HomeScreen.tsx')
 assert.match(home, /id === 'welt'/)
 const app = src('src/App.tsx')

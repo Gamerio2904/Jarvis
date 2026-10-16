@@ -118,15 +118,19 @@ export function schritt(s: WeltSession, dt: number): WeltSession {
     const h = Math.min(STEP, left)
     left -= h
     for (const cube of objects) {
+      if (cube.id === s.dragId) continue
       const held = cube.id === s.heldId
       if (held && s.hand) spring(cube, s.hand, h)
       else if (cube.state !== 'liegt') fall(cube, h)
     }
-    for (const cube of objects) land(cube, s.planes, cube.id === s.heldId)
+    for (const cube of objects) land(cube, s.planes, cube.id === s.heldId || cube.id === s.dragId)
     for (let i = 0; i < objects.length; i++) {
-      for (let j = i + 1; j < objects.length; j++) separate(objects[i], objects[j])
+      for (let j = i + 1; j < objects.length; j++) {
+        if (objects[i].id === s.dragId || objects[j].id === s.dragId) continue
+        separate(objects[i], objects[j])
+      }
     }
-    for (const cube of objects) land(cube, s.planes, cube.id === s.heldId)
+    for (const cube of objects) land(cube, s.planes, cube.id === s.heldId || cube.id === s.dragId)
   }
   return { ...s, objects }
 }

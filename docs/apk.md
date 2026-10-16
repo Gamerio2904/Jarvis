@@ -1,12 +1,14 @@
-# Android-APK — Test-Build `18.66.1`
+# Android-APK — Test-Build `18.66.2`
 
-Test-Build **`18.66.1`** (versionCode `186601`), debug-signiert:
+Test-Build **`18.66.2`** (versionCode `186602`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
+
+**Neu in 18.66.2:** Die Welt liegt quer über den ganzen Schirm. Oben rechts klappt ein Menü auf: Sprache an und aus, Würfel dazu. Die Hand zeichnet ihr Skelett. Fehlt ARCore, bleibt die Kamera und der Würfel trotzdem da.
 
 **Neu in 18.66.1:** Der Chat rechts liegt nur auf der Planungstafel. **Aus** nimmt ihn weg, **Chat** holt ihn zurück. Die Tafel nutzt dann die volle Breite.
 

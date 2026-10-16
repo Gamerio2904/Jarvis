@@ -1,6 +1,8 @@
 package app.jarvis.welt;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
@@ -54,6 +56,8 @@ public class JarvisWeltPlugin extends Plugin {
     private int textureId;
     private volatile JSObject latest = missing();
     private long lastJpegAt;
+    private boolean installAsked;
+    private PluginCall pendingStart;
 
     private static JSObject missing() {
         JSObject o = new JSObject();
@@ -89,7 +93,20 @@ public class JarvisWeltPlugin extends Plugin {
                     new Handler(getActivity().getMainLooper()).postDelayed(() -> begin(call), 200);
                     return;
                 }
-                if (availability != ArCoreApk.Availability.SUPPORTED_INSTALLED) {
+                if (availability == ArCoreApk.Availability.SUPPORTED_NOT_INSTALLED
+                        || availability == ArCoreApk.Availability.SUPPORTED_APK_TOO_OLD) {
+                    try {
+                        ArCoreApk.InstallStatus status = ArCoreApk.getInstance().requestInstall(getActivity(), !installAsked);
+                        installAsked = true;
+                        if (status == ArCoreApk.InstallStatus.INSTALL_REQUESTED) {
+                            pendingStart = call;
+                            return;
+                        }
+                    } catch (Exception e) {
+                        call.resolve(missing());
+                        return;
+                    }
+                } else if (availability != ArCoreApk.Availability.SUPPORTED_INSTALLED) {
                     call.resolve(missing());
                     return;
                 }
@@ -136,6 +153,14 @@ public class JarvisWeltPlugin extends Plugin {
                 snap.put("available", true);
                 boolean tracking = camera.getTrackingState() == TrackingState.TRACKING;
                 snap.put("tracking", tracking ? "hält" : "weg");
+                long now = System.currentTimeMillis();
+                if (now - lastJpegAt > 280) {
+                    String jpeg = jpegOf(frame);
+                    if (jpeg != null) {
+                        snap.put("jpeg", jpeg);
+                        lastJpegAt = now;
+                    }
+                }
                 if (tracking) {
                     Pose pose = camera.getPose();
                     float[] t = pose.getTranslation();
@@ -181,18 +206,13 @@ public class JarvisWeltPlugin extends Plugin {
                         planes.put(row);
                     }
                     snap.put("planes", planes);
-                    long now = System.currentTimeMillis();
-                    if (now - lastJpegAt > 280) {
-                        String jpeg = jpegOf(frame);
-                        if (jpeg != null) {
-                            snap.put("jpeg", jpeg);
-                            lastJpegAt = now;
-                        }
-                    }
                 }
                 latest = snap;
             } catch (Exception e) {
-                latest = missing();
+                JSObject held = new JSObject();
+                held.put("available", true);
+                held.put("tracking", "weg");
+                latest = held;
             }
             tick();
         }, 80);
@@ -268,6 +288,29 @@ public class JarvisWeltPlugin extends Plugin {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+    }
+
+    @PluginMethod
+    public void landscape(PluginCall call) {
+        boolean on = call.getBoolean("on", true);
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.setRequestedOrientation(on
+                    ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                    : ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+        JSObject ok = new JSObject();
+        ok.put("ok", true);
+        call.resolve(ok);
+    }
+
+    @Override
+    protected void handleOnResume() {
+        super.handleOnResume();
+        PluginCall call = pendingStart;
+        if (call == null) return;
+        pendingStart = null;
+        begin(call);
     }
 
     @PluginMethod

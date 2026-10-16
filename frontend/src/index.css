@@ -11298,8 +11298,16 @@ html[data-device='desktop'] .messages {
   color: #ff8d8d;
 }
 
-.welt-overlay {
-  position: relative;
+.welt-overlay.watch-overlay,
+.app.has-nav-dock .welt-overlay.watch-overlay,
+.app.has-nav-dock.is-kb .welt-overlay.watch-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  width: 100vw;
+  height: 100dvh;
+  padding: 0;
+  gap: 0;
   overflow: hidden;
   background: #070b10;
 }
@@ -11319,21 +11327,92 @@ html[data-device='desktop'] .messages {
   touch-action: none;
 }
 
-.welt-bar {
+.welt-note {
   position: absolute;
   z-index: 2;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  background: linear-gradient(to bottom, rgba(7, 11, 16, 0.72), transparent);
+  left: 16px;
+  top: 16px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(7, 11, 16, 0.72);
 }
 
-.welt-bar p {
-  margin: 0;
-  font-size: 1rem;
+.welt-menu-btn {
+  position: absolute;
+  z-index: 4;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(7, 11, 16, 0.72);
+  display: grid;
+  place-content: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.welt-menu-btn span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: #f4f7fb;
+}
+
+.welt-menu {
+  position: absolute;
+  z-index: 4;
+  top: 64px;
+  right: 14px;
+  display: grid;
+  gap: 6px;
+  min-width: 148px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(7, 11, 16, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.welt-menu button {
+  appearance: none;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #f4f7fb;
+  text-align: left;
+  padding: 10px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.welt-menu button:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.welt-mic {
+  position: absolute;
+  z-index: 3;
+  right: 18px;
+  bottom: 18px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ff3b4e;
+  box-shadow: 0 0 0 0 rgba(255, 59, 78, 0.7);
+  animation: weltPulse 1.15s ease-in-out infinite;
+}
+
+@keyframes weltPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 59, 78, 0.55);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 12px rgba(255, 59, 78, 0);
+  }
 }

@@ -28,6 +28,8 @@ export type WeltSample = {
     fy: number
     cx: number
     cy: number
+    viewWidth?: number
+    viewHeight?: number
   }
   planes?: WeltPlaneSample[]
   jpeg?: string
@@ -37,6 +39,7 @@ type NativeWelt = {
   start(): Promise<{ available: boolean; reason?: string }>
   sample(): Promise<WeltSample>
   stop(): Promise<{ ok: boolean }>
+  landscape(opts: { on: boolean }): Promise<{ ok: boolean }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeWelt>('JarvisWelt') : null
@@ -60,6 +63,23 @@ export async function weltSample(): Promise<WeltSample> {
     return res?.available ? res : MISSING
   } catch {
     return MISSING
+  }
+}
+
+export async function weltQuer(an: boolean): Promise<void> {
+  if (native) {
+    try {
+      await native.landscape({ on: an })
+    } catch {
+      /* Die Fläche dreht sich über die Bildschirmsperre. */
+    }
+  }
+  const orient = screen.orientation as ScreenOrientation & { lock?: (mode: string) => Promise<void> }
+  try {
+    if (an) await orient.lock?.('landscape')
+    else orient.unlock()
+  } catch {
+    /* Der Browser lässt die Sperre nur im Vollbild zu. */
   }
 }
 
