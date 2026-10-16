@@ -22,7 +22,7 @@ globalThis.localStorage = {
 const here = dirname(fileURLToPath(import.meta.url))
 const src = (rel) => readFileSync(join(here, '..', rel), 'utf8')
 
-const { parseFensterConnect, parseFensterShow } = await import('../src/engine/fenster-parse.ts')
+const { parseFensterConnect, parseFensterShow, parseSecondScreen } = await import('../src/engine/fenster-parse.ts')
 const {
   acceptJa,
   commitFensterGrant,
@@ -74,6 +74,9 @@ assert.equal(parseFensterShow('Öffne auf dem Tablet die Lage')?.kind, 'tablet')
 assert.equal(parseFensterShow('Zeig die Lage'), null)
 assert.equal(parseFensterShow('Zeig die Sprints auf dem Handy')?.surface, 'sprints')
 assert.equal(parseFensterShow('Öffne die Planung auf dem Tablet')?.surface, 'planning')
+assert.equal(parseSecondScreen('öffne auf dem 2. bildschirm die lage'), 'lage')
+assert.equal(parseSecondScreen('zeige das auf dem 2. bildschirm'), 'current')
+assert.equal(parseSecondScreen('Zeig die Lage auf dem Handy'), null)
 
 const none = await handleFensterCommand('Verbinde das Handy', { seek: async () => [], post: async () => false })
 assert.match(none, /Kein Handy antwortet/)

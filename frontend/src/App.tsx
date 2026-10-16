@@ -65,6 +65,7 @@ import { applyBackup, parseImportPayload } from './engine/backup.ts'
 import { type HomeAppId } from './engine/home-apps.ts'
 import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { ShoppingListsOverlay } from './ui/ShoppingListsOverlay.tsx'
+import { ServerOverlay } from './ui/ServerOverlay.tsx'
 import { NotesOverlay } from './ui/NotesOverlay.tsx'
 import { TodoListsOverlay } from './ui/TodoListsOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
@@ -351,6 +352,7 @@ function App() {
   const [watchlistOpen, setWatchlistOpen] = useState(false)
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
   const [shoppingOpen, setShoppingOpen] = useState(false)
+  const [serverOpen, setServerOpen] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
   const [todosOpen, setTodosOpen] = useState(false)
   const overlayHistRef = useRef(false)
@@ -864,7 +866,7 @@ function App() {
 
   useEffect(() => {
     const overlayOpen =
-      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen || notesOpen || todosOpen
+      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen || notesOpen || todosOpen || serverOpen
     if (!overlayOpen) return
     if (!overlayHistRef.current) {
       window.history.pushState({ jarvisOverlay: true }, '')
@@ -2080,6 +2082,7 @@ function App() {
   const calendarLayer = useOverlay(calendarOpen)
   const watchlistLayer = useOverlay(watchlistOpen)
   const shoppingLayer = useOverlay(shoppingOpen)
+  const serverLayer = useOverlay(serverOpen)
   const notesLayer = useOverlay(notesOpen)
   const todosLayer = useOverlay(todosOpen)
   const voiceLayer = useOverlay(voiceOpen)
@@ -2275,6 +2278,20 @@ function App() {
     }
     if (id === 'yugioh') {
       openYugiohDuel()
+      return
+    }
+    if (id === 'server') {
+      setYugiohOpen(false)
+      setChessOpen(false)
+      setDriveOpen(false)
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setWatchlistOpen(false)
+      setShoppingOpen(false)
+      setNotesOpen(false)
+      setTodosOpen(false)
+      closeVoice()
+      setServerOpen(true)
       return
     }
     if (id === 'hirn') {
@@ -2664,6 +2681,9 @@ function App() {
               dropOverlayHistory()
             }}
           />
+        ) : null}
+        {serverLayer.shown ? (
+          <ServerOverlay leaving={serverLayer.leaving} onClose={() => setServerOpen(false)} />
         ) : null}
         {watchlistLayer.shown ? (
           <WatchlistOverlay
@@ -3123,6 +3143,7 @@ function App() {
           shoppingOpen ||
           notesOpen ||
           todosOpen ||
+          serverOpen ||
           settingsPanelOpen
         }
         messages={messages}

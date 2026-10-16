@@ -8,9 +8,11 @@ import {
   fensterSurfaceLabel,
   parseFensterConnect,
   parseFensterShow,
+  parseSecondScreen,
   type FensterKind,
   type FensterSurface,
 } from './fenster-parse.ts'
+import { noteServerAction } from './server-desk.ts'
 
 export const FENSTER_PROTOCOL = 1
 
@@ -349,22 +351,38 @@ const FENSTER_OK: FensterSurface[] = ['home', 'tisch', 'lage', 'chat', 'calendar
 export async function handleFensterCommand(text: string, transport: FensterTransport, ownKind: FensterKind = 'handy'): Promise<string | null> {
   const connect = parseFensterConnect(text)
   if (connect) return sendRequest(connect, transport, ownKind)
-  const show = parseFensterShow(text)
-  if (!show) return null
-  const pair = await readFensterPair()
-  if (!pair) return needPairReply()
-  if (pair.kind !== show.kind) {
-    return `Gekoppelt ist ein ${fensterKindLabel(pair.kind)}.`
+  let show = parseFensterShow(text)
+  let second = false
+  if (!show) {
+    const asked = parseSecondScreen(text)
+    if (!asked) return null
+    second = true
+    const pair = await readFensterPair()
+    if (!pair) {
+      const line = needPairReply()
+      noteServerAction('Zweiter Bildschirm', false, line)
+      return line
+    }
+    show = { kind: pair.kind, surface: asked === 'current' ? surfaceNow() : asked }
   }
-  if (!pair.fingerprint || pair.appVersion !== APP_VERSION) return needPairReply()
+  const finish = (line: string, ok: boolean) => {
+    if (second) noteServerAction('Zweiter Bildschirm', ok, line)
+    return line
+  }
+  const pair = await readFensterPair()
+  if (!pair) return finish(needPairReply(), false)
+  if (pair.kind !== show.kind) {
+    return finish(`Gekoppelt ist ein ${fensterKindLabel(pair.kind)}.`, false)
+  }
+  if (!pair.fingerprint || pair.appVersion !== APP_VERSION) return finish(needPairReply(), false)
   const projectTarget =
     show.surface === 'planning' || show.surface === 'sprints' ? await selectedProjectTarget() : null
   if ((show.surface === 'planning' || show.surface === 'sprints') && !projectTarget) {
-    return 'Bitte zuerst ein gespeichertes Projekt mit Plan auswählen.'
+    return finish('Bitte zuerst ein gespeichertes Projekt mit Plan auswählen.', false)
   }
   if (!isPrivateLanHost(pair.host)) {
     await releaseFensterPair()
-    return noPeerReply(show.kind)
+    return finish(noPeerReply(show.kind), false)
   }
   const now = Date.now()
   const requestId = crypto.randomUUID()
@@ -399,13 +417,20 @@ export async function handleFensterCommand(text: string, transport: FensterTrans
   if (!ok) {
     if (ackHandler) window.removeEventListener('ultron-fenster-ack', ackHandler)
     if (ackTimeout) window.clearTimeout(ackTimeout)
-    return (typeof posted === 'boolean' ? '' : posted.message) || noPeerReply(show.kind)
+    return finish((typeof posted === 'boolean' ? '' : posted.message) || noPeerReply(show.kind), false)
   }
   const acknowledged = await ack
   if (ackHandler) window.removeEventListener('ultron-fenster-ack', ackHandler)
   if (ackTimeout) window.clearTimeout(ackTimeout)
-  if (!acknowledged) return 'Der Befehl kam an, aber das Öffnen wurde nicht bestätigt.'
-  return shownReply(show.kind, show.surface)
+  if (!acknowledged) return finish('Der Befehl kam an, aber das Öffnen wurde nicht bestätigt.', false)
+  return finish(shownReply(show.kind, show.surface), true)
+}
+
+function surfaceNow(): FensterSurface {
+  const s = loadSettings()
+  if (s.plan_phase === 'live') return 'planning'
+  if (s.hud_force || s.hud_view === 'globe' || s.hud_view === 'body' || s.hud_view === 'serie') return 'lage'
+  return 'home'
 }
 
 function readSeek(found: FensterSeek): { peers: FensterPeer[]; blocked: boolean } {

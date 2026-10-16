@@ -66,6 +66,15 @@ function AppGlyph({ id }: { id: HomeAppId }) {
       </svg>
     )
   }
+  if (id === 'server') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <rect x="4" y="3.5" width="16" height="5.2" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <rect x="4" y="10.4" width="16" height="5.2" rx="1.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M7.2 6.1h.1M7.2 13h.1M16.2 6.1h2M16.2 13h2" />
+      </svg>
+    )
+  }
   if (id === 'overlay') {
     return (
       <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>

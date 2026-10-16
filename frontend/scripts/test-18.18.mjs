@@ -31,9 +31,10 @@ assert.equal(versionCodeOf('18.18.0'), 181800)
 const { HOME_APPS, HOME_APP_IDS, isHomeAppId } = await import('../src/engine/home-apps.ts')
 assert.deepEqual(
   HOME_APP_IDS.slice(),
-  ['chat', 'voice', 'calendar', 'lage', 'overlay', 'hirn', 'settings', 'watchlist', 'shopping', 'notes', 'todos', 'tisch', 'chess', 'yugioh'],
+  ['chat', 'voice', 'calendar', 'lage', 'overlay', 'hirn', 'settings', 'watchlist', 'shopping', 'notes', 'todos', 'tisch', 'chess', 'yugioh', 'server'],
 )
-assert.equal(HOME_APPS.length, 14)
+assert.equal(HOME_APPS.length, 15)
+assert.equal(HOME_APPS.find((a) => a.id === 'server')?.label, 'Server')
 assert.equal(HOME_APPS.find((a) => a.id === 'overlay')?.label, 'CarPlay')
 assert.equal(HOME_APPS.find((a) => a.id === 'tisch')?.label, 'Tischplatte')
 assert.ok(HOME_APPS.every((a) => isHomeAppId(a.id) && a.label && a.tint))

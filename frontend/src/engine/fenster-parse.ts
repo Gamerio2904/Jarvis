@@ -34,6 +34,26 @@ export function parseFensterConnect(text: string): FensterKind | null {
   return null
 }
 
+/** „2. Bildschirm“ ist das gekoppelte Gerät, nicht ein dritter Typ. */
+export function parseSecondScreen(text: string): FensterSurface | 'current' | null {
+  const t = text.trim()
+  if (!t || t.length > 160) return null
+  if (!/\b(?:2\.|zweiten|zweiter)\s+bildschirm\b/i.test(t)) return null
+  const what = t
+    .replace(/\b(?:öffne|oeffne|zeig(?:e)?|mach)\b/gi, ' ')
+    .replace(/\b(?:auf\s+dem|am)\s+(?:2\.|zweiten|zweiter)\s+bildschirm\b/gi, ' ')
+    .replace(/\b(?:die|den|das|mir|bitte)\b/gi, ' ')
+    .replace(/[.?!,]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+  if (!what) return 'current'
+  for (const [re, surface] of SURFACE_WORD) {
+    if (re.test(what)) return surface
+  }
+  return null
+}
+
 export function parseFensterShow(text: string): { kind: FensterKind; surface: FensterSurface } | null {
   const t = text.trim()
   if (!t || t.length > 120) return null

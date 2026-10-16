@@ -3,6 +3,7 @@ import jsQR from 'jsqr'
 import { applyBackup, buildBackup, parseImportPayload } from '../engine/backup.ts'
 import { parseHausQr } from '../engine/haus-link.ts'
 import { parsePairCode, savePairing } from '../engine/tablet-sync.ts'
+import { rememberServerDevice } from '../engine/server-desk.ts'
 import { hausEnsureCamera, hausPull, hausPush } from '../native/haus.ts'
 
 type Dir = 'to-phone' | 'to-tablet'
@@ -60,11 +61,12 @@ export function HausScan(p: Props) {
     const pair = parsePairCode(raw)
     if (pair) {
       void savePairing(pair.url, pair.token, pair.fingerprint).then(() => {
+        rememberServerDevice(raw)
         streamRef.current?.getTracks().forEach((t) => t.stop())
         streamRef.current = null
-        propsRef.current.onDone('Mit dem Tablet gekoppelt. Hausstand wird abgeglichen.')
+        propsRef.current.onDone('Gerät gespeichert. Im Server auf Verbinden tippen, dann werden fehlende Termine und Notizen auf beiden Seiten ergänzt.')
         propsRef.current.onClose()
-        window.dispatchEvent(new Event('jarvis-sync-now'))
+        window.dispatchEvent(new Event('jarvis-server-desk'))
       }).catch((error: unknown) => {
         setMsg(error instanceof Error ? error.message : 'Kopplung konnte nicht geschützt gespeichert werden.')
       })

@@ -1,4 +1,5 @@
 import { applyBackup, asBackup, buildBackup, type HausBackup } from './backup.ts'
+import { mergeHaus } from './server-merge.ts'
 import { APP_VERSION, loadSettings, muteStand, saveSettings, setStandAt, type Settings } from './store.ts'
 import { compareStands, type SyncVerdict } from './sync-compare.ts'
 import { hausDiscover, hausPull, hausPush, hausServerStart, hausServerUpdate } from '../native/haus.ts'
@@ -250,6 +251,61 @@ function backupContent(data: HausBackup): Record<string, unknown> {
   delete content.exported_at
   delete content.stand_at
   return content
+}
+
+/**
+ * Beide Stände vereinigen: was nur auf einer Seite liegt, kommt auf die andere.
+ * Dieselbe id bleibt, die neuere Fassung gewinnt. Nichts wird durch die ältere Seite ersetzt.
+ */
+export async function reconcilePairedStand(): Promise<{ ok: boolean; line: string; added: number }> {
+  const s = loadSettings()
+  if (s.tablet_mode) {
+    return { ok: false, line: 'Der Abgleich startet auf dem Gerät, das sich verbindet. Der Server bleibt hier stehen.', added: 0 }
+  }
+  const token = await syncToken()
+  if (!token || token.length < 12 || !/^[0-9a-f]{64}$/i.test(s.sync_fingerprint)) {
+    return { ok: false, line: 'Kein gekoppeltes Gerät.', added: 0 }
+  }
+  const port = Number(/:(\d+)$/.exec(s.sync_url)?.[1]) || 8765
+  const hint = /^https:\/\/([^:/]+)/.exec(s.sync_url)?.[1] || ''
+  const found = await hausDiscover(token, s.sync_fingerprint, hint, port)
+  if (!found.ok || !found.url) return { ok: false, line: found.message || 'Kein HTTPS-Server im lokalen Netz gefunden.', added: 0 }
+  if (found.appVersion !== APP_VERSION || found.protocolVersion !== 3 || found.fingerprint !== s.sync_fingerprint) {
+    return { ok: false, line: `Versions- oder Sicherheitsabweichung. Lokal ${APP_VERSION}, Server ${found.appVersion || 'unbekannt'}. Nichts übertragen.`, added: 0 }
+  }
+  const got = await hausPull(found.url, token, s.sync_fingerprint)
+  const remote = got.ok && got.json ? asBackup(safeJson(got.json)) : null
+  if (!remote?.sync_revision) return { ok: false, line: got.message || 'Der Server hat keinen gültigen Hausstand geliefert. Nichts geändert.', added: 0 }
+  if ((await contentHash(backupContent(remote))) !== remote.sync_revision.contentHash) {
+    return { ok: false, line: 'Die Prüfsumme des Servers stimmt nicht. Nichts geändert.', added: 0 }
+  }
+  const local = await buildBackup(true)
+  const localRev = parseSyncRevision(local.sync_revision)
+  const remoteRev = parseSyncRevision(remote.sync_revision)
+  if (!localRev || !remoteRev) return { ok: false, line: 'Eine Geräte-Revision fehlt. Nichts geändert.', added: 0 }
+  const { backup, added } = mergeHaus(local, remote)
+  const keep = pickLocal(loadSettings())
+  muteStand(true)
+  try {
+    await applyBackup({ ...backup, settings: { ...backup.settings, ...keep } })
+    saveSettings(keep)
+    adoptRevisionVector(mergedSuccessorVector(localRev.vector, remoteRev.vector))
+  } catch {
+    return { ok: false, line: 'Der vereinigte Stand ließ sich nicht speichern. Bitte den Abgleich wiederholen.', added: 0 }
+  } finally {
+    muteStand(false)
+  }
+  const next = await buildBackup(true)
+  const sent = await hausPush(found.url, JSON.stringify(next), token, s.sync_fingerprint)
+  const ack = sent.ok && sent.json ? safeJson(sent.json) as { status?: string } : null
+  if (ack?.status === 'applied' || ack?.status === 'same') {
+    return { ok: true, line: `Abgeglichen. ${added} fehlende Einträge ergänzt. Beide Geräte haben denselben Stand.`, added }
+  }
+  return {
+    ok: false,
+    line: sent.message || 'Hier ist der Stand vereinigt. Der Server hat die Rückgabe nicht bestätigt.',
+    added,
+  }
 }
 
 /** Tablet: Server starten und aktuellen Stand bereitlegen. */
