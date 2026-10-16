@@ -138,13 +138,7 @@ public class JarvisGeoPlugin extends Plugin {
                 call.resolve(r);
                 return;
             }
-            Location loc = null;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
-            }
-            if (loc == null) loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (loc == null) loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (loc == null) loc = lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            Location loc = freshest(lm);
             JSObject r = new JSObject();
             if (loc == null) {
                 r.put("ok", false);
@@ -230,7 +224,7 @@ public class JarvisGeoPlugin extends Plugin {
                 call.resolve(r);
                 return;
             }
-            Location last = lastKnown(lm);
+            Location last = freshest(lm);
             if (last != null) emitFix(last);
             r.put("ok", true);
             call.resolve(r);
@@ -283,15 +277,36 @@ public class JarvisGeoPlugin extends Plugin {
         }
     }
 
-    private Location lastKnown(LocationManager lm) {
-        Location loc = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
+    /** Letzter Fix nur aus den letzten zehn Minuten. Ein alter Netz-Ort ist kein Standort. */
+    private Location freshest(LocationManager lm) {
+        long now = System.currentTimeMillis();
+        Location best = null;
+        float bestAcc = Float.MAX_VALUE;
+        java.util.ArrayList<String> names = new java.util.ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) names.add(LocationManager.FUSED_PROVIDER);
+        names.add(LocationManager.GPS_PROVIDER);
+        names.add(LocationManager.NETWORK_PROVIDER);
+        names.add(LocationManager.PASSIVE_PROVIDER);
+        for (String name : names) {
+            Location loc = readProvider(lm, name);
+            if (loc == null) continue;
+            long age = now - loc.getTime();
+            if (age < 0 || age > 600_000L) continue;
+            float acc = loc.hasAccuracy() && loc.getAccuracy() > 0f ? loc.getAccuracy() : 5_000f;
+            if (best == null || acc < bestAcc) {
+                best = loc;
+                bestAcc = acc;
+            }
         }
-        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (loc == null) loc = lm.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        return loc;
+        return best;
+    }
+
+    private Location readProvider(LocationManager lm, String name) {
+        try {
+            return lm.getLastKnownLocation(name);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private void emitFix(Location loc) {

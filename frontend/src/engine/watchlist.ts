@@ -25,7 +25,7 @@ import {
   type MovieSeed,
 } from './film-taste.ts'
 import { genresFromOmdb } from './film-taste-parse.ts'
-import { lookupOmdb, sameFilmTitle, splitFilmTitle } from './omdb.ts'
+import { expandFilmTitle, lookupOmdb, sameFilmTitle, splitFilmTitle } from './omdb.ts'
 import { knowledgeBlock } from './knowledge-block.ts'
 import { getByTopic, listKnowledgePacks, putKnowledgePack } from './knowledge-store.ts'
 import { WATCHED_PACK_TOPIC } from './film-taste.ts'
@@ -113,12 +113,12 @@ function pickFromList(rows: WatchMovie[], list: WatchListKind, title?: string, i
   return rows.find((r) => r.lists.includes(list) && titleMatch(r.title, q))
 }
 
-async function enrich(row: WatchMovie): Promise<WatchMovie> {
+async function enrich(row: WatchMovie, kind: 'movie' | 'series' = 'movie'): Promise<WatchMovie> {
   const at = row.scoresAt ? Date.parse(row.scoresAt) : 0
   const fresh = Boolean(at && Date.now() - at < SCORE_TTL_MS)
   if (fresh && row.imdbScore !== undefined) return row
   const year = row.year ? Number(row.year) : undefined
-  const res = await lookupOmdb(row.title, Number.isFinite(year) ? year : undefined)
+  const res = await lookupOmdb(row.title, Number.isFinite(year) ? year : undefined, kind)
   if (!res.ok) {
     return {
       ...row,
@@ -344,9 +344,11 @@ export async function handleWatchlist(
           : `Auf die Watchliste, weg von den Lieblingen: ${enriched.title}.`
       return pack(line, 'move', enriched.title, { result: { focus: intent.list } })
     }
-    const clean = splitFilmTitle(intent.title) || intent.title
+    const names = expandFilmTitle(intent.title)
+    const alias = names.find((name) => name !== intent.title && name !== splitFilmTitle(intent.title))
+    const clean = alias || splitFilmTitle(intent.title) || intent.title
     const row = await addWatchMovie(clean, intent.list, { source_conversation_id: conversationId })
-    const enriched = await enrich(row)
+    const enriched = await enrich(row, intent.series ? 'series' : 'movie')
     await dedupeRows(enriched.title)
     const listKey = intent.list === 'watch' ? 'watch-watch' : 'watch-favorite'
     persistLastList(listKey, titles(await listWatchMovies(intent.list)))

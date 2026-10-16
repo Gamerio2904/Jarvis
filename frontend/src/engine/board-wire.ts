@@ -27,11 +27,8 @@ export async function wireFor(id: HomeAppId, now = new Date()): Promise<WireFram
   if (id === 'voice') {
     return { id, label, lines: ['Sprache', 'Kugel-Shortcut, Folie getrennt', 'Kein WebGL.'] }
   }
-  if (id === 'globe') {
-    return { id, label, lines: ['Kugel', 'Schichten auf Zuruf', 'Kein Cesium.'] }
-  }
   if (id === 'lage') {
-    return { id, label, lines: ['Lage', 'Pins aus Feldern', 'Kein CCTV.'] }
+    return { id, label, lines: ['Lage', 'Kugel und Pins', 'Kein Cesium, kein CCTV.'] }
   }
   if (id === 'overlay') {
     return { id, label, lines: ['CarPlay', 'Karte im Fahrmodus', 'Kein Apple CarPlay.'] }

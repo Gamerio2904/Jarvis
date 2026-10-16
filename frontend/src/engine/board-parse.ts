@@ -116,7 +116,7 @@ function simModule(raw: string): HomeAppId | undefined {
   if (/kalender|termin/.test(t)) return 'calendar'
   if (/chat/.test(t)) return 'chat'
   if (/sprache|stimme/.test(t)) return 'voice'
-  if (/kugel|erde/.test(t)) return 'globe'
+  if (/kugel|erde/.test(t)) return 'lage'
   if (/lage/.test(t)) return 'lage'
   if (/carplay|fahrmodus|overlay|folie/.test(t)) return 'overlay'
   if (/tischplatte|werkbank|projekttafel/.test(t)) return 'tisch'

@@ -8,7 +8,7 @@ export type ShopIntent =
 const CREATE_LIST =
   /^\s*(?:(?:erstelle|erstell|mach(?:e)?)\s+(?:mir\s+)?(?:eine?\s+)?(?:neue?\s+)?(?:einkaufs)?liste(?:\s+(?:namens|für|fuer|mit\s+dem\s+namen)\s+(.+?))?|lege\s+(?:mir\s+)?(?:eine?\s+)?(?:neue?\s+)?(?:einkaufs)?liste(?:\s+(?:namens|für|fuer|mit\s+dem\s+namen)\s+(.+?))?\s+an)\s*[.!]?\s*$/i
 const LIST =
-  /^\s*(?:was\s+fehlt\??|einkaufsliste\??|zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?einkaufsliste|was\s+muss\s+ich\s+einkaufen)\s*$/i
+  /^\s*(?:was\s+fehlt(?:\s+noch)?|einkaufsliste|zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?einkaufsliste|was\s+muss\s+ich(?:\s+\w+){0,3}\s+(?:noch\s+)?(?:einkaufen|kaufen|holen|besorgen)|was\s+soll\s+ich\s+noch\s+einkaufen)\s*$/i
 const LIST_NAMED =
   /^\s*(?:zeig(?:e)?\s+(?:mir\s+)?(?:die\s+|meine\s+)?|was\s+(?:ist|steht)\s+auf\s+(?:der\s+|meiner\s+)?)(.+?)\s*\??\s*$/i
 const MISSING = /^\s*(.{2,80}?)\s+fehlt\s*[.!]?\s*$/i
@@ -39,7 +39,7 @@ const ERRAND =
   /^\s*ich\s+muss\s+(?:noch\s+)?(.{2,80}?)\s+(kaufen|holen|besorgen)\s*$/i
 
 export function parseShopIntent(text: string): ShopIntent | null {
-  const t = text.trim().replace(/[.!]+\s*$/g, '').trim()
+  const t = text.trim().replace(/[.!?]+\s*$/g, '').trim()
   const errand = ERRAND.exec(t)
   if (errand) {
     const add = asAdd(errand[1])

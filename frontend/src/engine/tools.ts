@@ -19,6 +19,7 @@ import {
   type Todo,
   type ToolPending,
 } from './store.ts'
+import { recordTodoDeadline } from './calendar.ts'
 import { parseToolIntent } from './tools-parse.ts'
 import type { ToolIntent } from './tools-parse.ts'
 
@@ -152,7 +153,7 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
     await setPending(row)
     return {
       handled: true,
-      reply: `Todo „${intent.title}“${intent.deadlineDate ? ` mit Deadline ${intent.deadlineDate}${intent.deadlineTime ? ` ${intent.deadlineTime}` : ''}` : ''} in „${list.name}“ anlegen?`,
+      reply: `Todo „${intent.title}“${intent.deadlineDate ? ` bis ${intent.deadlineDate}${intent.deadlineTime ? ` ${intent.deadlineTime}` : ' 18:00'}` : ''} in „${list.name}“ anlegen?${intent.deadlineDate ? ' Kalender: Benachrichtigung einen Tag und zwei Stunden davor.' : ''}`,
       tool: { tool_status: 'pending', tool: 'todo', action: 'create', preview: row.preview, label: 'Tool bereit — Confirm?' },
     }
   }
@@ -254,11 +255,22 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
 
 async function execute(pending: ToolPending): Promise<{ reply: string }> {
   if (pending.tool === 'todo' && pending.action === 'create') {
+    const deadlineDate = pending.args.deadlineDate ? String(pending.args.deadlineDate) : null
+    const deadlineTime = pending.args.deadlineTime ? String(pending.args.deadlineTime) : null
     await addTodo(String(pending.args.title || ''), pending.conversation_id, {
       listId: String(pending.args.listId || 'todo-list-general'),
-      deadlineDate: pending.args.deadlineDate ? String(pending.args.deadlineDate) : null,
-      deadlineTime: pending.args.deadlineTime ? String(pending.args.deadlineTime) : null,
+      deadlineDate,
+      deadlineTime,
     })
+    if (deadlineDate) {
+      const when = await recordTodoDeadline({
+        title: String(pending.args.title || 'Todo'),
+        date: deadlineDate,
+        time: deadlineTime,
+        conversationId: pending.conversation_id,
+      })
+      return { reply: `Notiert: ${pending.args.title}. Im Kalender ${when}, Benachrichtigung einen Tag und zwei Stunden davor.` }
+    }
     return { reply: `Notiert: ${pending.args.title}` }
   }
   if (pending.tool === 'todo' && pending.action === 'delete') {
