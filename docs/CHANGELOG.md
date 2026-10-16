@@ -9,7 +9,7 @@ App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.0
 
 Plan 107 in einem Stand: Kachel **Welt**, Rückkamera, Würfel als Anker, Boden und Stoß, eine Hand, Zangengriff und Loslassen. `Scanne den Raum` bleibt der Tischplatten-Scan. Ohne Flächen-Erkennung sagt die Zeile `ARCore fehlt`. Die Prüfung mit einem nachgebauten Tracker steht in `frontend/scripts/test-welt.mjs`. Die Abnahme auf einem ARCore-Gerät ist offen. Umfang: [`107-next.md`](./107-next.md).
 
-Die Datei `releases/Jarvis.apk` in diesem Zweig ist dieser Sideload. Der Rohlink auf `main` zeigt sie erst nach dem Merge.
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ## `18.61.0` — Alltag, Server-Fläche, Schritt-Anleitungen — *CODE + TEST-APK*
 
@@ -17,7 +17,7 @@ App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.61.0
 
 Einkauf liest die Liste auch bei „noch“, Todos mit Wochentag landen im Kalender mit Erinnerung einen Tag und zwei Stunden vorher, Notizen bleiben im Wortlaut, Filme verschieben sich auch bei Tippfehlern. Eine Lage-Kachel. CarPlay setzt den Standort nicht auf das Ziel. Anleitungen kommen als Step 1, Step 2. Ein Video-Linkwunsch liefert einen YouTube-Suchlink. Die Server-Kachel startet den HTTPS-Hausstand, koppelt per QR und vereinigt fehlende Einträge.
 
-Die abgelegte Datei `releases/Jarvis.apk` ist in diesem Zweig `18.66.0`.
+Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.0`.
 
 ## `18.60.0` — Yu-Gi-Oh! Master-Duel-Bedienung 531–550 — *CODE + TEST-APK*
 

@@ -16,7 +16,8 @@ Browser: http://localhost:5173 — Groq-Key für Smalltalk. Gemini für Vision/D
 
 Die Android-App enthält Notizen/Todos, die überarbeitete Tischplatte, Echo-Theme, Tabletmodus und das Yu-Gi-Oh!-Duell: Self-Play, Zugsuche, Nachweis (`18.45.0`), das TCG-Subset aus Plan 105 und die Master-Duel-Bedienung aus Plan 106 (`engineStamp` `18.60.0-ygo-md`). Einstieg und Grenzen stehen in [`docs/yugioh-duel.md`](docs/yugioh-duel.md). Der Tabletmodus zeigt die Lage im Vollbild; der Hausstand-Server wird separat und ausdrücklich gestartet. Die Hausstand-Kopplung nutzt TLS mit Geräte-Zertifikat-Pinning und blockiert Sync bei abweichender App-/Protokollversion. Hausstand-Abgleich beruht derzeit noch auf Zeitstempeln, nicht auf kausalen Revisionen.
 
-Der Sideload in diesem Zweig heißt **`Jarvis.apk` `18.66.0`** (versionCode `186600`, `engineStamp` `18.60.0-ygo-md`). Die Datei liegt unter `releases/Jarvis.apk`. Der Rohlink auf `main` zeigt sie erst nach dem Merge. Die Geräteabnahme mit ARCore ist offen.
+Der Sideload heißt **`Jarvis.apk` `18.66.0`** (versionCode `186600`, `engineStamp` `18.60.0-ygo-md`). Die Geräteabnahme mit ARCore ist offen:
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat
 build-apk.bat

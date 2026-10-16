@@ -1,8 +1,7 @@
 # Android-APK — Test-Build `18.66.0`
 
-Test-Build **`18.66.0`** (versionCode `186600`), debug-signiert. Die Datei
-`releases/Jarvis.apk` in diesem Zweig ist dieser Sideload. Der Rohlink auf
-`main` zeigt sie erst nach dem Merge.
+Test-Build **`18.66.0`** (versionCode `186600`), debug-signiert:
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
