@@ -573,7 +573,7 @@ Sprints 511–530 (Regeln, Effektabdeckung, Fidelity) stehen in
 Die Zahlen-Gates Coverage ≥70 % und 100 Gold-Karten ≥95 % sind nicht geschlossen.
 Sprints 531–550 (Master-Duel-Bedienung) stehen in
 [`../106-next.md`](../106-next.md), **CODE** für `18.52.0`–`18.60.0`.
-`engineStamp` ist `18.60.0-ygo-md`. Der Sideload ist `18.66.2`.
+`engineStamp` ist `18.60.0-ygo-md`. Der Sideload ist `18.66.3`.
 Sprints 551–559 (Welt auf der Kamera) stehen in
 [`../107-next.md`](../107-next.md), **CODE** in `18.66.0`.
 Die Geräteabnahme mit ARCore ist offen.
@@ -581,7 +581,7 @@ Die Geräteabnahme mit ARCore ist offen.
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Test-APK `18.66.2` / versionCode `186602`; ARCore-Geräteabnahme
+**Stände:** Test-APK `18.66.3` / versionCode `186603`; ARCore-Geräteabnahme
 offen. Rework 444–466: [`../100-next.md`](../100-next.md). Gates 467–502:
 [`../101-next.md`](../101-next.md), [`../102-next.md`](../102-next.md),
 [`../103-next.md`](../103-next.md). Duell 503–530:

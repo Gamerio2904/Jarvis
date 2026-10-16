@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.3` — Kalender ohne Scroll, Ziehen, Deadline — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.3`** (versionCode `186603`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Die Tage füllen den Kalender, ohne dass die Ansicht scrollt. Monat, Woche, Jahr, der Wochenwechsel und die Knöpfe Heute und ICS sind klein. Die Tagesknöpfe sitzen unter dem Wochenwechsel und über dem Raster. Der Kopftext ist weg. Termine lassen sich auf einen anderen Tag und eine andere Uhrzeit ziehen. Eine Aufgabe mit Deadline liegt im Kalender; Abhaken oder Löschen nimmt sie dort weg, Löschen im Kalender nimmt die Aufgabe weg. „ich muss bis Freitag nächste Woche 10 Uhr Hausaufgaben erledigen“ wird zur Aufgabe „Hausaufgaben erledigen“ am 23. Oktober um 10:00.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.66.2` — Welt quer, Menü, Würfel, Hand — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.2`** (versionCode `186602`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
@@ -33,7 +41,7 @@ App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.61.0
 
 Einkauf liest die Liste auch bei „noch“, Todos mit Wochentag landen im Kalender mit Erinnerung einen Tag und zwei Stunden vorher, Notizen bleiben im Wortlaut, Filme verschieben sich auch bei Tippfehlern. Eine Lage-Kachel. CarPlay setzt den Standort nicht auf das Ziel. Anleitungen kommen als Step 1, Step 2. Ein Video-Linkwunsch liefert einen YouTube-Suchlink. Die Server-Kachel startet den HTTPS-Hausstand, koppelt per QR und vereinigt fehlende Einträge.
 
-Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.2`.
+Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.3`.
 
 ## `18.60.0` — Yu-Gi-Oh! Master-Duel-Bedienung 531–550 — *CODE + TEST-APK*
 

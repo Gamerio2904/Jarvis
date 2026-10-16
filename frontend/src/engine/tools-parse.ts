@@ -36,13 +36,21 @@ function localDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
-export function parseLocalDeadline(text: string): { date: string; time: string | null; remaining: string } | null {
-  const match = /\b(?:bis|am)\s+(?:(nächste[rn]?\s+woche|kommende[rn]?\s+woche)\s+|(?:nächste[rn]?|kommende[rn]?)\s+)?(morgen|heute|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2})|(?:\s*Uhr)?))?/i.exec(text)
+const WEEK_PHRASE = String.raw`(?:nächste[rn]?|kommende[rn]?)\s+woche`
+const DEADLINE_DAY = String.raw`morgen|heute|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag`
+
+export function parseLocalDeadline(
+  text: string,
+  now = new Date(),
+): { date: string; time: string | null; remaining: string } | null {
+  const match = new RegExp(
+    String.raw`\b(?:bis|am)\s+(?:(${WEEK_PHRASE})\s+)?(${DEADLINE_DAY})(?:\s+(${WEEK_PHRASE}))?(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2}))?(?:\s*uhr)?)?`,
+    'i',
+  ).exec(text)
   if (!match) return null
-  const now = new Date()
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const day = match[2].toLocaleLowerCase()
-  const nextWeek = Boolean(match[1])
+  const nextWeek = Boolean(match[1] || match[3])
   if (nextWeek && day !== 'morgen' && day !== 'heute' && day !== 'übermorgen') {
     const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
     const target = days.indexOf(day)
@@ -56,9 +64,9 @@ export function parseLocalDeadline(text: string): { date: string; time: string |
     date.setDate(date.getDate() + ((target - date.getDay() + 7) % 7 || 7))
   }
   let time: string | null = null
-  if (match[3]) {
-    const hour = Number(match[3])
-    const minute = match[4] ? Number(match[4]) : 0
+  if (match[4]) {
+    const hour = Number(match[4])
+    const minute = match[5] ? Number(match[5]) : 0
     if (hour > 23 || minute > 59) return null
     time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
   }
@@ -66,11 +74,27 @@ export function parseLocalDeadline(text: string): { date: string; time: string |
   return { date: localDate(date), time, remaining }
 }
 
+/** Datum, Uhrzeit und Füllwörter gehören nicht in den Aufgabennamen. */
+export function tidyTaskTitle(text: string): string {
+  return text
+    .replace(/\b(?:nächste[rn]?|kommende[rn]?)\s+woche\b/gi, ' ')
+    .replace(/\b(?:um\s+)?\d{1,2}(?::\d{2})?\s*uhr\b/gi, ' ')
+    .replace(/^(?:noch|dann|mal|bitte|eben)\s+/i, '')
+    .replace(/^(?:die|den|das|der|dem|ein|eine|einen|meiner|meine|mein|meinen)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^[\s,.:;-]+|[\s,.:;-]+$/g, '')
+    .trim()
+}
+
+function taskTitle(remaining: string, fallback: string): string {
+  return tidyTaskTitle(remaining) || tidyTaskTitle(fallback) || fallback.replace(/\s+/g, ' ').trim() || 'Aufgabe'
+}
+
 function todoFromText(raw: string): { title: string; deadlineDate: string | null; deadlineTime: string | null } {
   const cleaned = raw.replace(/[.!?]+$/g, '').replace(/\s+/g, ' ').trim()
   const deadline = parseLocalDeadline(cleaned)
   return {
-    title: (deadline?.remaining || cleaned).replace(/\s+/g, ' ').trim(),
+    title: deadline ? taskTitle(deadline.remaining, cleaned) : cleaned,
     deadlineDate: deadline?.date ?? null,
     deadlineTime: deadline?.time ?? null,
   }
@@ -114,7 +138,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
     return {
       kind: 'todo_create',
       listName: inList[1].trim(),
-      title: deadline?.remaining || inList[2].trim(),
+      title: deadline ? taskTitle(deadline.remaining, inList[2]) : inList[2].trim(),
       deadlineDate: deadline?.date || null,
       deadlineTime: deadline?.time || null,
     }
@@ -133,7 +157,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
   const deadlineTodo = /^\s*(?:setz(?:e)?\s+)?(?:eine\s+)?deadline\s*:\s*(.+)$/is.exec(text)
   if (deadlineTodo) {
     const deadline = parseLocalDeadline(deadlineTodo[1])
-    if (deadline) return { kind: 'todo_create', title: deadline.remaining, deadlineDate: deadline.date, deadlineTime: deadline.time }
+    if (deadline) return { kind: 'todo_create', title: taskTitle(deadline.remaining, deadlineTodo[1]), deadlineDate: deadline.date, deadlineTime: deadline.time }
   }
 
   const todoWrite = TODO_WRITE.exec(text)
@@ -141,7 +165,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
     const deadline = parseLocalDeadline(todoWrite[1])
     return {
       kind: 'todo_create',
-      title: deadline?.remaining || todoWrite[1].trim(),
+      title: deadline ? taskTitle(deadline.remaining, todoWrite[1]) : todoWrite[1].trim(),
       deadlineDate: deadline?.date || null,
       deadlineTime: deadline?.time || null,
     }

@@ -8,7 +8,7 @@ import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 import { recordLocalRevision } from './sync-revisions.ts'
 
-export const APP_VERSION = '18.66.2'
+export const APP_VERSION = '18.66.3'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -103,6 +103,8 @@ export type Todo = {
   list_id?: string
   deadline_date?: string | null
   deadline_time?: string | null
+  /** Termin, der diese Deadline im Kalender zeigt. */
+  event_id?: string | null
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -180,6 +182,8 @@ export type CalendarEvent = {
   remind_offsets_min?: number[]
   /** Arbeit, Uni, Geburtstag … — Parser oder Nutzer. Fehlt = beim Lesen klassifizieren. */
   theme?: string
+  /** Todo, dessen Deadline dieser Termin ist. */
+  todo_id?: string | null
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -1254,6 +1258,10 @@ export async function addTodo(
   }
   await put('todos', row)
   emitHouse('jarvis-todos')
+  if (row.deadline_date) {
+    const { mirrorTodoDeadline } = await import('./calendar.ts')
+    await mirrorTodoDeadline(row)
+  }
   return row
 }
 
@@ -1262,11 +1270,15 @@ export async function setTodoStatus(id: string, status: string): Promise<void> {
   if (!row) throw new Error('Das Todo existiert nicht mehr.')
   await put('todos', { ...row, status, updated_at: nowIso() })
   emitHouse('jarvis-todos')
+  if (status === 'done') {
+    const { forgetTodoCalendar } = await import('./calendar.ts')
+    await forgetTodoCalendar(row)
+  }
 }
 
 export async function updateTodo(
   id: string,
-  patch: { title?: string; listId?: string; deadlineDate?: string | null; deadlineTime?: string | null },
+  patch: { title?: string; listId?: string; deadlineDate?: string | null; deadlineTime?: string | null; eventId?: string | null },
 ): Promise<Todo> {
   const row = await get<Todo>('todos', id)
   if (!row) throw new Error('Das Todo existiert nicht mehr.')
@@ -1283,15 +1295,24 @@ export async function updateTodo(
     list_id: listId,
     deadline_date: deadlineDate,
     deadline_time: deadlineTime,
+    event_id: patch.eventId === undefined ? row.event_id || null : patch.eventId,
     updated_at: nowIso(),
   }
   await put('todos', updated)
   emitHouse('jarvis-todos')
+  const touchesWhen = patch.title !== undefined || patch.deadlineDate !== undefined || patch.deadlineTime !== undefined
+  if (touchesWhen) {
+    const { mirrorTodoDeadline } = await import('./calendar.ts')
+    await mirrorTodoDeadline(updated)
+  }
   return updated
 }
 
 export async function deleteTodo(id: string): Promise<void> {
-  if (!(await get<Todo>('todos', id))) throw new Error('Das Todo existiert nicht mehr.')
+  const row = await get<Todo>('todos', id)
+  if (!row) throw new Error('Das Todo existiert nicht mehr.')
+  const { forgetTodoCalendar } = await import('./calendar.ts')
+  await forgetTodoCalendar(row)
   await del('todos', id)
   emitHouse('jarvis-todos')
 }
@@ -1299,8 +1320,14 @@ export async function deleteTodo(id: string): Promise<void> {
 export async function deleteDoneTodos(): Promise<number> {
   const rows = await getAll<Todo>('todos')
   const done = rows.filter((t) => t.status === 'done')
-  for (const t of done) await del('todos', t.id)
-  if (done.length) emitHouse('jarvis-todos')
+  if (done.length) {
+    const { forgetTodoCalendar } = await import('./calendar.ts')
+    for (const t of done) {
+      await forgetTodoCalendar(t)
+      await del('todos', t.id)
+    }
+    emitHouse('jarvis-todos')
+  }
   return done.length
 }
 
@@ -1628,6 +1655,7 @@ export async function addEvent(opts: {
   all_day?: boolean
   recur?: CalendarEvent['recur']
   id?: string
+  todoId?: string
 }): Promise<CalendarEvent> {
   const row: CalendarEvent = {
     id: opts.id || newId(),
@@ -1645,6 +1673,7 @@ export async function addEvent(opts: {
     row.remind_offsets_min = [...new Set(opts.remind_offsets_min)].slice(0, 5)
   }
   if (opts.theme) row.theme = opts.theme
+  if (opts.todoId) row.todo_id = opts.todoId
   await put('events', row)
   emitHouse('jarvis-events')
   return row

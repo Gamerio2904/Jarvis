@@ -8,15 +8,19 @@ import {
   clearPending,
   deleteEvent,
   deleteReminder,
+  deleteTodo,
   getPending,
   listEvents,
   listReminders,
+  listTodos,
   loadSettings,
   persistLastList,
   putEvent,
   setPending,
+  updateTodo,
   type CalendarEvent,
   type Reminder,
+  type Todo,
 } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 import { defaultEndIso, expandEvents, firstOverlap, recurLabel } from './calendar-occur.ts'
@@ -61,25 +65,139 @@ export async function cancelEventNotifies(row: Pick<CalendarEvent, 'id' | 'remin
   for (const m of mins) await cancelNotify(eventNotifyId(row.id, m))
 }
 
+/** Verhindert, dass Termin und Todo sich beim Spiegeln gegenseitig noch einmal anstoßen. */
+let syncing = false
+
+function localStart(date: string, time: string): Date {
+  const [year, month, day] = date.split('-').map((part) => Number(part))
+  const [hour, minute] = time.split(':').map((part) => Number(part))
+  return new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0)
+}
+
+function clockLabel(date: Date): string {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+function eventOwnsTodo(
+  event: CalendarEvent,
+  todo: Pick<Todo, 'id' | 'title' | 'event_id' | 'deadline_date'>,
+): boolean {
+  if (event.todo_id === todo.id || (todo.event_id && todo.event_id === event.id)) return true
+  if (event.todo_id && event.todo_id !== todo.id) return false
+  if (!todo.deadline_date) return false
+  return (
+    event.title.trim().toLocaleLowerCase() === todo.title.trim().toLocaleLowerCase() &&
+    isoDay(new Date(event.start_at)) === todo.deadline_date
+  )
+}
+
+/** Nimmt den Kalendereintrag einer Deadline weg. Das Todo bleibt, bis der Aufrufer es löscht. */
+export async function forgetTodoCalendar(
+  todo: Pick<Todo, 'id' | 'title' | 'event_id' | 'deadline_date'>,
+): Promise<void> {
+  if (syncing) return
+  const hits = (await listEvents()).filter((event) => eventOwnsTodo(event, todo))
+  if (!hits.length) return
+  syncing = true
+  try {
+    for (const event of hits) {
+      await cancelEventNotifies(event)
+      await deleteEvent(event.id)
+    }
+  } finally {
+    syncing = false
+  }
+}
+
 /** Todo-Deadline: Termin plus Benachrichtigung einen Tag und zwei Stunden davor. */
 export async function recordTodoDeadline(opts: {
   title: string
   date: string
   time: string | null
   conversationId?: string
+  todoId?: string
 }): Promise<string> {
   const time = opts.time || '18:00'
-  const [year, month, day] = opts.date.split('-').map((part) => Number(part))
-  const [hour, minute] = time.split(':').map((part) => Number(part))
-  const start = new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0)
+  const existing = opts.todoId ? (await listEvents()).find((event) => event.todo_id === opts.todoId) : undefined
+  const allDay = Boolean(existing?.all_day) && !opts.time
+  const start = localStart(opts.date, allDay ? '00:00' : time)
+  if (existing) {
+    await cancelEventNotifies(existing)
+    const next: CalendarEvent = {
+      ...existing,
+      title: opts.title,
+      todo_id: opts.todoId,
+      start_at: start.toISOString(),
+      end_at: defaultEndIso(start, allDay),
+      all_day: allDay || undefined,
+    }
+    await putEvent(next)
+    await scheduleEventNotifies(next)
+    return `${opts.date} ${allDay ? 'ganztägig' : time}`
+  }
   const row = await addEvent({
     title: opts.title,
     start_at: start.toISOString(),
+    end_at: defaultEndIso(start, false),
     conversationId: opts.conversationId,
     remind_offsets_min: [24 * 60, 2 * 60],
+    todoId: opts.todoId,
   })
+  if (opts.todoId) {
+    const held = syncing
+    syncing = true
+    try {
+      await updateTodo(opts.todoId, { eventId: row.id })
+    } finally {
+      syncing = held
+    }
+  }
   await scheduleEventNotifies(row)
   return `${opts.date} ${time}`
+}
+
+/** Schreibt Deadline und Namen eines Todos in seinen Kalendereintrag. */
+export async function mirrorTodoDeadline(todo: Todo): Promise<void> {
+  if (syncing) return
+  if (!todo.deadline_date || todo.status === 'done') {
+    await forgetTodoCalendar(todo)
+    return
+  }
+  syncing = true
+  try {
+    await recordTodoDeadline({
+      title: todo.title,
+      date: todo.deadline_date,
+      time: todo.deadline_time || null,
+      conversationId: todo.source_conversation_id || undefined,
+      todoId: todo.id,
+    })
+  } finally {
+    syncing = false
+  }
+}
+
+async function syncEventOntoTodo(previous: CalendarEvent, next: CalendarEvent): Promise<CalendarEvent> {
+  const todos = await listTodos()
+  const owner =
+    todos.find((todo) => todo.id === next.todo_id || todo.id === previous.todo_id || todo.event_id === next.id) ||
+    todos.find(
+      (todo) =>
+        Boolean(todo.deadline_date) &&
+        todo.title.trim().toLocaleLowerCase() === previous.title.trim().toLocaleLowerCase() &&
+        todo.deadline_date === isoDay(new Date(previous.start_at)),
+    )
+  if (!owner) return next
+  const start = new Date(next.start_at)
+  const linked = next.todo_id === owner.id ? next : { ...next, todo_id: owner.id }
+  if (linked !== next) await putEvent(linked)
+  await updateTodo(owner.id, {
+    title: linked.title,
+    deadlineDate: isoDay(start),
+    deadlineTime: linked.all_day ? null : clockLabel(start),
+    eventId: linked.id,
+  })
+  return linked
 }
 
 export async function scheduleEventNotifies(row: CalendarEvent, now = Date.now()): Promise<string[]> {
@@ -483,7 +601,22 @@ export async function removeEvent(id: string): Promise<void> {
   const row = (await listEvents()).find((e) => e.id === id)
   if (row) await cancelEventNotifies(row)
   else await cancelNotify(eventNotifyId(id, 0))
-  await deleteEvent(id)
+  const owner = row
+    ? (await listTodos()).find((todo) => eventOwnsTodo(row, todo))
+    : undefined
+  syncing = true
+  try {
+    await deleteEvent(id)
+    if (owner) {
+      try {
+        await deleteTodo(owner.id)
+      } catch {
+        /* Todo ist schon weg. */
+      }
+    }
+  } finally {
+    syncing = false
+  }
 }
 
 export async function applyEventOffsets(id: string, minutes: number[]): Promise<CalendarEvent | null> {
@@ -506,8 +639,15 @@ export async function renameEvent(id: string, title: string): Promise<CalendarEv
   await cancelEventNotifies(row)
   await putEvent(next)
   await scheduleEventNotifies(next)
-  if (theme === 'sonstiges') void refineThemeLater(next)
-  return next
+  syncing = true
+  let linked = next
+  try {
+    linked = await syncEventOntoTodo(row, next)
+  } finally {
+    syncing = false
+  }
+  if (theme === 'sonstiges') void refineThemeLater(linked)
+  return linked
 }
 
 export async function updateEventFromGui(
@@ -544,9 +684,16 @@ export async function updateEventFromGui(
   if (opts.remind_offsets_min !== undefined) next.remind_offsets_min = opts.remind_offsets_min
   await putEvent(next)
   await scheduleEventNotifies(next)
+  syncing = true
+  let linked = next
+  try {
+    linked = await syncEventOntoTodo(row, next)
+  } finally {
+    syncing = false
+  }
   noteCalendarFocus(opts.start)
-  if (!opts.theme) void refineThemeLater(next)
-  return next
+  if (!opts.theme) void refineThemeLater(linked)
+  return linked
 }
 
 export async function createEventFromGui(opts: {

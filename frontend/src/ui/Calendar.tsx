@@ -103,8 +103,6 @@ function countOnDay(events: CalendarEvent[], reminders: Reminder[], day: Date): 
   )
 }
 
-const HOUR_PX = 52
-
 function clockMin(iso: string): number {
   const d = new Date(iso)
   return d.getHours() * 60 + d.getMinutes()
@@ -197,6 +195,7 @@ function PressBox({
   label,
   onTap,
   onHold,
+  onDrag,
   children,
 }: {
   className?: string
@@ -204,10 +203,12 @@ function PressBox({
   label?: string
   onTap?: () => void
   onHold: (x: number, y: number) => void
+  onDrag?: (phase: 'move' | 'end', x: number, y: number) => void
   children: ReactNode
 }) {
   const timer = useRef(0)
   const fired = useRef(false)
+  const dragging = useRef(false)
   const origin = useRef({ x: 0, y: 0 })
   useEffect(() => () => window.clearTimeout(timer.current), [])
   return (
@@ -219,22 +220,41 @@ function PressBox({
       onPointerDown={(e) => {
         if (e.button !== 0) return
         fired.current = false
+        dragging.current = false
         origin.current = { x: e.clientX, y: e.clientY }
+        e.currentTarget.setPointerCapture(e.pointerId)
         window.clearTimeout(timer.current)
         const x = e.clientX
         const y = e.clientY
         timer.current = window.setTimeout(() => {
+          if (dragging.current) return
           fired.current = true
           onHold(x, y)
         }, 480)
       }}
       onPointerMove={(e) => {
-        if (Math.hypot(e.clientX - origin.current.x, e.clientY - origin.current.y) > 14) {
+        const dist = Math.hypot(e.clientX - origin.current.x, e.clientY - origin.current.y)
+        if (dist > 10 && onDrag) {
           window.clearTimeout(timer.current)
+          dragging.current = true
+          fired.current = true
+          onDrag('move', e.clientX, e.clientY)
+          return
+        }
+        if (dist > 14) window.clearTimeout(timer.current)
+      }}
+      onPointerUp={(e) => {
+        window.clearTimeout(timer.current)
+        if (dragging.current) {
+          dragging.current = false
+          fired.current = true
+          onDrag?.('end', e.clientX, e.clientY)
         }
       }}
-      onPointerUp={() => window.clearTimeout(timer.current)}
-      onPointerCancel={() => window.clearTimeout(timer.current)}
+      onPointerCancel={() => {
+        window.clearTimeout(timer.current)
+        dragging.current = false
+      }}
       onContextMenu={(e) => {
         e.preventDefault()
         fired.current = true
@@ -264,6 +284,7 @@ function EventCard({
   onEdit,
   onDelete,
   onHold,
+  onDrag,
   busy,
 }: {
   title: string
@@ -275,6 +296,7 @@ function EventCard({
   onEdit?: () => void
   onDelete?: () => void
   onHold?: (x: number, y: number) => void
+  onDrag?: (phase: 'move' | 'end', x: number, y: number) => void
   busy?: boolean
 }) {
   const face = theme ? calThemeOf(theme) : null
@@ -295,6 +317,8 @@ function EventCard({
                 node.dataset.ox = String(e.clientX)
                 node.dataset.oy = String(e.clientY)
                 node.dataset.held = ''
+                node.dataset.drag = ''
+                node.setPointerCapture(e.pointerId)
                 window.clearTimeout(Number(node.dataset.hold || 0))
                 const x = e.clientX
                 const y = e.clientY
@@ -306,14 +330,31 @@ function EventCard({
               }
             : undefined
         }
-        onPointerUp={(e) => window.clearTimeout(Number(e.currentTarget.dataset.hold || 0))}
-        onPointerCancel={(e) => window.clearTimeout(Number(e.currentTarget.dataset.hold || 0))}
+        onPointerCancel={(e) => {
+          window.clearTimeout(Number(e.currentTarget.dataset.hold || 0))
+          e.currentTarget.dataset.drag = ''
+        }}
         onPointerMove={(e) => {
           const node = e.currentTarget
           const ox = Number(node.dataset.ox || e.clientX)
           const oy = Number(node.dataset.oy || e.clientY)
-          if (Math.hypot(e.clientX - ox, e.clientY - oy) > 14) {
+          const dist = Math.hypot(e.clientX - ox, e.clientY - oy)
+          if (dist > 10 && onDrag) {
             window.clearTimeout(Number(node.dataset.hold || 0))
+            node.dataset.drag = '1'
+            node.dataset.held = '1'
+            onDrag('move', e.clientX, e.clientY)
+            return
+          }
+          if (dist > 14) {
+            window.clearTimeout(Number(node.dataset.hold || 0))
+          }
+        }}
+        onPointerUp={(e) => {
+          window.clearTimeout(Number(e.currentTarget.dataset.hold || 0))
+          if (e.currentTarget.dataset.drag === '1') {
+            e.currentTarget.dataset.drag = ''
+            onDrag?.('end', e.clientX, e.clientY)
           }
         }}
         onContextMenu={
@@ -383,6 +424,7 @@ function WeekBoard({
   onSelect,
   onEdit,
   onHold,
+  onDrag,
 }: {
   week: Date[]
   shown: CalendarEvent[]
@@ -392,9 +434,11 @@ function WeekBoard({
   onSelect: (day: Date) => void
   onEdit: (event: CalendarEvent) => void
   onHold: (event: CalendarEvent, x: number, y: number) => void
+  onDrag: (id: string, title: string, phase: 'move' | 'end', x: number, y: number) => void
 }) {
   const { startH, endH } = weekHourSpan(week, shown, reminders)
   const hours = Array.from({ length: endH - startH }, (_, i) => startH + i)
+  const spanMin = Math.max(60, (endH - startH) * 60)
   const now = new Date()
   const nowMin = now.getHours() * 60 + now.getMinutes()
   const anyAll = week.some((d) => shown.some((e) => e.all_day && sameDay(new Date(e.start_at), d)))
@@ -404,27 +448,24 @@ function WeekBoard({
         className="cal-week cal-pane-in"
         role="grid"
         aria-label="Wochenübersicht"
-        style={{ ['--cal-hour']: `${HOUR_PX}px` } as CSSProperties}
+        style={
+          {
+            ['--cal-hours']: String(hours.length),
+            gridTemplateRows: anyAll ? 'auto minmax(0, 1fr)' : 'minmax(0, 1fr)',
+          } as CSSProperties
+        }
       >
-        <div className="cal-week-corner" aria-hidden />
-        {week.map((d) => (
-          <button
-            key={isoDay(d)}
-            type="button"
-            className={`cal-week-head${sameDay(d, selected) ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}
-            onClick={() => onSelect(d)}
-          >
-            <span>{WEEK[(d.getDay() + 6) % 7]}</span>
-            <strong>{d.getDate()}</strong>
-          </button>
-        ))}
         {anyAll ? (
           <>
-            <div className="cal-week-gutter">ganztägig</div>
+            <div className="cal-week-gutter">ganz</div>
             {week.map((d) => {
               const all = shown.filter((e) => e.all_day && sameDay(new Date(e.start_at), d))
               return (
-                <div key={`all-${isoDay(d)}`} className={`cal-week-all${sameDay(d, selected) ? ' is-on' : ''}`}>
+                <div
+                  key={`all-${isoDay(d)}`}
+                  className={`cal-week-all${sameDay(d, selected) ? ' is-on' : ''}`}
+                  data-cal-day={isoDay(d)}
+                >
                   {all.map((e) => {
                     const face = calThemeOf(eventTheme(e))
                     return (
@@ -435,6 +476,7 @@ function WeekBoard({
                         label={e.title}
                         onTap={() => onEdit(e)}
                         onHold={(x, y) => onHold(e, x, y)}
+                        onDrag={(phase, x, y) => onDrag(e.id, e.title, phase, x, y)}
                       >
                         {e.title}
                       </PressBox>
@@ -448,7 +490,7 @@ function WeekBoard({
         <div className="cal-week-times" aria-hidden>
           {hours.map((h) => (
             <div key={h} className="cal-week-hour" data-hour={h}>
-              {h} Uhr
+              {h}
             </div>
           ))}
         </div>
@@ -461,6 +503,7 @@ function WeekBoard({
               const endMin = sameDay(end, d) ? Math.max(clockMin(end.toISOString()), startMin + 15) : 24 * 60
               const face = calThemeOf(eventTheme(e))
               return {
+                id: e.id,
                 key: `${e.id}-${e.start_at}`,
                 title: e.title,
                 startMin,
@@ -476,6 +519,7 @@ function WeekBoard({
             .map((r) => {
               const startMin = clockMin(r.due_at)
               return {
+                id: '',
                 key: r.id,
                 title: r.title,
                 startMin,
@@ -492,25 +536,23 @@ function WeekBoard({
             <div
               key={isoDay(d)}
               className={`cal-week-col${sameDay(d, selected) ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}
-              style={{ height: hours.length * HOUR_PX }}
+              data-cal-day={isoDay(d)}
+              data-start-h={startH}
+              data-end-h={endH}
               onClick={() => onSelect(d)}
             >
               {showNow ? (
-                <div className="cal-week-now" style={{ top: ((nowMin - startH * 60) / 60) * HOUR_PX }} />
+                <div className="cal-week-now" style={{ top: `${((nowMin - startH * 60) / spanMin) * 100}%` }} />
               ) : null}
               {placed.map((block) => {
-                const top = ((block.startMin - startH * 60) / 60) * HOUR_PX
-                const height = Math.max(22, ((block.endMin - block.startMin) / 60) * HOUR_PX - 3)
-                const body = (
-                  <>
-                    <strong>{block.title}</strong>
-                  </>
-                )
+                const top = ((block.startMin - startH * 60) / spanMin) * 100
+                const height = Math.max(4, ((block.endMin - block.startMin) / spanMin) * 100)
+                const body = <strong>{block.title}</strong>
                 const style = {
-                  top,
-                  height,
-                  left: `calc(${(block.col / block.cols) * 100}% + 2px)`,
-                  width: `calc(${100 / block.cols}% - 4px)`,
+                  top: `${top}%`,
+                  height: `${height}%`,
+                  left: `calc(${(block.col / block.cols) * 100}% + 1px)`,
+                  width: `calc(${100 / block.cols}% - 2px)`,
                   ['--cal-theme']: block.color,
                   borderLeftColor: block.color,
                 } as CSSProperties
@@ -529,6 +571,7 @@ function WeekBoard({
                     label={block.title}
                     onTap={() => block.onOpen?.()}
                     onHold={(x, y) => block.onHold?.(x, y)}
+                    onDrag={(phase, x, y) => onDrag(block.id, block.title, phase, x, y)}
                   >
                     {body}
                   </PressBox>
@@ -578,9 +621,9 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     window.addEventListener('pointerdown', close)
     return () => window.removeEventListener('pointerdown', close)
   }, [hold])
-  const dayRef = useRef<HTMLElement>(null)
-  const [dayTick, setDayTick] = useState(0)
   const modeThumb = useSlidingThumb(mode)
+  const dragRef = useRef<{ id: string; title: string } | null>(null)
+  const ghostRef = useRef<HTMLDivElement>(null)
 
   const year = cursor.getFullYear()
   const month = cursor.getMonth()
@@ -605,7 +648,6 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setSelected(d)
     setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
     setMode((cur) => (cur === 'year' ? 'month' : cur))
-    setDayTick((n) => n + 1)
   }, [])
 
   useEffect(() => {
@@ -648,34 +690,10 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     }
   }, [sheetOpen, editingId])
 
-  useEffect(() => {
-    if (!dayTick || mode !== 'month') return
-    return pinOverview(dayRef)
-  }, [dayTick])
-
-  function pinOverview(ref: { current: HTMLElement | null }) {
-    const pin = () => {
-      const section = ref.current
-      const scroller = section?.closest('.cal-view')
-      if (!section || !(scroller instanceof HTMLElement)) return
-      const delta = section.getBoundingClientRect().top - scroller.getBoundingClientRect().top
-      if (Math.abs(delta) < 2) return
-      scroller.scrollTop += delta
-    }
-    pin()
-    const frame = window.requestAnimationFrame(pin)
-    const soon = window.setTimeout(pin, 80)
-    return () => {
-      window.cancelAnimationFrame(frame)
-      window.clearTimeout(soon)
-    }
-  }
-
   function showDay(d: Date) {
     const day = startOfDay(d)
     setSelected(day)
     setCursor(new Date(day.getFullYear(), day.getMonth(), 1))
-    setDayTick((n) => n + 1)
   }
 
   useEffect(() => {
@@ -707,21 +725,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     const end = listUntil.getTime() > until.getTime() ? listUntil : until
     return expandEvents(events, from, end)
   }, [events, year, today])
-  const dayEvents = shown.filter((e) => sameDay(new Date(e.start_at), selected)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
-  const dayRems = reminders.filter((r) => sameDay(new Date(r.due_at), selected))
   const week = useMemo(() => weekDays(selected), [selected])
   const groups = useMemo(() => upcomingGroups(shown, reminders, today), [shown, reminders, today])
-  const nextUp = useMemo(() => {
-    const now = Date.now()
-    return shown.find((e) => new Date(e.start_at).getTime() >= now) || null
-  }, [shown])
-  const todayCount = shown.filter((e) => sameDay(new Date(e.start_at), today)).length
-  const headLine = nextUp
-    ? `Als Nächstes: ${nextUp.title}`
-    : todayCount
-      ? `${todayCount} ${todayCount === 1 ? 'Termin' : 'Termine'} heute`
-      : 'Nichts kommt. ＋ legt an.'
-
   function goToday() {
     const next = new Date(today.getFullYear(), today.getMonth(), 1)
     const cur = new Date(year, month, 1)
@@ -748,7 +753,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   function onGridPointerUp(e: PointerEvent) {
     const start = swipeRef.current
     swipeRef.current = null
-    if (!start || mode !== 'month') return
+    if (!start || mode !== 'month' || dragRef.current) return
     const dx = e.clientX - start.x
     const dy = e.clientY - start.y
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
@@ -881,15 +886,110 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     }
   }
 
+  function paintDrop(x: number, y: number) {
+    const hit = document.elementFromPoint(x, y)
+    const day = hit?.closest('[data-cal-day]')
+    document.querySelectorAll('.cal-view .is-drop').forEach((node) => node.classList.remove('is-drop'))
+    day?.classList.add('is-drop')
+    return day instanceof HTMLElement ? day : null
+  }
+
+  function trackDrag(id: string, title: string, phase: 'move' | 'end', x: number, y: number) {
+    const ghost = ghostRef.current
+    if (phase === 'move') {
+      dragRef.current = { id, title }
+      if (ghost) {
+        ghost.hidden = false
+        ghost.textContent = title
+        ghost.style.left = `${x}px`
+        ghost.style.top = `${y}px`
+      }
+      paintDrop(x, y)
+      return
+    }
+    const info = dragRef.current
+    dragRef.current = null
+    if (ghost) ghost.hidden = true
+    const day = paintDrop(x, y)
+    document.querySelectorAll('.cal-view .is-drop').forEach((node) => node.classList.remove('is-drop'))
+    if (!info || !day?.dataset.calDay) return
+    const startH = Number(day.dataset.startH)
+    const endH = Number(day.dataset.endH)
+    let minutes: number | null = null
+    if (Number.isFinite(startH) && Number.isFinite(endH) && endH > startH) {
+      const rect = day.getBoundingClientRect()
+      const ratio = rect.height > 0 ? (y - rect.top) / rect.height : 0
+      const raw = startH * 60 + Math.min(1, Math.max(0, ratio)) * (endH - startH) * 60
+      minutes = Math.max(startH * 60, Math.min(endH * 60 - 15, Math.round(raw / 15) * 15))
+    }
+    void commitDrop(info.id, day.dataset.calDay, minutes)
+  }
+
+  async function commitDrop(id: string, iso: string, minutes: number | null) {
+    const row = events.find((event) => event.id === id)
+    if (!row || busy) return
+    const prev = new Date(row.start_at)
+    const parts = iso.split('-').map((part) => Number(part))
+    if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part))) return
+    const start = new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0)
+    let allDay = Boolean(row.all_day)
+    if (minutes != null) {
+      allDay = false
+      start.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0)
+    } else if (!allDay) {
+      start.setHours(prev.getHours(), prev.getMinutes(), 0, 0)
+    }
+    const length = Math.max(eventEndAt(row).getTime() - prev.getTime(), 15 * 60_000)
+    const end = new Date(start.getTime() + (allDay ? 86_400_000 : length))
+    setBusy(true)
+    try {
+      await updateEventFromGui(row.id, {
+        title: row.title,
+        start,
+        end,
+        place: row.place,
+        all_day: allDay,
+        recur: row.recur || null,
+        theme: eventTheme(row),
+        remind_offsets_min: row.remind_offsets_min,
+      })
+      setSelected(startOfDay(start))
+      setCursor(new Date(start.getFullYear(), start.getMonth(), 1))
+      await reload()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Verschieben fehlgeschlagen')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const label = cursor.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
 
   return (
     <div className={`cal-view fx-in${leaving ? ' is-leaving' : ''}`}>
-      <header className="cal-head">
-        <div>
-          <h2>Kalender</h2>
-          <p>{headLine}</p>
-        </div>
+      <header className="cal-top">
+        <nav ref={modeThumb.hostRef} className="cal-modes pill-tabs" aria-label="Ansicht">
+        <span ref={modeThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
+        {(
+          [
+            ['month', 'Monat'],
+            ['week', 'Woche'],
+            ['list', 'Liste'],
+            ['year', 'Jahr'],
+          ] as const
+        ).map(([id, name]) => (
+          <button
+            key={id}
+            type="button"
+            data-nav={id}
+            aria-selected={mode === id}
+            className={`cal-mode${mode === id ? ' is-on' : ''}`}
+            onClick={() => setMode(id)}
+          >
+            {name}
+          </button>
+        ))}
+        </nav>
         <div className="cal-head-actions">
           <button type="button" className="ghost-btn cal-toolbar-btn" onClick={goToday}>
             Heute
@@ -912,29 +1012,6 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           </button>
         </div>
       </header>
-
-      <nav ref={modeThumb.hostRef} className="cal-modes pill-tabs" aria-label="Ansicht">
-        <span ref={modeThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
-        {(
-          [
-            ['month', 'Monat'],
-            ['week', 'Woche'],
-            ['list', 'Liste'],
-            ['year', 'Jahr'],
-          ] as const
-        ).map(([id, name]) => (
-          <button
-            key={id}
-            type="button"
-            data-nav={id}
-            aria-selected={mode === id}
-            className={`cal-mode${mode === id ? ' is-on' : ''}`}
-            onClick={() => setMode(id)}
-          >
-            {name}
-          </button>
-        ))}
-      </nav>
 
       {mode !== 'list' ? (
         <div className="cal-nav">
@@ -981,7 +1058,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       ) : null}
 
       {mode === 'month' || mode === 'week' ? (
-        <div className="cal-strip" role="tablist" aria-label="Woche">
+        <div className={`cal-strip${mode === 'week' ? ' is-week' : ''}`} role="tablist" aria-label="Woche">
+          {mode === 'week' ? <span className="cal-strip-gutter" aria-hidden /> : null}
           {week.map((d) => {
             const n = countOnDay(shown, reminders, d)
             const on = sameDay(d, selected)
@@ -1003,25 +1081,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         </div>
       ) : null}
 
-      {nextUp && mode === 'month' ? (
-        <button
-          type="button"
-          className="cal-next"
-          data-theme={eventTheme(nextUp)}
-          style={
-            {
-              borderLeftColor: calThemeOf(eventTheme(nextUp)).color,
-              ['--cal-theme']: calThemeOf(eventTheme(nextUp)).color,
-            } as CSSProperties
-          }
-          onClick={() => showDay(new Date(nextUp.start_at))}
-        >
-          <span className="cal-next-kicker">Als Nächstes · {calThemeOf(eventTheme(nextUp)).label}</span>
-          <strong>{nextUp.title}</strong>
-          <span>{formatDue(new Date(nextUp.start_at))}</span>
-        </button>
-      ) : null}
-
+      <div className="cal-board">
       {mode === 'year' ? (
         <div key={year} className={`cal-year cal-pane-in cal-month-${monthDir}`} role="grid" aria-label="Jahr">
           {MONTHS.map((name, mi) => (
@@ -1063,6 +1123,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           className={`cal-grid cal-grid-swipe cal-month-in cal-month-${monthDir}`}
           role="grid"
           aria-label="Monat"
+          style={{ gridTemplateRows: `auto repeat(${Math.max(1, cells.length / 7)}, minmax(0, 1fr))` }}
           onPointerDown={onGridPointerDown}
           onPointerUp={onGridPointerUp}
           onPointerCancel={() => {
@@ -1081,19 +1142,44 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             const isToday = sameDay(d, today)
             const dots = themesForDay(shown, d, sameDay)
             const hasRem = reminders.some((r) => sameDay(new Date(r.due_at), d))
+            const chips = shown.filter((event) => sameDay(new Date(event.start_at), d)).slice(0, 2)
             return (
-              <button
+              <div
                 key={key}
-                type="button"
+                role="button"
+                tabIndex={0}
+                data-cal-day={key}
                 className={`cal-cell${isSel ? ' sel' : ''}${isToday ? ' today' : ''}${marks.has(key) ? ' has-mark' : ''}`}
                 onClick={() => showDay(d)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    showDay(d)
+                  }
+                }}
                 aria-label={`Termine am ${d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })}`}
               >
                 <span className="cal-day-num">{d.getDate()}</span>
-                {countOnDay(shown, reminders, d) > 1 ? (
+                {chips.map((event) => {
+                  const face = calThemeOf(eventTheme(event))
+                  return (
+                    <PressBox
+                      key={`${event.id}-${event.start_at}`}
+                      className="cal-cell-chip"
+                      style={{ ['--cal-theme']: face.color, borderLeftColor: face.color } as CSSProperties}
+                      label={event.title}
+                      onTap={() => openEdit(event)}
+                      onHold={(x, y) => setHold({ id: event.id, x, y })}
+                      onDrag={(phase, x, y) => trackDrag(event.id, event.title, phase, x, y)}
+                    >
+                      {event.title}
+                    </PressBox>
+                  )
+                })}
+                {countOnDay(shown, reminders, d) > chips.length ? (
                   <i className="cal-count cal-count-cell">{countOnDay(shown, reminders, d)}</i>
                 ) : null}
-                {dots.length || hasRem ? (
+                {!chips.length && (dots.length || hasRem) ? (
                   <span className="cal-dots">
                     {dots.map((id) => (
                       <i key={id} className="cal-dot-theme" style={{ background: calThemeOf(id).color }} />
@@ -1101,7 +1187,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                     {hasRem && !dots.length ? <i className="cal-dot-theme is-rem" /> : null}
                   </span>
                 ) : null}
-              </button>
+              </div>
             )
           })}
         </div>
@@ -1113,7 +1199,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             <p className="memory-empty">Keine Termine in den nächsten drei Wochen.</p>
           ) : (
             groups.map((g) => (
-              <div key={g.key} className="cal-agenda-day">
+              <div key={g.key} className="cal-agenda-day" data-cal-day={g.key}>
                 <h3>{dayHeading(g.day, today)}</h3>
                 <ul className="cal-cards">
                   {g.events.map((e) => (
@@ -1128,6 +1214,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                       onEdit={() => openEdit(e)}
                       onDelete={() => void onDelete(e.id)}
                       onHold={(x, y) => setHold({ id: e.id, x, y })}
+                      onDrag={(phase, x, y) => trackDrag(e.id, e.title, phase, x, y)}
                     />
                   ))}
                   {g.rems.map((r) => (
@@ -1150,56 +1237,12 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           onSelect={(d) => showDay(d)}
           onEdit={openEdit}
           onHold={(event, x, y) => setHold({ id: event.id, x, y })}
+          onDrag={trackDrag}
         />
       ) : null}
+      </div>
 
-      {mode === 'month' ? (
-        <section ref={dayRef} className="cal-day" aria-label="Termine an diesem Tag">
-          <div className="cal-day-head">
-            <div>
-              <p className="cal-day-kicker">Termine</p>
-              <h3 key={isoDay(selected)} className="cal-day-title">
-                {dayHeading(selected, today)}
-              </h3>
-            </div>
-            {dayEvents.length + dayRems.length ? (
-              <span className="cal-day-meta">
-                {`${dayEvents.length + dayRems.length} ${dayEvents.length + dayRems.length === 1 ? 'Eintrag' : 'Einträge'}`}
-              </span>
-            ) : (
-              <button type="button" className="cal-empty-cta" onClick={openCreate}>
-                ＋ Termin
-              </button>
-            )}
-          </div>
-          {dayEvents.length === 0 && dayRems.length === 0 ? (
-            <div className="cal-empty">
-              <p className="memory-empty">Nichts an diesem Tag.</p>
-              <p className="settings-hint">Oder im Chat: „Samstag Geburtstag Jakob 18 Uhr“.</p>
-            </div>
-          ) : (
-            <ul key={isoDay(selected)} className="cal-cards">
-              {dayEvents.map((e) => (
-                <EventCard
-                  key={`${e.id}-${e.start_at}`}
-                  title={e.title}
-                  when={timeLabel(e.start_at, e.all_day)}
-                  place={e.place}
-                  remind={remindLabel(e)}
-                  theme={eventTheme(e)}
-                  busy={busy}
-                  onEdit={() => openEdit(e)}
-                  onDelete={() => void onDelete(e.id)}
-                  onHold={(x, y) => setHold({ id: e.id, x, y })}
-                />
-              ))}
-              {dayRems.map((r) => (
-                <EventCard key={r.id} title={r.title} when={formatDue(new Date(r.due_at))} kind="Erinnerung" />
-              ))}
-            </ul>
-          )}
-        </section>
-      ) : null}
+      <div ref={ghostRef} className="cal-drag-ghost" hidden />
 
       {createPortal(
         <button type="button" className="cal-fab" aria-label="Termin anlegen" onClick={openCreate}>

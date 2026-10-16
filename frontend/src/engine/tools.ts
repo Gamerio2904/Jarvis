@@ -19,7 +19,6 @@ import {
   type Todo,
   type ToolPending,
 } from './store.ts'
-import { recordTodoDeadline } from './calendar.ts'
 import { parseToolIntent } from './tools-parse.ts'
 import type { ToolIntent } from './tools-parse.ts'
 
@@ -263,12 +262,7 @@ async function execute(pending: ToolPending): Promise<{ reply: string }> {
       deadlineTime,
     })
     if (deadlineDate) {
-      const when = await recordTodoDeadline({
-        title: String(pending.args.title || 'Todo'),
-        date: deadlineDate,
-        time: deadlineTime,
-        conversationId: pending.conversation_id,
-      })
+      const when = `${deadlineDate} ${deadlineTime || '18:00'}`
       return { reply: `Notiert: ${pending.args.title}. Im Kalender ${when}, Benachrichtigung einen Tag und zwei Stunden davor.` }
     }
     return { reply: `Notiert: ${pending.args.title}` }

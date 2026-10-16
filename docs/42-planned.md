@@ -1,6 +1,6 @@
 # 42 — Historischer Planungsindex
 
-> **Aktueller Stand:** Test-Build `18.66.2` / versionCode `186602`
+> **Aktueller Stand:** Test-Build `18.66.3` / versionCode `186603`
 > (Self-Play 503–510 und TCG-Subset 511–530 **CODE**); Geräteabnahme offen.
 > Maßgebliche Pläne: [`100-next.md`](./100-next.md) (444–466),
 > [`101-next.md`](./101-next.md) (467–482, Gates offen),
