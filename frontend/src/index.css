@@ -11099,3 +11099,74 @@ html[data-device='desktop'] .messages {
   margin-top: 4px;
   box-sizing: border-box;
 }
+
+.server-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+}
+
+.server-health,
+.server-device,
+.server-log li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+}
+
+.server-health,
+.server-device {
+  padding: 12px 14px;
+  border: 1px solid rgba(143, 208, 198, 0.35);
+  border-radius: 14px;
+  background: rgba(8, 18, 22, 0.55);
+}
+
+.server-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.server-qr {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.server-qr img {
+  width: min(220px, 70vw);
+  height: auto;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.server-title {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+}
+
+.server-list,
+.server-log {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.server-log li {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.server-log li.is-ok span:nth-child(2) {
+  color: #8fd0c6;
+}
+
+.server-log li.is-bad span:nth-child(2) {
+  color: #ff8d8d;
+}

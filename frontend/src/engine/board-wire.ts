@@ -45,5 +45,8 @@ export async function wireFor(id: HomeAppId, now = new Date()): Promise<WireFram
   if (id === 'yugioh') {
     return { id, label, lines: ['Yu-Gi-Oh', 'Duell auf dem Feld', 'Vereinfachte Effekte.'] }
   }
+  if (id === 'server') {
+    return { id, label, lines: ['Server', 'HTTPS im LAN', 'Geräte und Abgleich.'] }
+  }
   return { id, label, lines: [label, 'Modul existiert', 'Simulation, nicht die Live-App.'] }
 }

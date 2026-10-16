@@ -88,6 +88,7 @@
     "test:18.16": "node --experimental-strip-types scripts/test-18.16.mjs",
     "test:18.17": "node --experimental-strip-types scripts/test-18.17.mjs",
     "test:18.18": "node --experimental-strip-types scripts/test-18.18.mjs",
+    "test:server-desk": "node --experimental-strip-types scripts/test-server-desk.mjs",
     "test:18.19": "node --experimental-strip-types scripts/test-18.19.mjs",
     "test:clip": "node --experimental-strip-types scripts/test-clip.mjs",
     "test:board": "node --experimental-strip-types scripts/test-board.mjs",

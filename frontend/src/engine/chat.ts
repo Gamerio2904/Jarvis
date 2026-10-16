@@ -8,6 +8,8 @@ import { handleTabletText } from './tablet-chat.ts'
 import { groundMicroMerge, HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
 import { greetingReply, greetingStandFact, parseGreeting, WRONG_NAME_REPLY, wrongNameGreeting } from './greeting.ts'
 import { handleFensterCommand, ownFensterKind } from './fenster.ts'
+import { asksForSteps, formatStepGuide, STEP_HINT } from './step-guide.ts'
+import { parseVideoLinkAsk, videoLinkReply } from './video-link.ts'
 import { fensterTransport } from './fenster-net.ts'
 import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
@@ -207,6 +209,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       if (hit.handled && hit.reply) {
         return { reply: hit.reply, tool: hit.tool, lastTool: 'reminder' }
       }
+    }
+  }
+
+  const videoName = parseVideoLinkAsk(content) || parseVideoLinkAsk(normalizeUtterance(content))
+  if (videoName) {
+    return {
+      reply: videoLinkReply(videoName),
+      lastTool: 'tv',
+      tool: { tool_status: 'executed', tool: 'tv', action: 'link', label: 'YouTube' },
     }
   }
 
@@ -732,6 +743,7 @@ export async function streamChat(
       if (found.length === 1 && !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '')) {
         joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
       }
+      if (asksForSteps(content)) joined = formatStepGuide(joined)
       if (isTurnAborted()) {
         finishLatency()
         return
@@ -900,6 +912,7 @@ export async function streamChat(
               .join('\n\n'),
             variable: '',
           }
+      if (asksForSteps(ask)) split.system = `${split.system}\n\n${STEP_HINT}`
       let llmMessages = [
         { role: 'system', content: split.system },
         ...history.slice(cloud || opts?.voice ? -8 : -4).map((m) => ({
@@ -1054,6 +1067,7 @@ export async function streamChat(
       searched: Boolean(researchHasSources(research) || wantSearch),
       names: name ? [name] : [],
     })
+    if (asksForSteps(ask)) final = formatStepGuide(final)
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, ask)
     if (isLiveLookup(ask, discount) && !wantSearch) persistResearchOffer(ask, researchQuery(ask))
