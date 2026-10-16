@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** App-Code, UI und Test-APK **`18.60.0`**, versionCode `186000`; Android-Geräteabnahme offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, `engineStamp` `18.60.0-ygo-md`) steht in [`106-next.md`](./106-next.md) als **CODE** und ist der Sideload `18.60.0`. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** App-Code, UI und Test-APK **`18.66.0`**, versionCode `186600`; Android-Geräteabnahme mit ARCore offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, `engineStamp` `18.60.0-ygo-md`) steht in [`106-next.md`](./106-next.md) als **CODE**. Die Welt auf der Kamera (Sprints 551–559) steht in [`107-next.md`](./107-next.md) als **CODE** und ist der Sideload `18.66.0`. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1025,12 +1025,12 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.51.2` | Startbildschirm, Sparring, Bot-Duell, Kartentexte, Beschwörung, Regeln, Spielmarken, Token, Link-Pfeile, versionCode `185102` | CODE; Sideload inzwischen `18.60.0`, [`yugioh-duel.md`](./yugioh-duel.md) |
 | `18.51.3` | Chat und Sprache nur in der offenen Werte-Leiste, versionCode `185103` | CODE; Sideload inzwischen `18.60.0`, [`yugioh-duel.md`](./yugioh-duel.md) |
 | `18.60.0` | Master-Duel-Bedienung, Sprints 531–550, versionCode `186000` | CODE + Test-APK; Geräteabnahme offen, [`106-next.md`](./106-next.md) |
-| `18.61.0` | Alltag, Server-Fläche, Schritt-Anleitungen, versionCode `186100` | CODE + Test-APK; [`CHANGELOG.md`](./CHANGELOG.md) |
-| `18.62.0` | Kachel Welt und leere Kamerawelt, Sprints 551–552, versionCode `186200` | PLAN, [`107-next.md`](./107-next.md) |
-| `18.63.0` | Ursprung und zwei Anker, Sprints 553–554, versionCode `186300` | PLAN, [`107-next.md`](./107-next.md) |
-| `18.64.0` | Boden und Stoß, Sprints 555–556, versionCode `186400` | PLAN, [`107-next.md`](./107-next.md) |
-| `18.65.0` | Hand in derselben Welt, Sprint 557, versionCode `186500` | PLAN, [`107-next.md`](./107-next.md) |
-| `18.66.0` | Gelenk, Loslassen, Welt-Gate, Sprints 558–559, versionCode `186600` | PLAN, [`107-next.md`](./107-next.md) |
+| `18.61.0` | Alltag, Server-Fläche, Schritt-Anleitungen, versionCode `186100` | CODE; Sideload inzwischen `18.66.0`, [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.62.0` | Kachel Welt und leere Kamerawelt, Sprints 551–552, versionCode `186200` | CODE, im Sideload `18.66.0` enthalten, [`107-next.md`](./107-next.md) |
+| `18.63.0` | Ursprung und zwei Anker, Sprints 553–554, versionCode `186300` | CODE, im Sideload `18.66.0` enthalten, [`107-next.md`](./107-next.md) |
+| `18.64.0` | Boden und Stoß, Sprints 555–556, versionCode `186400` | CODE, im Sideload `18.66.0` enthalten, [`107-next.md`](./107-next.md) |
+| `18.65.0` | Hand in derselben Welt, Sprint 557, versionCode `186500` | CODE, im Sideload `18.66.0` enthalten, [`107-next.md`](./107-next.md) |
+| `18.66.0` | Welt auf der Kamera, Sprints 551–559 in einem Sideload, versionCode `186600` | CODE + Test-APK; Geräteabnahme mit ARCore offen, [`107-next.md`](./107-next.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**

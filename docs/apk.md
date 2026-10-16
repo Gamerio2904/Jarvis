@@ -1,13 +1,21 @@
-# Android-APK — Test-Build `18.61.0`
+# Android-APK — Test-Build `18.66.0`
 
-Test-Build **`18.61.0`** (versionCode `186100`), debug-signiert:
-https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Test-Build **`18.66.0`** (versionCode `186600`), debug-signiert. Die Datei
+`releases/Jarvis.apk` in diesem Zweig ist dieser Sideload. Der Rohlink auf
+`main` zeigt sie erst nach dem Merge.
 
-Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`. Die
-Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
-keine finale Release-Freigabe.
+Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
+`engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
+steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
+Release-Freigabe.
 
-**Neu in 18.61.0:** Einkauf, Todos mit Kalender-Erinnerung, Filme, eine Lage-Kachel, CarPlay-Standort, Schritt-Anleitungen, YouTube-Suchlink und die Server-Kachel (HTTPS, QR, vereinigter Hausstand). `engineStamp` bleibt `18.60.0-ygo-md`.
+**Neu in 18.66.0:** Kachel **Welt** (Sprints 551–559). Die Rückkamera ist das
+Auge. Würfel sind Anker im Zimmer, höchstens acht, Kante 8 cm. Boden und Stoß
+halten sie. Eine Hand greift in Reichweite und lässt los. Ohne Flächen-Erkennung
+sagt die Zeile `ARCore fehlt` und es entsteht kein Würfel. `Scanne den Raum`
+bleibt der Tischplatten-Scan. Fassung: [`107-next.md`](./107-next.md).
+
+**Neu in 18.61.0:** Einkauf, Todos mit Kalender-Erinnerung, Filme, eine Lage-Kachel, CarPlay-Standort, Schritt-Anleitungen, YouTube-Suchlink und die Server-Kachel (HTTPS, QR, vereinigter Hausstand). `engineStamp` bleibt `18.60.0-ygo-md`. Im aktuellen Sideload enthalten.
 
 **Neu in 18.60.0:** Yu-Gi-Oh!-Bedienung aus Plan 106 (Sprints 531–550) in
 einem Sideload. Aktivieren-Fenster OFF/AUTO/ON, Zielwahl, Kettenstapel,

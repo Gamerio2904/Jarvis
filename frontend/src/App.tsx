@@ -66,6 +66,7 @@ import { type HomeAppId } from './engine/home-apps.ts'
 import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { ShoppingListsOverlay } from './ui/ShoppingListsOverlay.tsx'
 import { ServerOverlay } from './ui/ServerOverlay.tsx'
+import { WeltOverlay } from './ui/WeltOverlay.tsx'
 import { NotesOverlay } from './ui/NotesOverlay.tsx'
 import { TodoListsOverlay } from './ui/TodoListsOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
@@ -353,6 +354,7 @@ function App() {
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
   const [shoppingOpen, setShoppingOpen] = useState(false)
   const [serverOpen, setServerOpen] = useState(false)
+  const [weltOpen, setWeltOpen] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
   const [todosOpen, setTodosOpen] = useState(false)
   const overlayHistRef = useRef(false)
@@ -653,6 +655,10 @@ function App() {
       dropOverlayHistory()
       return
     }
+    if (action === 'welt') {
+      launchHomeRef.current('welt')
+      return
+    }
     if (action === 'dock') {
       const dock = String(tool.result?.dock || '')
       if (dock) goDock(dock)
@@ -866,7 +872,7 @@ function App() {
 
   useEffect(() => {
     const overlayOpen =
-      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen || notesOpen || todosOpen || serverOpen
+      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen || notesOpen || todosOpen || serverOpen || weltOpen
     if (!overlayOpen) return
     if (!overlayHistRef.current) {
       window.history.pushState({ jarvisOverlay: true }, '')
@@ -914,11 +920,19 @@ function App() {
       }
       if (chessOpen) {
         setChessOpen(false)
+        return
+      }
+      if (serverOpen) {
+        setServerOpen(false)
+        return
+      }
+      if (weltOpen) {
+        setWeltOpen(false)
       }
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen, shoppingOpen, notesOpen, todosOpen])
+  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen, shoppingOpen, notesOpen, todosOpen, serverOpen, weltOpen])
 
   useEffect(() => {
     const onNotes = () => openNotesSheet()
@@ -2083,6 +2097,7 @@ function App() {
   const watchlistLayer = useOverlay(watchlistOpen)
   const shoppingLayer = useOverlay(shoppingOpen)
   const serverLayer = useOverlay(serverOpen)
+  const weltLayer = useOverlay(weltOpen)
   const notesLayer = useOverlay(notesOpen)
   const todosLayer = useOverlay(todosOpen)
   const voiceLayer = useOverlay(voiceOpen)
@@ -2233,6 +2248,7 @@ function App() {
   }
 
   function launchHomeApp(id: HomeAppId) {
+    if (id !== 'welt') setWeltOpen(false)
     if (id === 'chat') {
       goDock('chat')
       return
@@ -2292,6 +2308,21 @@ function App() {
       setTodosOpen(false)
       closeVoice()
       setServerOpen(true)
+      return
+    }
+    if (id === 'welt') {
+      setYugiohOpen(false)
+      setChessOpen(false)
+      setDriveOpen(false)
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setWatchlistOpen(false)
+      setShoppingOpen(false)
+      setNotesOpen(false)
+      setTodosOpen(false)
+      setServerOpen(false)
+      closeVoice()
+      setWeltOpen(true)
       return
     }
     if (id === 'hirn') {
@@ -2684,6 +2715,9 @@ function App() {
         ) : null}
         {serverLayer.shown ? (
           <ServerOverlay leaving={serverLayer.leaving} onClose={() => setServerOpen(false)} />
+        ) : null}
+        {weltLayer.shown ? (
+          <WeltOverlay leaving={weltLayer.leaving} onClose={() => setWeltOpen(false)} />
         ) : null}
         {watchlistLayer.shown ? (
           <WatchlistOverlay
@@ -3144,6 +3178,7 @@ function App() {
           notesOpen ||
           todosOpen ||
           serverOpen ||
+          weltOpen ||
           settingsPanelOpen
         }
         messages={messages}

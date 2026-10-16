@@ -1,6 +1,6 @@
 # Sprint 554 — Zwei Anker
 
-**Version:** `18.63.0` — **PLAN** Must
+**Version:** `18.63.0` — **CODE** Must
 
 **Plan:** [`../107-next.md`](../107-next.md)
 

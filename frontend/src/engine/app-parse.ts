@@ -1,5 +1,6 @@
 import { normalizeUtterance } from './utterance.ts'
 import type { SettingsTopic } from './settings-ia.ts'
+import { parseWeltOpen } from './welt.ts'
 import {
   flagFromTitle,
   flagUtterance,
@@ -20,6 +21,7 @@ export type AppIntent =
   | { kind: 'settings'; topic: SettingsTopic }
   | { kind: 'voice' }
   | { kind: 'theme'; accent: 'amber' | 'green' }
+  | { kind: 'welt' }
   | { kind: 'ui'; action: UiAction }
 
 const TOPIC_WORD: Array<{ re: RegExp; topic: SettingsTopic }> = [
@@ -68,6 +70,7 @@ export function parseAppIntent(text: string): AppIntent | null {
   if (/\b(klick|tipp|speichern|screenshot)\b/i.test(t)) return null
   if (/^\s*(?:was\s+weißt\s+du|was\s+hast\s+du\s+dir|erinnerst\s+du\s+dich)\b/i.test(t)) return null
   if (/\bdann\b/i.test(t)) return null
+  if (parseWeltOpen(t)) return { kind: 'welt' }
 
   if (
     /^\s*(?:einstellungen|overlay|folie|kalender|debug)\s+zu\s*[.!?]*$/i.test(t) ||

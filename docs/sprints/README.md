@@ -532,15 +532,15 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 548 | [`sprint-548.md`](./sprint-548.md) | `18.59.0` | Banlist-Farben und verwandte Karten | **CODE** Must |
 | 549 | [`sprint-549.md`](./sprint-549.md) | `18.60.0` | Duellprotokoll | **CODE** Must |
 | 550 | [`sprint-550.md`](./sprint-550.md) | `18.60.0` | Vorlagen-Gate | **CODE** Must |
-| 551 | [`sprint-551.md`](./sprint-551.md) | `18.62.0` | Kachel Welt | **PLAN** Must |
-| 552 | [`sprint-552.md`](./sprint-552.md) | `18.62.0` | Auge der Welt | **PLAN** Must |
-| 553 | [`sprint-553.md`](./sprint-553.md) | `18.63.0` | Ursprung | **PLAN** Must |
-| 554 | [`sprint-554.md`](./sprint-554.md) | `18.63.0` | Zwei Anker | **PLAN** Must |
-| 555 | [`sprint-555.md`](./sprint-555.md) | `18.64.0` | Boden | **PLAN** Must |
-| 556 | [`sprint-556.md`](./sprint-556.md) | `18.64.0` | Stoß | **PLAN** Must |
-| 557 | [`sprint-557.md`](./sprint-557.md) | `18.65.0` | Hand in der Welt | **PLAN** Must |
-| 558 | [`sprint-558.md`](./sprint-558.md) | `18.66.0` | Gelenk | **PLAN** Must |
-| 559 | [`sprint-559.md`](./sprint-559.md) | `18.66.0` | Loslassen und Welt-Gate | **PLAN** Must |
+| 551 | [`sprint-551.md`](./sprint-551.md) | `18.62.0` | Kachel Welt | **CODE** Must |
+| 552 | [`sprint-552.md`](./sprint-552.md) | `18.62.0` | Auge der Welt | **CODE** Must |
+| 553 | [`sprint-553.md`](./sprint-553.md) | `18.63.0` | Ursprung | **CODE** Must |
+| 554 | [`sprint-554.md`](./sprint-554.md) | `18.63.0` | Zwei Anker | **CODE** Must |
+| 555 | [`sprint-555.md`](./sprint-555.md) | `18.64.0` | Boden | **CODE** Must |
+| 556 | [`sprint-556.md`](./sprint-556.md) | `18.64.0` | Stoß | **CODE** Must |
+| 557 | [`sprint-557.md`](./sprint-557.md) | `18.65.0` | Hand in der Welt | **CODE** Must |
+| 558 | [`sprint-558.md`](./sprint-558.md) | `18.66.0` | Gelenk | **CODE** Must |
+| 559 | [`sprint-559.md`](./sprint-559.md) | `18.66.0` | Loslassen und Welt-Gate | **CODE** Must |
 
 Sprints 431–466 sind im Test-Build enthalten, der inzwischen `18.51.0` ist; die finale
 Geräte-/Release-Freigabe steht noch aus. Die Folgeschiene 467–482 ist in
@@ -573,21 +573,21 @@ Sprints 511–530 (Regeln, Effektabdeckung, Fidelity) stehen in
 Die Zahlen-Gates Coverage ≥70 % und 100 Gold-Karten ≥95 % sind nicht geschlossen.
 Sprints 531–550 (Master-Duel-Bedienung) stehen in
 [`../106-next.md`](../106-next.md), **CODE** für `18.52.0`–`18.60.0`.
-`engineStamp` ist `18.60.0-ygo-md`. Der Sideload ist `18.61.0`.
+`engineStamp` ist `18.60.0-ygo-md`. Der Sideload ist `18.66.0`.
 Sprints 551–559 (Welt auf der Kamera) stehen in
-[`../107-next.md`](../107-next.md), **PLAN** für `18.62.0`–`18.66.0`.
-Sie bauen noch keinen Code.
+[`../107-next.md`](../107-next.md), **CODE** in `18.66.0`.
+Die Geräteabnahme mit ARCore ist offen.
 
 `CODE*` bedeutet im lokalen APK-Test-Build enthalten, nicht auf Geräten
 abgenommen oder als jeweilige Produktversion freigegeben.
 
-**Stände:** Test-APK `18.60.0` / versionCode `186000`; finale Geräteabnahme
+**Stände:** Test-APK `18.66.0` / versionCode `186600`; ARCore-Geräteabnahme
 offen. Rework 444–466: [`../100-next.md`](../100-next.md). Gates 467–502:
 [`../101-next.md`](../101-next.md), [`../102-next.md`](../102-next.md),
 [`../103-next.md`](../103-next.md). Duell 503–530:
 [`../104-next.md`](../104-next.md), [`../105-next.md`](../105-next.md).
 Duell-Vorlage 531–550: [`../106-next.md`](../106-next.md), **CODE**.
-Welt 551–559: [`../107-next.md`](../107-next.md), **PLAN**.
+Welt 551–559: [`../107-next.md`](../107-next.md), **CODE** in `18.66.0`.
 Ältere Sprintfolgen bleiben historisch.
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `18.51.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `18.51` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.

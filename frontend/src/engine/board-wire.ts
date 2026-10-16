@@ -45,5 +45,8 @@ export async function wireFor(id: HomeAppId, now = new Date()): Promise<WireFram
   if (id === 'server') {
     return { id, label, lines: ['Server', 'HTTPS im LAN', 'Geräte und Abgleich.'] }
   }
+  if (id === 'welt') {
+    return { id, label, lines: ['Welt', 'Würfel bleiben im Zimmer', 'Eine Hand, acht Würfel.'] }
+  }
   return { id, label, lines: [label, 'Modul existiert', 'Simulation, nicht die Live-App.'] }
 }

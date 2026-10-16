@@ -1,6 +1,6 @@
 # Sprint 558 — Gelenk
 
-**Version:** `18.66.0` — **PLAN** Must
+**Version:** `18.66.0` — **CODE** Must
 
 **Plan:** [`../107-next.md`](../107-next.md)
 

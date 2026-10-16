@@ -1,6 +1,6 @@
 # 42 — Historischer Planungsindex
 
-> **Aktueller Stand:** Test-Build `18.60.0` / versionCode `186000`
+> **Aktueller Stand:** Test-Build `18.66.0` / versionCode `186600`
 > (Self-Play 503–510 und TCG-Subset 511–530 **CODE**); Geräteabnahme offen.
 > Maßgebliche Pläne: [`100-next.md`](./100-next.md) (444–466),
 > [`101-next.md`](./101-next.md) (467–482, Gates offen),
@@ -9,7 +9,7 @@
 > [`104-next.md`](./104-next.md) (503–510, CODE),
 > [`105-next.md`](./105-next.md) (511–530, CODE als Subset in `18.51.0`),
 > [`106-next.md`](./106-next.md) (531–550, CODE, Sideload `18.60.0`),
-> [`107-next.md`](./107-next.md) (551–559, PLAN, `18.62.0`–`18.66.0`).
+> [`107-next.md`](./107-next.md) (551–559, CODE, `18.66.0`).
 > Die folgenden älteren Einträge bewahren den damaligen Planungsstand; sie
 > sind keine aktuelle Lieferreihenfolge.
 
@@ -40,7 +40,7 @@ Hirn = Handy. PC = Werkzeug. **Aktuell konfigurierte Provider-Policy:** `engine/
 0-plan. **Yu-Gi-Oh!-Self-Play** [`104-next.md`](./104-next.md) — Sprints **503–510 CODE** in **`18.45.0`**; KI-Klon, Zugsuche, Dev-Umschalter, Nachweis/Verify.
 0-plan. **Yu-Gi-Oh! Regeln, Effekte, Kartentext** [`105-next.md`](./105-next.md) — Sprints **511–530 PLAN**, Zielversionen `18.46.0`–`18.51.0`; Regelkomplettheit, Effektabdeckung, Fidelity (PSCT/Errata).
 0-plan. **Yu-Gi-Oh! Master-Duel-Vorlage** [`106-next.md`](./106-next.md) — Sprints **531–550 CODE**, Sideload `18.60.0`; Aktivieren-Fenster, Ziele, Kettenstapel, Kampfphase, Zonenwahl, Pendel, Ritual, Deckeditor, Protokoll. Shop, Rangliste, Crafting, Solo-Gates, Sleeves und Replay bleiben draußen.
-0-plan. **Welt auf der Kamera** [`107-next.md`](./107-next.md) — Sprints **551–559 PLAN**, Ziel `18.62.0`–`18.66.0` nach Sideload `18.61.0`. Kachel Welt, Würfel als Anker im Zimmer, Boden, eine Hand, Gelenk. `Scanne den Raum` bleibt der Tischplatten-Scan.
+0-plan. **Welt auf der Kamera** [`107-next.md`](./107-next.md) — Sprints **551–559 CODE** in `18.66.0`. Kachel Welt, Würfel als Anker im Zimmer, Boden, eine Hand, Gelenk. `Scanne den Raum` bleibt der Tischplatten-Scan. Die Geräteabnahme mit ARCore ist offen.
 0-plan. **Robustere Projektplanung** [`103-next.md`](./103-next.md) — Sprints **495–502 Vorschlag/PLAN**, Zielversionen `18.39.0`–`18.41.0`; Backlog-/Sprint-Trennung, Abhängigkeiten, optionale Zeitplanung, Risiken/Status, Provenienz, Revision-Diff und verlustfreie Projektdateien.
 0-plan. **Hausstand nach dem Koppeln** [`hausstand-sync-plan.md`](./hausstand-sync-plan.md) — Vorgängerplan; Tablet-Server und Zeitstempel-Sync sind teilweise im Test-Build enthalten. Für den Ausbau gilt [`102-next.md`](./102-next.md).
 0-plan. **Formulierung egal** [`formulierung-plan.md`](./formulierung-plan.md) — unpriorisierter **PLAN**, noch nicht gebaut; vor Umsetzung mit Routing-Gate 467–470 abgleichen. S1 Kopplung, egal wie gesagt. S2 Jede vorhandene Aktion. S3 Unbekannt bleibt unbekannt.

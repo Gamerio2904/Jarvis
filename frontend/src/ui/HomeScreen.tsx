@@ -181,6 +181,14 @@ function AppGlyph({ id }: { id: HomeAppId }) {
       </svg>
     )
   }
+  if (id === 'welt') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" d="M12 4.2 19 8.2v7.6L12 19.8 5 15.8V8.2L12 4.2Z" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" d="M12 4.2v15.6M5 8.2l7 4 7-4" />
+      </svg>
+    )
+  }
   if (id === 'todos') {
     return (
       <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>

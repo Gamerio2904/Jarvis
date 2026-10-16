@@ -1,10 +1,10 @@
 # 107 — Welt auf der Kamera **PLAN** (`18.62`–`18.66`)
 
-**Planungsstand:** **PLAN**. Kein Code, keine `APP_VERSION`, kein APK.
-Der Boden ist der Sideload `18.61.0` (versionCode `186100`). `engineStamp`
-bleibt `18.60.0-ygo-md`. Ein Sprint wird gebaut, wenn jemand `Umsetzen` sagt.
-Gateway `go` heißt: der Sprint darf gebaut werden. Ein Geräte-No-Go setzt
-dieses Gateway auf `nogo` und hält die Nachfolger an.
+**Planungsstand:** **CODE** in `18.66.0` (versionCode `186600`). `engineStamp`
+bleibt `18.60.0-ygo-md`. Der Nachbau in `frontend/scripts/test-welt.mjs` trägt
+A4 bis A12. Ein Gerät mit ARCore hat diese Fassung noch nicht bestätigt.
+Ohne Flächen-Erkennung sagt die Zeile `ARCore fehlt` und es entsteht kein Würfel.
+L1 bis L4 bleiben. Ein Geräte-No-Go setzt das betroffene Gateway auf `nogo`.
 
 **Hülle:** [`plan-vorlage.md`](./plan-vorlage.md).
 
@@ -233,6 +233,10 @@ Die Hand ins Bild halten.
 Den Tischwürfel mit Daumen und Zeigefinger greifen, zum Stuhl führen, die Finger öffnen. Danach daneben greifen.
 
 `18.66.0`. Der getragene Würfel liegt danach auf dem Stuhl. Der andere liegt noch so da. Der Griff daneben schreibt `fehlgeschlagen`.
+
+## Stand der Prüfung
+
+`frontend/scripts/test-welt.mjs` setzt zwei Würfel, dreht nur die Kamera, lässt einen Würfel auf den Boden fallen, stößt einen zweiten dagegen, greift daneben und greift in Reichweite. `Scanne den Raum` bleibt der Tischplatten-Scan. Im Browser ohne ARCore öffnet die Kachel **Welt** die Fläche mit der Zeile `ARCore fehlt`, Schließen nimmt sie wieder weg. Die Datei `releases/Jarvis.apk` in diesem Zweig ist der Sideload `18.66.0` (versionCode `186600`). Ein Handy mit Flächen-Erkennung hat Würfel 1 auf dem Schreibtisch noch nicht bestätigt.
 
 ## Go, No-Go, Abbruch
 

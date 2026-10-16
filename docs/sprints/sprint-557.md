@@ -1,6 +1,6 @@
 # Sprint 557 — Hand in der Welt
 
-**Version:** `18.65.0` — **PLAN** Must
+**Version:** `18.65.0` — **CODE** Must
 
 **Plan:** [`../107-next.md`](../107-next.md)
 

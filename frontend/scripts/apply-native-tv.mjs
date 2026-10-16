@@ -58,6 +58,11 @@ const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
 mkdirSync(geoDest, { recursive: true })
 copyFileSync(join(geoSrc, 'JarvisGeoPlugin.java'), join(geoDest, 'JarvisGeoPlugin.java'))
 
+const weltSrc = join(root, 'native', 'welt')
+const weltDest = join(android, 'app/src/main/java/app/jarvis/welt')
+mkdirSync(weltDest, { recursive: true })
+copyFileSync(join(weltSrc, 'JarvisWeltPlugin.java'), join(weltDest, 'JarvisWeltPlugin.java'))
+
 const hausSrc = join(root, 'native', 'haus')
 const hausDest = join(android, 'app/src/main/java/app/jarvis/haus')
 mkdirSync(hausDest, { recursive: true })
@@ -168,6 +173,12 @@ for (const perm of perms) {
       `    <uses-permission android:name="${perm}" />\n</manifest>`,
     )
   }
+}
+if (!manifest.includes('com.google.ar.core')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    '    <uses-feature android:name="android.hardware.camera.ar" android:required="false" />\n    <meta-data android:name="com.google.ar.core" android:value="optional" />\n</manifest>',
+  )
 }
 if (!manifest.includes('android.hardware.camera')) {
   manifest = manifest.replace(
@@ -436,6 +447,12 @@ if (!gradle.includes("okhttp")) {
   gradle = gradle.replace(
     /dependencies\s*\{/,
     "dependencies {\n    implementation 'com.squareup.okhttp3:okhttp:4.12.0'",
+  )
+}
+if (!gradle.includes('com.google.ar:core')) {
+  gradle = gradle.replace(
+    /dependencies\s*\{/,
+    "dependencies {\n    implementation 'com.google.ar:core:1.46.0'",
   )
 }
 if (!gradle.includes('dadb')) {

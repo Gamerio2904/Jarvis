@@ -19,6 +19,19 @@ export async function handleApp(
 ): Promise<AppHit> {
   const intent = parseAppIntent(text)
   if (!intent) return { handled: false }
+  if (intent.kind === 'welt') {
+    const packed = packVerified({
+      domain: 'app',
+      intent: 'welt',
+      plan: 'welt',
+      label: 'Welt',
+      observation: { action: 'welt' },
+      verify: (obs) => obs.action === 'welt',
+      successReply: 'Welt ist offen.',
+      failReply: 'Welt nicht geöffnet.',
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'app' }
+  }
   if (intent.kind === 'ui') return handleUi(conversationId, intent.action)
   if (intent.kind === 'settings') return packOpenSettings(intent.topic)
   if (intent.kind === 'voice') {
