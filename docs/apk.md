@@ -1,11 +1,13 @@
-# Android-APK — Test-Build `18.60.0`
+# Android-APK — Test-Build `18.61.0`
 
-Test-Build **`18.60.0`** (versionCode `186000`), debug-signiert:
+Test-Build **`18.61.0`** (versionCode `186100`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`. Die
 Android-Geräteabnahme steht noch aus. Diese APK ist nur zum Testen gedacht,
 keine finale Release-Freigabe.
+
+**Neu in 18.61.0:** Einkauf, Todos mit Kalender-Erinnerung, Filme, eine Lage-Kachel, CarPlay-Standort, Schritt-Anleitungen, YouTube-Suchlink und die Server-Kachel (HTTPS, QR, vereinigter Hausstand). `engineStamp` bleibt `18.60.0-ygo-md`.
 
 **Neu in 18.60.0:** Yu-Gi-Oh!-Bedienung aus Plan 106 (Sprints 531–550) in
 einem Sideload. Aktivieren-Fenster OFF/AUTO/ON, Zielwahl, Kettenstapel,
