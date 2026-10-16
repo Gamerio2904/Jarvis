@@ -1025,6 +1025,12 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.51.2` | Startbildschirm, Sparring, Bot-Duell, Kartentexte, Beschwörung, Regeln, Spielmarken, Token, Link-Pfeile, versionCode `185102` | CODE; Sideload inzwischen `18.60.0`, [`yugioh-duel.md`](./yugioh-duel.md) |
 | `18.51.3` | Chat und Sprache nur in der offenen Werte-Leiste, versionCode `185103` | CODE; Sideload inzwischen `18.60.0`, [`yugioh-duel.md`](./yugioh-duel.md) |
 | `18.60.0` | Master-Duel-Bedienung, Sprints 531–550, versionCode `186000` | CODE + Test-APK; Geräteabnahme offen, [`106-next.md`](./106-next.md) |
+| `18.61.0` | Alltag, Server-Fläche, Schritt-Anleitungen, versionCode `186100` | CODE + Test-APK; [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.62.0` | Kachel Welt und leere Kamerawelt, Sprints 551–552, versionCode `186200` | PLAN, [`107-next.md`](./107-next.md) |
+| `18.63.0` | Ursprung und zwei Anker, Sprints 553–554, versionCode `186300` | PLAN, [`107-next.md`](./107-next.md) |
+| `18.64.0` | Boden und Stoß, Sprints 555–556, versionCode `186400` | PLAN, [`107-next.md`](./107-next.md) |
+| `18.65.0` | Hand in derselben Welt, Sprint 557, versionCode `186500` | PLAN, [`107-next.md`](./107-next.md) |
+| `18.66.0` | Gelenk, Loslassen, Welt-Gate, Sprints 558–559, versionCode `186600` | PLAN, [`107-next.md`](./107-next.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**
