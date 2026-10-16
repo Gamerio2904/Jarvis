@@ -61,6 +61,27 @@ export async function cancelEventNotifies(row: Pick<CalendarEvent, 'id' | 'remin
   for (const m of mins) await cancelNotify(eventNotifyId(row.id, m))
 }
 
+/** Todo-Deadline: Termin plus Benachrichtigung einen Tag und zwei Stunden davor. */
+export async function recordTodoDeadline(opts: {
+  title: string
+  date: string
+  time: string | null
+  conversationId?: string
+}): Promise<string> {
+  const time = opts.time || '18:00'
+  const [year, month, day] = opts.date.split('-').map((part) => Number(part))
+  const [hour, minute] = time.split(':').map((part) => Number(part))
+  const start = new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0)
+  const row = await addEvent({
+    title: opts.title,
+    start_at: start.toISOString(),
+    conversationId: opts.conversationId,
+    remind_offsets_min: [24 * 60, 2 * 60],
+  })
+  await scheduleEventNotifies(row)
+  return `${opts.date} ${time}`
+}
+
 export async function scheduleEventNotifies(row: CalendarEvent, now = Date.now()): Promise<string[]> {
   const upcoming = expandEvents([row], new Date(now - 60_000), new Date(now + 400 * 24 * 60 * 60_000))
   const next = upcoming.find((e) => new Date(e.start_at).getTime() > now)

@@ -2242,20 +2242,6 @@ function App() {
       goDock('calendar')
       return
     }
-    if (id === 'globe') {
-      setHomeOpen(false)
-      setSettingsPanelOpen(false)
-      setCalendarOpen(false)
-      setWatchlistOpen(false)
-      closeSheet('settings')
-      closeSheet('calendar')
-      closeSheet('watchlist')
-      closeVoice()
-      dropOverlayHistory()
-      setLageSession(true)
-      void patchSettings({ hud_force: true, hud_hidden: false, hud_view: 'globe' }).then((s) => setSettings(s))
-      return
-    }
     if (id === 'lage') {
       goDock('lage')
       return

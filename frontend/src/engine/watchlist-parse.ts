@@ -10,7 +10,7 @@ import { parseTeachIntent } from './teach-parse.ts'
 export type WatchListKind = 'watch' | 'favorite'
 
 export type WatchlistIntent =
-  | { kind: 'add'; list: WatchListKind; title: string }
+  | { kind: 'add'; list: WatchListKind; title: string; series?: boolean }
   | { kind: 'move'; list: WatchListKind; title?: string }
   | { kind: 'list'; list: WatchListKind }
   | { kind: 'show'; list: WatchListKind }
@@ -30,7 +30,7 @@ const DEDUPE_BARE =
 function cleanTitle(raw: string): string | null {
   let t = (raw || '')
     .replace(/[.!?]+$/g, '')
-    .replace(/\b(?:den|die|das|dem|den|ein|eine|einen|film|filme)\b/gi, ' ')
+    .replace(/\b(?:den|die|das|dem|den|ein|eine|einen|film|filme|serie|serien|series|staffel)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()
   if (!t || t.length < 2 || t.length > 80) return null
@@ -158,6 +158,14 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
   ) {
     return { kind: 'move', list: 'watch' }
   }
+  const moveFromList =
+    /^\s*(.+?)\s+von\s+der\s+(watchliste|lieblingsliste)\s+(?:auf|zu[rm]?)\s+(?:die\s+|der\s+|den\s+)?(lieblingsliste|lieblinge|watchliste)\s+(?:verschieben|schieben|packen|legen)\s*$/i.exec(t)
+  if (moveFromList) {
+    const title = cleanTitle(moveFromList[1])
+    const toFavorite = /liebling/i.test(moveFromList[3])
+    if (title) return { kind: 'move', list: toFavorite ? 'favorite' : 'watch', title }
+    return { kind: 'move', list: toFavorite ? 'favorite' : 'watch' }
+  }
   const moveNamed =
     /^\s*(?:verschieb(?:e)?|pack(?:e)?|leg(?:e)?)\s+(.+?)\s+(?:auf\s+(?:die\s+)?|zu\s+(?:den\s+)?)liebling/i.exec(t)
   if (moveNamed) {
@@ -175,9 +183,10 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
     /^\s*auf\s+(?:die\s+)?lieblingsliste\s+(.+)$/i.exec(t) ||
     /^\s*(.+)\s+auf\s+(?:die\s+)?lieblingsliste\s*$/i.exec(t)
   if (addFav) {
+    const series = /\b(?:serie|serien|series|staffel)\b/i.test(addFav[1])
     const title = cleanTitle(addFav[1])
     if (title && !/^(?:nee+|nein|nicht|lieber|doch|stattdessen)$/i.test(title)) {
-      return { kind: 'add', list: 'favorite', title }
+      return { kind: 'add', list: 'favorite', title, ...(series ? { series: true } : {}) }
     }
   }
 
@@ -187,8 +196,9 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
     /^\s*(.+)\s+(?:zu\s+der\s+watchliste|auf\s+die\s+(?:film)?liste)\s+hinzufügen\s*$/i.exec(t) ||
     /^\s*merk(?:e)?(?:\s+dir)?(?:\s+den\s+film)?\s+(.+)\s+zum\s+schauen\s*$/i.exec(t)
   if (addWatch) {
+    const series = /\b(?:serie|serien|series|staffel)\b/i.test(addWatch[1])
     const title = cleanTitle(addWatch[1])
-    if (title) return { kind: 'add', list: 'watch', title }
+    if (title) return { kind: 'add', list: 'watch', title, ...(series ? { series: true } : {}) }
   }
 
   return null

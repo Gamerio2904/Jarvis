@@ -48,7 +48,7 @@ export function WatchlistOverlay({
       <header className="watch-head">
         <div>
           <h2>{title}</h2>
-          <p>Wischen = Folie · Fertig schließt</p>
+          <p>Watchliste und Lieblinge · Fertig schließt</p>
         </div>
         <div className="watch-head-actions">
           <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>

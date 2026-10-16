@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
 import { getDriveHazards, getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from '../engine/drive.ts'
 import { haversineM } from '../engine/geo-lookup.ts'
+import { isFreshHereFix, rememberStoredFix } from '../engine/location-keep.ts'
 import { loadSettings } from '../engine/store.ts'
 import { readInterrupt, subscribeInterrupt } from '../engine/interrupt.ts'
 import {
@@ -12,7 +13,6 @@ import {
   screenPanToMap,
   prefetchTile,
   projectOnTiles,
-  readLastMapFix,
   settleZoom,
   tilesPending,
   tileUrl,
@@ -442,18 +442,20 @@ function FollowMap({
   )
 }
 
-function seedLiveFix(): MapFix {
-  const last = readLastMapFix()
+function seedLiveFix(): MapFix | null {
+  const s = loadSettings()
+  const fresh = isFreshHereFix(s.last_lat, s.last_lon, s.last_fix_at)
+  if (fresh) return { lat: fresh.lat, lon: fresh.lon }
   const route = getDriveRoute()
   if (
     route &&
-    (route.coords.length || route.minutes > 0) &&
     Number.isFinite(route.fromLat) &&
-    Number.isFinite(route.fromLon)
+    Number.isFinite(route.fromLon) &&
+    (route.fromLat !== route.destLat || route.fromLon !== route.destLon)
   ) {
     return { lat: route.fromLat, lon: route.fromLon }
   }
-  return last || { lat: 48.78, lon: 9.18 }
+  return null
 }
 
 function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string {
@@ -477,7 +479,9 @@ export function DriveMode({
   const [route, setRoute] = useState<DriveRoute | null>(() => getDriveRoute())
   const [tab, setTab] = useState<DriveTab>(() => getDriveTab())
   const [here, setHere] = useState<{ lat: number; lon: number } | null>(null)
-  const liveRef = useRef<MapFix>(seedLiveFix())
+  const seeded = seedLiveFix()
+  const [ready, setReady] = useState(Boolean(seeded))
+  const liveRef = useRef<MapFix>(seeded || { lat: 0, lon: 0 })
   const hudAt = useRef(0)
   const [now, setNow] = useState<SpotifyNow | null>(() => getSpotifyNow())
   const [player, setPlayer] = useState<SpotifyPlayerStatus>(() => getSpotifyPlayerStatus())
@@ -522,8 +526,10 @@ export function DriveMode({
   useEffect(() => {
     if (here) return
     if (!route) return
-    if (!route.coords.length && route.minutes <= 0) return
+    if (!Number.isFinite(route.fromLat) || !Number.isFinite(route.fromLon)) return
+    if (route.fromLat === route.destLat && route.fromLon === route.destLon) return
     liveRef.current = { ...liveRef.current, lat: route.fromLat, lon: route.fromLon }
+    setReady(true)
   }, [route, here])
   useEffect(
     () =>
@@ -567,10 +573,12 @@ export function DriveMode({
         bearing: pos.bearing ?? liveRef.current.bearing,
         speed: pos.speed ?? liveRef.current.speed,
       }
+      rememberStoredFix(pos.lat, pos.lon)
       const t = Date.now()
       if (t - hudAt.current > 220) {
         hudAt.current = t
         setHere({ lat: pos.lat, lon: pos.lon })
+        setReady(true)
       }
       void refreshDriveRoute(raw).then((guide) => {
         maybeSpeakHazard(pos)
@@ -695,12 +703,16 @@ export function DriveMode({
 
   return (
     <div className="drive-view" role="dialog" aria-labelledby="drive-title">
-      <FollowMap
-        destLat={route?.destLat ?? liveRef.current.lat}
-        destLon={route?.destLon ?? liveRef.current.lon}
-        coords={route?.coords || []}
-        live={liveRef}
-      />
+      {ready ? (
+        <FollowMap
+          destLat={route?.destLat ?? liveRef.current.lat}
+          destLon={route?.destLon ?? liveRef.current.lon}
+          coords={route?.coords || []}
+          live={liveRef}
+        />
+      ) : (
+        <p className="drive-key-hint">Standort wird ermittelt …</p>
+      )}
       <header className="drive-bar">
         <div>
           <p className="settings-kicker">CarPlay</p>

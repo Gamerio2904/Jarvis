@@ -53,7 +53,7 @@ function AppGlyph({ id }: { id: HomeAppId }) {
       </svg>
     )
   }
-  if (id === 'globe' || id === 'lage') {
+  if (id === 'lage') {
     return (
       <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
         <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" strokeWidth="1.8" />

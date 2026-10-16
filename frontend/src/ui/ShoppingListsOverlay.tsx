@@ -44,31 +44,25 @@ function ShopItemRow({
   const got = item.status !== 'open'
 
   const onDown = (e: PointerEvent<HTMLElement>) => {
-    if (got) {
-      longPressed.current = false
-      startX.current = e.clientX
-      startY.current = e.clientY
-      e.currentTarget.setPointerCapture(e.pointerId)
-      pressTimer.current = window.setTimeout(() => {
-        longPressed.current = true
-        onLongPress(item.id)
-      }, LONG_PRESS_MS)
-      return
-    }
-    if (reduced) return
-    dragging.current = true
+    longPressed.current = false
     startX.current = e.clientX
+    startY.current = e.clientY
     e.currentTarget.setPointerCapture(e.pointerId)
+    pressTimer.current = window.setTimeout(() => {
+      longPressed.current = true
+      dragging.current = false
+      setDx(0)
+      onLongPress(item.id)
+    }, LONG_PRESS_MS)
+    if (got || selecting || reduced) return
+    dragging.current = true
   }
   const onMove = (e: PointerEvent<HTMLElement>) => {
-    if (got && pressTimer.current) {
-      if (Math.abs(e.clientX - startX.current) > 12 || Math.abs(e.clientY - startY.current) > 12) {
-        window.clearTimeout(pressTimer.current)
-        pressTimer.current = 0
-      }
-      return
+    if (pressTimer.current && (Math.abs(e.clientX - startX.current) > 12 || Math.abs(e.clientY - startY.current) > 12)) {
+      window.clearTimeout(pressTimer.current)
+      pressTimer.current = 0
     }
-    if (!dragging.current) return
+    if (!dragging.current || selecting) return
     e.preventDefault()
     setDx(e.clientX - startX.current)
   }
@@ -77,7 +71,11 @@ function ShopItemRow({
       window.clearTimeout(pressTimer.current)
       pressTimer.current = 0
     }
-    if (!dragging.current || got) return
+    if (longPressed.current || selecting || !dragging.current) {
+      dragging.current = false
+      setDx(0)
+      return
+    }
     dragging.current = false
     try {
       e.currentTarget.releasePointerCapture(e.pointerId)
@@ -119,7 +117,7 @@ function ShopItemRow({
           longPressed.current = false
           return
         }
-        if (got && selecting) onToggleSelection(item.id)
+        if (selecting) onToggleSelection(item.id)
       }}
     >
       <div className="shop-card-main">
@@ -133,10 +131,10 @@ function ShopItemRow({
         <div className="shop-card-body">
           <h3>{item.title}</h3>
           {item.price_text ? <p className="shop-card-price">{item.price_text}</p> : null}
-          {got ? (
-            <p className="shop-card-hint">
-              {selecting ? (selected ? 'Ausgewählt · tippen zum Abwählen' : 'Tippen zum Auswählen') : 'Gedrückt halten zum Auswählen'}
-            </p>
+          {selecting ? (
+            <p className="shop-card-hint">{selected ? 'Ausgewählt · tippen zum Abwählen' : 'Tippen zum Auswählen'}</p>
+          ) : got ? (
+            <p className="shop-card-hint">Gedrückt halten zum Auswählen</p>
           ) : reduced ? (
             <div className="shop-card-actions">
               <button type="button" className="ghost-btn" onClick={() => onGot(item.id)}>
@@ -147,7 +145,7 @@ function ShopItemRow({
               </button>
             </div>
           ) : (
-            <p className="shop-card-hint">{got ? 'Erledigt' : 'Links abhaken · Rechts löschen'}</p>
+            <p className="shop-card-hint">Links abhaken · Rechts löschen · Gedrückt halten zum Auswählen</p>
           )}
         </div>
       </div>
@@ -306,7 +304,7 @@ export function ShoppingListsOverlay({
                 ← Listen
               </button>
               <h2>{detail.name}</h2>
-              <p>Wischen = abhaken oder löschen · Erledigte gedrückt halten</p>
+              <p>Wischen hakt ab oder löscht · Gedrückt halten wählt mehrere</p>
             </div>
             <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>
               Fertig
@@ -314,7 +312,7 @@ export function ShoppingListsOverlay({
           </header>
           {selectedDone.length ? (
             <div className="shop-selection-bar">
-              <span>{selectedDone.length} erledigte ausgewählt</span>
+              <span>{selectedDone.length} ausgewählt</span>
               <button type="button" className="ghost-btn" onClick={() => void deleteSelectedDone()}>
                 Löschen
               </button>

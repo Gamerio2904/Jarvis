@@ -73,6 +73,7 @@ const FILM_ALIAS: Array<[RegExp, string]> = [
   [/star\s*wars\s*(?:episode\s*)?(?:5|v|fünf|fuenf)\b/i, 'Star Wars: Episode V'],
   [/star\s*wars\s*(?:episode\s*)?(?:6|vi|sechs)\b/i, 'Star Wars: Episode VI'],
   [/ingl(?:orious|ourious)\s*bast[ae]rd+s?\b/i, 'Inglourious Basterds'],
+  [/gentlem[ae]n/i, 'The Gentlemen'],
 ]
 
 function filmKeyOf(title: string): string {
@@ -125,20 +126,23 @@ async function omdbBy(params: URLSearchParams): Promise<Record<string, unknown> 
 export async function lookupOmdb(
   title: string,
   year?: number,
+  kind: 'movie' | 'series' = 'movie',
 ): Promise<{ ok: true; hit: OmdbHit } | { ok: false; message: string; needKey?: boolean }> {
   const key = loadSettings().omdb_api_key.trim()
   if (!key) {
     return { ok: false, needKey: true, message: KEY_HINT }
   }
   const names = expandFilmTitle(title)
+  const order: Array<'movie' | 'series'> = kind === 'series' ? ['series', 'movie'] : ['movie', 'series']
   try {
+    for (const type of order) {
     for (const name of names) {
       const q = new URLSearchParams({
         apikey: key,
         t: name.slice(0, 80),
         tomatoes: 'true',
         plot: 'short',
-        type: 'movie',
+        type,
       })
       if (year && year > 1900 && year < 2100) q.set('y', String(year))
       const json = await omdbBy(q)
@@ -155,10 +159,11 @@ export async function lookupOmdb(
       const hit = json ? fromOmdb(json) : null
       if (hit) return { ok: true, hit }
     }
+    }
     const search = new URLSearchParams({
       apikey: key,
       s: names[0].slice(0, 80),
-      type: 'movie',
+      type: order[0],
     })
     const found = await omdbBy(search)
     const rows = found && Array.isArray(found.Search) ? found.Search : []

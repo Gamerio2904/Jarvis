@@ -8,6 +8,7 @@ import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-
 import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse.ts'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo.ts'
 import { memoryAspect } from './memory-layer.ts'
+import { isFreshHereFix } from './location-keep.ts'
 import { listMemory, loadSettings, saveSettings } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 import {
@@ -346,11 +347,6 @@ function emptyRoute(dest: string, destLat: number, destLon: number, fromLat: num
   }
 }
 
-function cacheNearDest(lat: number, lon: number, destLat: number, destLon: number): boolean {
-  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) < 0.2) return false
-  return haversineM({ lat, lon, place: '' }, { lat: destLat, lon: destLon }) < 8_000
-}
-
 export async function beginDriveTo(
   destName: string,
   destLat: number,
@@ -363,17 +359,14 @@ export async function beginDriveTo(
   const granted = await requestLocationPermission()
   const here = granted ? await readDeviceLocation() : { ok: false as const, lat: undefined, lon: undefined }
   if (!here.ok || here.lat == null || here.lon == null) {
-    const kept = lastFix || {
-      lat: Number(loadSettings().last_lat),
-      lon: Number(loadSettings().last_lon),
-    }
-    const fromOk = cacheNearDest(kept.lat, kept.lon, destLat, destLon)
+    const s = loadSettings()
+    const fresh = isFreshHereFix(s.last_lat, s.last_lon, s.last_fix_at)
     active = {
       dest: destName,
       destLat,
       destLon,
-      fromLat: fromOk ? kept.lat : destLat,
-      fromLon: fromOk ? kept.lon : destLon,
+      fromLat: fresh?.lat ?? Number.NaN,
+      fromLon: fresh?.lon ?? Number.NaN,
       coords: [],
       minutes: 0,
       meters: 0,

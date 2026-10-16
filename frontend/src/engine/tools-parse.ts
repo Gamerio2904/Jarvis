@@ -16,7 +16,7 @@ export type ToolIntent =
 
 const TODO_WRITE = /^\s*(?:todo|to-?do|aufgabe)\b(?!n\b)(?![sS])\s*(?!anzeigen\b|liste\b)[:-]?\s*(.+)$/is
 const NOTE_WRITE =
-  /^\s*(?:notiz(?!en\b)|notiere|notiz:|schreib(?:e)?\s+auf|merke\s+als\s+notiz)\s*[:-]?\s*(.+)$/is
+  /^\s*(?:neue\s+)?(?:notiz(?!en\b)|notiere|schreib(?:e)?\s+auf|merke\s+als\s+notiz)\s*[:-]?\s*(.+)$/is
 const LIST_PREFIX =
   /^\s*(?:setz(?:e)?|pack(?:e)?|tu)\s+(?:das\s+)?(?:auf\s+die\s+liste|auf\s+die\s+todos?)[:\s]+(.+)$/is
 const MUST_DO = /^\s*ich\s+muss\s+(?:noch\s+)?(?!(?:los|sagen|mal|kurz|weg|pennen|schlafen)\b)(?!.+\b(?:kaufen|holen|besorgen)\s*$)(.{4,})$/is
@@ -37,12 +37,18 @@ function localDate(date: Date): string {
 }
 
 export function parseLocalDeadline(text: string): { date: string; time: string | null; remaining: string } | null {
-  const match = /\b(?:bis|am)\s+(morgen|heute|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2})|(?:\s*Uhr)?))?/i.exec(text)
+  const match = /\b(?:bis|am)\s+(?:(nächste[rn]?\s+woche|kommende[rn]?\s+woche)\s+|(?:nächste[rn]?|kommende[rn]?)\s+)?(morgen|heute|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2})|(?:\s*Uhr)?))?/i.exec(text)
   if (!match) return null
   const now = new Date()
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const day = match[1].toLocaleLowerCase()
-  if (day === 'morgen') date.setDate(date.getDate() + 1)
+  const day = match[2].toLocaleLowerCase()
+  const nextWeek = Boolean(match[1])
+  if (nextWeek && day !== 'morgen' && day !== 'heute' && day !== 'übermorgen') {
+    const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
+    const target = days.indexOf(day)
+    const toMonday = (8 - date.getDay()) % 7 || 7
+    date.setDate(date.getDate() + toMonday + (target === 0 ? 6 : target - 1))
+  } else if (day === 'morgen') date.setDate(date.getDate() + 1)
   else if (day === 'übermorgen') date.setDate(date.getDate() + 2)
   else if (day !== 'heute') {
     const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
@@ -50,9 +56,9 @@ export function parseLocalDeadline(text: string): { date: string; time: string |
     date.setDate(date.getDate() + ((target - date.getDay() + 7) % 7 || 7))
   }
   let time: string | null = null
-  if (match[2]) {
-    const hour = Number(match[2])
-    const minute = match[3] ? Number(match[3]) : 0
+  if (match[3]) {
+    const hour = Number(match[3])
+    const minute = match[4] ? Number(match[4]) : 0
     if (hour > 23 || minute > 59) return null
     time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
   }
