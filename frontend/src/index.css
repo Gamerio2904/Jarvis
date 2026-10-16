@@ -8438,8 +8438,29 @@ html.theme-wipe-dark::before {
   border-bottom: 0;
 }
 
-.app.is-planning .main.is-home {
+.app.is-plan-chat .main.is-home {
   padding-right: 22%;
+}
+
+.plan-chat-switch {
+  position: fixed;
+  top: 88px;
+  right: 0;
+  z-index: 60;
+  min-height: 88px;
+  width: 36px;
+  border: 1px solid var(--border);
+  border-right: 0;
+  border-radius: 12px 0 0 12px;
+  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  color: var(--text);
+  writing-mode: vertical-rl;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 650;
+  cursor: pointer;
 }
 
 .gui-stage {
@@ -8448,9 +8469,13 @@ html.theme-wipe-dark::before {
   top: 0;
   left: 0;
   bottom: 0;
-  right: 22%;
+  right: 0;
   background: linear-gradient(180deg, #161a22, #0c1016);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.is-plan-chat .gui-stage {
+  right: 22%;
 }
 
 .gui-widget {

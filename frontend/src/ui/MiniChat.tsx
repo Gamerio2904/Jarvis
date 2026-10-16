@@ -42,6 +42,13 @@ export function MiniChat({
       if (!busy) onSend()
     }
   }
+  if (dock === 'plan' && !open) {
+    return (
+      <button type="button" className="plan-chat-switch" aria-pressed={false} onClick={onToggle}>
+        Chat
+      </button>
+    )
+  }
   return (
     <div className={`mini-chat${open ? ' is-open' : ''}${dock === 'plan' ? ' is-plan-dock' : ''}`}>
       {open ? (
@@ -52,11 +59,15 @@ export function MiniChat({
               <button type="button" className="ghost-btn" onClick={onExpand}>
                 Groß
               </button>
-              {dock === 'plan' ? null : (
-                <button type="button" className="ghost-btn" onClick={onToggle} aria-label="Chat zuklappen">
-                  Zu
-                </button>
-              )}
+              <button
+                type="button"
+                className="ghost-btn"
+                onClick={onToggle}
+                aria-pressed={dock === 'plan' ? true : undefined}
+                aria-label={dock === 'plan' ? 'Chat aus' : 'Chat zuklappen'}
+              >
+                {dock === 'plan' ? 'Aus' : 'Zu'}
+              </button>
             </div>
           </header>
           <div className="mini-chat-log">

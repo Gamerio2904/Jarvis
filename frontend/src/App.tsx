@@ -349,6 +349,7 @@ function App() {
   const [railOpen, setRailOpen] = useState(false)
   const [lageSideChat, setLageSideChat] = useState(false)
   const [miniChatOpen, setMiniChatOpen] = useState(false)
+  const [planChatOn, setPlanChatOn] = useState(true)
   const [voiceCompact, setVoiceCompact] = useState(false)
   const [watchlistOpen, setWatchlistOpen] = useState(false)
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
@@ -2349,6 +2350,17 @@ function App() {
   }
   launchHomeRef.current = launchHomeApp
 
+  const planningBoard =
+    homeOpen &&
+    Boolean(liveHud.tischplatte_on) &&
+    (liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') &&
+    !driveOpen &&
+    !chessOpen
+  useEffect(() => {
+    document.body.classList.toggle('is-plan-chat', planningBoard && planChatOn)
+    return () => document.body.classList.remove('is-plan-chat')
+  }, [planningBoard, planChatOn])
+
   useEffect(() => {
     const on = Boolean(liveHud.tischplatte_on)
     const prev = tischWasRef.current
@@ -2381,7 +2393,7 @@ function App() {
   }, [liveHud.scan_json])
 
   return (
-    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${tabletOn ? ' is-tablet-mode' : ''}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}${(liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-planning' : ''}${liveHud.tischplatte_view === 'sim' && (liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-gui-sim' : ''}`} ref={appRef}>
+    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${tabletOn ? ' is-tablet-mode' : ''}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}${(liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-planning' : ''}${planningBoard && planChatOn ? ' is-plan-chat' : ''}${liveHud.tischplatte_view === 'sim' && (liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-gui-sim' : ''}`} ref={appRef}>
       <UltronIntro />
       <FensterSheet
         ownKind={ownFensterKind()}
@@ -3234,11 +3246,11 @@ function App() {
           </GlanceRail>
         </>
       ) : null}
-      {(liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') && !driveOpen && !chessOpen ? (
+      {planningBoard ? (
         <MiniChat
           dock="plan"
-          open
-          onToggle={() => setMiniChatOpen(true)}
+          open={planChatOn}
+          onToggle={() => setPlanChatOn((v) => !v)}
           onExpand={() => {
             setMiniChatOpen(false)
             goDock('chat')

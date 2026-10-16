@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.1` — Chat rechts nur in der Planung — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.1`** (versionCode `186601`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Der Chat rechts erscheint nur, wenn die Planungstafel offen ist (`plan_phase` live oder go). **Aus** schaltet ihn aus, **Chat** schaltet ihn wieder ein. Ausgeschaltet gibt die Tafel die volle Breite frei.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.66.0` — Welt auf der Kamera 551–559 — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.0`** (versionCode `186600`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
@@ -17,7 +25,7 @@ App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.61.0
 
 Einkauf liest die Liste auch bei „noch“, Todos mit Wochentag landen im Kalender mit Erinnerung einen Tag und zwei Stunden vorher, Notizen bleiben im Wortlaut, Filme verschieben sich auch bei Tippfehlern. Eine Lage-Kachel. CarPlay setzt den Standort nicht auf das Ziel. Anleitungen kommen als Step 1, Step 2. Ein Video-Linkwunsch liefert einen YouTube-Suchlink. Die Server-Kachel startet den HTTPS-Hausstand, koppelt per QR und vereinigt fehlende Einträge.
 
-Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.0`.
+Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.1`.
 
 ## `18.60.0` — Yu-Gi-Oh! Master-Duel-Bedienung 531–550 — *CODE + TEST-APK*
 

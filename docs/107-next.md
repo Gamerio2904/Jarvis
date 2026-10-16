@@ -236,7 +236,7 @@ Den Tischwürfel mit Daumen und Zeigefinger greifen, zum Stuhl führen, die Fing
 
 ## Stand der Prüfung
 
-`frontend/scripts/test-welt.mjs` setzt zwei Würfel, dreht nur die Kamera, lässt einen Würfel auf den Boden fallen, stößt einen zweiten dagegen, greift daneben und greift in Reichweite. `Scanne den Raum` bleibt der Tischplatten-Scan. Im Browser ohne ARCore öffnet die Kachel **Welt** die Fläche mit der Zeile `ARCore fehlt`, Schließen nimmt sie wieder weg. Der Sideload `releases/Jarvis.apk` ist `18.66.0` (versionCode `186600`). Ein Handy mit Flächen-Erkennung hat Würfel 1 auf dem Schreibtisch noch nicht bestätigt.
+`frontend/scripts/test-welt.mjs` setzt zwei Würfel, dreht nur die Kamera, lässt einen Würfel auf den Boden fallen, stößt einen zweiten dagegen, greift daneben und greift in Reichweite. `Scanne den Raum` bleibt der Tischplatten-Scan. Im Browser ohne ARCore öffnet die Kachel **Welt** die Fläche mit der Zeile `ARCore fehlt`, Schließen nimmt sie wieder weg. Der Sideload `releases/Jarvis.apk` ist `18.66.1` (versionCode `186601`). Ein Handy mit Flächen-Erkennung hat Würfel 1 auf dem Schreibtisch noch nicht bestätigt.
 
 ## Go, No-Go, Abbruch
 

@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** App-Code, UI und Test-APK **`18.66.0`**, versionCode `186600`; Android-Geräteabnahme mit ARCore offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, `engineStamp` `18.60.0-ygo-md`) steht in [`106-next.md`](./106-next.md) als **CODE**. Die Welt auf der Kamera (Sprints 551–559) steht in [`107-next.md`](./107-next.md) als **CODE** und ist der Sideload `18.66.0`. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** App-Code, UI und Test-APK **`18.66.1`**, versionCode `186601`; Android-Geräteabnahme mit ARCore offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, `engineStamp` `18.60.0-ygo-md`) steht in [`106-next.md`](./106-next.md) als **CODE**. Die Welt auf der Kamera (Sprints 551–559) steht in [`107-next.md`](./107-next.md) als **CODE**. Der Sideload ist `18.66.1`. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1030,7 +1030,8 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.63.0` | Ursprung und zwei Anker, Sprints 553–554, versionCode `186300` | CODE, im Sideload `18.66.0` enthalten, [`107-next.md`](./107-next.md) |
 | `18.64.0` | Boden und Stoß, Sprints 555–556, versionCode `186400` | CODE, im Sideload `18.66.0` enthalten, [`107-next.md`](./107-next.md) |
 | `18.65.0` | Hand in derselben Welt, Sprint 557, versionCode `186500` | CODE, im Sideload `18.66.0` enthalten, [`107-next.md`](./107-next.md) |
-| `18.66.0` | Welt auf der Kamera, Sprints 551–559 in einem Sideload, versionCode `186600` | CODE + Test-APK; Geräteabnahme mit ARCore offen, [`107-next.md`](./107-next.md) |
+| `18.66.0` | Welt auf der Kamera, Sprints 551–559 in einem Sideload, versionCode `186600` | CODE; Sideload inzwischen `18.66.1`, [`107-next.md`](./107-next.md) |
+| `18.66.1` | Chat rechts nur auf der Planungstafel, an und aus, versionCode `186601` | CODE + Test-APK, [`CHANGELOG.md`](./CHANGELOG.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**
