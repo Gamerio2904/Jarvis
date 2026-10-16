@@ -10,6 +10,10 @@ export type WeltPlaneSample = {
   nz: number
   hx: number
   hz: number
+  qx?: number
+  qy?: number
+  qz?: number
+  qw?: number
 }
 
 export type WeltSample = {

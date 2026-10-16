@@ -1,10 +1,13 @@
 /** Gewicht, Boden, Stoß. Ruhende Würfel schlafen, bis sie etwas trifft. */
 
 import {
+  BODEN_GRENZE,
   CUBE_EDGE,
   CUBE_HALF,
   CUBE_MASS,
+  aufRechteck,
   type V3,
+  type WeltCamera,
   type WeltCube,
   type WeltPlane,
   type WeltSession,
@@ -24,14 +27,14 @@ function cloneCube(c: WeltCube): WeltCube {
   }
 }
 
-function floorY(cube: WeltCube, planes: WeltPlane[]): number | null {
+function floorY(cube: WeltCube, planes: WeltPlane[], camera: WeltCamera | null): number | null {
   let best: number | null = null
   for (const plane of planes) {
     if (plane.normal.y < 0.5) continue
-    if (Math.abs(cube.position.x - plane.point.x) > plane.halfX + CUBE_HALF) continue
-    if (Math.abs(cube.position.z - plane.point.z) > plane.halfZ + CUBE_HALF) continue
+    if (!aufRechteck(plane, cube.position.x, cube.position.z, CUBE_HALF)) continue
     const y = plane.point.y
     if (cube.position.y + CUBE_EDGE < y) continue
+    if (camera && plane.id !== 'blick' && camera.position.y - y > BODEN_GRENZE) continue
     if (best === null || y > best) best = y
   }
   return best
@@ -65,10 +68,33 @@ function separate(a: WeltCube, b: WeltCube): boolean {
   return true
 }
 
-function land(cube: WeltCube, planes: WeltPlane[], held: boolean): void {
-  const y = floorY(cube, planes)
-  if (y === null) return
-  if (cube.position.y - CUBE_HALF > y) return
+function land(cube: WeltCube, planes: WeltPlane[], held: boolean, camera: WeltCamera | null): void {
+  const y = floorY(cube, planes, camera)
+  if (y === null) {
+    if (held || !camera || cube.state === 'liegt') return
+    const limit = camera.position.y - BODEN_GRENZE
+    if (cube.position.y - CUBE_HALF >= limit) return
+    cube.position.y = limit + CUBE_HALF
+    if (cube.velocity.y < 0) cube.velocity.y = 0
+    cube.velocity.x *= 0.5
+    cube.velocity.z *= 0.5
+    if (Math.hypot(cube.velocity.x, cube.velocity.z) < 0.08) {
+      cube.velocity.x = 0
+      cube.velocity.y = 0
+      cube.velocity.z = 0
+      cube.state = 'liegt'
+    }
+    return
+  }
+  const gap = cube.position.y - CUBE_HALF - y
+  if (!held && cube.state === 'liegt' && gap > 0.02 && gap <= 0.7) {
+    cube.position.y = y + CUBE_HALF
+    cube.velocity.x = 0
+    cube.velocity.y = 0
+    cube.velocity.z = 0
+    return
+  }
+  if (gap > 0) return
   cube.position.y = y + CUBE_HALF
   if (cube.velocity.y < 0) cube.velocity.y = 0
   if (held) return
@@ -123,14 +149,20 @@ export function schritt(s: WeltSession, dt: number): WeltSession {
       if (held && s.hand) spring(cube, s.hand, h)
       else if (cube.state !== 'liegt') fall(cube, h)
     }
-    for (const cube of objects) land(cube, s.planes, cube.id === s.heldId || cube.id === s.dragId)
+    for (const cube of objects) {
+      if (cube.id === s.dragId) continue
+      land(cube, s.planes, cube.id === s.heldId, s.camera)
+    }
     for (let i = 0; i < objects.length; i++) {
       for (let j = i + 1; j < objects.length; j++) {
         if (objects[i].id === s.dragId || objects[j].id === s.dragId) continue
         separate(objects[i], objects[j])
       }
     }
-    for (const cube of objects) land(cube, s.planes, cube.id === s.heldId || cube.id === s.dragId)
+    for (const cube of objects) {
+      if (cube.id === s.dragId) continue
+      land(cube, s.planes, cube.id === s.heldId, s.camera)
+    }
   }
   return { ...s, objects }
 }

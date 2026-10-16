@@ -15,7 +15,13 @@ export type WeltPlane = {
   normal: V3
   halfX: number
   halfZ: number
+  /** Drehung der Fläche. Ohne sie liegt das Rechteck in der Welt-XZ. */
+  rotation?: Q
 }
+
+/** Tisch vor der Kamera, nicht der Boden unter dem Bild. */
+export const TISCH_UNTER = 0.52
+export const BODEN_GRENZE = 1.05
 
 export type WeltCube = {
   id: string
@@ -82,6 +88,21 @@ export function norm(a: V3): V3 {
   const l = len(a)
   if (l < 1e-8) return v3()
   return scale(a, 1 / l)
+}
+
+/** Liegt der Punkt im Rechteck der Fläche, mit Rand in Metern. */
+export function aufRechteck(plane: WeltPlane, x: number, z: number, pad: number): boolean {
+  const dx = x - plane.point.x
+  const dz = z - plane.point.z
+  let lx = dx
+  let lz = dz
+  const q = plane.rotation
+  if (q && (Math.abs(q.x) > 1e-8 || Math.abs(q.y) > 1e-8 || Math.abs(q.z) > 1e-8)) {
+    const local = rot({ x: -q.x, y: -q.y, z: -q.z, w: q.w }, { x: dx, y: 0, z: dz })
+    lx = local.x
+    lz = local.z
+  }
+  return Math.abs(lx) <= plane.halfX + pad && Math.abs(lz) <= plane.halfZ + pad
 }
 
 export function rot(q: Q, v: V3): V3 {
@@ -157,8 +178,26 @@ export function setzeUrsprung(s: WeltSession, plane: WeltPlane): WeltSession {
 
 export function setzeFlaechen(s: WeltSession, planes: WeltPlane[]): WeltSession {
   if (!planes.length) return s.origin ? { ...s, planes: s.planes } : s
-  let next = s
-  for (const plane of planes) next = setzeUrsprung(next, plane)
+  const blick = s.planes.find((p) => p.id === 'blick')
+  let next: WeltSession = { ...s, planes: blick ? [blick] : [] }
+  for (const plane of planes) {
+    if (!next.origin) {
+      const kept = next.planes
+      next = setzeUrsprung(next, plane)
+      if (kept.length && !next.planes.some((p) => p.id === 'blick')) {
+        next = { ...next, planes: [...kept, ...next.planes.filter((p) => p.id !== 'blick')] }
+      }
+      continue
+    }
+    next = {
+      ...next,
+      planes: next.planes.some((p) => p.id === plane.id)
+        ? next.planes.map((p) => (p.id === plane.id ? plane : p))
+        : [...next.planes, plane],
+      tracker: true,
+      probed: true,
+    }
+  }
   return next
 }
 
@@ -192,21 +231,132 @@ export function legeAuge(s: WeltSession, width: number, height: number): WeltSes
   }
 }
 
-/** Würfel vor die Kamera. Die Lage bleibt, bis Griff oder Schieben sie ändert. */
+function naechsteFlaeche(cam: WeltCamera, planes: WeltPlane[]): V3 | null {
+  const dir = norm(add(rot(cam.rotation, v3(0, 0, -1)), rot(cam.rotation, v3(0, -0.38, 0))))
+  let bestT = Infinity
+  let best: V3 | null = null
+  for (const plane of planes) {
+    if (plane.id === 'blick' || plane.normal.y < 0.5) continue
+    if (cam.position.y - plane.point.y > BODEN_GRENZE) continue
+    const denom = dot(plane.normal, dir)
+    if (Math.abs(denom) < 1e-5) continue
+    const t = dot(plane.normal, sub(plane.point, cam.position)) / denom
+    if (t < 0.2 || t > 2.3 || t >= bestT) continue
+    const p = add(cam.position, scale(dir, t))
+    if (!aufRechteck(plane, p.x, p.z, 0.2)) continue
+    bestT = t
+    best = p
+  }
+  return best
+}
+
+/** Punkt auf dem Tisch vor der Kamera, im unteren Blick, nicht unter dem Bild. */
+export function tischPunkt(cam: WeltCamera, planes: WeltPlane[]): V3 {
+  const hit = naechsteFlaeche(cam, planes)
+  if (hit) return hit
+  const dir = norm(rot(cam.rotation, v3(0, -0.28, -1)))
+  return add(cam.position, scale(dir, 0.78))
+}
+
+/** Hält eine Fläche im Blick, bis eine echte Tischfläche da ist. */
+export function mitTisch(s: WeltSession): WeltSession {
+  if (!s.camera) return s
+  const cam = s.camera
+  const real = s.planes.filter((p) => p.id !== 'blick')
+  const hit = naechsteFlaeche(cam, real)
+  if (hit) {
+    if (!s.planes.some((p) => p.id === 'blick') && s.origin) return s
+    return {
+      ...s,
+      planes: real,
+      origin: s.origin ?? { ...hit },
+      tracker: true,
+      probed: true,
+    }
+  }
+  const point = tischPunkt(cam, real)
+  const existing = s.planes.find((p) => p.id === 'blick')
+  const belegt =
+    existing &&
+    s.objects.some((c) => Math.hypot(c.position.x - existing.point.x, c.position.z - existing.point.z) < 1.3)
+  const anchor = belegt && existing ? existing.point : point
+  if (
+    existing &&
+    Math.abs(existing.point.x - anchor.x) < 1e-4 &&
+    Math.abs(existing.point.y - anchor.y) < 1e-4 &&
+    Math.abs(existing.point.z - anchor.z) < 1e-4 &&
+    s.origin
+  ) {
+    return s
+  }
+  const blick: WeltPlane = {
+    id: 'blick',
+    point: { x: anchor.x, y: anchor.y, z: anchor.z },
+    normal: v3(0, 1, 0),
+    halfX: 1.15,
+    halfZ: 1.15,
+  }
+  const planes = existing ? s.planes.map((p) => (p.id === 'blick' ? blick : p)) : [...s.planes, blick]
+  return {
+    ...s,
+    planes,
+    origin: s.origin ?? { ...anchor },
+    tracker: true,
+    probed: true,
+  }
+}
+
+/** Tippen trifft den Tisch im Blick, nicht den Boden unter dem Bild. */
+export function tischAnBlick(s: WeltSession, nx: number, ny: number): V3 | null {
+  const cam = s.camera
+  if (!cam || s.tracking === 'weg') return null
+  const nah = s.planes.filter((p) => p.id === 'blick' || cam.position.y - p.point.y <= BODEN_GRENZE)
+  const dirCam = norm({
+    x: (nx * cam.cx) / (cam.fx || cam.fy),
+    y: (ny * cam.cy) / cam.fy,
+    z: -1,
+  })
+  const dir = rot(cam.rotation, dirCam)
+  let bestT = Infinity
+  let best: V3 | null = null
+  for (const plane of nah) {
+    const denom = dot(plane.normal, dir)
+    if (Math.abs(denom) < 1e-5) continue
+    const t = dot(plane.normal, sub(plane.point, cam.position)) / denom
+    if (t < 0.12 || t >= bestT) continue
+    const p = add(cam.position, scale(dir, t))
+    if (!aufRechteck(plane, p.x, p.z, 0.05)) continue
+    bestT = t
+    best = p
+  }
+  if (best) return best
+  if (dir.y > -0.02) return tischPunkt(cam, nah)
+  const y = cam.position.y - TISCH_UNTER
+  const t = (y - cam.position.y) / dir.y
+  if (t < 0.15 || t > 3.2) return tischPunkt(cam, nah)
+  return add(cam.position, scale(dir, t))
+}
+
+/** Würfel liegt auf dem Tisch vor der Kamera. */
 export function fuegeWuerfel(s: WeltSession): WeltSession {
-  if (!s.camera || !s.origin || s.objects.length >= MAX_CUBES) return s
-  const i = s.objects.length
-  const ahead = add(s.camera.position, rot(s.camera.rotation, v3((i % 3) * 0.14 - 0.14, -0.2, -0.7)))
+  const base = s.camera ? mitTisch(s) : s
+  if (!base.camera || !base.origin || base.objects.length >= MAX_CUBES) return s
+  const point = tischPunkt(base.camera, base.planes)
+  const i = base.objects.length
   const n = i + 1
   const cube: WeltCube = {
     id: `w${n}`,
     anchorId: `a${n}`,
-    position: ahead,
+    position: {
+      x: point.x + (i % 3) * 0.12 - 0.12,
+      y: point.y + CUBE_HALF,
+      z: point.z,
+    },
     rotation: { ...IDENT },
     velocity: v3(),
     state: 'liegt',
   }
-  return { ...s, objects: [...s.objects, cube], note: '' }
+  return { ...base, objects: [...base.objects, cube], note: '' }
 }
 
 export function schiebe(s: WeltSession, id: string, position: V3): WeltSession {
@@ -223,18 +373,47 @@ export function schiebe(s: WeltSession, id: string, position: V3): WeltSession {
 }
 
 export function setzen(s: WeltSession, point: V3): WeltSession {
-  if (!s.tracker || !s.origin) return s
-  if (s.objects.length >= MAX_CUBES) return s
-  const n = s.objects.length + 1
+  let next = s.camera ? mitTisch(s) : s
+  if ((!next.tracker || !next.origin) && !next.camera) return s
+  if (next.objects.length >= MAX_CUBES) return s
+  const deckt = (p: WeltPlane) =>
+    p.normal.y >= 0.5 &&
+    aufRechteck(p, point.x, point.z, CUBE_HALF) &&
+    (!next.camera || p.id === 'blick' || next.camera.position.y - p.point.y <= BODEN_GRENZE)
+  if (!next.planes.some(deckt)) {
+    const blick: WeltPlane = {
+      id: 'blick',
+      point: { x: point.x, y: point.y, z: point.z },
+      normal: v3(0, 1, 0),
+      halfX: 1.15,
+      halfZ: 1.15,
+    }
+    next = {
+      ...next,
+      origin: next.origin ?? { ...point },
+      tracker: true,
+      probed: true,
+      planes: [...next.planes.filter((p) => p.id !== 'blick'), blick],
+    }
+  }
+  if (!next.tracker || !next.origin) return s
+  let yPlane: number | null = null
+  for (const p of next.planes) {
+    if (!deckt(p) && !(p.id === 'blick' && aufRechteck(p, point.x, point.z, CUBE_HALF))) continue
+    if (p.normal.y < 0.5) continue
+    if (!aufRechteck(p, point.x, point.z, CUBE_HALF)) continue
+    if (yPlane === null || p.point.y > yPlane) yPlane = p.point.y
+  }
+  const n = next.objects.length + 1
   const cube: WeltCube = {
     id: `w${n}`,
     anchorId: `a${n}`,
-    position: { x: point.x, y: point.y + 0.22, z: point.z },
+    position: { x: point.x, y: (yPlane ?? point.y) + CUBE_HALF, z: point.z },
     rotation: { ...IDENT },
     velocity: v3(),
-    state: 'fällt',
+    state: 'liegt',
   }
-  return { ...s, objects: [...s.objects, cube], note: '' }
+  return { ...next, objects: [...next.objects, cube], note: '' }
 }
 
 /** Nur die Kamera wechselt. Lagen und Drehungen bleiben. */

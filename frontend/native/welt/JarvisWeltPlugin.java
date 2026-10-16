@@ -31,6 +31,7 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.CameraIntrinsics;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
+import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
@@ -39,6 +40,7 @@ import com.google.ar.core.exceptions.UnavailableException;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 @CapacitorPlugin(
         name = "JarvisWelt",
@@ -203,7 +205,50 @@ public class JarvisWeltPlugin extends Plugin {
                         row.put("nz", pn[2]);
                         row.put("hx", plane.getExtentX() * 0.5f);
                         row.put("hz", plane.getExtentZ() * 0.5f);
+                        float[] pq = center.getRotationQuaternion();
+                        row.put("qx", pq[0]);
+                        row.put("qy", pq[1]);
+                        row.put("qz", pq[2]);
+                        row.put("qw", pq[3]);
                         planes.put(row);
+                    }
+                    try {
+                        float[] origin = pose.getTranslation();
+                        float[] dir = pose.rotateVector(new float[]{0f, -0.42f, -1f});
+                        float len = (float) Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+                        if (len > 1e-4f) {
+                            dir[0] /= len;
+                            dir[1] /= len;
+                            dir[2] /= len;
+                            List<HitResult> hits = frame.hitTest(origin, 0, dir, 0);
+                            int n = 0;
+                            for (HitResult hit : hits) {
+                                if (n >= 3 || hit.getDistance() < 0.2f || hit.getDistance() > 2.4f) continue;
+                                Pose hp = hit.getHitPose();
+                                float[] up = hp.getYAxis();
+                                if (up[1] < 0.72f) continue;
+                                float[] pt = hp.getTranslation();
+                                JSObject row = new JSObject();
+                                row.put("id", "h" + n);
+                                row.put("px", pt[0]);
+                                row.put("py", pt[1]);
+                                row.put("pz", pt[2]);
+                                row.put("nx", up[0]);
+                                row.put("ny", up[1]);
+                                row.put("nz", up[2]);
+                                row.put("hx", 0.45f);
+                                row.put("hz", 0.45f);
+                                float[] hq = hp.getRotationQuaternion();
+                                row.put("qx", hq[0]);
+                                row.put("qy", hq[1]);
+                                row.put("qz", hq[2]);
+                                row.put("qw", hq[3]);
+                                planes.put(row);
+                                n++;
+                            }
+                        }
+                    } catch (RuntimeException ignored) {
+                        /* Der Strahl trifft keine Fläche. */
                     }
                     snap.put("planes", planes);
                 }

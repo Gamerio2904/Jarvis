@@ -1,12 +1,14 @@
-# Android-APK — Test-Build `18.66.3`
+# Android-APK — Test-Build `18.66.4`
 
-Test-Build **`18.66.3`** (versionCode `186603`), debug-signiert:
+Test-Build **`18.66.4`** (versionCode `186604`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
+
+**Neu in 18.66.4:** Der Würfel ist massiv und leuchtet an den Kanten. Er bleibt auf der Fläche im Blick, statt nach unten aus dem Bild zu fallen. Über der Hand liegt das Tracking-Gitter. Die Leiste unten ist auf der Welt aus.
 
 **Neu in 18.66.3:** Der Kalender zeigt die Tage auf einen Blick, ohne Scrollen. Oben bleiben Monat, Woche, Heute und ICS klein. Einträge lassen sich ziehen. Eine Deadline-Aufgabe verschwindet aus dem Kalender, wenn sie abgehakt oder gelöscht wird, und umgekehrt. „bis Freitag nächste Woche 10 Uhr Hausaufgaben erledigen“ heißt „Hausaufgaben erledigen“ um 10:00.
 

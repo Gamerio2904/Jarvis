@@ -1,6 +1,6 @@
 /** Flächen, Anker, Kameralage. Tests füttern denselben Schnitt mit einem festen Ablauf. */
 
-import { add, dot, norm, rot, scale, sub, type V3, type WeltCamera, type WeltPlane, type WeltSession } from './welt.ts'
+import { add, aufRechteck, dot, norm, rot, scale, sub, type V3, type WeltCamera, type WeltPlane, type WeltSession } from './welt.ts'
 
 export type TrackerProbe = {
   available: boolean
@@ -32,8 +32,7 @@ export function strahlTreffer(s: WeltSession, nx: number, ny: number): V3 | null
     const t = dot(plane.normal, sub(plane.point, origin)) / denom
     if (t < 0.05 || t >= bestT) continue
     const p = add(origin, scale(dir, t))
-    if (Math.abs(p.x - plane.point.x) > plane.halfX) continue
-    if (Math.abs(p.z - plane.point.z) > plane.halfZ) continue
+    if (!aufRechteck(plane, p.x, p.z, 0)) continue
     bestT = t
     best = p
   }

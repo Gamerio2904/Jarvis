@@ -2393,7 +2393,7 @@ function App() {
   }, [liveHud.scan_json])
 
   return (
-    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${tabletOn ? ' is-tablet-mode' : ''}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}${(liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-planning' : ''}${planningBoard && planChatOn ? ' is-plan-chat' : ''}${liveHud.tischplatte_view === 'sim' && (liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-gui-sim' : ''}`} ref={appRef}>
+    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${weltLayer.shown ? ' is-welt' : ''}${tabletOn ? ' is-tablet-mode' : ''}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}${(liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-planning' : ''}${planningBoard && planChatOn ? ' is-plan-chat' : ''}${liveHud.tischplatte_view === 'sim' && (liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-gui-sim' : ''}`} ref={appRef}>
       <UltronIntro />
       <FensterSheet
         ownKind={ownFensterKind()}

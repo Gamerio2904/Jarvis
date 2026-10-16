@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.4` — Würfel auf dem Tisch, Handgitter, ohne untere Leiste — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.4`** (versionCode `186604`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Der Würfel ist ein gefüllter Körper mit Kantenlicht. Er liegt auf der Fläche im Blick und fällt nicht unter den Bildrand, auch wenn der Boden weiter unten liegt. Eine erkannte Tischfläche trägt ihn. Über der Hand liegt das Tracking-Gitter. Die untere Navigationsleiste ist auf der Welt zu. Die Abnahme auf einem ARCore-Gerät bleibt offen.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.66.3` — Kalender ohne Scroll, Ziehen, Deadline — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.3`** (versionCode `186603`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
@@ -41,7 +49,7 @@ App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.61.0
 
 Einkauf liest die Liste auch bei „noch“, Todos mit Wochentag landen im Kalender mit Erinnerung einen Tag und zwei Stunden vorher, Notizen bleiben im Wortlaut, Filme verschieben sich auch bei Tippfehlern. Eine Lage-Kachel. CarPlay setzt den Standort nicht auf das Ziel. Anleitungen kommen als Step 1, Step 2. Ein Video-Linkwunsch liefert einen YouTube-Suchlink. Die Server-Kachel startet den HTTPS-Hausstand, koppelt per QR und vereinigt fehlende Einträge.
 
-Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.3`.
+Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.4`.
 
 ## `18.60.0` — Yu-Gi-Oh! Master-Duel-Bedienung 531–550 — *CODE + TEST-APK*
 

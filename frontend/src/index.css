@@ -11454,6 +11454,10 @@ html[data-device='desktop'] .messages {
   color: #ff8d8d;
 }
 
+.app.is-welt .nav-dock {
+  display: none;
+}
+
 .welt-overlay.watch-overlay,
 .app.has-nav-dock .welt-overlay.watch-overlay,
 .app.has-nav-dock.is-kb .welt-overlay.watch-overlay {
