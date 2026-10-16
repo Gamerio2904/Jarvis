@@ -219,7 +219,9 @@ assert.equal(pickRoute('Neues Projekt: Haushaltsbuch'), 'idea')
 assert.equal(pickRoute('Lösche den Plan'), 'idea')
 
 const blank = await handleIdea('c', 'Neues Projekt')
-assert.equal(blank.reply, 'Was soll geplant werden?')
+assert.equal(blank.reply, 'Neue Datei angelegt. Wie möchten Sie das Projekt betiteln?')
+assert.equal(loadSettings().plan_phase, 'live')
+assert.equal(loadSettings().plan_spar_step, 'title')
 assert.equal((await listPortfolio()).length, 0)
 
 const made = await handleIdea('c', 'Neues Projekt: Haushaltsbuch')

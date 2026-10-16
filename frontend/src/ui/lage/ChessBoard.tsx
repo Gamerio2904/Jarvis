@@ -1,21 +1,54 @@
-/** Eigene Silhouetten. Die Systemschrift auf dem Tablet hat die Schachzeichen oft nicht, dann bleibt nur das Karo. */
+/** Eigene, grobe Staunton-Silhouetten. Keine fremden SVG-Pfade. */
 function Piece({ code }: { code: string }) {
   const white = code === code.toUpperCase()
-  const fill = white ? '#f4f1ea' : '#12160f'
-  const stroke = white ? '#12160f' : '#f4f1ea'
+  const fill = white ? '#f7f4ee' : '#14110e'
   const kind = code.toLowerCase()
   return (
-    <svg className="chess-glyph" viewBox="0 0 40 40" aria-hidden>
-      <g fill={fill} stroke={stroke} strokeWidth="1.4" strokeLinejoin="round">
-        {kind === 'p' ? <circle cx="20" cy="16" r="6" /> : null}
-        {kind === 'r' ? <path d="M10 12h4v4h3v-4h6v4h3v-4h4v16H10z" /> : null}
-        {kind === 'n' ? <path d="M12 28c2-10 4-14 10-16 2 4 1 6-1 8 4 0 8 2 8 6H14c0-2 2-4 4-4-3 1-5 3-6 6z" /> : null}
-        {kind === 'b' ? <path d="M20 8c5 6 7 10 7 14a7 7 0 0 1-14 0c0-4 2-8 7-14z" /> : null}
-        {kind === 'q' ? <path d="M8 28l3-14 5 8 4-12 4 12 5-8 3 14z" /> : null}
-        {kind === 'k' ? (
-          <path d="M18 8h4v4h4v4h-4v4h-4v-4h-4v-4h4zM12 24h16l-2 6H14z" />
+    <svg className="chess-glyph" viewBox="0 0 80 80" aria-hidden>
+      <g fill={fill}>
+        {kind === 'p' ? (
+          <>
+            <circle cx="40" cy="18" r="12" />
+            <path d="M31 30c1 10 0 18-6 26h30c-6-8-7-16-6-26z" />
+            <path d="M18 62h44l-3 8H21z" />
+          </>
         ) : null}
-        <path d="M11 32h18v3H11z" />
+        {kind === 'r' ? (
+          <path d="M14 14h12v10h8V14h12v10h8V14h12v16H14zm6 16h40l-3 28H23zm-4 30h44v8H16z" />
+        ) : null}
+        {kind === 'n' ? (
+          <>
+            <path d="M22 70l6-20c2-14 8-22 6-32 4-6 14-8 18-2l8-10-2 14c10 2 16 12 12 22-4 2-8 0-10-4 6 8 2 16-4 20l-2 12H22z" />
+            <circle cx="48" cy="28" r="3" fill={white ? '#14110e' : '#f7f4ee'} />
+            <path d="M16 68h48v8H16z" />
+          </>
+        ) : null}
+        {kind === 'b' ? (
+          <>
+            <circle cx="40" cy="10" r="5" />
+            <path fillRule="evenodd" d="M40 16c14 12 18 22 18 30a18 18 0 0 1-36 0c0-8 4-18 18-30zm-3 16h6v16h-6z" />
+            <path d="M24 64h32l-3 8H27z" />
+          </>
+        ) : null}
+        {kind === 'q' ? (
+          <>
+            <circle cx="14" cy="20" r="5" />
+            <circle cx="28" cy="12" r="5" />
+            <circle cx="40" cy="8" r="5" />
+            <circle cx="52" cy="12" r="5" />
+            <circle cx="66" cy="20" r="5" />
+            <path d="M12 24l8 16h40l8-16-12 8-8-12-8 14-8-14-8 12z" />
+            <path d="M24 42h32l-4 22H28z" />
+            <path d="M16 66h48v8H16z" />
+          </>
+        ) : null}
+        {kind === 'k' ? (
+          <>
+            <path d="M34 4h12v10h10v12H46v10H34V26H24V14h10z" />
+            <path d="M22 40h36l-4 24H26z" />
+            <path d="M16 66h48v8H16z" />
+          </>
+        ) : null}
       </g>
     </svg>
   )

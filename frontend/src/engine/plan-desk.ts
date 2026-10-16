@@ -33,6 +33,7 @@ export function cannedRosterLine(text: string): boolean {
 
 /** Eine Frage je Schritt. Der Plan wächst aus der Antwort, nicht aus dem Titel. */
 export function sparQuestion(step: string): string {
+  if (step === 'title') return 'Wie möchten Sie das Projekt betiteln?'
   if (step === 'goal') return 'Was soll die App konkret können? Ein Satz reicht.'
   if (step === 'audience') return 'Für wen ist sie gedacht?'
   if (step === 'slice') return 'Was ist die erste nutzbare Scheibe, die in einem Sprint fertig wird?'

@@ -20,6 +20,8 @@ import { commitPortfolio, currentIdeaForTable, handlePortfolio, listPortfolio } 
 import { artLabel } from './entwurf-muster.ts'
 import { cannedPlanLine, cannedRosterLine, sparQuestion } from './plan-desk.ts'
 import { parseBoardIntent } from './board-parse.ts'
+import { applyGuiUtterance } from './gui-mock.ts'
+import { writeInternalProjectFile } from './project-file.ts'
 import { fallbackFromWork } from './entwurf-fill.ts'
 import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseIdeaIntent } from './idea-parse.ts'
@@ -287,6 +289,7 @@ async function planOntoTable(intent: AblaufIntent, raw = '', conversationId = ''
     ablauf_id: '',
     bot_ask_json: '',
   })
+  if (intent.kind === 'blank') return openBlankProject(conversationId)
   if (intent.kind === 'session') return openPlanningSession(intent.work, conversationId)
   if (intent.kind === 'open' && !intent.work) return 'Was soll geplant werden?'
   if (intent.kind === 'close') return closePlanningScreen(raw)
@@ -443,6 +446,19 @@ function formatSession(plan: IdeaPlan, title: string, cardName = ''): string {
   return bits.join(' ')
 }
 
+const BLANK_TITLE = 'Unbenannt'
+
+async function openBlankProject(conversationId = ''): Promise<string> {
+  const hit = await addIdea(BLANK_TITLE, '')
+  const plan = emptyPlan(hit.id, '')
+  const stored = { ...hit, title: BLANK_TITLE, body: '', plan }
+  await putIdea(stored)
+  await writeInternalProjectFile(hit.id, JSON.stringify({ id: hit.id, title: '', plan }, null, 2))
+  await showPlanning(stored, conversationId)
+  saveSettings({ plan_spar_step: 'title' })
+  return 'Neue Datei angelegt. Wie möchten Sie das Projekt betiteln?'
+}
+
 async function showPlanning(idea: Idea, conversationId = ''): Promise<void> {
   saveSettings({
     plan_phase: 'live',
@@ -498,7 +514,14 @@ async function advanceSpar(hit: Idea, plan: IdeaPlan, line: string, step: string
   let next = step
   let reply = ''
   let current = hit
-  if (step === 'goal') {
+  if (step === 'title') {
+    const title = line.replace(/[.!?]+$/g, '').trim().slice(0, 72)
+    if (title.length < 2) return 'Wie möchten Sie das Projekt betiteln?'
+    current = { ...current, title }
+    plan.bedingung = plan.bedingung && !thinWork(plan.bedingung) ? plan.bedingung : title
+    next = 'goal'
+    reply = `${title}. ${sparQuestion('goal')}`
+  } else if (step === 'goal') {
     plan.anforderungen = plan.anforderungen.filter((row) => row.id.startsWith('O'))
     plan.anforderungen.unshift({ id: 'A1', satz: line, abnahme: '', gateway: 'offen' })
     if (thinClause(current.title) || thinWork(current.title)) {
@@ -554,21 +577,68 @@ async function advanceSpar(hit: Idea, plan: IdeaPlan, line: string, step: string
   }
   dropCannedRoster(plan)
   await putIdea({ ...current, plan })
+  if (step === 'title') {
+    await writeInternalProjectFile(current.id, JSON.stringify({ id: current.id, title: current.title, plan }, null, 2))
+  }
   await showPlanning({ ...current, plan })
   saveSettings({ plan_spar_step: next, plan_idea_id: current.id })
   return reply
 }
 
+async function speakGui(text: string): Promise<string | null> {
+  if (!parseGuiUtteranceSafe(text)) return null
+  const hit = await ideaOnTable()
+  if (!hit) return 'Was soll geplant werden?'
+  const plan = hit.plan || emptyPlan(hit.id, hit.body || hit.title)
+  const applied = applyGuiUtterance(plan.simulation?.elements || [], text)
+  if (!applied) return null
+  const simulation = applied.elements.length
+    ? {
+        version: 1 as const,
+        kind: 'gui' as const,
+        title: 'Oberfläche',
+        elements: applied.elements,
+        assumptions: plan.simulation?.assumptions || [],
+        createdAt: new Date().toISOString(),
+      }
+    : plan.simulation
+  const next = { ...hit, plan: { ...plan, simulation } }
+  await putIdea(next)
+  saveSettings({
+    plan_phase: 'live',
+    plan_idea_id: hit.id,
+    tischplatte_on: true,
+    tischplatte_view: 'sim',
+    workbench_open: true,
+    plan_script_at: Date.now(),
+  })
+  return applied.reply
+}
+
+function parseGuiUtteranceSafe(text: string): boolean {
+  return applyGuiUtterance([], text) !== null
+}
+
 export async function sparPlan(text: string, conversationId = ''): Promise<string | null> {
-  if (loadSettings().plan_phase !== 'live' || !talkWorth(text)) return null
+  if (loadSettings().plan_phase !== 'live') return null
   if (conversationId && !ownsPlan(conversationId)) return null
+  const drawn = await speakGui(text)
+  if (drawn) return drawn
+  const step = loadSettings().plan_spar_step
+  if (step === 'title') {
+    const named = text.replace(/\s+/g, ' ').trim()
+    if (named.length < 2 || named.length > 80) return 'Wie möchten Sie das Projekt betiteln?'
+    const hit = await ideaOnTable()
+    if (!hit) return 'Was soll geplant werden?'
+    return advanceSpar(hit, hit.plan || emptyPlan(hit.id, hit.body || hit.title), named.slice(0, 160), 'title')
+  }
+  if (!talkWorth(text)) return null
   if (parseBoardIntent(text) || parseAblaufIntent(text) || deviceTalk(text)) return null
   if (/^\s*lade\b/i.test(text)) return null
   const hit = await ideaOnTable()
   if (!hit) return 'Was soll geplant werden?'
   const plan = hit.plan || emptyPlan(hit.id, hit.body || hit.title)
   const line = text.replace(/\s+/g, ' ').trim().slice(0, 160)
-  const step = loadSettings().plan_spar_step
   if (step) return advanceSpar(hit, plan, line, step)
   const same = (value: string) => value.replace(/[.?!,;:]+$/g, '').replace(/\s+/g, ' ').trim().toLowerCase()
   const known = plan.anforderungen.some((row) => same(row.satz) === same(line))
@@ -594,10 +664,10 @@ export async function sparPlan(text: string, conversationId = ''): Promise<strin
   return `Steht im Plan: ${line}.${tail} Der Planungsbildschirm bleibt offen.`
 }
 
-async function layNewProject(work: string): Promise<string> {
+async function layNewProject(work: string, conversationId = ''): Promise<string> {
   const text = work.replace(/\s+/g, ' ').trim()
-  if (text.length < 3) return 'Was soll geplant werden?'
-  return openPlanningSession(text)
+  if (text.length < 3) return openBlankProject(conversationId)
+  return openPlanningSession(text, conversationId)
 }
 
 async function writeProject(work: string, conversationId = ''): Promise<string> {
@@ -712,7 +782,7 @@ async function handleIdeaBody(
 
   const portfolio = parsePortfolioIntent(text)
   if (portfolio) {
-    if (portfolio.kind === 'create') return pack(await layNewProject(portfolio.work), 'portfolio')
+    if (portfolio.kind === 'create') return pack(await layNewProject(portfolio.work, conversationId), 'portfolio')
     const reply = await handlePortfolio(conversationId, portfolio)
     return pack(reply, 'portfolio')
   }
@@ -722,6 +792,7 @@ async function handleIdeaBody(
     ownsPlan(conversationId) ||
     table.kind === 'open' ||
     table.kind === 'session' ||
+    table.kind === 'blank' ||
     table.kind === 'screen' ||
     table.kind === 'close'
   if (table && tableHere) {
@@ -763,16 +834,7 @@ async function handleIdeaBody(
   }
 
   if (intent.kind === 'blank') {
-    saveSettings({
-      plan_phase: 'live',
-      plan_conversation_id: conversationId,
-      plan_script_at: Date.now(),
-      plan_idea_id: '',
-      tischplatte_on: true,
-      tischplatte_view: 'psp',
-      workbench_open: true,
-    })
-    return pack('Die leere Planung ist geöffnet. Welche App möchten Sie planen?', 'blank')
+    return pack(await openBlankProject(conversationId), 'blank')
   }
 
   if (intent.kind === 'create') {

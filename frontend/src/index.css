@@ -7067,7 +7067,7 @@ button.linkish {
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   grid-template-rows: auto 18px;
-  width: 280px;
+  width: min(92vw, 520px);
   max-width: 100%;
   gap: 4px;
 }
@@ -7124,9 +7124,17 @@ button.linkish {
 }
 
 .chess-glyph {
-  width: 78%;
-  height: 78%;
+  width: 86%;
+  height: 86%;
   display: block;
+}
+
+.chess-sq.w .chess-glyph {
+  filter: drop-shadow(0 1px 0 #1a140c) drop-shadow(0 0 1px #1a140c);
+}
+
+.chess-sq.b .chess-glyph {
+  filter: drop-shadow(0 0 1px #f4efe6) drop-shadow(0 1px 0 rgba(0, 0, 0, 0.45));
 }
 
 /* Figur füllt das Feld, egal ob Mini-Brett im Chat oder Overlay. */
@@ -7949,6 +7957,7 @@ html.theme-wipe-dark::before {
   gap: 18px 10px;
   padding: 4px 2px 28px;
   position: relative;
+  touch-action: none;
 }
 
 /* display:grid würde sonst das HTML-hidden überdecken — Icons lägen auf der Werkbank. */
@@ -7969,6 +7978,7 @@ html.theme-wipe-dark::before {
   min-width: 0;
   max-width: 100%;
   cursor: pointer;
+  touch-action: none;
 }
 
 .home-app-ico {
@@ -8406,6 +8416,83 @@ html.theme-wipe-dark::before {
   cursor: pointer;
 }
 
+.mini-chat.is-plan-dock {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: 22%;
+  z-index: 60;
+  display: flex;
+}
+
+.mini-chat.is-plan-dock .mini-chat-panel {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  height: 100%;
+  border-radius: 0;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.app.is-planning .main.is-home {
+  padding-right: 22%;
+}
+
+.gui-stage {
+  position: fixed;
+  z-index: 55;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 22%;
+  background: linear-gradient(180deg, #161a22, #0c1016);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gui-widget {
+  position: absolute;
+}
+
+.gui-widget.is-center {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.gui-widget.is-top-left { top: 16px; left: 16px; }
+.gui-widget.is-top-right { top: 16px; right: 16px; }
+.gui-widget.is-bottom-left { bottom: 16px; left: 16px; }
+.gui-widget.is-bottom-right { bottom: 16px; right: 16px; }
+
+.gui-board {
+  display: grid;
+  grid-template-columns: repeat(3, min(16vw, 72px));
+  grid-template-rows: repeat(3, min(16vw, 72px));
+  gap: 6px;
+  padding: 8px;
+  background: #243044;
+  border-radius: 12px;
+}
+
+.gui-board span {
+  background: #0e141c;
+  border-radius: 6px;
+}
+
+.gui-menu {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #2a3344;
+  color: #f4f7fb;
+  font: inherit;
+}
+
 .mini-chat-panel {
   width: min(300px, calc(100vw - 88px));
   max-height: min(420px, 58vh);
@@ -8638,6 +8725,21 @@ html.theme-wipe-dark::before {
   .mini-chat-panel {
     width: min(320px, 28vw);
     max-height: min(360px, 46vh);
+  }
+
+  .mini-chat.is-plan-dock {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+    width: 22%;
+  }
+
+  .mini-chat.is-plan-dock .mini-chat-panel {
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    height: 100%;
   }
 
   .voice-shortcut,

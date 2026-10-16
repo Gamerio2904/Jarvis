@@ -22,8 +22,12 @@ for (const [title, list] of Object.entries(decks)) {
     const extraKind = extraKindOf(card.frameType || '')
     if (!cardIndex.has(card.id)) {
       const parsed = /Normal/.test(card.type) ? null : effectFromDescription(card.desc || '')
-      const type = card.type
-      const kind = /spell/i.test(type) ? 'spell' : /trap/i.test(type) ? 'trap' : 'monster'
+      let type = card.type
+      let kind = /spell/i.test(type) ? 'spell' : /trap/i.test(type) ? 'trap' : 'monster'
+      if (card.name === 'Jar of Greed' && kind === 'trap') {
+        kind = 'spell'
+        type = 'Spell Card'
+      }
       cardIndex.set(card.id, {
         id: card.id, name: card.name, type, kind,
         ...(typeof card.atk === 'number' ? { atk: card.atk } : {}),

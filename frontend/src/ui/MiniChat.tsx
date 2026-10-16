@@ -18,6 +18,7 @@ export function MiniChat({
   pasteImage,
   onClearPaste,
   face,
+  dock,
 }: {
   open: boolean
   onToggle: () => void
@@ -32,6 +33,7 @@ export function MiniChat({
   pasteImage: { src: string; alt: string } | null
   onClearPaste: () => void
   face: 'ultron'
+  dock?: 'plan'
 }) {
   const recent = messages.slice(-6)
   function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -41,7 +43,7 @@ export function MiniChat({
     }
   }
   return (
-    <div className={`mini-chat${open ? ' is-open' : ''}`}>
+    <div className={`mini-chat${open ? ' is-open' : ''}${dock === 'plan' ? ' is-plan-dock' : ''}`}>
       {open ? (
         <div className="mini-chat-panel" role="dialog" aria-label="Kleiner Chat">
           <header className="mini-chat-bar">
@@ -50,9 +52,11 @@ export function MiniChat({
               <button type="button" className="ghost-btn" onClick={onExpand}>
                 Groß
               </button>
-              <button type="button" className="ghost-btn" onClick={onToggle} aria-label="Chat zuklappen">
-                Zu
-              </button>
+              {dock === 'plan' ? null : (
+                <button type="button" className="ghost-btn" onClick={onToggle} aria-label="Chat zuklappen">
+                  Zu
+                </button>
+              )}
             </div>
           </header>
           <div className="mini-chat-log">

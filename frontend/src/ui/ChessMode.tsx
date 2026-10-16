@@ -24,13 +24,26 @@ export function ChessMode({
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    playEngineIfBlack()
-    setFen(loadFen())
-    return subscribeChess(() => {
+    let cancel = false
+    const start = loadFen()
+    let timer = 0
+    if (!sideToMoveWhite(start)) {
+      timer = window.setTimeout(() => {
+        if (cancel) return
+        playEngineIfBlack()
+        setFen(loadFen())
+      }, 500 + Math.floor(Math.random() * 501))
+    }
+    const unsub = subscribeChess(() => {
       setFen(loadFen())
       setSelected(null)
       setTargets([])
     })
+    return () => {
+      cancel = true
+      window.clearTimeout(timer)
+      unsub()
+    }
   }, [])
 
   function pick(sq: string) {

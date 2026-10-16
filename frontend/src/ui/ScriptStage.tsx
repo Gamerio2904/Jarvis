@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { CATALOG_STAND } from '../engine/feature-catalog.ts'
 import { isTischplatteView } from '../engine/board-types.ts'
 import {
@@ -44,6 +45,19 @@ function renderSimulationElement(element: IdeaSimulationElement, index: number):
     return <article key={`${element.type}-${index}`}><h4>{element.title}</h4><p>{element.body}</p></article>
   }
   if (element.type === 'button') return <button key={`${element.type}-${index}`} type="button" disabled>{element.label}</button>
+  if (element.type === 'place') {
+    return (
+      <div key={`${element.type}-${index}`} className={`gui-widget is-${element.place}`}>
+        {element.kind === 'board' ? (
+          <div className="gui-board" aria-label={element.label}>
+            {Array.from({ length: 9 }, (_, cell) => <span key={cell} />)}
+          </div>
+        ) : (
+          <button type="button" className="gui-menu">{element.label}</button>
+        )}
+      </div>
+    )
+  }
   return (
     <div key={`${element.type}-${index}`} role="tablist" aria-label="Vorschau Tabs">
       {element.labels.map((label, tabIndex) => <button key={`${label}-${tabIndex}`} type="button" role="tab" aria-selected={element.selected === tabIndex} disabled>{label}</button>)}
@@ -192,6 +206,8 @@ export function ScriptStage({
           index === 0 ? { type: 'heading', text } : { type: 'text', text },
         ), ['Diese Vorschau verwendet nur feste, geprüfte Bausteine.'])
   const shownSimulation = proposedSimulation || baseSimulation
+  const placeWidgets = (idea?.plan?.simulation?.elements || []).filter((element) => element.type === 'place')
+  const spatialGui = stageView === 'sim' && (placeWidgets.length > 0 || !idea?.plan?.simulation)
 
   async function copyPrompt(n: string, prompt: string) {
     if (!prompt) return
@@ -585,6 +601,13 @@ export function ScriptStage({
                 </li>) : <li>Keine Entscheidungen erfasst.</li>}</ul>
               </section> : null}
             </>
+          ) : spatialGui ? (
+            createPortal(
+              <div className="gui-stage" aria-label="GUI-Simulation">
+                {placeWidgets.map((element, index) => renderSimulationElement(element, index))}
+              </div>,
+              document.body,
+            )
           ) : stageView === 'sim' || stageView === 'workflow' ? (
             <div className="script-simulation" aria-label={stageView === 'workflow' ? 'Ablauf-Simulation' : 'Oberflächenvorschau'}>
               <p className="script-simulation-badge">{stageView === 'workflow' ? 'Gedankliche Simulation — keine echte Ausführung' : 'Oberflächenvorschau — keine Live-App'}</p>

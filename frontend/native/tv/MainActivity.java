@@ -51,6 +51,7 @@ public class MainActivity extends BridgeActivity {
     public void onResume() {
         super.onResume();
         JarvisFensterPlugin.setFront(true);
+        JarvisFensterPlugin.hold(this);
         JarvisFensterService.start(this);
     }
 

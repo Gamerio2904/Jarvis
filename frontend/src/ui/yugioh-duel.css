@@ -1380,8 +1380,9 @@
 .ygo-zones-mid .ygo-slot:nth-child(1) { grid-column: 2; }
 .ygo-zones-mid .ygo-slot:nth-child(2) { grid-column: 4; }
 .ygo-zones-mid .ygo-slot.is-empty {
-  aspect-ratio: 5 / 1;
-  min-height: 18px;
+  aspect-ratio: auto;
+  min-height: 0;
+  height: 100%;
 }
 
 .ygo-mark,
@@ -1752,9 +1753,63 @@
 }
 
 .ygo-zones {
-  gap: 3px;
-  grid-template-rows: 0.7fr 1fr 0.26fr 0.26fr 1fr 0.7fr;
+  gap: 4px;
+  min-width: 0;
+  grid-template-rows:
+    minmax(56px, 1fr)
+    minmax(84px, 1.35fr)
+    minmax(72px, 1.15fr)
+    minmax(84px, 1.35fr)
+    minmax(56px, 1fr);
 }
+
+.ygo-endzone {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.ygo-endzone .ygo-slot {
+  width: 100%;
+}
+
+.ygo-scale-mark {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  z-index: 3;
+  pointer-events: none;
+  font-size: 9px;
+  line-height: 1.1;
+  text-align: center;
+  color: #e6c56a;
+  text-shadow: 0 1px 2px #000;
+}
+
+.ygo-spell-row {
+  grid-template-columns: 52px minmax(0, 1fr) 52px;
+}
+
+.ygo-spell-main {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ygo-spell-row .ygo-scale {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+}
+
+.ygo-mat > .ygo-lp.is-jarvis { grid-row: 1; }
+.ygo-mat > .ygo-field { grid-row: 2; }
+.ygo-mat > .ygo-inspect { grid-row: 2; align-self: end; z-index: 3; }
+.ygo-mat > .ygo-lp.is-player { grid-row: 3; }
 
 .ygo-slot,
 .ygo-hand-card,
@@ -1916,22 +1971,34 @@
 }
 
 .ygo-duel-log {
-  max-height: 4.5rem;
+  flex: 0 0 auto;
+  max-height: 2.8rem;
   overflow: auto;
   margin: 0;
   padding-left: 1.1rem;
   font-size: 12px;
+  line-height: 1.35;
+}
+
+.ygo-duel-log li {
+  white-space: normal;
+  overflow: visible;
 }
 
 .ygo-scale-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 8px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .ygo-scale {
-  width: 4.6rem;
-  min-height: 3.2rem;
+  width: min(4.2rem, 22%);
+  min-height: 0;
+  height: auto;
+  padding: 2px 4px;
   border: 1px dashed #c9a227;
   background: transparent;
   color: inherit;
@@ -1939,6 +2006,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-size: 10px;
+  line-height: 1.1;
 }
 
 .ygo-chain-stack {

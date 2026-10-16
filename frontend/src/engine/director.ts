@@ -23,6 +23,7 @@ import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
 import { handleIdea } from './idea.ts'
+import { parseGuiUtterance } from './gui-mock.ts'
 import { missedPlanSentence } from './ablauf-parse.ts'
 import { isDeepResearch } from './research-parse.ts'
 import { documentAsk, documentWithoutResearch, replyForHabit } from './work-flex.ts'
@@ -412,6 +413,16 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     return { hit: { reply: plainDoc, lastTool: 'habit' }, userFacts: plainDoc }
   }
   if (documentAsk(text)?.research) return { hit: null }
+
+  const planNow = loadSettings()
+  const planHereNow = !planNow.plan_conversation_id || planNow.plan_conversation_id === conversationId
+  if (planNow.plan_phase === 'live' && planHereNow && parseGuiUtterance(text)) {
+    const drawn = await handleIdea(conversationId, text)
+    if (drawn.handled && drawn.reply) {
+      setLastUserFacts(drawn.reply)
+      return { hit: { reply: drawn.reply, lastTool: 'idea', tool: drawn.tool }, userFacts: drawn.reply }
+    }
+  }
 
   const t0 = performance.now()
   const { pick, candidates: raw, ctx } = decideTurn(makeDirectorCtx(conversationId, text))

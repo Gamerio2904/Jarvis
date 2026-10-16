@@ -924,15 +924,11 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       summonFromHand(card, 'attack')
       return
     }
-    const problem = card.effect ? checkActivation(game, 'player', card.id) : null
-    if (card.effect && problem === null) {
+    if (card.kind === 'spell' && card.effect && checkActivation(game, 'player', card.id) === null) {
       activateIfPossible('player', card)
       return
     }
-    updateGame((current) => {
-      const placed = setSpellTrap(current, card.id)
-      return problem ? { ...placed, message: `${placed.message} ${problem}` } : placed
-    })
+    updateGame((current) => setSpellTrap(current, card.id))
   }
 
   function offerTribute(card: DuelCard) {
@@ -1075,66 +1071,30 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                     />
                   ))}
                 </div>
-                <div className="ygo-zones-mid" aria-label="Extra-Monsterzonen von Ultron">
-                  {[0, 1].map((index) => {
-                    const card = monsterAt(game.jarvis.monsters, 'emz', index)
-                    return (
-                      <PlayCard
-                        key={`jarvis-emz-${index}`}
-                        card={card}
-                        owner={game.jarvis}
-                        opponent={game.player}
-                        onClick={() => {
-                          if (!card) return
-                          if (game.selectedAttacker !== null) updateGame((current) => attack(current, card.id))
-                          else if (!card.faceDown) openCard('jarvis', 'monsters', card.id)
-                        }}
-                      />
-                    )
-                  })}
-                </div>
                 <div className="ygo-zones-mid" aria-label="Extra-Monsterzonen">
                   {[0, 1].map((index) => {
-                    const card = monsterAt(game.player.monsters, 'emz', index)
+                    const playerCard = monsterAt(game.player.monsters, 'emz', index)
+                    const jarvisCard = monsterAt(game.jarvis.monsters, 'emz', index)
+                    const card = playerCard || jarvisCard
+                    const own = Boolean(playerCard)
                     return (
                       <PlayCard
-                        key={`player-emz-${index}`}
+                        key={`emz-${index}`}
                         card={card}
-                        owner={game.player}
-                        opponent={game.jarvis}
-                        className={`${card && game.selectedAttacker === card.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${popClass(card)}${markedTarget(card)}${zoneChoice('emz', index) ? ' is-zone-choice' : ''}`}
-                        pickable={zoneChoice('emz', index)}
+                        owner={own ? game.player : game.jarvis}
+                        opponent={own ? game.jarvis : game.player}
+                        className={`${card && game.selectedAttacker === card.id ? ' is-selected' : ''}${card && tributeIds.includes(card.id) ? ' is-tribute' : ''}${popClass(card)}${markedTarget(card)}${own && zoneChoice('emz', index) ? ' is-zone-choice' : ''}`}
+                        pickable={own && zoneChoice('emz', index)}
                         onClick={() => {
-                          if (zoneChoice('emz', index)) { chooseZone('emz', index); return }
+                          if (own && zoneChoice('emz', index)) { chooseZone('emz', index); return }
                           if (!card) return
-                          if (game.pendingTarget?.candidates.includes(card.id)) { updateGame((current) => chooseChainTarget(current, card.id)); return }
-                          if (tributeFor !== null) offerTribute(card)
-                          else if (game.phase === 'battle') chooseAttacker(card)
-                          else openCard('player', 'monsters', card.id)
+                          if (own && game.pendingTarget?.candidates.includes(card.id)) { updateGame((current) => chooseChainTarget(current, card.id)); return }
+                          if (own && tributeFor !== null) offerTribute(card)
+                          else if (own && game.phase === 'battle') chooseAttacker(card)
+                          else if (game.selectedAttacker !== null && !own) updateGame((current) => attack(current, card.id))
+                          else if (!card.faceDown) openCard(own ? 'player' : 'jarvis', 'monsters', card.id)
                         }}
                       />
-                    )
-                  })}
-                </div>
-                <div className="ygo-scale-row">
-                  {[0, 1].map((slot) => {
-                    const scale = game.player.scales?.[slot] ?? null
-                    return (
-                      <button
-                        key={`scale-${slot}`}
-                        type="button"
-                        className="ygo-scale"
-                        onClick={() => {
-                          if (scale) { openCard('player', 'hand', scale.id); return }
-                          const card = focused?.pendulumScale != null ? focused : game.player.hand.find((item) => typeof item.pendulumScale === 'number')
-                          if (!card) { setNotice('Diese Karte hat keine Pendel-Skala. Es wird keine Skala erfunden.'); return }
-                          updateGame((current) => placePendulumScale(current, card.id, slot as 0 | 1))
-                        }}
-                      >
-                        <span>{slot === 0 ? 'Skala L' : 'Skala R'}</span>
-                        <strong>{typeof scale?.pendulumScale === 'number' ? scale.pendulumScale : '—'}</strong>
-                        <small>{scale?.name || 'Pendel'}</small>
-                      </button>
                     )
                   })}
                 </div>
@@ -1159,18 +1119,38 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
                   ))}
                 </div>
                 <div className="ygo-zones-row">
-                  {Array.from({ length: 5 }, (_, index) => game.player.spells[index] ?? null).map((card, index) => (
-                    <PlayCard
-                      key={`player-spell-${index}`}
-                      card={card}
-                      className={`${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}${popClass(card)}`}
-                      onClick={() => {
-                        if (!card) return
-                        if (canActivateCard(game, 'player', card.id)) activateIfPossible('player', card)
-                        else openCard('player', 'spells', card.id)
-                      }}
-                    />
-                  ))}
+                  {Array.from({ length: 5 }, (_, index) => {
+                    const spell = game.player.spells[index] ?? null
+                    const scaleSlot: 0 | 1 | null = index === 0 ? 0 : index === 4 ? 1 : null
+                    const scale = scaleSlot === null ? null : game.player.scales?.[scaleSlot] ?? null
+                    const card = scale ?? spell
+                    return (
+                      <div key={`player-spell-${index}`} className={`ygo-endzone${scaleSlot !== null ? ' is-scale' : ''}`}>
+                        <PlayCard
+                          card={card}
+                          owner={scale ? game.player : undefined}
+                          opponent={scale ? game.jarvis : undefined}
+                          pickable={scaleSlot !== null && !card}
+                          className={`${card && canActivateCard(game, 'player', card.id) ? ' is-glow' : ''}${popClass(card)}`}
+                          onClick={() => {
+                            if (scale) { openCard('player', 'hand', scale.id); return }
+                            if (spell) {
+                              if (canActivateCard(game, 'player', spell.id)) activateIfPossible('player', spell)
+                              else openCard('player', 'spells', spell.id)
+                              return
+                            }
+                            if (scaleSlot === null) return
+                            const pendulum = focused?.pendulumScale != null ? focused : game.player.hand.find((item) => typeof item.pendulumScale === 'number')
+                            if (!pendulum) { setNotice('Diese Karte hat keine Pendel-Skala. Es wird keine Skala erfunden.'); return }
+                            updateGame((current) => placePendulumScale(current, pendulum.id, scaleSlot))
+                          }}
+                        />
+                        {scaleSlot !== null ? (
+                          <span className="ygo-scale-mark">{scaleSlot === 0 ? 'Skala L' : 'Skala R'}{typeof scale?.pendulumScale === 'number' ? ` ${scale.pendulumScale}` : ''}</span>
+                        ) : null}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
               <div className="ygo-piles">

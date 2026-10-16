@@ -229,6 +229,7 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
 
   function onPointerDown(event: PointerEvent<HTMLButtonElement>, index: number) {
     if (event.button !== 0 || !layout.cells[index]) return
+    event.preventDefault()
     const hold = window.setTimeout(() => {
       const current = drag.current
       if (!current || current.from !== index || current.dragging) return
@@ -252,7 +253,7 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     const current = drag.current
     if (!current || event.pointerId !== current.pointerId) return
     const distance = Math.hypot(event.clientX - current.x, event.clientY - current.y)
-    if (!current.dragging && distance > 8) {
+    if (!current.dragging && distance > 6) {
       current.dragging = true
       window.clearTimeout(current.hold)
     }
@@ -275,7 +276,9 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     drag.current = null
     setGhost(null)
     setHover(null)
+    const moved = Math.hypot(event.clientX - current.x, event.clientY - current.y) > 6
     if (!current.dragging) {
+      if (moved) return
       const cell = layout.cells[current.from]
       if (!cell) return
       if (cell.kind === 'app') onOpen(cell.id)
@@ -302,7 +305,14 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
           onPointerDown={(event) => onPointerDown(event, index)}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerCancel={(event) => {
+            const current = drag.current
+            if (!current || event.pointerId !== current.pointerId) return
+            window.clearTimeout(current.hold)
+            drag.current = null
+            setGhost(null)
+            setHover(null)
+          }}
         >
           <span className={`home-app-ico${cell.kind === 'folder' ? ' is-folder' : ''}`}>
             {cell.kind === 'app' ? <AppGlyph id={cell.id} /> : (

@@ -156,6 +156,7 @@ export type IdeaSimulationElement =
   | { type: 'card'; title: string; body: string }
   | { type: 'button'; label: string }
   | { type: 'tabs'; labels: string[]; selected: number }
+  | { type: 'place'; kind: 'board' | 'button'; label: string; place: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' }
 
 export type IdeaSimulation = {
   version: 1
@@ -576,6 +577,10 @@ function parseSimulation(raw: unknown): IdeaSimulation | null | undefined {
       elements.push({ type: 'card', title: asText(el.title).slice(0, 120), body: asText(el.body).slice(0, 300) })
     } else if (el.type === 'button' && asText(el.label)) {
       elements.push({ type: 'button', label: asText(el.label).slice(0, 80) })
+    } else if (el.type === 'place' && (el.kind === 'board' || el.kind === 'button') && asText(el.label)) {
+      const place = asText(el.place)
+      if (place !== 'center' && place !== 'top-left' && place !== 'top-right' && place !== 'bottom-left' && place !== 'bottom-right') return null
+      elements.push({ type: 'place', kind: el.kind, label: asText(el.label).slice(0, 80), place })
     } else if (el.type === 'tabs' && Array.isArray(el.labels)) {
       const labels = el.labels.map(asText).filter(Boolean).slice(0, 8).map((v) => v.slice(0, 80))
       if (labels.length) {

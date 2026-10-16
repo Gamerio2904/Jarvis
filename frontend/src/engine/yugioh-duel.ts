@@ -360,6 +360,16 @@ function sendAway(player: DuelPlayer, card: DuelCard): void {
   player.graveyard.push(left)
 }
 
+function phaseWord(phase: string): string {
+  if (phase === 'draw') return 'Draw'
+  if (phase === 'standby') return 'Standby'
+  if (phase === 'main1') return 'Main 1'
+  if (phase === 'battle') return 'Battle'
+  if (phase === 'main2') return 'Main 2'
+  if (phase === 'end') return 'End'
+  return phase
+}
+
 function remember(state: DuelState, line: string): DuelState {
   if (!Array.isArray(state.log)) return state
   return { ...state, log: [...state.log, line] }
@@ -778,9 +788,9 @@ export function advanceDuelPhase(state: DuelState): DuelState {
     ...(phase === 'battle' && state.battleWindow ? { battleStep: 'start' as const } : {}),
     message: phase === 'battle' && isFirstTurnBattleBlocked(state)
       ? 'In Turn 1 des Startspielers gibt es keine Battle Phase (TCG).'
-      : `Deine Phase: ${phase === 'main1' ? 'Main Phase 1' : phase === 'main2' ? 'Main Phase 2' : phase}.`,
+      : `Deine Phase: ${phaseWord(phase)}.`,
   }
-  return remember(advanced, `Phase: ${phase}`)
+  return remember(advanced, `Phase: ${phaseWord(phase)}`)
 }
 
 export function summonMonster(state: DuelState, cardId: number, tributes: number[] = [], mode: 'attack' | 'set' = 'attack', zoneIndex?: number): DuelState {
@@ -2200,7 +2210,7 @@ export function declareDuelPhase(state: DuelState, target: 'battle' | 'end'): Du
       battleStep: state.battleWindow ? 'start' : null,
       selectedAttacker: null,
       message: 'Battle Phase: Start.',
-    }, 'Phase: battle')
+    }, 'Phase: Battle')
   }
   if (!['main1', 'battle', 'main2'].includes(state.phase)) throw new Error('Die End Phase ist von hier nicht erreichbar.')
   if (state.player.hand.length > 6) {
@@ -2223,7 +2233,7 @@ export function declareDuelPhase(state: DuelState, target: 'battle' | 'end'): Du
     attacked: [],
     battleStep: null,
     message: 'End Phase.',
-  }, 'Phase: end')
+  }, 'Phase: End')
 }
 
 export function placePendulumScale(state: DuelState, cardId: number, slot: 0 | 1): DuelState {

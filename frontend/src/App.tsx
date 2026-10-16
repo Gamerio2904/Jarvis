@@ -2347,7 +2347,7 @@ function App() {
   }, [liveHud.scan_json])
 
   return (
-    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${tabletOn ? ' is-tablet-mode' : ''}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}`} ref={appRef}>
+    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}${tabletOn ? ' is-tablet-mode' : ''}${leisteOff ? ' is-leiste-off' : ''}${!leisteOff && leisteZu ? ' is-leiste-collapsed' : ''}${(liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-planning' : ''}${liveHud.tischplatte_view === 'sim' && (liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') ? ' is-gui-sim' : ''}`} ref={appRef}>
       <UltronIntro />
       <FensterSheet
         ownKind={ownFensterKind()}
@@ -3157,6 +3157,7 @@ function App() {
           >
             {homeOpen ? (
               <div className="glance-rail-tools">
+                {liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go' ? null : (
                 <MiniChat
                   open={miniChatOpen}
                   onToggle={() => setMiniChatOpen((v) => !v)}
@@ -3175,6 +3176,7 @@ function App() {
                   onClearPaste={() => setPasteImage(null)}
                   face="ultron"
                 />
+                )}
                 {!voiceOpen ? (
                   <div className="voice-shortcut">
                     <VoiceSphere
@@ -3189,6 +3191,27 @@ function App() {
             ) : null}
           </GlanceRail>
         </>
+      ) : null}
+      {(liveHud.plan_phase === 'live' || liveHud.plan_phase === 'go') && !driveOpen && !chessOpen ? (
+        <MiniChat
+          dock="plan"
+          open
+          onToggle={() => setMiniChatOpen(true)}
+          onExpand={() => {
+            setMiniChatOpen(false)
+            goDock('chat')
+          }}
+          messages={messages}
+          streaming={streamingText}
+          busy={busy}
+          draft={draft}
+          setDraft={setDraft}
+          onSend={() => void onSend()}
+          onPasteImage={onPasteImage}
+          pasteImage={pasteImage}
+          onClearPaste={() => setPasteImage(null)}
+          face="ultron"
+        />
       ) : null}
       <HausScan
         open={hausScan}

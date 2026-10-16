@@ -6,6 +6,7 @@ import { parsePortfolioIntent } from './portfolio-parse.ts'
 export type AblaufIntent =
   | { kind: 'open'; work?: string }
   | { kind: 'session'; work: string }
+  | { kind: 'blank' }
   | { kind: 'screen' }
   | { kind: 'close' }
   | { kind: 'clear' }
@@ -49,6 +50,8 @@ export function parseAblaufIntent(text: string): AblaufIntent | null {
   }
   // „Plane eine App …“ ist dieselbe Planung. Der ganze Satz bleibt die Arbeit.
   // „Plane das“ und „Plane das:“ bleiben das live Skript.
+  // Ohne Titel: leere Datei, der Name kommt in der nächsten Antwort.
+  if (untitledProjectAsk(t)) return { kind: 'blank' }
   if (/^\s*plan(?:e)?\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?(?:eine?\s+(?:neue\s+|weitere\s+)?app|die\s+app|eine?\s+(?:neue\s+)?anwendung|die\s+anwendung|ein\s+(?:neues\s+)?projekt)\b/i.test(t)) {
     return { kind: 'session', work: sessionWork(t) }
   }
@@ -135,6 +138,32 @@ function isPlanningScreenAsk(t: string): boolean {
     /^\s*(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf)\s+(?:mir\s+)?(?:bitte\s+)?(?:den\s+|die\s+)?(?:planungsbildschirm|planungsmodus|tischplatte)\s*[.!?]*$/i.test(t) ||
     /^\s*(?:planungsbildschirm|planungsmodus)\s*(?:auf|öffnen|oeffnen|an)?\s*[.!?]*$/i.test(t)
   )
+}
+
+function untitledProjectAsk(t: string): boolean {
+  const bare = t.replace(/[.!?]+$/g, '').trim()
+  if (
+    /^(?:öffne|oeffne|zeig(?:e)?|mach(?:e)?\s+auf|leg(?:e)?(?:\s+an)?|erstell(?:e)?|starte|anlegen)\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?(?:eine\s+)?(?:neue\s+|leere\s+)?(?:datei|projektdatei)$/i.test(
+      bare,
+    )
+  ) {
+    return true
+  }
+  if (/^(?:neue|leere)\s+(?:datei|projektdatei)$/i.test(bare)) return true
+  if (/^(?:öffne|oeffne)\s+(?:mir\s+)?(?:bitte\s+)?(?:eine\s+)?leere\s+datei$/i.test(bare)) return true
+  if (/^(?:plan(?:e)?|starte|erstell(?:e)?|leg(?:e)?\s+an)\s+(?:mir\s+)?(?:bitte\s+)?(?:mal\s+)?(?:ein\s+)?(?:neues\s+)?projekt$/i.test(bare)) {
+    return true
+  }
+  if (/^leg(?:e)?\s+(?:mir\s+)?(?:bitte\s+)?(?:ein\s+)?(?:neues\s+)?projekt\s+an$/i.test(bare)) return true
+  if (/^(?:neues\s+projekt|leeres\s+projekt)\s+(?:anlegen|erstellen|planen|starten|aufmachen)$/i.test(bare)) return true
+  if (
+    /^(?:ich\s+(?:will|möchte|moechte)|lass(?:\s+uns)?)\s+(?:mal\s+)?(?:ein\s+)?(?:neues\s+)?projekt\s+(?:planen|anlegen|erstellen|starten|aufmachen)$/i.test(
+      bare,
+    )
+  ) {
+    return true
+  }
+  return false
 }
 
 function planningInvite(t: string): string | null {

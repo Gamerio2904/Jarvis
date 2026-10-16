@@ -10,6 +10,12 @@ export function findRealDeck(id: string): RealDeck | undefined {
   return REAL_DECKS.find((deck) => deck.id === id)
 }
 
+/** Die generierte Bibliothek hat Jar of Greed als Falle. Es ist ein normaler Zauber. */
+function correctedRealCard<T extends { name?: string; kind?: string; type?: string }>(card: T | undefined): T | undefined {
+  if (!card || card.kind !== 'trap' || card.name !== 'Jar of Greed') return card
+  return { ...card, kind: 'spell', type: 'Spell Card' }
+}
+
 function cardImage(id: number): string {
   return `https://images.ygoprodeck.com/images/cards_small/${id}.jpg`
 }
@@ -18,7 +24,7 @@ function cardImage(id: number): string {
 export function buildRealDeck(deck: RealDeck, nextId: () => number): { main: DuelCard[]; extra: DuelCard[] } {
   const expand = (rows: [number, number][]): DuelCard[] =>
     rows.flatMap(([cardId, quantity]) => {
-      const card = REAL_CARDS[cardId]
+      const card = correctedRealCard(REAL_CARDS[cardId])
       if (!card) throw new Error(`Karte ${cardId} fehlt in der Deck-Bibliothek.`)
       return Array.from({ length: quantity }, () => ({
         ...card,

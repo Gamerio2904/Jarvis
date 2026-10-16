@@ -119,6 +119,7 @@ export async function handleChess(
   const fen = loadFen()
   if (intent.kind === 'show') {
     const after = applyEngineIfBlack(fen)
+    if (after.reply) await waitForUltron()
     const note = after.reply ? `Ich spiele ${prettyMove(after.reply)}. ${endLine(after.fen)}` : endLine(after.fen)
     if (after.fen !== fen) saveFen(after.fen)
     return pack(note, after.fen)
@@ -146,6 +147,7 @@ export async function handleChess(
   }
   if (!sideToMoveWhite(fen)) {
     const after = applyEngineIfBlack(fen)
+    if (after.reply) await waitForUltron()
     if (after.reply && after.fen !== fen) saveFen(after.fen)
     return pack(
       after.reply
@@ -164,7 +166,13 @@ export async function handleChess(
     )
   }
   const engine = applyEngineIfBlack(next)
-  saveFen(engine.fen)
+  if (typeof window === 'undefined') {
+    saveFen(engine.fen)
+  } else {
+    saveFen(next)
+    await waitForUltron()
+    if (engine.fen !== next) saveFen(engine.fen)
+  }
   const userLine = spoken ? `${spoken} ${prettyMove(move)}` : prettyMove(move)
   if (!engine.reply) {
     return pack(`${userLine}. ${endLine(engine.fen)}`, engine.fen)
@@ -287,6 +295,13 @@ function insufficient(fen: string): boolean {
   const letters = [...(fen.split(' ')[0] || '')].filter((c) => /[pnbrqk]/i.test(c))
   if (letters.some((c) => /[pqr]/i.test(c))) return false
   return letters.filter((c) => /[nb]/i.test(c)).length <= 1
+}
+
+/** Im Browser kurz warten, damit der Zug von Ultron lesbar ankommt. Tests bleiben sofort. */
+async function waitForUltron(): Promise<void> {
+  if (typeof window === 'undefined') return
+  const ms = 500 + Math.floor(Math.random() * 501)
+  await new Promise<void>((resolve) => window.setTimeout(resolve, ms))
 }
 
 /** Jarvis ist Schwarz. Zieht nach, wenn Schwarz am Zug ist. */
