@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
 import { prefersReducedMotion } from '../engine/motion.ts'
+import { adoptOrphanDeadlineTodos } from '../engine/calendar.ts'
 import {
   addTodo,
-  createTodoList,
+  collapseTodoLists,
   deleteTodo,
-  deleteTodoList,
-  listTodoLists,
   listTodos,
   setTodoStatus,
   updateTodo,
   type Todo,
-  type TodoList,
 } from '../engine/store.ts'
 
 const SWIPE_THRESHOLD = 72
@@ -129,25 +127,21 @@ function TaskCard({
 }
 
 export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => void; leaving?: boolean }) {
-  const [lists, setLists] = useState<TodoList[]>([])
   const [todos, setTodos] = useState<Todo[]>([])
-  const [detailId, setDetailId] = useState<string | null>(null)
-  const [listName, setListName] = useState('')
   const [taskOpen, setTaskOpen] = useState(false)
   const [editing, setEditing] = useState<Todo | null>(null)
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   const [selected, setSelected] = useState<string[]>([])
-  const [confirmListDelete, setConfirmListDelete] = useState<string | null>(null)
   const [error, setError] = useState('')
   const reduced = prefersReducedMotion()
 
   const refresh = useCallback(async () => {
     try {
-      const [nextLists, nextTodos] = await Promise.all([listTodoLists(), listTodos()])
-      setLists(nextLists)
-      setTodos(nextTodos)
+      await collapseTodoLists()
+      await adoptOrphanDeadlineTodos()
+      setTodos(await listTodos())
       setError('')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Todo-Listen konnten nicht geladen werden.')
@@ -161,33 +155,7 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
     return () => window.removeEventListener('jarvis-todos', onChange)
   }, [refresh])
 
-  const detail = lists.find((list) => list.id === detailId) || null
-  const rows = detail ? todos.filter((todo) => (todo.list_id || 'todo-list-general') === detail.id) : []
-
-  async function createList() {
-    try {
-      const list = await createTodoList(listName)
-      setListName('')
-      setDetailId(list.id)
-      await refresh()
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Todo-Liste konnte nicht erstellt werden.')
-    }
-  }
-
-  async function removeList(id: string) {
-    if (confirmListDelete !== id) {
-      setConfirmListDelete(id)
-      return
-    }
-    try {
-      await deleteTodoList(id)
-      setConfirmListDelete(null)
-      await refresh()
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Todo-Liste konnte nicht gelöscht werden.')
-    }
-  }
+  const rows = todos
 
   function openTask(todo?: Todo) {
     setEditing(todo || null)
@@ -198,10 +166,9 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
   }
 
   async function saveTask() {
-    if (!detail) return
     try {
-      if (editing) await updateTodo(editing.id, { title, listId: detail.id, deadlineDate: date || null, deadlineTime: time || null })
-      else await addTodo(title, undefined, { listId: detail.id, deadlineDate: date || null, deadlineTime: time || null })
+      if (editing) await updateTodo(editing.id, { title, listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
+      else await addTodo(title, undefined, { listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
       setTaskOpen(false)
       await refresh()
     } catch (cause) {
@@ -221,40 +188,11 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
 
   return (
     <div className={`watch-overlay shop-overlay todo-overlay fx-in${leaving ? ' is-leaving' : ''}`}>
-      {!detail ? (
-        <>
-          <header className="watch-head">
-            <div><h2>Todo-Listen</h2><p>Listen und Aufgaben auf diesem Gerät</p></div>
-            <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>Fertig</button>
-          </header>
-          {error ? <p className="notes-error" role="alert">{error}</p> : null}
-          <form className="shop-new-list" onSubmit={(event) => { event.preventDefault(); void createList() }}>
-            <input aria-label="Name der neuen Todo-Liste" placeholder="Neue Liste, z. B. Uni" value={listName} onChange={(event) => setListName(event.target.value)} />
-            <button type="submit" className="ghost-btn">Anlegen</button>
-          </form>
-          <div className="shop-list-grid">
-            {lists.map((list) => (
-              <div key={list.id} className="todo-list-card">
-                <button type="button" className="shop-list-card workbench-card" onClick={() => { setDetailId(list.id); setSelected([]) }}>
-                  <h3>{list.name}</h3>
-                  <p>{todos.filter((todo) => (todo.list_id || 'todo-list-general') === list.id && todo.status === 'open').length} offen</p>
-                </button>
-                {list.id !== 'todo-list-general' ? (
-                  <button type="button" className="ghost-btn" onClick={() => void removeList(list.id)}>
-                    {confirmListDelete === list.id ? 'Löschen bestätigen · Todos nach Allgemein' : 'Liste löschen'}
-                  </button>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
+      <>
           <header className="watch-head">
             <div>
-              <button type="button" className="ghost-btn shop-back" onClick={() => { setDetailId(null); setSelected([]) }}>← Listen</button>
-              <h2>{detail.name}</h2>
-              <p>Links erledigen · rechts löschen · erledigte gedrückt halten</p>
+              <h2>To-do-Liste</h2>
+              <p>Links erledigen · rechts löschen</p>
             </div>
             <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>Fertig</button>
           </header>
@@ -284,8 +222,7 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
           </div>
           <button type="button" className="shop-fab cal-fab" aria-label="Todo hinzufügen" onClick={() => openTask()}>+</button>
         </>
-      )}
-      {taskOpen && detail ? (
+      {taskOpen ? (
         <div className="shop-add-sheet todo-editor fx-in" role="dialog" aria-label={editing ? 'Todo bearbeiten' : 'Todo erstellen'}>
           <header className="watch-head">
             <h2>{editing ? 'Todo bearbeiten' : 'Neues Todo'}</h2>

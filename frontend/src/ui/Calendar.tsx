@@ -1244,12 +1244,14 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
 
       <div ref={ghostRef} className="cal-drag-ghost" hidden />
 
-      {createPortal(
-        <button type="button" className="cal-fab" aria-label="Termin anlegen" onClick={openCreate}>
-          ＋ Termin
-        </button>,
-        document.body,
-      )}
+      {sheetOpen
+        ? null
+        : createPortal(
+            <button type="button" className="cal-fab" aria-label="Termin anlegen" onClick={openCreate}>
+              ＋ Termin
+            </button>,
+            document.body,
+          )}
 
       <div
         className={`cal-sheet-backdrop${sheetOpen ? ' is-on' : ''}`}

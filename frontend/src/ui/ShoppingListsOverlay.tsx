@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
 import { prefersReducedMotion } from '../engine/motion.ts'
 import { searchOffProducts, type OffProductHit } from '../engine/shopping-off.ts'
-import { saveSettings } from '../engine/store.ts'
 import {
-  createShoppingList,
   deleteShoppingItem,
   listShopping,
   listShoppingLists,
@@ -166,7 +164,6 @@ export function ShoppingListsOverlay({
   const [addOpen, setAddOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [suggest, setSuggest] = useState<OffProductHit[]>([])
-  const [newListName, setNewListName] = useState('')
   const [selectedDone, setSelectedDone] = useState<string[]>([])
   const reduced = prefersReducedMotion()
   const debRef = useRef(0)
@@ -175,6 +172,8 @@ export function ShoppingListsOverlay({
     const [ls, all] = await Promise.all([listShoppingLists(), listShopping()])
     setLists(ls)
     setItems(all)
+    const fixed = ls.find((list) => list.is_default) || ls[0]
+    if (fixed) setDetailId(fixed.id)
   }, [])
 
   useEffect(() => {
@@ -224,17 +223,6 @@ export function ShoppingListsOverlay({
     setQuery('')
   }
 
-  async function createList() {
-    const name = newListName.trim()
-    if (!name) return
-    const row = await createShoppingList(name)
-    setNewListName('')
-    if (row) {
-      saveSettings({ shopping_list_id: row.id })
-      setDetailId(row.id)
-    }
-  }
-
   async function deleteSelectedDone() {
     const ids = [...selectedDone]
     await Promise.all(ids.map((id) => deleteShoppingItem(id)))
@@ -242,69 +230,14 @@ export function ShoppingListsOverlay({
     await refresh()
   }
 
-  function activateList(id: string) {
-    saveSettings({ shopping_list_id: id })
-    setDetailId(id)
-    setSelectedDone([])
-  }
-
-  function openCount(listId: string): number {
-    return items.filter((i) => i.list_id === listId && i.status === 'open').length
-  }
-
   return (
     <div className={`watch-overlay shop-overlay fx-in${leaving ? ' is-leaving' : ''}`}>
-      {!detail ? (
+      {detail ? (
         <>
           <header className="watch-head">
             <div>
-              <h2>Einkaufslisten</h2>
-              <p>Tipp auf eine Liste · Fertig schließt</p>
-            </div>
-            <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>
-              Fertig
-            </button>
-          </header>
-          <div className="shop-new-list">
-            <input
-              type="text"
-              placeholder="Neue Liste"
-              value={newListName}
-              onChange={(e) => setNewListName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') void createList()
-              }}
-            />
-            <button type="button" className="ghost-btn" onClick={() => void createList()}>
-              Anlegen
-            </button>
-          </div>
-          <div className="shop-list-grid">
-            {lists.map((l) => (
-              <button
-                key={l.id}
-                type="button"
-                className="shop-list-card workbench-card"
-                onClick={() => activateList(l.id)}
-              >
-                <h3>{l.name}</h3>
-                <p>{openCount(l.id) ? `${openCount(l.id)} offen` : 'Leer'}</p>
-              </button>
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <header className="watch-head">
-            <div>
-              <button type="button" className="ghost-btn shop-back" onClick={() => {
-                setDetailId(null)
-                setSelectedDone([])
-              }}>
-                ← Listen
-              </button>
-              <h2>{detail.name}</h2>
-              <p>Wischen hakt ab oder löscht · Gedrückt halten wählt mehrere</p>
+              <h2>Einkaufsliste</h2>
+              <p>Wischen hakt ab oder löscht</p>
             </div>
             <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>
               Fertig
@@ -351,6 +284,8 @@ export function ShoppingListsOverlay({
             +
           </button>
         </>
+      ) : (
+        <p className="watch-empty">Einkaufsliste wird geladen.</p>
       )}
       {addOpen && detail ? (
         <div className="shop-add-sheet fx-in" role="dialog" aria-label="Hinzufügen">

@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.5` — Eine Liste, Conrad, Flugzeuge, Würfel bleibt — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.5`** (versionCode `186605`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Der Knopf Termin ist während des Bearbeitens zu und danach wieder da. Es gibt eine Einkaufsliste und eine To-do-Liste. Eine Aufgabe mit Deadline steht in dieser To-do-Liste und im Kalender. Conrad spricht die Antwort. Auf der Lage liegt die Schichtleiste einmal, Flugzeuge überlagern sich nicht zu einem Haufen. Ein abgelegter Würfel bleibt an seinem Ort, wenn die Kamera sich dreht. Die Hand greift ihn.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.66.4` — Würfel auf dem Tisch, Handgitter, ohne untere Leiste — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.4`** (versionCode `186604`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
@@ -49,7 +57,7 @@ App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.61.0
 
 Einkauf liest die Liste auch bei „noch“, Todos mit Wochentag landen im Kalender mit Erinnerung einen Tag und zwei Stunden vorher, Notizen bleiben im Wortlaut, Filme verschieben sich auch bei Tippfehlern. Eine Lage-Kachel. CarPlay setzt den Standort nicht auf das Ziel. Anleitungen kommen als Step 1, Step 2. Ein Video-Linkwunsch liefert einen YouTube-Suchlink. Die Server-Kachel startet den HTTPS-Hausstand, koppelt per QR und vereinigt fehlende Einträge.
 
-Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.4`.
+Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.5`.
 
 ## `18.60.0` — Yu-Gi-Oh! Master-Duel-Bedienung 531–550 — *CODE + TEST-APK*
 

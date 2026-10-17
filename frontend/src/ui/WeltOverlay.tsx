@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
-import { CUBE_HALF, add, blick, fuegeWuerfel, legeAuge, leereWelt, loslassen, mitTisch, norm, ohneTracker, orientierung, rot, schiebe, setzeFlaechen, setzeHand, setzen, sub, tischAnBlick, versuchGriff, type V3, type WeltCube, type WeltSession } from '../engine/welt.ts'
+import { CUBE_HALF, add, blick, fuegeWuerfel, gier, legeAuge, leereWelt, loslassen, mitTisch, norm, ohneTracker, orientierung, rot, schiebe, setzeFlaechen, setzeHand, setzen, sub, tischAnBlick, versuchGriff, type V3, type WeltCube, type WeltSession } from '../engine/welt.ts'
 import { schritt } from '../engine/welt-physik.ts'
 import { handInWelt, type HandBild } from '../engine/welt-hand.ts'
 import { weltQuer, weltSample, weltStart, weltStop, type WeltSample } from '../native/welt.ts'
@@ -275,6 +275,8 @@ export function WeltOverlay({
   const [still, setStill] = useState('')
   const [menu, setMenu] = useState(false)
   const [voiceOn, setVoiceOn] = useState(false)
+  const arPose = useRef(false)
+  const lage0 = useRef<number | null>(null)
 
   useEffect(() => {
     sessionRef.current = session
@@ -285,6 +287,23 @@ export function WeltOverlay({
     return () => {
       void weltQuer(false)
     }
+  }, [])
+
+  useEffect(() => {
+    const onOri = (ev: DeviceOrientationEvent) => {
+      if (arPose.current || ev.alpha == null || !Number.isFinite(ev.alpha)) return
+      if (lage0.current == null) lage0.current = ev.alpha
+      let delta = ev.alpha - lage0.current
+      while (delta > 180) delta -= 360
+      while (delta < -180) delta += 360
+      const yaw = (-delta * Math.PI) / 180
+      setSession((prev) => {
+        if (!prev.camera || arPose.current) return prev
+        return blick(prev, { ...prev.camera, rotation: gier(yaw) })
+      })
+    }
+    window.addEventListener('deviceorientation', onOri)
+    return () => window.removeEventListener('deviceorientation', onOri)
   }, [])
 
   useEffect(() => {
@@ -331,6 +350,7 @@ export function WeltOverlay({
           })),
         )
         if (sample.camera) {
+          arPose.current = true
           const canvas = canvasRef.current
           const iw = sample.camera.viewWidth || canvas?.width || 1
           const ih = sample.camera.viewHeight || canvas?.height || 1

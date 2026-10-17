@@ -1,12 +1,14 @@
-# Android-APK — Test-Build `18.66.4`
+# Android-APK — Test-Build `18.66.5`
 
-Test-Build **`18.66.4`** (versionCode `186604`), debug-signiert:
+Test-Build **`18.66.5`** (versionCode `186605`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
+
+**Neu in 18.66.5:** Der Termin-Knopf verschwindet beim Bearbeiten. Einkauf und To-do sind je eine Liste. Deadline-Aufgaben stehen in der To-do-Liste. Conrad spricht. Die Flugzeug-Schicht liegt einmal und bleibt lesbar. Der Würfel bleibt liegen, die Hand greift ihn.
 
 **Neu in 18.66.4:** Der Würfel ist massiv und leuchtet an den Kanten. Er bleibt auf der Fläche im Blick, statt nach unten aus dem Bild zu fallen. Über der Hand liegt das Tracking-Gitter. Die Leiste unten ist auf der Welt aus.
 

@@ -573,7 +573,7 @@ Sprints 511–530 (Regeln, Effektabdeckung, Fidelity) stehen in
 Die Zahlen-Gates Coverage ≥70 % und 100 Gold-Karten ≥95 % sind nicht geschlossen.
 Sprints 531–550 (Master-Duel-Bedienung) stehen in
 [`../106-next.md`](../106-next.md), **CODE** für `18.52.0`–`18.60.0`.
-`engineStamp` ist `18.60.0-ygo-md`. Der Sideload ist `18.66.4`.
+`engineStamp` ist `18.60.0-ygo-md`. Der Sideload ist `18.66.5`.
 Sprints 551–559 (Welt auf der Kamera) stehen in
 [`../107-next.md`](../107-next.md), **CODE** in `18.66.0`.
 Die Geräteabnahme mit ARCore ist offen.

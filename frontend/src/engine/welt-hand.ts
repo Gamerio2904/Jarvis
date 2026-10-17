@@ -37,15 +37,18 @@ export type HandBild = {
  * Bildpunkte sind 0..1. Weltpunkte der Hand sind Meter um die Hand.
  * Ohne Kamera oder ohne Meterlage bleibt der Zangenpunkt leer.
  */
+const HAND_SPAN_M = 0.08
+
 export function handInWelt(hand: HandBild): { pinch: V3; rotation: Q; closed: boolean } | null {
-  if (!hand.camera || hand.bild.length < 10 || hand.welt.length < 10) return null
+  if (!hand.camera || hand.bild.length < 10) return null
   const cam = hand.camera
   if (!(cam.fy > 1)) return null
   const wrist = hand.bild[HANDGELENK]
   const mid = hand.bild[MITTE]
   const pixel = Math.hypot((mid.x - wrist.x) * hand.width, (mid.y - wrist.y) * hand.height)
-  const meters = len(sub(hand.welt[MITTE], hand.welt[HANDGELENK]))
-  if (pixel < 2 || meters < 1e-4) return null
+  const measured = hand.welt.length >= 10 ? len(sub(hand.welt[MITTE], hand.welt[HANDGELENK])) : 0
+  const meters = measured > 1e-4 ? measured : HAND_SPAN_M
+  if (pixel < 2) return null
   const depth = (meters * cam.fy) / pixel
   if (!Number.isFinite(depth) || depth < 0.05 || depth > 3) return null
   const tipA = hand.bild[DAUMEN]
@@ -58,6 +61,6 @@ export function handInWelt(hand: HandBild): { pinch: V3; rotation: Q; closed: bo
     z: -depth,
   }
   const pinch = add(cam.position, rot(cam.rotation, camSpace))
-  const closed = zangeZu(hand.welt.map((p) => ({ x: p.x, y: p.y, z: p.z })))
+  const closed = zangeZu((hand.welt.length >= 10 ? hand.welt : hand.bild).map((p) => ({ x: p.x, y: p.y, z: p.z })))
   return { pinch, rotation: { ...cam.rotation }, closed }
 }

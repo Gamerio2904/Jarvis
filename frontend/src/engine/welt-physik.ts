@@ -69,6 +69,7 @@ function separate(a: WeltCube, b: WeltCube): boolean {
 }
 
 function land(cube: WeltCube, planes: WeltPlane[], held: boolean, camera: WeltCamera | null): void {
+  if (!held && cube.state === 'liegt') return
   const y = floorY(cube, planes, camera)
   if (y === null) {
     if (held || !camera || cube.state === 'liegt') return

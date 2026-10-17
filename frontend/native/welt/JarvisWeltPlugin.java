@@ -214,19 +214,27 @@ public class JarvisWeltPlugin extends Plugin {
                     }
                     try {
                         float[] origin = pose.getTranslation();
-                        float[] dir = pose.rotateVector(new float[]{0f, -0.42f, -1f});
-                        float len = (float) Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
-                        if (len > 1e-4f) {
+                        float[][] rays = new float[][] {
+                                {0f, -0.42f, -1f},
+                                {-0.45f, -0.36f, -1f},
+                                {0.45f, -0.36f, -1f},
+                                {0f, -0.12f, -1f},
+                        };
+                        int n = 0;
+                        for (float[] ray : rays) {
+                            if (n >= 4) break;
+                            float[] dir = pose.rotateVector(ray);
+                            float len = (float) Math.sqrt(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
+                            if (len < 1e-4f) continue;
                             dir[0] /= len;
                             dir[1] /= len;
                             dir[2] /= len;
                             List<HitResult> hits = frame.hitTest(origin, 0, dir, 0);
-                            int n = 0;
                             for (HitResult hit : hits) {
-                                if (n >= 3 || hit.getDistance() < 0.2f || hit.getDistance() > 2.4f) continue;
+                                if (n >= 4 || hit.getDistance() < 0.15f || hit.getDistance() > 2.6f) continue;
                                 Pose hp = hit.getHitPose();
                                 float[] up = hp.getYAxis();
-                                if (up[1] < 0.72f) continue;
+                                if (up[1] < 0.62f) continue;
                                 float[] pt = hp.getTranslation();
                                 JSObject row = new JSObject();
                                 row.put("id", "h" + n);
@@ -236,8 +244,8 @@ public class JarvisWeltPlugin extends Plugin {
                                 row.put("nx", up[0]);
                                 row.put("ny", up[1]);
                                 row.put("nz", up[2]);
-                                row.put("hx", 0.45f);
-                                row.put("hz", 0.45f);
+                                row.put("hx", 0.55f);
+                                row.put("hz", 0.55f);
                                 float[] hq = hp.getRotationQuaternion();
                                 row.put("qx", hq[0]);
                                 row.put("qy", hq[1]);
@@ -245,6 +253,7 @@ public class JarvisWeltPlugin extends Plugin {
                                 row.put("qw", hq[3]);
                                 planes.put(row);
                                 n++;
+                                break;
                             }
                         }
                     } catch (RuntimeException ignored) {

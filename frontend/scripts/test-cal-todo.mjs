@@ -16,8 +16,8 @@ globalThis.localStorage = {
 }
 
 const { parseLocalDeadline, parseToolIntent, tidyTaskTitle } = await import('../src/engine/tools-parse.ts')
-const { addTodo, deleteTodo, listEvents, listTodos, setTodoStatus } = await import('../src/engine/store.ts')
-const { removeEvent, updateEventFromGui } = await import('../src/engine/calendar.ts')
+const { addEvent, addTodo, deleteTodo, listEvents, listTodos, setTodoStatus } = await import('../src/engine/store.ts')
+const { adoptOrphanDeadlineTodos, removeEvent, updateEventFromGui } = await import('../src/engine/calendar.ts')
 
 const wednesday = new Date(2026, 9, 14, 12, 0, 0)
 const spoken = 'bis Freitag nächste Woche 10 Uhr Hausaufgaben erledigen'
@@ -100,3 +100,19 @@ assert.equal((await listEvents()).length, 1)
 await deleteTodo(third.id)
 assert.equal((await listEvents()).length, 0)
 assert.equal((await listTodos()).some((row) => row.id === third.id), false)
+
+const orphanStart = new Date(2026, 9, 30, 15, 0, 0)
+const orphan = await addEvent({
+  title: 'Präsentation vorbereiten',
+  start_at: orphanStart.toISOString(),
+  end_at: new Date(orphanStart.getTime() + 60 * 60_000).toISOString(),
+  todoId: 'missing-todo',
+})
+assert.equal((await listTodos()).some((row) => row.title === 'Präsentation vorbereiten'), false)
+assert.equal(await adoptOrphanDeadlineTodos(), 1)
+const back = (await listTodos()).find((row) => row.title === 'Präsentation vorbereiten')
+assert.equal(back?.list_id, 'todo-list-general')
+assert.equal(back?.event_id, orphan.id)
+assert.equal(back?.deadline_date, '2026-10-30')
+assert.equal((await listEvents()).find((row) => row.id === orphan.id)?.todo_id, back?.id)
+assert.equal(await adoptOrphanDeadlineTodos(), 0)

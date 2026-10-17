@@ -2,7 +2,6 @@ import { parseShopIntent, splitShopItems } from './shopping-parse.ts'
 import {
   addShopping,
   clearGotShopping,
-  createShoppingList,
   getDefaultShoppingList,
   listShopping,
   listShoppingLists,
@@ -57,16 +56,11 @@ export async function handleShopping(
   if (!intent) return { handled: false }
 
   if (intent.kind === 'create-list') {
-    const row = intent.name
-      ? await createShoppingList(intent.name)
-      : await getDefaultShoppingList()
-    if (!row) {
-      return { handled: true, reply: 'Der Listenname ist ungültig. Bitte verwende höchstens 64 Zeichen.' }
-    }
+    const row = await getDefaultShoppingList()
     saveSettings({ shopping_list_id: row.id })
     return {
       handled: true,
-      reply: intent.name ? `Die Liste ${row.name} ist bereit.` : `Die Einkaufsliste ${row.name} ist bereit.`,
+      reply: 'Es gibt eine Einkaufsliste.',
       tool: { tool_status: 'executed', tool: 'shopping', action: 'create-list', label: 'Einkauf', preview: row.name },
       lastTool: 'shopping',
     }

@@ -8,7 +8,7 @@ import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 import { recordLocalRevision } from './sync-revisions.ts'
 
-export const APP_VERSION = '18.66.4'
+export const APP_VERSION = '18.66.5'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -1213,16 +1213,9 @@ export async function listTodoLists(): Promise<TodoList[]> {
   )
 }
 
-export async function createTodoList(name: string): Promise<TodoList> {
-  const normalized = name.trim()
-  if (!normalized) throw new Error('Der Listenname darf nicht leer sein.')
+export async function createTodoList(_name: string): Promise<TodoList> {
   const lists = await listTodoLists()
-  const existing = lists.find((row) => row.name.toLocaleLowerCase() === normalized.toLocaleLowerCase())
-  if (existing) return existing
-  const now = nowIso()
-  const row = { id: newId(), name: normalized, created_at: now, updated_at: now }
-  await put('todo_lists', row)
-  return row
+  return lists.find((row) => row.id === 'todo-list-general') || lists[0]
 }
 
 export async function deleteTodoList(id: string): Promise<void> {
@@ -1234,10 +1227,38 @@ export async function deleteTodoList(id: string): Promise<void> {
   await del('todo_lists', id)
 }
 
+export async function collapseTodoLists(): Promise<TodoList> {
+  const lists = await listTodoLists()
+  const now = nowIso()
+  const todos = await getAll<Todo>('todos')
+  let changed = false
+  for (const todo of todos) {
+    if ((todo.list_id || 'todo-list-general') !== 'todo-list-general') {
+      await put('todos', { ...todo, list_id: 'todo-list-general', updated_at: now })
+      changed = true
+    }
+  }
+  for (const list of lists) {
+    if (list.id !== 'todo-list-general') {
+      await del('todo_lists', list.id)
+      changed = true
+    }
+  }
+  if (changed) emitHouse('jarvis-todos')
+  const next = await listTodoLists()
+  return next[0]
+}
+
 export async function addTodo(
   title: string,
   conversationId?: string,
-  opts: { listId?: string; deadlineDate?: string | null; deadlineTime?: string | null } = {},
+  opts: {
+    listId?: string
+    deadlineDate?: string | null
+    deadlineTime?: string | null
+    eventId?: string | null
+    linkOnly?: boolean
+  } = {},
 ): Promise<Todo> {
   const cleanTitle = title.trim()
   if (!cleanTitle) throw new Error('Die Todo-Aufgabe darf nicht leer sein.')
@@ -1252,13 +1273,14 @@ export async function addTodo(
     list_id: listId,
     deadline_date: opts.deadlineDate || null,
     deadline_time: opts.deadlineTime || null,
+    event_id: opts.eventId || null,
     source_conversation_id: conversationId || null,
     created_at: now,
     updated_at: now,
   }
   await put('todos', row)
   emitHouse('jarvis-todos')
-  if (row.deadline_date) {
+  if (row.deadline_date && !opts.linkOnly) {
     const { mirrorTodoDeadline } = await import('./calendar.ts')
     await mirrorTodoDeadline(row)
   }
@@ -1733,14 +1755,15 @@ async function ensureDefaultShoppingList(): Promise<ShoppingList> {
       await put('shopping_lists', def)
     }
     const items = await getAll<ShoppingItem>('shopping')
-    const orphan = items.filter((item) => !item.list_id)
-    if (orphan.length) {
+    const extra = lists.filter((list) => list.id !== def.id)
+    const move = items.filter((item) => !item.list_id || extra.some((list) => list.id === item.list_id))
+    if (move.length || extra.length) {
       const db = await openDb()
-      const tx = db.transaction('shopping', 'readwrite')
+      const tx = db.transaction(['shopping', 'shopping_lists'], 'readwrite')
       const os = tx.objectStore('shopping')
-      for (const item of orphan) {
-        os.put({ ...item, list_id: def.id })
-      }
+      for (const item of move) os.put({ ...item, list_id: def.id })
+      const listsOs = tx.objectStore('shopping_lists')
+      for (const list of extra) listsOs.delete(list.id)
       await txDone(tx)
       emitShopping()
     }
@@ -1775,40 +1798,13 @@ export async function resolveShoppingList(hint?: string | null): Promise<Shoppin
   if (!slug || slug.length > 48) return def
   const hit = lists.find((l) => l.slug === slug || l.name.toLowerCase() === h.toLowerCase())
   if (hit) return hit
-  if (slug === DEFAULT_LIST_SLUG) return def
-  const row: ShoppingList = {
-    id: newId(),
-    name: h.replace(/(?:\s|-)*liste$/i, '').trim() || h,
-    slug,
-    is_default: false,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-  }
-  await put('shopping_lists', row)
-  emitShopping()
-  return row
+  return def
 }
 
 export async function createShoppingList(name: string): Promise<ShoppingList | null> {
   const clean = name.trim().replace(/\s+/g, ' ')
   if (!clean || clean.length > 64) return null
-  await ensureDefaultShoppingList()
-  const slug = slugShoppingList(clean)
-  if (!slug) return null
-  const lists = await rawListShoppingLists()
-  const dup = lists.find((l) => l.slug === slug)
-  if (dup) return dup
-  const row: ShoppingList = {
-    id: newId(),
-    name: clean.replace(/(?:\s|-)*liste$/i, '').trim() || clean,
-    slug,
-    is_default: false,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-  }
-  await put('shopping_lists', row)
-  emitShopping()
-  return row
+  return ensureDefaultShoppingList()
 }
 
 export async function renameShoppingList(id: string, name: string): Promise<ShoppingList | null> {

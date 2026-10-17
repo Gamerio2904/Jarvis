@@ -1324,15 +1324,14 @@ assert.equal(firstAudioUsesSystemRace(), false)
 assert.equal(wantNeuralMouth(), true)
 assert.equal(EDGE_VOICE_JARVIS, 'de-DE-ConradNeural')
 assert.equal(EDGE_VOICE_FRIDAY, 'de-DE-KatjaNeural')
-assert.equal(edgeFirstTimeoutMs(false), 1800)
+assert.equal(edgeFirstTimeoutMs(false), 3200)
 assert.equal(edgeFirstTimeoutMs(true), 900)
 assert.equal(ssmlEscape('A & B <C> "x"'), 'A &amp; B &lt;C&gt; &quot;x&quot;')
 assert.equal(windowsFileTimeTicks(0), '116444736000000000')
 assert.match(windowsFileTimeTicks(1_756_800_000), /^\d+$/)
 {
   const gec = await secMsGec(0)
-  assert.equal(gec.length, 64)
-  assert.match(gec, /^[0-9A-F]{64}$/)
+  assert.equal(gec, '52BC7A17B50DFEC9-28C4394775C8751CD2F6859C030C06DB1489ACAB3B3A7651831FC26895177ED6')
 }
 {
   const fast = Promise.resolve(new Blob([new Uint8Array([1, 2, 3])]))

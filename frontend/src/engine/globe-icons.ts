@@ -64,8 +64,8 @@ export function drawAircraft(
   pen.rotate(headingRad(heading))
   pen.scale(s, s)
   pen.beginPath()
-  pen.fillStyle = 'rgba(158, 203, 255, 0.18)'
-  pen.arc(0, 0, 8.4, 0, Math.PI * 2)
+  pen.fillStyle = 'rgba(158, 203, 255, 0.22)'
+  pen.arc(0, 0, 3.4, 0, Math.PI * 2)
   pen.fill()
   pen.fillStyle = '#b8dcff'
   pen.beginPath()

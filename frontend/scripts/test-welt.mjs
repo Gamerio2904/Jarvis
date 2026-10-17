@@ -16,6 +16,7 @@ const {
   blick,
   gegenstaende,
   fuegeWuerfel,
+  gier,
   legeAuge,
   leereWelt,
   loslassen,
@@ -24,6 +25,7 @@ const {
   orientierung,
   parseWeltOpen,
   poseGleich,
+  rot,
   schiebe,
   schliessen,
   setzeHand,
@@ -316,6 +318,37 @@ const app = src('src/App.tsx')
 assert.match(app, /WeltOverlay/)
 assert.match(app, /id === 'welt'/)
 assert.match(app, /is-welt/)
+assert.match(src('src/ui/WeltOverlay.tsx'), /deviceorientation/)
+assert.match(src('src/ui/Calendar.tsx'), /sheetOpen/)
+assert.match(src('src/ui/lage/GlobeView.tsx'), /drawnFlights/)
+assert.doesNotMatch(src('src/ui/ShoppingListsOverlay.tsx'), /Neue Liste/)
+assert.doesNotMatch(src('src/ui/TodoListsOverlay.tsx'), /Neue Liste/)
+
+const ruhend = fuegeWuerfel(mitTisch(blick(leereWelt(), augeTief)))
+const ruhe = ruhend.objects[0].position
+const gedrehtBlick = schritt(mitTisch(blick(ruhend, { ...augeTief, rotation: gier(1.1) })), 0.4)
+assert.ok(Math.abs(gedrehtBlick.objects[0].position.x - ruhe.x) < 1e-6)
+assert.ok(Math.abs(gedrehtBlick.objects[0].position.y - ruhe.y) < 1e-6)
+assert.ok(Math.abs(gedrehtBlick.objects[0].position.z - ruhe.z) < 1e-6)
+const seitlich = rot({ x: -gier(Math.PI / 2).x, y: -gier(Math.PI / 2).y, z: -gier(Math.PI / 2).z, w: gier(Math.PI / 2).w }, v3(0, 0, -1))
+assert.ok(Math.abs(seitlich.x) > 0.7)
+
+const ohneWelt = handInWelt({
+  bild: [
+    { x: 0.4, y: 0.55, z: 0 },
+    { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 },
+    { x: 0.43, y: 0.52, z: 0 },
+    { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 },
+    { x: 0.44, y: 0.52, z: 0 },
+    { x: 0.4, y: 0.42, z: 0 },
+  ],
+  welt: [],
+  width: 800,
+  height: 600,
+  camera: augeTief,
+})
+assert.ok(ohneWelt)
+assert.ok(ohneWelt.pinch.z < augeTief.position.z)
 
 function lenAbstand(p, q) {
   if (!p || !q) return Infinity

@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge, synthesizeGtts } from '../engine/edge-tts.ts'
+import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge } from '../engine/edge-tts.ts'
 import { synthesizeGemini, wantGeminiVoice, wantNeuralMouth } from '../engine/tts.ts'
 import { pickHeard } from '../engine/heard.ts'
 import { repairSpeech } from '../engine/utterance.ts'
@@ -403,7 +403,7 @@ type SpeakJob = { text: string; ready: Promise<Blob | 'native'> }
 type MouthLane = 'gemini' | 'edge' | 'native'
 
 async function freeNeural(text: string, timeoutMs: number): Promise<Blob | null> {
-  return (await synthesizeEdge(text, { timeoutMs })) || (await synthesizeGtts(text))
+  return synthesizeEdge(text, { timeoutMs })
 }
 
 export function createSpeakPipeline() {
@@ -421,11 +421,20 @@ export function createSpeakPipeline() {
         return 'native'
       }
       if (preferEdgeForReply(text) && lane !== 'gemini') {
-        const edge = await freeNeural(text, 8000)
+        const edge = await freeNeural(text, edgeFirstTimeoutMs())
         if (edge) {
           lane = 'edge'
           return edge
         }
+        if (wantGeminiVoice()) {
+          const gem = await synthesizeGemini(text)
+          if (gem) {
+            lane = 'gemini'
+            return gem
+          }
+        }
+        lane = 'native'
+        return 'native'
       }
       if (lane === 'gemini') {
         const blob = await synthesizeGemini(text)
@@ -458,11 +467,6 @@ export function createSpeakPipeline() {
         // Lock the winning lane for the rest of this reply — no Pico jump mid-sentence.
         lane = hit.lane
         return hit.blob
-      }
-      const gtts = await synthesizeGtts(text)
-      if (gtts) {
-        lane = 'edge'
-        return gtts
       }
       lane = 'native'
       return 'native'

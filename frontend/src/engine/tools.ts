@@ -2,7 +2,6 @@ import {
   addNote,
   addTodo,
   clearPending,
-  createTodoList,
   deleteDoneTodos,
   deleteNote,
   deleteTodo,
@@ -99,9 +98,8 @@ export async function handleTools(
 
 async function handleIntent(conversationId: string, intent: ToolIntent): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
   if (intent.kind === 'todo_list_create') {
-    const list = await createTodoList(intent.name)
-    emitOpen('todos', list.id)
-    return { handled: true, reply: `Todo-Liste „${list.name}“ ist bereit.` }
+    emitOpen('todos')
+    return { handled: true, reply: 'Es gibt eine To-do-Liste.' }
   }
 
   if (intent.kind === 'todo_list_open') {
@@ -132,28 +130,22 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
   }
 
   if (intent.kind === 'todo_create') {
-    const lists = await listTodoLists()
-    const matches = intent.listName ? exactOrContains(lists, intent.listName, (list) => list.name) : []
-    if (intent.listName && matches.length !== 1) {
-      return { handled: true, reply: matches.length ? `Welche Liste meinst du: ${matches.map((list) => list.name).join(', ')}?` : `Die Todo-Liste „${intent.listName}“ gibt es nicht.` }
-    }
-    const list = matches[0] || lists.find((row) => row.id === 'todo-list-general')
-    if (!list) throw new Error('Die Standard-Todo-Liste Allgemein fehlt.')
     const open = (await listTodos()).filter((todo) => todo.status === 'open')
-    if (open.some((todo) => (todo.list_id || 'todo-list-general') === list.id && todo.title.toLocaleLowerCase() === intent.title.toLocaleLowerCase())) {
-      return { handled: true, reply: `„${intent.title}“ steht in „${list.name}“ schon offen.`, tool: { tool_status: 'duplicate', tool: 'todo', action: 'create', label: 'Todo schon offen' } }
+    if (open.some((todo) => todo.title.toLocaleLowerCase() === intent.title.toLocaleLowerCase())) {
+      return { handled: true, reply: `„${intent.title}“ steht in der To-do-Liste schon offen.`, tool: { tool_status: 'duplicate', tool: 'todo', action: 'create', label: 'Todo schon offen' } }
     }
-    const row = pendingRow(conversationId, 'todo', 'create', {
-      title: intent.title,
-      listId: list.id,
+    await addTodo(intent.title, conversationId, {
+      listId: 'todo-list-general',
       deadlineDate: intent.deadlineDate || null,
       deadlineTime: intent.deadlineTime || null,
-    }, `Todo anlegen: ${intent.title}`)
-    await setPending(row)
+    })
+    const when = intent.deadlineDate
+      ? ` Im Kalender ${intent.deadlineDate}${intent.deadlineTime ? ` ${intent.deadlineTime}` : ' 18:00'}.`
+      : ''
     return {
       handled: true,
-      reply: `Todo „${intent.title}“${intent.deadlineDate ? ` bis ${intent.deadlineDate}${intent.deadlineTime ? ` ${intent.deadlineTime}` : ' 18:00'}` : ''} in „${list.name}“ anlegen?${intent.deadlineDate ? ' Kalender: Benachrichtigung einen Tag und zwei Stunden davor.' : ''}`,
-      tool: { tool_status: 'pending', tool: 'todo', action: 'create', preview: row.preview, label: 'Tool bereit — Confirm?' },
+      reply: `In der To-do-Liste: ${intent.title}.${when}`,
+      tool: { tool_status: 'executed', tool: 'todo', action: 'create', label: 'Todo liegt', preview: intent.title },
     }
   }
 

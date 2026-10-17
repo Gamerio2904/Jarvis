@@ -1,4 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
+import { secMsGecV2 } from './edge-gec.ts'
 import { getBinary } from './http-json.ts'
 import { loadSettings } from './store.ts'
 import { spokenForGemini } from './tts.ts'
@@ -6,10 +7,10 @@ import { spokenForGemini } from './tts.ts'
 /** Microsoft Edge read-aloud. Same token as rany2/edge-tts. No extra API key. German neural. */
 export const EDGE_TRUSTED_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4'
 export const EDGE_CHROMIUM = '143.0.3650.75'
-export const EDGE_GEC_VERSION = `1-${EDGE_CHROMIUM}`
+export const EDGE_GEC_VERSION = `2-${EDGE_CHROMIUM}`
 export const EDGE_VOICE_JARVIS = 'de-DE-ConradNeural'
 export const EDGE_VOICE_FRIDAY = 'de-DE-KatjaNeural'
-export const EDGE_FIRST_MS_STANDING = 1800
+export const EDGE_FIRST_MS_STANDING = 3200
 export const EDGE_FIRST_MS_DRIVE = 900
 
 const WIN_EPOCH = 11_644_473_600
@@ -19,7 +20,7 @@ const GTTS_UA =
   'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36'
 
 type NativeEdge = {
-  synthEdge(opts: { text: string; voice: string; timeoutMs?: number }): Promise<{
+  synthEdge(opts: { text: string; voice: string; timeoutMs?: number; gec?: string; gecVersion?: string }): Promise<{
     ok: boolean
     audio?: string
     message?: string
@@ -67,13 +68,17 @@ export function windowsFileTimeTicks(unixSec: number): string {
   return Math.round(ticks).toString()
 }
 
+/** V2-Token `<16 hex>-<64 hex>`. Die alte 64-Hex-Anmeldung lehnt Microsoft ab. */
 export async function secMsGec(unixSec = Date.now() / 1000): Promise<string> {
-  const payload = `${windowsFileTimeTicks(unixSec)}${EDGE_TRUSTED_TOKEN}`
-  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload))
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-    .toUpperCase()
+  return secMsGecV2(unixSec)
+}
+
+export function edgeSockets(gec: string, connectionId: string): string[] {
+  const tail = `&Sec-MS-GEC=${gec}&Sec-MS-GEC-Version=${EDGE_GEC_VERSION}&ConnectionId=${connectionId}`
+  return [
+    `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=${EDGE_TRUSTED_TOKEN}${tail}`,
+    `wss://api.msedgeservices.com/tts/cognitiveservices/websocket/v1?Ocp-Apim-Subscription-Key=${EDGE_TRUSTED_TOKEN}${tail}`,
+  ]
 }
 
 export function connectId(): string {
@@ -136,7 +141,7 @@ async function synthesizeEdgeNative(text: string, voice: string, timeoutMs: numb
   const plug = nativeEdge
   if (!plug) return null
   try {
-    const res = await plug.synthEdge({ text, voice, timeoutMs })
+    const res = await plug.synthEdge({ text, voice, timeoutMs, gec: await secMsGec(), gecVersion: EDGE_GEC_VERSION })
     if (!res.ok || !res.audio) return null
     const raw = bytesFromBase64(res.audio)
     if (!raw.length) return null
@@ -175,12 +180,32 @@ async function synthesizeEdgeWs(text: string, voice: string, timeoutMs: number, 
   if (typeof WebSocket === 'undefined') throw new Error('kein websocket')
   const gec = await secMsGec()
   const connectionId = connectId()
-  const url =
-    `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1` +
-    `?TrustedClientToken=${EDGE_TRUSTED_TOKEN}` +
-    `&Sec-MS-GEC=${gec}` +
-    `&Sec-MS-GEC-Version=${EDGE_GEC_VERSION}` +
-    `&ConnectionId=${connectionId}`
+  const urls = edgeSockets(gec, connectionId)
+  return synthesizeEdgeUrls(urls, text, voice, timeoutMs, signal)
+}
+
+async function synthesizeEdgeUrls(
+  urls: string[],
+  text: string,
+  voice: string,
+  timeoutMs: number,
+  signal?: AbortSignal,
+): Promise<Blob> {
+  let last: Error | null = null
+  const started = Date.now()
+  for (const url of urls) {
+    const left = timeoutMs - (Date.now() - started)
+    if (left < 400) break
+    try {
+      return await synthesizeEdgeOne(url, text, voice, left, signal)
+    } catch (err) {
+      last = err instanceof Error ? err : new Error('edge_ws')
+    }
+  }
+  throw last || new Error('edge_ws')
+}
+
+function synthesizeEdgeOne(url: string, text: string, voice: string, timeoutMs: number, signal?: AbortSignal): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const ws = openEdgeSocket(url)
     ws.binaryType = 'arraybuffer'

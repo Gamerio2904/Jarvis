@@ -3,7 +3,7 @@
 export const CUBE_EDGE = 0.08
 export const CUBE_HALF = CUBE_EDGE / 2
 export const CUBE_MASS = 0.2
-export const GRAB_REACH = 0.04
+export const GRAB_REACH = 0.12
 export const MAX_CUBES = 8
 
 export type V3 = { x: number; y: number; z: number }
@@ -103,6 +103,12 @@ export function aufRechteck(plane: WeltPlane, x: number, z: number, pad: number)
     lz = local.z
   }
   return Math.abs(lx) <= plane.halfX + pad && Math.abs(lz) <= plane.halfZ + pad
+}
+
+/** Drehung um die Hochachse. Positiv dreht die Kamera nach links. */
+export function gier(rad: number): Q {
+  const h = rad / 2
+  return { x: 0, y: Math.sin(h), z: 0, w: Math.cos(h) }
 }
 
 export function rot(q: Q, v: V3): V3 {

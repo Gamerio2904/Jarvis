@@ -170,13 +170,14 @@ public class JarvisVoicePlugin extends Plugin {
                 if (!"de".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
                 String name = v.getName() == null ? "" : v.getName().toLowerCase(Locale.ROOT);
                 int s = 0;
-                if (name.contains("pico") || name.contains("svox")) s -= 12;
+                if (name.contains("pico") || name.contains("svox")) s -= 40;
                 if (name.contains("google")) s += 5;
-                if (name.contains("neural") || name.contains("wavenet") || name.contains("network")) s += 4;
+                if (name.contains("neural") || name.contains("wavenet") || name.contains("network")) s += 8;
                 if (name.contains("de-de-x-deb") || name.contains("male") || name.contains("männlich")) s += 6;
                 if (name.contains("de-de-x-dea") || name.contains("female") || name.contains("frau")) s -= 5;
-                if (v.getQuality() >= Voice.QUALITY_HIGH) s += 2;
-                if (v.isNetworkConnectionRequired()) s += 1;
+                if (v.getQuality() >= Voice.QUALITY_VERY_HIGH) s += 12;
+                else if (v.getQuality() >= Voice.QUALITY_HIGH) s += 6;
+                if (v.isNetworkConnectionRequired()) s += 2;
                 if (s > score) {
                     score = s;
                     best = v;
@@ -587,7 +588,7 @@ public class JarvisVoicePlugin extends Plugin {
             });
             tts.setSpeechRate(0.94f);
             tts.setPitch(0.90f);
-            applyVoiceGender(gender);
+            pickGermanVoice();
             Bundle params = new Bundle();
             String utterId = "jarvis-voice-" + gen;
             int queued = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, utterId);
@@ -1122,7 +1123,7 @@ public class JarvisVoicePlugin extends Plugin {
     }
 
     private static final String EDGE_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
-    private static final String EDGE_GEC_VER = "1-143.0.3650.75";
+    private static final String EDGE_GEC_VER = "2-143.0.3650.75";
     private static final String EDGE_UA =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0";
 
@@ -1130,6 +1131,8 @@ public class JarvisVoicePlugin extends Plugin {
     public void synthEdge(PluginCall call) {
         String text = call.getString("text", "");
         String voice = call.getString("voice", "de-DE-ConradNeural");
+        String gec = call.getString("gec", "");
+        String gecVersion = call.getString("gecVersion", EDGE_GEC_VER);
         Integer timeout = call.getInt("timeoutMs");
         int ms = timeout == null ? 4000 : Math.max(400, Math.min(12_000, timeout));
         if (text == null || text.trim().isEmpty()) {
@@ -1141,11 +1144,13 @@ public class JarvisVoicePlugin extends Plugin {
         }
         final String spoken = text.trim();
         final String voiceName = voice == null || voice.isEmpty() ? "de-DE-ConradNeural" : voice;
+        final String token = gec == null ? "" : gec;
+        final String version = gecVersion == null || gecVersion.isEmpty() ? EDGE_GEC_VER : gecVersion;
         call.setKeepAlive(true);
         io.execute(() -> {
             JSObject r = new JSObject();
             try {
-                byte[] mp3 = edgeMp3(spoken, voiceName, ms);
+                byte[] mp3 = edgeMp3(spoken, voiceName, ms, token, version);
                 if (mp3 == null || mp3.length == 0) {
                     r.put("ok", false);
                     r.put("message", "kein audio");
@@ -1161,15 +1166,34 @@ public class JarvisVoicePlugin extends Plugin {
         });
     }
 
-    private byte[] edgeMp3(String text, String voice, int timeoutMs) throws Exception {
-        String gec = edgeGec();
-        String conn = uuidHex();
+    private byte[] edgeMp3(String text, String voice, int timeoutMs, String gec, String version) throws Exception {
+        String token = gec == null || gec.isEmpty() ? edgeGec() : gec;
+        String ver = version == null || version.isEmpty() ? EDGE_GEC_VER : version;
+        String[] urls = new String[] {
+                "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1"
+                        + "?TrustedClientToken=" + EDGE_TOKEN
+                        + "&Sec-MS-GEC=" + token
+                        + "&Sec-MS-GEC-Version=" + ver
+                        + "&ConnectionId=" + uuidHex(),
+                "wss://api.msedgeservices.com/tts/cognitiveservices/websocket/v1"
+                        + "?Ocp-Apim-Subscription-Key=" + EDGE_TOKEN
+                        + "&Sec-MS-GEC=" + token
+                        + "&Sec-MS-GEC-Version=" + ver
+                        + "&ConnectionId=" + uuidHex(),
+        };
+        long start = System.currentTimeMillis();
+        byte[] last = null;
+        for (String url : urls) {
+            int left = timeoutMs - (int) (System.currentTimeMillis() - start);
+            if (left < 400) break;
+            last = edgeMp3Url(text, voice, left, url);
+            if (last != null && last.length > 0) return last;
+        }
+        return last;
+    }
+
+    private byte[] edgeMp3Url(String text, String voice, int timeoutMs, String url) throws Exception {
         String muid = uuidHex();
-        String url = "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1"
-                + "?TrustedClientToken=" + EDGE_TOKEN
-                + "&Sec-MS-GEC=" + gec
-                + "&Sec-MS-GEC-Version=" + EDGE_GEC_VER
-                + "&ConnectionId=" + conn;
         CountDownLatch done = new CountDownLatch(1);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         OkHttpClient client = http.newBuilder()

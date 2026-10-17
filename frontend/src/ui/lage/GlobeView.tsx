@@ -411,6 +411,12 @@ export function GlobeView({
       shown.sort((a, b) => a.q.z - b.q.z)
       const planeScale = aircraftScale(zoom.current)
       const showFlightName = zoom.current >= LABEL_ZOOM
+      const drawnFlights: Array<{ x: number; y: number }> = []
+      const drawnLabels: Array<{ x: number; y: number }> = []
+      const near = (list: Array<{ x: number; y: number }>, x: number, y: number, radius: number) => {
+        const r2 = radius * radius
+        return list.some((p) => (p.x - x) ** 2 + (p.y - y) ** 2 < r2)
+      }
       for (const { pin, q } of shown) {
         if (pin.kind === 'glow') {
           pen.beginPath()
@@ -429,6 +435,8 @@ export function GlobeView({
         if (mark === 'here') {
           drawHerePin(pen, q.x, q.y, { stale: pin.stale, pulse: pulse.current })
         } else if (mark === 'flight') {
+          if (near(drawnFlights, q.x, q.y, 18)) continue
+          drawnFlights.push({ x: q.x, y: q.y })
           drawAircraft(pen, q.x, q.y, pin.heading, planeScale)
         } else if (mark === 'sat' || mark === 'iss') {
           drawSat(pen, q.x, q.y, mark === 'iss')
@@ -468,12 +476,13 @@ export function GlobeView({
           pin.kind === 'iss' ||
           (pin.kind === 'flight' && showFlightName) ||
           (!lite && pin.kind !== 'flight')
-        if (nameOk) {
+        if (nameOk && !(pin.kind === 'flight' && (drawnLabels.length >= 8 || near(drawnLabels, q.x, q.y, 36)))) {
           pen.font = '10px Inter, system-ui, sans-serif'
           pen.textAlign = 'left'
           const labelX = pin.kind === 'here' ? q.x + 10 : q.x + 8
           const labelY = pin.kind === 'here' ? q.y - 10 : q.y + 3
           pen.fillText(pin.name.slice(0, 22), labelX, labelY)
+          drawnLabels.push({ x: q.x, y: q.y })
         }
       }
     }
@@ -653,7 +662,6 @@ export function GlobeView({
     <div className="globe-wrap">
       {overlay}
       <canvas ref={canvasRef} className="globe-view" aria-label="Weltkugel" />
-      {overlay}
     </div>
   )
 }

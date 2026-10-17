@@ -5,6 +5,7 @@ import { classifyEventTheme, eventTheme, isCalThemeId, type CalThemeId } from '.
 import { isDebugRunActive } from './debug-flag.ts'
 import {
   addEvent,
+  addTodo,
   clearPending,
   deleteEvent,
   deleteReminder,
@@ -154,6 +155,36 @@ export async function recordTodoDeadline(opts: {
   }
   await scheduleEventNotifies(row)
   return `${opts.date} ${time}`
+}
+
+/** Kalendereintrag einer Deadline ohne passendes Todo: die Aufgabe kommt in die eine To-do-Liste. */
+export async function adoptOrphanDeadlineTodos(): Promise<number> {
+  if (syncing) return 0
+  const events = await listEvents()
+  const todos = await listTodos()
+  let added = 0
+  for (const event of events) {
+    if (!event.todo_id) continue
+    if (todos.some((todo) => todo.id === event.todo_id || todo.event_id === event.id)) continue
+    const start = new Date(event.start_at)
+    if (Number.isNaN(start.getTime())) continue
+    syncing = true
+    try {
+      const row = await addTodo(event.title, event.source_conversation_id || undefined, {
+        listId: 'todo-list-general',
+        deadlineDate: isoDay(start),
+        deadlineTime: event.all_day ? null : clockLabel(start),
+        eventId: event.id,
+        linkOnly: true,
+      })
+      await putEvent({ ...event, todo_id: row.id })
+      todos.push(row)
+      added += 1
+    } finally {
+      syncing = false
+    }
+  }
+  return added
 }
 
 /** Schreibt Deadline und Namen eines Todos in seinen Kalendereintrag. */

@@ -1020,9 +1020,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Auto: Microsoft Edge Neural (Conrad, frei, kein Extra-Key) rennt gegen Gemini Algieba. Wer zuerst
-                fertig ist, bleibt die ganze Antwort — kein Mix. Groq-TTS spricht kein Deutsch, Groq bleibt Hirn-Backup.
-                System-TTS nur wenn beide Neural-Wege fehlen. Navi-Ansagen bleiben Native. Kein ElevenLabs, kein Stimmklon.
+                Conrad, die deutsche Edge-Neuralstimme, spricht die Antwort. Liegt ein Gemini-Schlüssel und Conrad
+                kommt nicht, spricht Algieba. Die Geräte-Stimme nur, wenn beide Neural-Wege fehlen. Navi-Ansagen bleiben
+                die Geräte-Stimme. Kein ElevenLabs, kein Stimmklon.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>
