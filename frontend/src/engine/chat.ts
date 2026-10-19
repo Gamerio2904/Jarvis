@@ -34,12 +34,14 @@ import { normalizeUtterance } from './utterance.ts'
 import { VOICE_HINT, personaPack, voiceHintFor } from './persona.ts'
 import { loadFace } from './face.ts'
 import {
+  factLineFromSources,
   formatDeepResearchReply,
   formatResearchReply,
   guardResearchReply,
   isDeepResearch,
   isKnowledgeGap,
   isLiveLookup,
+  isPublicFactAsk,
   isProductLookup,
   parseEuroPrices,
   parseShopDiscountIntent,
@@ -810,9 +812,10 @@ export async function streamChat(
     const discount = Boolean(s.shop_discount)
     const live = isLiveLookup(ask, discount) || Boolean(accepted) || Boolean(contradictionAsk)
     const deep = isDeepResearch(ask)
+    const publicFact = isPublicFactAsk(ask)
     if ((live || accepted) && !geminiReady()) {
       setLatencyPath('parser')
-      if (!s.research_opt_in && !accepted) {
+      if (!s.research_opt_in && !accepted && !publicFact) {
         persistResearchOffer(ask, researchQuery(ask))
         const assistant = await sayAssistant(conversationId, RESEARCH_OFF_REPLY)
         const updated = (await touchConversation(conversationId)) || convAfterUser
@@ -829,12 +832,20 @@ export async function streamChat(
       if (researchHasSources(research)) {
         let reply = isDeepResearch(ask)
           ? formatDeepResearchReply(ask, research.sources || [])
-          : formatResearchReply(
-              researchQuery(ask),
-              research.sources || [],
-              isProductLookup(ask, discount),
-              discount,
-            )
+          : publicFact
+            ? factLineFromSources(ask, research.sources || []) ||
+              formatResearchReply(
+                researchQuery(ask),
+                research.sources || [],
+                isProductLookup(ask, discount),
+                discount,
+              )
+            : formatResearchReply(
+                researchQuery(ask),
+                research.sources || [],
+                isProductLookup(ask, discount),
+                discount,
+              )
         if (isDeepResearch(ask)) {
           persistTeachOffer(ask, reply, research.sources || [])
           reply += teachOfferLine(ask)
@@ -1015,9 +1026,13 @@ export async function streamChat(
         if (n > 0) await rememberCitedResearch(researchQuery(ask), research.sources || [], conversationId)
         const product = isProductLookup(ask, discount)
         const sources = research.sources || []
+        const sourcedFact = isPublicFactAsk(ask) ? factLineFromSources(ask, sources) : null
         const weak = !text || isKnowledgeGap(text)
         if (!researchHasSources(research)) {
           text = RESEARCH_EMPTY
+          handlers.onReplace?.(text)
+        } else if (sourcedFact) {
+          text = sourcedFact
           handlers.onReplace?.(text)
         } else if (weak) {
           text = deep

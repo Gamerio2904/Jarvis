@@ -38,6 +38,8 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\baufdieliebling/gi, 'auf die liebling'],
   [/\blieblingslist\b/gi, 'lieblingsliste'],
   [/\bwatchliste:(?=\S)/gi, 'Watchliste: '],
+  [/\bkung\s*f[uü]r\s+panda\b/gi, 'Kung Fu Panda'],
+  [/\bkungfu\s+panda\b/gi, 'Kung Fu Panda'],
   [/\bstarwars/gi, 'Star Wars'],
   [/\bsettings\b/gi, 'Einstellungen'],
   [/\bnächster\s+pol\b/gi, 'nächster POI'],

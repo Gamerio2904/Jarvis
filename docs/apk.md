@@ -1,12 +1,14 @@
-# Android-APK — Test-Build `18.66.5`
+# Android-APK — Test-Build `18.66.6`
 
-Test-Build **`18.66.5`** (versionCode `186605`), debug-signiert:
+Test-Build **`18.66.6`** (versionCode `186606`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
+
+**Neu in 18.66.6:** „Neue Partie Schach“ startet eine neue Partie. Tage bis Weihnachten, Heiligabend und Wochentage kommen vom Gerät. Erscheinungsfragen gehen ins Netz, „Kung für Panda“ wird Kung Fu Panda.
 
 **Neu in 18.66.5:** Der Termin-Knopf verschwindet beim Bearbeiten. Einkauf und To-do sind je eine Liste. Deadline-Aufgaben stehen in der To-do-Liste. Conrad spricht. Die Flugzeug-Schicht liegt einmal und bleibt lesbar. Der Würfel bleibt liegen, die Hand greift ihn.
 

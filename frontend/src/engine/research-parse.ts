@@ -118,7 +118,63 @@ export function isLiveLookup(text: string, discount = false): boolean {
   if (isProductLookup(t, discount)) return true
   if (isFactLookup(t)) return true
   if (isWhoIsAsk(t)) return true
+  if (isPublicFactAsk(t)) return true
   return false
+}
+
+/**
+ * Erscheinungsjahr, Geburt, Gründung. Persönliches („wann ist Mama geboren“,
+ * „wann war der Zahnarzt“) bleibt im Haus.
+ */
+export function isPublicFactAsk(text: string): boolean {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 180) return false
+  if (/\b(?:mein(?:e|en|em|er)?|ich|mir|mich|mama|papi|papa|mutter|vater|oma|opa|bruder|schwester|zahnarzt)\b/i.test(t)) {
+    return false
+  }
+  if (/\b(?:nochmal|den\s+ich)\b/i.test(t)) return false
+  if (/\bwann\s+(?:kam|kommt|erschien|erscheint)\b/i.test(t)) return true
+  if (/\bin\s+welchem\s+jahr\b/i.test(t)) return true
+  return /\b(?:erschienen|veröffentlicht|veroeffentlicht|rausgekommen|herausgekommen|uraufgeführt|uraufgefuehrt|premiere|gedreht|geboren|gestorben|gegründet|gegruendet)\b/i.test(
+    t,
+  )
+}
+
+/** „Wann ist Kung Fu Panda erschienen“ → „Kung Fu Panda“. */
+export function publicFactTopic(text: string): string {
+  let t = normalizeUtterance(text.trim()).replace(/[.!?]+$/g, '')
+  t = t.replace(/^\s*(?:und\s+)?(?:in\s+welchem\s+jahr|wann)\s+(?:ist|war|kam|kommt|erschien|erscheint|wurde|hat)\s+/i, '')
+  t = t.replace(/^(?:der|die|das|ein|eine)\s+/i, '')
+  t = t.replace(
+    /\s+(?:erschienen|veröffentlicht|veroeffentlicht|rausgekommen|herausgekommen|uraufgeführt|uraufgefuehrt|gedreht|geboren|gestorben|gegründet|gegruendet|in\s+die\s+kinos?\s+gekommen)\s*$/i,
+    '',
+  )
+  return t.replace(/\s+/g, ' ').trim()
+}
+
+const FACT_MONTH =
+  'Januar|Februar|März|Maerz|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember'
+
+export function factLineFromSources(
+  query: string,
+  sources: Array<{ title?: string; snippet?: string }>,
+): string | null {
+  if (!isPublicFactAsk(query)) return null
+  const topic = publicFactTopic(query) || query.trim()
+  const blob = sources.map((s) => `${s.title || ''} ${s.snippet || ''}`).join(' ')
+  const dated = new RegExp(`\\bam\\s+(\\d{1,2})\\.\\s*(${FACT_MONTH})\\s+(\\d{4})`, 'i').exec(blob)
+  const verb = factVerb(query)
+  if (dated) return `${topic} ${verb} am ${dated[1]}. ${dated[2]} ${dated[3]}.`
+  const year = /\b(?:19|20)\d{2}\b/.exec(blob)
+  if (year) return `${topic} ${verb} ${year[0]}.`
+  return null
+}
+
+function factVerb(query: string): string {
+  if (/\bgeboren\b/i.test(query)) return 'ist geboren'
+  if (/\bgestorben\b/i.test(query)) return 'ist gestorben'
+  if (/\bgegründet|gegruendet\b/i.test(query)) return 'wurde gegründet'
+  return 'erschien'
 }
 
 /** „Wer ist Mortys Sohn“ sucht. „Wer ist meine Mutter“ bleibt im Haus. */
@@ -291,6 +347,10 @@ export function researchQuery(text: string): string {
       t,
     )
   if (m) return m[1].replace(/^(?:nach\s+)/i, '').trim() || t
+  if (isPublicFactAsk(t)) {
+    const topic = publicFactTopic(t)
+    if (topic) return topic
+  }
   return t
 }
 

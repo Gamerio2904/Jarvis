@@ -1,8 +1,11 @@
+import { isCountdownAsk } from './holiday-parse.ts'
+import { isPublicFactAsk } from './research-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export function parseRecallIntent(text: string): string | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 160) return null
+  if (isPublicFactAsk(t) || isCountdownAsk(t)) return null
   if (/^\s*was\s+weißt\s+du\s+über\s+mich\b/i.test(t)) return null
   if (/^\s*was\s+weiß\s+ich\s+(?:noch\s+)?über\s+mich\b/i.test(t)) return null
   const who = /^\s*wer\s+ist\s+(?:meine|mein)\s+([a-zäöüß]+)(?:\s+und\b.*)?\s*$/i.exec(t)

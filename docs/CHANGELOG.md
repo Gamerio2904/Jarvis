@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.6` — Neue Partie, Tage bis Weihnachten, Sachfragen — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.6`** (versionCode `186606`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+„Neue Partie Schach“ setzt das Brett auf die Grundstellung und öffnet es. „Wie viele Tage bis Weihnachten“ rechnet vom Gerät: am 19. Oktober 2026 sind es 67 Tage bis zum 25. Dezember. „Wann ist Kung Fu Panda erschienen“ sucht im Netz und nennt das Datum aus der Quelle. „Kung für Panda“ wird als Kung Fu Panda gelesen. Der Zahnarzt bleibt im Gedächtnis.
+
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ## `18.66.5` — Eine Liste, Conrad, Flugzeuge, Würfel bleibt — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.5`** (versionCode `186605`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
@@ -57,7 +65,7 @@ App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.61.0
 
 Einkauf liest die Liste auch bei „noch“, Todos mit Wochentag landen im Kalender mit Erinnerung einen Tag und zwei Stunden vorher, Notizen bleiben im Wortlaut, Filme verschieben sich auch bei Tippfehlern. Eine Lage-Kachel. CarPlay setzt den Standort nicht auf das Ziel. Anleitungen kommen als Step 1, Step 2. Ein Video-Linkwunsch liefert einen YouTube-Suchlink. Die Server-Kachel startet den HTTPS-Hausstand, koppelt per QR und vereinigt fehlende Einträge.
 
-Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.5`.
+Die Datei `releases/Jarvis.apk` ist inzwischen `18.66.6`.
 
 ## `18.60.0` — Yu-Gi-Oh! Master-Duel-Bedienung 531–550 — *CODE + TEST-APK*
 

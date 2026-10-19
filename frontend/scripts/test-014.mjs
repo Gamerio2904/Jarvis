@@ -17,8 +17,11 @@ import {
   harvestDeepTitle,
   isDeepResearch,
   isFactLookup,
+  factLineFromSources,
   isKnowledgeGap,
   isLiveLookup,
+  isPublicFactAsk,
+  publicFactTopic,
   isLlmRefusal,
   isProductLookup,
   isSearchRefusal,
@@ -38,7 +41,7 @@ import {
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseTransitIntent } from '../src/engine/transit-parse.ts'
-import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
+import { countdownTarget, daysUntil, parseHolidayIntent } from '../src/engine/holiday-parse.ts'
 import { parseNewsIntent } from '../src/engine/news-parse.ts'
 import { parseTimerIntent } from '../src/engine/timer-parse.ts'
 import { timerDoneLine, cleanTimerTitle, timerSetLine, timerStopLine } from '../src/engine/timer-announce.ts'
@@ -812,6 +815,19 @@ assert.equal(
   true,
 )
 assert.equal(parseRecallIntent('Wann war nochmal der Zahnarzt den ich gerade erwähnt habe?'), 'Zahnarzt')
+assert.equal(parseRecallIntent('Wann ist Kung für Panda erschienen'), null)
+assert.equal(parseRecallIntent('Wann ist Weihnachten'), null)
+assert.equal(isPublicFactAsk('Wann ist Kung Fu Panda erschienen'), true)
+assert.equal(isLiveLookup('Wann ist Kung Fu Panda erschienen'), true)
+assert.equal(publicFactTopic('Wann ist Kung Fu Panda erschienen'), 'Kung Fu Panda')
+assert.equal(researchQuery('Wann ist Kung für Panda erschienen'), 'Kung Fu Panda')
+assert.equal(
+  factLineFromSources('Wann ist Kung Fu Panda erschienen', [
+    { title: 'Kung Fu Panda', snippet: 'Der Film kam am 6. Juni 2008 in die Kinos.' },
+  ]),
+  'Kung Fu Panda erschien am 6. Juni 2008.',
+)
+assert.equal(normalizeUtterance('Wann ist Kung für Panda erschienen'), 'Wann ist Kung Fu Panda erschienen')
 assert.equal(parseFilmIntent('Wie gut ist Dune bewertet?')?.title, 'Dune')
 assert.equal(parseFilmIntent('Wie gut ist Dune bewertet?')?.kind, 'rate')
 assert.ok(isLiveLookup('Wie hoch ist der aktuelle Benzinpreis in Deutschland?'))
@@ -914,6 +930,16 @@ assert.equal(parseHolidayIntent('Ist heute Feiertag?')?.kind, 'today')
 assert.equal(parseHolidayIntent('nächster Feiertag')?.kind, 'next')
 assert.equal(parseHolidayIntent('Ist morgen Feiertag?')?.kind, 'tomorrow')
 assert.equal(parseHolidayIntent('Termin morgen 15 Uhr Zahnarzt'), null)
+const christmas = countdownTarget('Wie viele Tage bis Weihnachten', new Date(2026, 9, 19))
+assert.equal(christmas?.name, 'Weihnachten')
+assert.equal(daysUntil(christmas.at, new Date(2026, 9, 19)), 67)
+const eve = countdownTarget('Wie viele Tage bis Heiligabend', new Date(2026, 9, 19))
+assert.equal(eve?.name, 'Heiligabend')
+assert.equal(daysUntil(eve.at, new Date(2026, 9, 19)), 66)
+assert.equal(parseHolidayIntent('Wie viele Tage bis Weihnachten')?.kind, 'until')
+assert.equal(parseHolidayIntent('Wann ist Weihnachten')?.kind, 'until')
+assert.equal(countdownTarget('Wie viele Tage bis Freitag', new Date(2026, 9, 19))?.name, 'Freitag')
+assert.equal(daysUntil(countdownTarget('Wie viele Tage bis Freitag', new Date(2026, 9, 19)).at, new Date(2026, 9, 19)), 4)
 
 const termin = parseCalendarIntent('Termin morgen 15 Uhr Zahnarzt', frozen)
 assert.equal(termin?.kind, 'create')
@@ -1991,6 +2017,9 @@ assert.equal(parseFxIntent('Was ist der Dollar?')?.from, 'USD')
 assert.equal(parseSkyIntent('Wann fliegt die ISS?')?.kind, 'iss')
 assert.equal(parseSkyIntent('Mondphase')?.kind, 'moon')
 assert.equal(parseChessIntent('Schach neu')?.kind, 'new')
+assert.equal(parseChessIntent('Neue Partie Schach')?.kind, 'new')
+assert.equal(parseChessIntent('neue Schachpartie')?.kind, 'new')
+assert.equal(parseChessIntent('neue Partie', true)?.kind, 'new')
 assert.equal(parseChessIntent('schach e2e4')?.kind, 'move')
 assert.equal(parseChessIntent('Lass uns Schach spielen')?.kind, 'new')
 assert.equal(parseChessIntent('Schach spielen')?.kind, 'new')

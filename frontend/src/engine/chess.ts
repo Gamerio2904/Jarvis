@@ -70,7 +70,15 @@ export function parseChessIntent(text: string, follow = false): ChessIntent | nu
   const t = normalizeUtterance(text.trim()).toLowerCase()
   if (!t || t.length > 120) return null
   if (/\b(spotify|musik|song|lied|titel)\b/i.test(t)) return null
-  if (/^\s*schach\s*(?:neu|reset|von\s+vorn)\s*$/i.test(t) || /^\s*neues\s+schach\s*$/i.test(t)) {
+  if (
+    /^\s*schach\s*(?:neu|reset|von\s+vorn(?:e)?)\s*$/i.test(t) ||
+    /^\s*neues\s+schach\s*$/i.test(t) ||
+    /^\s*(?:eine\s+)?neue\s+(?:schach\s*)?partie(?:\s+schach)?\s*$/i.test(t) ||
+    /^\s*neue\s+schachpartie\s*$/i.test(t) ||
+    /^\s*schachpartie(?:\s+neu)?\s*$/i.test(t) ||
+    /^\s*(?:noch\s+)?eine\s+neue\s+runde\s+schach\s*$/i.test(t) ||
+    (follow && /^\s*(?:neue\s+partie|von\s+vorn(?:e)?|noch\s*mal|neues\s+spiel)\s*$/i.test(t))
+  ) {
     return { kind: 'new' }
   }
   if (PLAY.test(t)) return { kind: 'new' }

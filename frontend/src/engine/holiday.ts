@@ -1,7 +1,7 @@
 import { getJson } from './http-json.ts'
 import { jsonUA } from './ua.ts'
 import { loadSettings } from './store.ts'
-import { parseHolidayIntent } from './holiday-parse.ts'
+import { daysUntil, formatCountdownDay, parseHolidayIntent } from './holiday-parse.ts'
 import type { ToolMeta } from './tools.ts'
 
 export { parseHolidayIntent } from './holiday-parse.ts'
@@ -20,6 +20,23 @@ export async function handleHoliday(
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const intent = parseHolidayIntent(text)
   if (!intent) return { handled: false }
+  if (intent.kind === 'until') {
+    const now = new Date()
+    const days = daysUntil(intent.at, now)
+    const when = formatCountdownDay(intent.at, now)
+    const reply =
+      days <= 0
+        ? `${intent.name} ist heute, ${when}.`
+        : days === 1
+          ? `${intent.name} ist morgen, ${when}.`
+          : `Bis ${intent.name} am ${when} sind es ${days} Tage.`
+    return {
+      handled: true,
+      reply,
+      tool: { tool_status: 'executed', tool: 'holiday', action: 'until', label: 'Tage' },
+      lastTool: 'holiday',
+    }
+  }
   const year = new Date().getFullYear()
   const rows = await loadHolidays(year)
   if (!rows.length) {
