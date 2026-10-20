@@ -134,3 +134,19 @@ export function ejectHomeApp(layout: HomeLayout, folderId: string, appId: HomeAp
   while (cells.length % COLS !== 0) cells.push(null)
   return { ...layout, cells }
 }
+
+/** Ein Ordner öffnet sich als 3×3. Mehr als neun Apps blättern seitenweise. */
+export const FOLDER_PAGE = 9
+
+export function folderPageCount(count: number): number {
+  if (count <= 0) return 1
+  return Math.ceil(count / FOLDER_PAGE)
+}
+
+/** Seite im Kreis: nach der letzten, mit leeren Zellen rechts, kommt wieder die volle. */
+export function folderPageSlots<T>(apps: T[], page: number): Array<T | null> {
+  const pages = folderPageCount(apps.length)
+  const index = ((page % pages) + pages) % pages
+  const slice = apps.slice(index * FOLDER_PAGE, index * FOLDER_PAGE + FOLDER_PAGE)
+  return Array.from({ length: FOLDER_PAGE }, (_, i) => slice[i] ?? null)
+}

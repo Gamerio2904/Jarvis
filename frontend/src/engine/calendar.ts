@@ -446,21 +446,46 @@ export async function handleCalendar(
 
   const rows = await listEvents()
   const hit = findEventByQuery(rows, intent.query)
-  if (!hit) return { handled: true, reply: `Kein Termin zu „${intent.query}“.` }
+  if (!hit) {
+    if (intent.kind === 'move' && intent.createIfMissing) {
+      const created = await createEventFromGui({
+        title: intent.query,
+        start: intent.start,
+        remind_offsets_min: intent.remind_offsets_min,
+      })
+      persistLastList('calendar', [created.title])
+      noteCalendarFocus(new Date(created.start_at))
+      const remind = intent.remindLabel ? ` Erinnerung: ${intent.remindLabel}.` : ''
+      return {
+        handled: true,
+        reply: `Ich lege ${created.title} an. Termin: ${created.title}, ${intent.whenLabel}. Steht im Kalender.${remind}`,
+        tool: {
+          tool_status: 'executed',
+          tool: 'calendar',
+          action: 'create',
+          label: 'Termin liegt',
+          preview: `${created.title} · ${intent.whenLabel}`,
+          result: { focus: isoDay(new Date(created.start_at)) },
+        },
+      }
+    }
+    return { handled: true, reply: `Kein Termin zu „${intent.query}“.` }
+  }
 
   if (intent.kind === 'move') {
     const next = await updateEventFromGui(hit.id, {
       title: hit.title,
       start: intent.start,
       theme: eventTheme(hit),
-      remind_offsets_min: hit.remind_offsets_min,
+      remind_offsets_min: intent.remind_offsets_min ?? hit.remind_offsets_min,
     })
     if (!next) return { handled: true, reply: 'Wohin soll der Termin?' }
     persistLastList('calendar', [next.title])
     noteCalendarFocus(new Date(next.start_at))
+    const remind = intent.remindLabel ? ` Erinnerung: ${intent.remindLabel}.` : ''
     return {
       handled: true,
-      reply: `Termin verschoben: ${next.title}, ${intent.whenLabel}. Steht im Kalender.`,
+      reply: `Ich verschiebe ${next.title}. Termin verschoben: ${next.title}, ${intent.whenLabel}. Steht im Kalender.${remind}`,
       tool: {
         tool_status: 'executed',
         tool: 'calendar',

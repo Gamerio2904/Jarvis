@@ -18,7 +18,16 @@ export type CalendarIntent =
   | { kind: 'delete_many'; clauses: RemoveClause[] }
   | { kind: 'delete_last' }
   | { kind: 'rename'; query: string; title: string }
-  | { kind: 'move'; query: string; start: Date; whenLabel: string }
+  | {
+      kind: 'move'
+      query: string
+      start: Date
+      whenLabel: string
+      remind_offsets_min?: number[]
+      remindLabel?: string
+      /** „X hat mich umgebucht“: fehlt der Termin, wird er angelegt. */
+      createIfMissing?: boolean
+    }
   | { kind: 'open' }
   | { kind: 'close' }
   | { kind: 'export_ics' }
@@ -45,7 +54,7 @@ const SPAN_CLOCK =
   /(?:von\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?\s+bis\s+(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?/i
 const LIST_ALL = /^\s*(?:zeig(?:e)?\s+(?:mir\s+)?(?:meine\s+)?)?termine\s*$/i
 const LIST_DAY = new RegExp(
-  `^\\s*(?:was\\s+habe\\s+ich|termine?|kalender|was\\s+steht)\\s+(?:so\\s+)?(?:am\\s+)?(heute|morgen|übermorgen|${WEEKDAYS})(?:\\s+so)?(?:\\s+an)?\\s*\\??\\s*$`,
+  `^\\s*(?:was\\s+hab(?:e)?\\s+ich|was\\s+steht|termine?|kalender)(?:\\s+(?:eigentlich|denn|so|noch|alles|genau))*\\s+(?:am\\s+)?(heute|morgen|übermorgen|${WEEKDAYS})(?:\\s+(?:eigentlich|so|vor|an|denn|alles|genau|noch))*\\s*\\??\\s*$`,
   'i',
 )
 const LIST_NEXT = new RegExp(
@@ -614,8 +623,43 @@ export function parseBareCreate(text: string, now = new Date()): CalendarIntent 
 
 const MOVE =
   /^\s*(?:verschieb(?:e)?|verleg(?:e)?)\s+(?:den\s+)?(?:termin\s+)?(.+?)\s+auf\s+(.+)$/is
+const RESCHEDULE =
+  /^\s*(.+?)\s+hat\s+mich\s+auf\s+(.+?)\s+umgebucht\b([\s\S]*)$/i
+
+function leadMinutes(tail: string): { minutes: number; label: string } | null {
+  const t = tail.replace(/\s+/g, ' ').trim()
+  if (!t) return null
+  if (!/\b(?:vorher|davor|früher|frueher|los)\b/i.test(t)) return null
+  if (/\bhalbe\s+stunde\b/i.test(t)) return { minutes: 30, label: '30 Minuten vorher' }
+  if (/\bviertel(?:stunde|\s+stunde)\b/i.test(t)) return { minutes: 15, label: '15 Minuten vorher' }
+  const hit = /(\d+)\s*(minuten?|stunden?)/i.exec(t)
+  if (!hit) return null
+  const n = Number(hit[1])
+  if (!Number.isFinite(n) || n <= 0) return null
+  const minutes = /stunde/i.test(hit[2]) ? n * 60 : n
+  return { minutes, label: minutes % 60 === 0 ? `${minutes / 60} Stunden vorher` : `${minutes} Minuten vorher` }
+}
+
+function parseReschedule(text: string, now: Date): CalendarIntent | null {
+  const hit = RESCHEDULE.exec(text)
+  if (!hit) return null
+  const query = hit[1].replace(/\s+/g, ' ').replace(/[.!?]+$/g, '').trim()
+  const when = parseWhenBlob(hit[2], now)
+  if (!query || query.length < 2 || !when) return null
+  const lead = leadMinutes(hit[3] || '')
+  return {
+    kind: 'move',
+    query,
+    start: when.start,
+    whenLabel: when.whenLabel,
+    createIfMissing: true,
+    ...(lead ? { remind_offsets_min: [lead.minutes], remindLabel: lead.label } : {}),
+  }
+}
 
 function parseMove(text: string, now: Date): CalendarIntent | null {
+  const shifted = parseReschedule(text, now)
+  if (shifted) return shifted
   const hit = MOVE.exec(text)
   if (!hit) return null
   const query = hit[1].replace(/\s+/g, ' ').replace(/[.!?]+$/g, '').trim()
@@ -651,7 +695,7 @@ const OFFSET_TOKEN =
   /(?:(\d+)|(ein(?:e[mr]?|e)?|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf|fünfzehn|zwanzig|vierundzwanzig|dreißig|sechzig))\s*(minuten?|min\.?|stunden?|tag(?:en|e)?)\s*(?:davor|vorher|vor\s+(?:dem\s+)?termin)/gi
 
 const NONE_REMIND =
-  /^\s*(?:keine(?:\s+extra)?\s+erinnerung|nicht\s+erinnern|ohne\s+erinnerung|nein,?\s*nicht\s+erinnern)\s*[.!]?\s*$/i
+  /^\s*(?:keine(?:\s+extra)?(?:\s+erinnerung)?|kein(?:e)?\s+erinnerung|nicht\s+erinnern|ohne\s+erinnerung|nein|nee+|kein(?:e)?|ohne|nein,?\s*nicht\s+erinnern)\s*[.!]?\s*$/i
 const AT_START =
   /^\s*(?:am\s+termin|zum\s+termin|nur\s+(?:am|zum)\s+(?:termin|start)|nur\s+dann)\s*[.!]?\s*$/i
 

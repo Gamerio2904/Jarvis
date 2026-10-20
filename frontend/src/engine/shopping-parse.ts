@@ -38,6 +38,8 @@ const GENERIC_LIST =
 
 const ERRAND =
   /^\s*ich\s+muss\s+(?:noch\s+)?(.{2,80}?)\s+(kaufen|holen|besorgen)\s*$/i
+const NEED =
+  /^\s*(?:wir|ich)\s+brauch(?:en|e)?\s+(?:noch\s+|mal\s+)?(.{2,120})$/i
 
 export function parseShopIntent(text: string): ShopIntent | null {
   const t = text.trim().replace(/[.!?]+\s*$/g, '').trim()
@@ -53,6 +55,11 @@ export function parseShopIntent(text: string): ShopIntent | null {
     return { kind: 'create-list', ...(name ? { name } : {}) }
   }
   if (LIST.test(t)) return { kind: 'list' }
+  const need = NEED.exec(t)
+  if (need) {
+    const add = asAdd(need[1])
+    if (add) return add
+  }
   const namedList = listIntent(t)
   if (namedList) return namedList
   if (CLEAR.test(t)) return { kind: 'clear' }

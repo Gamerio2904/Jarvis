@@ -8,7 +8,7 @@ import { handleTabletText } from './tablet-chat.ts'
 import { groundMicroMerge, HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
 import { greetingReply, greetingStandFact, parseGreeting, WRONG_NAME_REPLY, wrongNameGreeting } from './greeting.ts'
 import { handleFensterCommand, ownFensterKind } from './fenster.ts'
-import { asksForSteps, formatStepGuide, STEP_HINT } from './step-guide.ts'
+import { asksForRecipe, asksForSteps, formatRecipe, formatStepGuide, RECIPE_HINT, STEP_HINT } from './step-guide.ts'
 import { parseVideoLinkAsk, videoLinkReply } from './video-link.ts'
 import { fensterTransport } from './fenster-net.ts'
 import { memoryBlock } from './memory.ts'
@@ -86,7 +86,7 @@ import {
   type Settings,
 } from './store.ts'
 import { handlePlaces } from './places.ts'
-import { handleReminders } from './reminders.ts'
+import { handleReminders, leadReminderMinutes, remindAheadOfLast } from './reminders.ts'
 import { handlePc } from './pc.ts'
 import { handleClip } from './clip.ts'
 import { handleTaxi } from './taxi.ts'
@@ -440,6 +440,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: `Das ${label}: ${title}.`, lastTool: stepTool || 'ordinal' }
   }
 
+  if (leadReminderMinutes(content)) {
+    const pendingLead = await getPending(conversationId)
+    if (!(pendingLead?.tool === 'calendar' && pendingLead.action === 'remind_offsets')) {
+      const ahead = await remindAheadOfLast(conversationId, content)
+      if (ahead.handled && ahead.reply) {
+        return { reply: ahead.reply, tool: ahead.tool, lastTool: 'reminder' }
+      }
+    }
+  }
+
   if (!loadSettings().agent_network_v2) return routeRegistry(conversationId, content)
   const dir = await runDirectorTurn(conversationId, content)
   if (dir.aborted) throw abortError()
@@ -764,7 +774,8 @@ export async function streamChat(
       if (found.length === 1 && !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '') && last.tool?.action !== 'agent') {
         joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
       }
-      if (asksForSteps(content)) joined = formatStepGuide(joined)
+      if (asksForRecipe(content)) joined = formatRecipe(joined, content)
+      else if (asksForSteps(content)) joined = formatStepGuide(joined)
       if (toolLead && !joined.startsWith(toolLead.trim())) joined = `${toolLead}${joined}`
       if (isTurnAborted()) {
         finishLatency()
@@ -951,7 +962,8 @@ export async function streamChat(
               .join('\n\n'),
             variable: '',
           }
-      if (asksForSteps(ask)) split.system = `${split.system}\n\n${STEP_HINT}`
+      if (asksForRecipe(ask)) split.system = `${split.system}\n\n${RECIPE_HINT}`
+      else if (asksForSteps(ask)) split.system = `${split.system}\n\n${STEP_HINT}`
       let llmMessages = [
         { role: 'system', content: split.system },
         ...history.slice(cloud || opts?.voice ? -14 : -6).map((m) => ({
@@ -1110,7 +1122,12 @@ export async function streamChat(
       searched: Boolean(researchHasSources(research) || wantSearch),
       names: name ? [name] : [],
     })
-    if (asksForSteps(ask)) final = formatStepGuide(final)
+    if (asksForRecipe(ask)) final = formatRecipe(final, ask)
+    else if (asksForSteps(ask)) final = formatStepGuide(final)
+    if (toolLead && !final.startsWith(toolLead.trim())) {
+      final = `${toolLead}${final}`
+      handlers.onReplace?.(final)
+    }
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, ask)
     if (isLiveLookup(ask, discount) && !wantSearch) persistResearchOffer(ask, researchQuery(ask))

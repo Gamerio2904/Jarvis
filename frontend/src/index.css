@@ -8186,48 +8186,95 @@ html.theme-wipe-dark::before {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
-.home-folder {
+.home-folder-back {
   position: fixed;
-  left: 50%;
-  bottom: calc(108px + env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
-  width: min(360px, calc(100vw - 28px));
+  inset: 0;
   z-index: 60;
   display: grid;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 18px;
+  place-items: center;
+  padding: 24px 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 46%),
+    rgba(2, 4, 8, 0.86);
+}
+
+.home-folder {
+  width: min(420px, calc(100vw - 28px));
+  display: grid;
+  gap: 16px;
+  padding: 18px 16px 14px;
+  border-radius: 22px;
   color: #f4f7fb;
-  background: rgba(8, 12, 18, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(180deg, rgba(18, 8, 12, 0.96), rgba(6, 8, 12, 0.96));
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.65),
+    0 18px 48px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  touch-action: pan-y;
 }
 
-.home-folder label,
-.home-folder li {
-  display: grid;
-  gap: 6px;
+.home-folder-name input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #f4f7fb;
+  font: inherit;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
 }
 
-.home-folder ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.home-folder-grid {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 8px;
+  min-height: 276px;
+}
+
+.home-folder-app {
+  touch-action: manipulation;
+}
+
+.home-folder-slot {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto;
+  border-radius: 18px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.home-folder-dots {
+  display: flex;
+  justify-content: center;
   gap: 8px;
 }
 
-.home-folder input,
-.home-folder button {
-  font: inherit;
+.home-folder-dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 99px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.28);
 }
 
-.home-folder input {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: inherit;
-  padding: 8px 10px;
+.home-folder-dots button.is-on {
+  background: var(--accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.home-folder-close {
+  justify-self: center;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .glance-rail {

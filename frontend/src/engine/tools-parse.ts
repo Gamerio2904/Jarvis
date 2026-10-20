@@ -204,6 +204,26 @@ export function parseToolIntent(text: string): ToolIntent | null {
   const listPrefix = LIST_PREFIX.exec(text)
   if (listPrefix) return { kind: 'todo_create', ...todoFromText(listPrefix[1]) }
 
+  if (!/[?]/.test(text) && !/^\s*(?:was|wie|wann|welche|zeig|habe|hab)\b/i.test(text)) {
+    const leadDay = parseLocalDeadline(text)
+    if (
+      leadDay &&
+      /^\s*(?:bis|am)\s+/i.test(text) &&
+      leadDay.remaining.length >= 2 &&
+      leadDay.remaining.length <= 60 &&
+      !/\b(?:kaufen|holen|besorgen|termin|keine|frei|zeit)\b/i.test(leadDay.remaining) &&
+      !/^(?:früh|frueh|abend|mittag|nacht|vormittag)$/i.test(leadDay.remaining)
+    ) {
+      const title = taskTitle(leadDay.remaining, leadDay.remaining)
+      return {
+        kind: 'todo_create',
+        title: title.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE')),
+        deadlineDate: leadDay.date,
+        deadlineTime: leadDay.time,
+      }
+    }
+  }
+
   const must = MUST_DO.exec(text)
   if (must) return { kind: 'todo_create', ...todoFromText(must[1]) }
 
