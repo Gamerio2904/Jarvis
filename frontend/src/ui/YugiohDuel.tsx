@@ -60,6 +60,7 @@ import {
   heuristicPolicy,
   jarvisStep,
   mirrorBotStep,
+  FEATURE_COUNT,
   randomPolicy,
   trainNetPolicy,
   validateNetModel,
@@ -70,7 +71,7 @@ import { YugiohNetViz } from './YugiohNetViz.tsx'
 import { YugiohSelfPlayDev } from './YugiohSelfPlayDev.tsx'
 import './yugioh-duel.css'
 
-const APP_VERSION = '18.66.6'
+const APP_VERSION = '18.66.7'
 
 function settleOwnActivation(state: DuelState): DuelState {
   if (state.pendingPrompt || state.pendingTarget || state.pendingTriggerOrder) return state
@@ -405,7 +406,13 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
       setExtraDeck(extra)
       setWeights(parseWeights(localStorage.getItem(WEIGHTS_KEY)))
       const storedNet = localStorage.getItem(NET_KEY)
-      if (storedNet) setNetModel(validateNetModel(JSON.parse(storedNet) as NetModel))
+      if (storedNet) {
+        try {
+          setNetModel(validateNetModel(JSON.parse(storedNet) as NetModel))
+        } catch {
+          localStorage.removeItem(NET_KEY)
+        }
+      }
       nextCardId.current = Math.max(nextCardId.current, ...main.map((card) => card.id + 1), ...extra.map((card) => card.id + 1))
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Das gespeicherte Deck konnte nicht gelesen werden.')
@@ -990,7 +997,16 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
         </div>
       </header>
 
-      {coin ? (
+      {uiMode === 'dev' ? (
+        <YugiohSelfPlayDev
+          appVersion={APP_VERSION}
+          netModel={netModel}
+          setNetModel={setNetModel}
+          playerGame={game}
+          pausedJarvis={jarvisPaused}
+          setPausedJarvis={setJarvisPaused}
+        />
+      ) : coin ? (
         <div className="ygo-coin-stage" role="status" aria-live="polite" onClick={skipCoin}>
           <p className="ygo-coin-title">Münzwurf</p>
           <div className={`ygo-coin ${coin.result === 'player' ? 'lands-player' : 'lands-jarvis'}`} aria-hidden>
@@ -1386,29 +1402,9 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
               </div>
             </section>
           ) : null}
-          {uiMode === 'dev' ? (
-            <YugiohSelfPlayDev
-              appVersion={APP_VERSION}
-              netModel={netModel}
-              setNetModel={setNetModel}
-              playerGame={game}
-              pausedJarvis={jarvisPaused}
-              setPausedJarvis={setJarvisPaused}
-            />
-          ) : null}
         </section>
       ) : (
         <>
-          {uiMode === 'dev' ? (
-            <YugiohSelfPlayDev
-              appVersion={APP_VERSION}
-              netModel={netModel}
-              setNetModel={setNetModel}
-              playerGame={game}
-              pausedJarvis={jarvisPaused}
-              setPausedJarvis={setJarvisPaused}
-            />
-          ) : null}
           <section className="ygo-builder">
           <div className="ygo-builder-summary">
             <div><strong>{mainDeck.length}</strong><span>Main Deck · Ziel 40–60</span></div>
@@ -1470,7 +1466,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
           <section className="ygo-net-lab">
             <div>
               <strong>Neuronales Netz</strong>
-              <span>28 Merkmale · 16 Neuronen · wechselnde Gegnerdecks (inkl. unbekanntem burn-Deck beim Test)</span>
+              <span>{FEATURE_COUNT} Merkmale · 16 Neuronen · wechselnde Gegnerdecks (inkl. unbekanntem burn-Deck beim Test)</span>
             </div>
             <YugiohNetViz model={netModel} training={netBusy} />
             {netBusy ? <div className="ygo-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(netProgress * 100)}><i style={{ width: `${netProgress * 100}%` }} /></div> : null}

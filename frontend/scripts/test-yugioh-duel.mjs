@@ -992,3 +992,73 @@ test('Ultron beginnt nach dem Münzwurf: er spielt Zug 1, danach ist der Spieler
   assert.equal(you.phase, 'draw')
   assert.equal(you.player.hand.length, 5)
 })
+
+test('Effektmerkmale trennen Suche, Zerstören und eigenes Mill', () => {
+  const random = netEngine.seededRandom(4)
+  const mine = generateDeck('control', random)
+  const theirs = generateDeck('aggro', random)
+  const opened = createDuel(mine.main, theirs.main, random, mine.extra, theirs.extra)
+  const state = {
+    ...opened,
+    phase: 'main1',
+    player: {
+      ...opened.player,
+      hand: [
+        { id: 9001, name: 'Mill', type: 'Spell Card', kind: 'spell', effect: { kind: 'mill', amount: 3 } },
+        { id: 9002, name: 'Search', type: 'Spell Card', kind: 'spell', effect: { kind: 'search', amount: 1 } },
+        { id: 9003, name: 'Smash', type: 'Spell Card', kind: 'spell', effect: { kind: 'destroy', target: 'monster' } },
+      ],
+    },
+    jarvis: {
+      ...opened.jarvis,
+      monsters: [{ id: 8001, name: 'Boss', type: 'Effect Monster', kind: 'monster', atk: 3000, def: 2500, level: 8, position: 'attack' }],
+    },
+  }
+  const actions = candidateActions(state)
+  const at = Object.fromEntries(netEngine.FEATURE_NAMES.map((name, index) => [name, index]))
+  const mill = actions.find((action) => action.cardId === 9001)
+  const search = actions.find((action) => action.cardId === 9002)
+  const smash = actions.find((action) => action.cardId === 9003)
+  assert.ok(mill && search && smash)
+  assert.equal(mill.features.length, FEATURE_COUNT)
+  assert.equal(mill.features[at.effectDraw], 0)
+  assert.ok(mill.features[at.effectMill] > 0)
+  assert.ok(mill.features[at.effectValue] < 0)
+  assert.ok(search.features[at.effectSearch] > 0)
+  assert.ok(search.features[at.effectValue] > mill.features[at.effectValue])
+  assert.ok(smash.features[at.effectDestroy] > 0)
+  assert.ok(smash.features[at.effectValue] > 0.5)
+  assert.ok(smash.features[at.effectHits] > 0)
+  const searchScore = netEngine.heuristicScore(search.features)
+  const millScore = netEngine.heuristicScore(mill.features)
+  assert.ok(searchScore > millScore)
+})
+
+test('Netzlaufe sortieren nach Erfolg und behalten die Zugfolge', async () => {
+  const runs = await import('../src/engine/yugioh-net-run.ts')
+  const model = createNetModel(4, 3)
+  const match = selfPlay.playSelfPlayMatch({
+    seed: 21,
+    deckSource: 'generated',
+    agents: [
+      { ...selfPlay.DEFAULT_AGENT, name: 'Netz', model, search: null, temperature: 0 },
+      { ...selfPlay.DEFAULT_AGENT, name: 'Klon', model, search: null, temperature: 0 },
+    ],
+  })
+  const low = runs.buildNetRun({
+    appVersion: '18.66.7', mode: 'fast', episodes: 10, seed: 21, model,
+    score: 0.2,
+    versus: { net: 0.2, heuristic: 0.5, random: 0.1, games: 4, seed: 918273 },
+    validation: 0.2,
+    training: { wins: 1, losses: 2, draws: 0 },
+    match,
+  })
+  const high = { ...low, id: 'ygo-high', score: 0.8, episodes: 4, createdAt: '2026-01-01T00:00:00.000Z' }
+  const sorted = runs.sortNetRuns([low, high], 'score')
+  assert.equal(sorted[0].id, 'ygo-high')
+  assert.equal(runs.sortNetRuns([low, high], 'episodes')[0].episodes, 10)
+  assert.ok(low.verify.expectedMoveLabels.length === match.moves.length)
+  assert.ok(low.verify.expectedMoveLabels.every((line) => line.startsWith('netz:') || line.startsWith('klon:')))
+  assert.equal(low.model.inputs, FEATURE_COUNT)
+  assert.ok(low.notes.some((note) => note.includes('effectValue')))
+})

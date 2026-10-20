@@ -1,12 +1,14 @@
-# Android-APK — Test-Build `18.66.6`
+# Android-APK — Test-Build `18.66.7`
 
-Test-Build **`18.66.6`** (versionCode `186606`), debug-signiert:
+Test-Build **`18.66.7`** (versionCode `186607`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
+
+**Neu in 18.66.7:** Das Yu-Gi-Oh-Dev-Menü ist das neuronale Netz. Schnell trainiert ohne Brett, Schritt für Schritt zeigt Netz gegen Klon. Läufe stehen in einer Liste, sortiert nach Erfolg, jeweils als JSON mit Zugfolge und als Netz-Datei. Effekte werden getrennt bewertet.
 
 **Neu in 18.66.6:** „Neue Partie Schach“ startet eine neue Partie. Tage bis Weihnachten, Heiligabend und Wochentage kommen vom Gerät. Erscheinungsfragen gehen ins Netz, „Kung für Panda“ wird Kung Fu Panda.
 

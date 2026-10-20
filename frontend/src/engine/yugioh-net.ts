@@ -33,6 +33,8 @@ export const FEATURE_NAMES = [
   'summon', 'extra', 'attack', 'direct', 'effect', 'pass',
   'atk', 'def', 'atkDiff', 'kills', 'suicide', 'trade', 'lethal',
   'effectDraw', 'effectDamage', 'effectHeal', 'effectDestroy', 'effectNegate', 'effectAmount',
+  'effectSearch', 'effectBoard', 'effectRemove', 'effectWeaken', 'effectBoost',
+  'effectMill', 'effectDiscard', 'effectValue', 'effectHits', 'effectCost',
   'lpDiff', 'hand', 'ownField', 'oppField', 'tributes', 'materials', 'chainDecision',
   'passWithOptions', 'bias',
 ] as const
@@ -102,26 +104,181 @@ function base(kind: ActionKind, context: Context, chain: boolean): number[] {
   return features
 }
 
-function withEffect(features: number[], card: DuelCard, opponentLp: number): void {
+function mark(features: number[], name: (typeof FEATURE_NAMES)[number], value = 1): void {
+  features[featureIndex[name]] = value
+}
+
+// Each effect kind gets its own signal plus a signed board value in [-1, 1].
+function withEffect(features: number[], card: DuelCard, state: DuelState): void {
   const effect = card.effect
   if (!effect) return
-  // New effect kinds reuse the existing inputs so stored networks stay compatible.
-  const named: Record<string, (typeof FEATURE_NAMES)[number]> = {
-    draw: 'effectDraw', drawDiscard: 'effectDraw', search: 'effectDraw', revive: 'effectDraw', summonDeck: 'effectDraw', recover: 'effectDraw', mill: 'effectDraw',
-    summonHand: 'effectDraw', token: 'effectDraw', counter: 'effectDraw',
-    boost: 'effectHeal', setStat: 'effectHeal', fieldAura: 'effectHeal', heal: 'effectHeal', pointBoost: 'effectHeal',
-    damage: 'effectDamage', destroy: 'effectDestroy', banish: 'effectDestroy', bounce: 'effectDestroy', position: 'effectDestroy', weaken: 'effectDestroy',
-    negate: 'effectNegate', negateAttack: 'effectNegate',
+  const foe = state.jarvis
+  const me = state.player
+  const monsters = foe.monsters
+  const atkOf = (monster: DuelCard) => monster.atk || 0
+  const bestOpp = monsters.reduce((max, monster) => Math.max(max, atkOf(monster)), 0)
+  const sumOpp = monsters.reduce((sum, monster) => sum + atkOf(monster), 0)
+  const attackCount = monsters.filter((monster) => monster.position !== 'defense').length
+  const spells = foe.spells.length + (foe.fieldSpell ? 1 : 0)
+  const gyBest = me.graveyard.filter((item) => item.kind === 'monster').reduce((max, item) => Math.max(max, item.atk || 0), 0)
+  const behind = me.lp < foe.lp
+  let value = 0
+  let hits = 0
+  let amount = 0
+  const removal = (scope: 'one' | 'all' | 'attack' | 'spell' | 'allSpell'): number => {
+    if (scope === 'one') {
+      hits = monsters.length ? 1 : 0
+      amount = bestOpp
+      return monsters.length ? bestOpp / 3000 : -0.35
+    }
+    if (scope === 'attack') {
+      hits = attackCount
+      amount = monsters.filter((monster) => monster.position !== 'defense').reduce((sum, monster) => sum + atkOf(monster), 0)
+      return attackCount ? Math.min(1, amount / 6000) : -0.35
+    }
+    if (scope === 'all') {
+      hits = monsters.length
+      amount = sumOpp
+      return monsters.length ? Math.min(1, sumOpp / 6000) : -0.35
+    }
+    hits = scope === 'allSpell' ? spells : Math.min(1, spells)
+    amount = spells * 800
+    if (!spells) return -0.4
+    return scope === 'allSpell' ? Math.min(1, 0.28 * spells) : 0.42
   }
-  if (effect.kind === 'rule') {
-    const offensive = effect.rule === 'piercing' || effect.rule === 'direct'
-    features[featureIndex[offensive ? 'effectDamage' : 'effectHeal']] = 1
+  switch (effect.kind) {
+    case 'draw':
+      mark(features, 'effectDraw')
+      amount = effect.amount
+      value = 0.34 * Math.min(1, effect.amount / 2)
+      break
+    case 'drawDiscard':
+      mark(features, 'effectDraw')
+      mark(features, 'effectDiscard', Math.min(1, effect.discard / 2))
+      amount = effect.draw
+      value = 0.28 * (effect.draw - effect.discard) / 2
+      break
+    case 'search':
+      mark(features, 'effectSearch')
+      amount = effect.amount
+      value = 0.74
+      break
+    case 'recover':
+      mark(features, 'effectSearch', 0.7)
+      value = me.graveyard.length ? 0.5 : -0.2
+      break
+    case 'revive':
+    case 'summonPile':
+      mark(features, 'effectBoard')
+      value = gyBest > 0 ? 0.35 + gyBest / 4000 : 0.4
+      break
+    case 'summonDeck':
+      mark(features, 'effectBoard')
+      value = 0.62
+      break
+    case 'summonHand':
+      mark(features, 'effectBoard')
+      mark(features, 'effectDiscard', Math.min(1, effect.discard / 2))
+      mark(features, 'effectCost', effect.tributes / 2)
+      value = 0.48 - 0.12 * effect.discard
+      break
+    case 'token':
+      mark(features, 'effectBoard')
+      amount = effect.atk
+      value = Math.min(1, effect.atk / 3000) * Math.min(1, effect.amount)
+      break
+    case 'counter':
+      if (effect.then === 'draw') mark(features, 'effectDraw', 0.5)
+      value = effect.mode === 'remove' && effect.then === 'draw' ? 0.3 : 0.08
+      break
+    case 'damage':
+      mark(features, 'effectDamage')
+      amount = effect.amount
+      if (effect.amount >= foe.lp) mark(features, 'lethal')
+      value = effect.amount >= foe.lp ? 1 : Math.min(1, effect.amount / 2500)
+      break
+    case 'heal':
+      mark(features, 'effectHeal')
+      amount = effect.amount
+      value = (behind ? 0.55 : 0.08) * Math.min(1, effect.amount / 2000)
+      break
+    case 'destroy':
+      mark(features, 'effectDestroy')
+      value = removal(effect.target === 'monster' ? 'one' : effect.target === 'allMonsters' ? 'all' : effect.target === 'attackMonsters' ? 'attack' : effect.target === 'allSpelltrap' ? 'allSpell' : 'spell')
+      break
+    case 'banish':
+      mark(features, 'effectRemove')
+      value = effect.target === 'gyMonster' ? 0.16 : (effect.target === 'spelltrap' ? removal('spell') : removal('one')) * 0.92
+      break
+    case 'bounce':
+      mark(features, 'effectRemove')
+      value = (effect.target === 'allSpelltrap' ? removal('allSpell') : effect.target === 'allMonsters' ? removal('all') : removal('one')) * 0.78
+      break
+    case 'position':
+      mark(features, 'effectWeaken', 0.55)
+      hits = effect.target === 'allMonsters' ? monsters.length : Math.min(1, monsters.length)
+      value = monsters.length ? 0.22 : -0.3
+      break
+    case 'weaken':
+      mark(features, 'effectWeaken')
+      amount = effect.half ? bestOpp / 2 : effect.amount
+      hits = effect.all ? monsters.length : Math.min(1, monsters.length)
+      value = monsters.length ? Math.min(0.85, (effect.half ? 0.48 : effect.amount / 2500) * (effect.all ? 1.3 : 1)) : -0.3
+      break
+    case 'boost':
+    case 'equip':
+    case 'pointBoost':
+      mark(features, 'effectBoost')
+      amount = effect.amount
+      value = me.monsters.length || effect.kind === 'pointBoost' ? Math.min(0.8, effect.amount / 2000) : -0.25
+      break
+    case 'setStat':
+      mark(features, 'effectBoost')
+      amount = effect.value
+      value = me.monsters.length ? Math.min(0.7, effect.value / 4000) : -0.2
+      break
+    case 'fieldAura':
+      mark(features, 'effectBoost')
+      amount = Math.abs(effect.amount)
+      value = effect.amount >= 0 ? Math.min(0.75, effect.amount / 1500) : -0.2
+      break
+    case 'mill':
+      mark(features, 'effectMill')
+      amount = effect.amount
+      value = effect.opponent ? Math.min(0.35, effect.amount / 8) : -Math.min(0.7, effect.amount / 4)
+      break
+    case 'discard':
+      mark(features, 'effectDiscard')
+      amount = effect.amount
+      value = -Math.min(0.8, 0.25 + effect.amount / 4)
+      break
+    case 'negate':
+      mark(features, 'effectNegate')
+      if (effect.cost === 'halfLp') {
+        mark(features, 'effectCost', 0.55)
+        value = (state.chain.length ? 0.85 : 0.35) - (me.lp < 2000 ? 0.4 : 0.12)
+      } else {
+        value = state.chain.length ? 0.85 : monsters.length ? 0.32 : 0.08
+      }
+      break
+    case 'negateAttack':
+      mark(features, 'effectNegate')
+      value = 0.8
+      break
+    case 'rule': {
+      const offensive = effect.rule === 'piercing' || effect.rule === 'direct'
+      mark(features, offensive ? 'effectDamage' : 'effectBoost', 0.45)
+      value = offensive ? 0.22 : 0.18
+      break
+    }
+    default:
+      break
   }
-  const slot = named[effect.kind]
-  if (slot) features[featureIndex[slot]] = 1
-  const amount = effect.kind === 'draw' || effect.kind === 'damage' || effect.kind === 'heal' ? effect.amount : 0
-  features[featureIndex.effectAmount] = effect.kind === 'draw' ? amount / 3 : clamp(amount / 2000, 0, 1)
-  if (effect.kind === 'damage' && amount >= opponentLp) features[featureIndex.lethal] = 1
+  features[featureIndex.effectAmount] = effect.kind === 'draw' || effect.kind === 'drawDiscard'
+    ? Math.min(1, amount / 3)
+    : clamp(amount / 2000, 0, 1)
+  features[featureIndex.effectValue] = clamp(value)
+  features[featureIndex.effectHits] = Math.min(1, hits / 5)
 }
 
 function tributesNeeded(card: DuelCard): number {
@@ -144,7 +301,7 @@ export function candidateActions(state: DuelState): DuelAction[] {
     if (state.chainPriority === 'player') {
       for (const card of effectCards()) {
         const features = base('effect', context, true)
-        withEffect(features, card, state.jarvis.lp)
+        withEffect(features, card, state)
         actions.push({ kind: 'effect', cardId: card.id, features })
       }
     }
@@ -201,7 +358,7 @@ export function candidateActions(state: DuelState): DuelAction[] {
     }
     for (const card of effectCards()) {
       const features = base('effect', context, false)
-      withEffect(features, card, state.jarvis.lp)
+      withEffect(features, card, state)
       actions.push({ kind: 'effect', cardId: card.id, features })
     }
   }
@@ -334,9 +491,13 @@ export function heuristicScore(x: number[]): number {
     x[f.extra] * (2.5 + x[f.atk]) +
     x[f.attack] * (0.6 + 2 * x[f.kills] - 3 * x[f.suicide]) +
     x[f.direct] * (3 + x[f.atk]) +
-    x[f.effect] * (1.2 + 0.5 * x[f.effectDraw] + x[f.effectDamage] * (0.5 + 3 * x[f.lethal]) +
-      x[f.effectHeal] * (x[f.lpDiff] < 0 ? 0.5 : -0.5) + x[f.effectDestroy] * (x[f.oppField] > 0 ? 1.2 : -3) +
-      x[f.effectNegate] * 3) +
+    x[f.effect] * (0.35 + 2.6 * x[f.effectValue] + 0.35 * x[f.effectDraw] +
+      x[f.effectDamage] * (0.4 + 2.2 * x[f.lethal]) +
+      x[f.effectHeal] * (x[f.lpDiff] < 0 ? 0.35 : -0.35) +
+      x[f.effectDestroy] * (x[f.oppField] > 0 ? 0.55 : -1.4) +
+      x[f.effectNegate] * 1.6 + x[f.effectSearch] * 0.8 + x[f.effectBoard] * 0.7 +
+      x[f.effectRemove] * 0.45 + x[f.effectBoost] * 0.35 + x[f.effectWeaken] * 0.25 -
+      x[f.effectMill] * 0.15 - x[f.effectDiscard] * 0.55 - x[f.effectCost] * 0.4) +
     x[f.pass] * 0.5
   )
 }

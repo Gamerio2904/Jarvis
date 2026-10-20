@@ -2110,3 +2110,245 @@
     grid-template-columns: 1fr;
   }
 }
+
+.ygo-lab {
+  margin: 16px;
+  padding: 22px;
+  border-radius: 28px;
+  color: #f4f7ff;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04) 38%, rgba(8, 14, 28, 0.2)),
+    rgba(8, 16, 34, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(22px) saturate(1.35);
+}
+
+.ygo-lab-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(180px, 280px);
+  gap: 18px;
+  align-items: center;
+}
+
+.ygo-lab h2 {
+  margin: 0 0 6px;
+  font-size: 1.7rem;
+  letter-spacing: -0.03em;
+}
+
+.ygo-lab-head p {
+  margin: 0;
+  color: rgba(244, 247, 255, 0.72);
+}
+
+.ygo-lab .ygo-netviz svg {
+  max-height: 168px;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(120, 190, 255, 0.28), transparent 46%),
+    rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.ygo-lab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.ygo-lab-presets {
+  display: flex;
+  gap: 8px;
+}
+
+.ygo-lab-presets button,
+.ygo-lab-controls > button,
+.ygo-lab-run-actions button {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f7ff;
+  border-radius: 16px;
+  padding: 10px 14px;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.ygo-lab-presets button {
+  display: grid;
+  min-width: 84px;
+  text-align: left;
+}
+
+.ygo-lab-presets button small {
+  color: rgba(244, 247, 255, 0.62);
+}
+
+.ygo-lab-presets button.is-on,
+.ygo-lab-list li.is-on {
+  border-color: rgba(125, 220, 255, 0.7);
+  box-shadow: 0 10px 28px rgba(40, 120, 200, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.ygo-lab-status {
+  margin: 12px 0 0;
+}
+
+.ygo-lab-stage {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ygo-lab-board {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(18, 42, 78, 0.8), rgba(10, 24, 18, 0.72) 48%, rgba(18, 42, 78, 0.8));
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 120, 0.25), 0 16px 40px rgba(0, 0, 0, 0.28);
+  transform: perspective(900px) rotateX(4deg);
+}
+
+.ygo-lab-side header,
+.ygo-lab-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.ygo-lab-side header em {
+  font-style: normal;
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.ygo-lab-row {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  min-height: 36px;
+}
+
+.ygo-lab-row span {
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 12px;
+}
+
+.ygo-lab-row span.is-empty {
+  opacity: 0.55;
+}
+
+.ygo-lab-side.is-netz header {
+  color: #9ad7ff;
+}
+
+.ygo-lab-move {
+  margin: 0;
+  text-align: center;
+  color: #ffe7a3;
+}
+
+.ygo-lab-list-head,
+.ygo-lab-detail header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.ygo-lab-list-head h3 {
+  margin: 0;
+}
+
+.ygo-lab-list-head select,
+.ygo-lab-list {
+  font: inherit;
+}
+
+.ygo-lab-list-head select {
+  margin-left: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.28);
+  color: #f4f7ff;
+  padding: 8px 10px;
+}
+
+.ygo-lab-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.ygo-lab-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ygo-lab-run {
+  display: grid;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ygo-lab-run strong {
+  font-size: 1.15rem;
+}
+
+.ygo-lab-run small,
+.ygo-lab-detail span {
+  color: rgba(244, 247, 255, 0.66);
+}
+
+.ygo-lab-detail {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ygo-lab-detail ol,
+.ygo-lab-notes {
+  margin: 8px 0 0;
+  padding-left: 1.1rem;
+}
+
+@media (max-width: 800px) {
+  .ygo-lab-head,
+  .ygo-lab-list li,
+  .ygo-lab-list-head,
+  .ygo-lab-detail header {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ygo-lab-board {
+    transform: none;
+  }
+}

@@ -1,37 +1,82 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { DuelState } from '../engine/yugioh-duel.ts'
 import {
-  attachValueHead,
-  trainFromSelfPlaySamples,
-  validateNetModel,
+  createNetModel,
+  evaluatePolicy,
+  FEATURE_COUNT,
+  greedyNetPolicy,
+  heuristicPolicy,
+  randomPolicy,
+  trainNetPolicy,
   type NetModel,
 } from '../engine/yugioh-net.ts'
 import {
-  buildProofFile,
-  passesImprovementGate,
-  proofMarkdownSummary,
-  verifyProofFile,
-  type YugiohProofFile,
-} from '../engine/yugioh-proof.ts'
-import { aggregateReviewStats, findMistakeCandidates } from '../engine/yugioh-review.ts'
-import type { LeagueEntry } from '../engine/yugioh-league.ts'
+  buildNetRun,
+  loadNetRuns,
+  netFileFromModel,
+  netFileFromRun,
+  saveNetRun,
+  sortNetRuns,
+  type NetRunFile,
+  type RunSort,
+} from '../engine/yugioh-net-run.ts'
 import {
-  collectSelfPlayTrainingBatch,
   createSelfPlayMatch,
-  evaluateSelfPlayWinRate,
   matchBoard,
+  playSelfPlayMatch,
   stepSelfPlayMatch,
   type SelfPlayMatch,
   type SelfPlayResult,
   DEFAULT_AGENT,
-  playSelfPlayMatch,
 } from '../engine/yugioh-selfplay.ts'
-import { SEARCH_PROFILES } from '../engine/yugioh-search.ts'
+import { YugiohNetViz } from './YugiohNetViz.tsx'
 
-const CHECKPOINT_KEY = 'jarvis_yugioh_checkpoint_v1'
-const DRAFT_KEY = 'jarvis_yugioh_draft_v1'
+const PRESETS = [
+  { id: 'fast', label: 'Schnell', episodes: 120 },
+  { id: 'mid', label: 'Mittel', episodes: 500 },
+  { id: 'deep', label: 'Tief', episodes: 1500 },
+] as const
 
-type Pace = 'realtime' | 'fast' | 'hidden'
+const HOLDOUT_SEED = 918273
+const HOLDOUT_GAMES = 36
+
+function downloadJson(name: string, data: unknown) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function pct(value: number) {
+  return `${(value * 100).toFixed(1)} %`
+}
+
+function GlassBoard({ match }: { match: SelfPlayMatch }) {
+  const board = matchBoard(match)
+  const chip = (cards: { id: number; name: string; atk?: number }[]) => (
+    cards.length
+      ? cards.slice(0, 6).map((card) => <span key={card.id}>{card.name}{typeof card.atk === 'number' ? ` ${card.atk}` : ''}</span>)
+      : <span className="is-empty">leer</span>
+  )
+  const side = (name: string, player: { lp: number; hand: { id: number; name: string; atk?: number }[]; monsters: { id: number; name: string; atk?: number }[] }, footer = false) => (
+    <div className={`ygo-lab-side${footer ? ' is-netz' : ''}`}>
+      {footer ? null : <header><span>{name}</span><em>{player.hand.length} Hand</em><strong>{player.lp} LP</strong></header>}
+      <div className="ygo-lab-row" aria-label={`${name} Monster`}>{chip(player.monsters)}</div>
+      <div className="ygo-lab-row" aria-label={`${name} Hand`}>{chip(player.hand)}</div>
+      {footer ? <header><span>{name}</span><em>{player.hand.length} Hand</em><strong>{player.lp} LP</strong></header> : null}
+    </div>
+  )
+  return (
+    <div className="ygo-lab-board" aria-label="Sichtbare Partie Netz gegen Klon">
+      {side('Klon', board.jarvis)}
+      <p className="ygo-lab-move">{match.message}</p>
+      {side('Netz', board.player, true)}
+    </div>
+  )
+}
 
 export function YugiohSelfPlayDev({
   appVersion,
@@ -48,249 +93,262 @@ export function YugiohSelfPlayDev({
   pausedJarvis: boolean
   setPausedJarvis: (v: boolean) => void
 }) {
+  const [preset, setPreset] = useState<(typeof PRESETS)[number]['id']>('fast')
+  const [busy, setBusy] = useState(false)
+  const [status, setStatus] = useState('')
+  const [progress, setProgress] = useState(0)
   const [spectator, setSpectator] = useState<SelfPlayMatch | null>(null)
-  const [spectatorPaused, setSpectatorPaused] = useState(false)
-  const [pace, setPace] = useState<Pace>('realtime')
-  const [trainingBusy, setTrainingBusy] = useState(false)
-  const [trainingProgress, setTrainingProgress] = useState({ done: 0, total: 0 })
-  const [trainingCurve, setTrainingCurve] = useState<number[]>([])
-  const [lastResult, setLastResult] = useState<SelfPlayResult | null>(null)
-  const [league, setLeague] = useState<LeagueEntry[]>([])
-  const [proof, setProof] = useState<YugiohProofFile | null>(null)
-  const [verifyBusy, setVerifyBusy] = useState(false)
-  const [verifyOk, setVerifyOk] = useState<boolean | null>(null)
-  const [analysisDone, setAnalysisDone] = useState(false)
-  const [gateMsg, setGateMsg] = useState('')
-  const checkpointRef = useRef<NetModel | null>(null)
+  const [auto, setAuto] = useState(false)
+  const [runs, setRuns] = useState<NetRunFile[]>(() => loadNetRuns())
+  const [sort, setSort] = useState<RunSort>('score')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const episodes = PRESETS.find((item) => item.id === preset)?.episodes ?? 120
+  const sorted = useMemo(() => sortNetRuns(runs, sort), [runs, sort])
+  const selected = sorted.find((run) => run.id === selectedId) ?? sorted[0] ?? null
 
   useEffect(() => {
     if (playerGame && !pausedJarvis) setPausedJarvis(true)
   }, [playerGame, pausedJarvis, setPausedJarvis])
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CHECKPOINT_KEY)
-      if (raw) checkpointRef.current = validateNetModel(JSON.parse(raw) as NetModel)
-    } catch { /* ignore */ }
+    if (!spectator || !auto || spectator.end || busy) return
+    const t = window.setTimeout(() => setSpectator((current) => (current && !current.end ? stepSelfPlayMatch(current) : current)), 700)
+    return () => window.clearTimeout(t)
+  }, [spectator, auto, busy])
+
+  const storeRun = useCallback((file: NetRunFile) => {
+    const next = saveNetRun(file)
+    setRuns(next)
+    setSelectedId(file.id)
+    setStatus(`${file.id} · Erfolg ${pct(file.score)}`)
   }, [])
 
-  const board = useMemo(() => (spectator ? matchBoard(spectator) : null), [spectator])
+  const measureAndStore = useCallback((options: {
+    model: NetModel
+    before: NetModel | null
+    mode: 'fast' | 'step'
+    episodes: number
+    seed: number
+    validation: number
+    training: { wins: number; losses: number; draws: number }
+    match: SelfPlayResult | null
+  }) => {
+    setStatus('Misst den Erfolg …')
+    window.setTimeout(() => {
+      const net = evaluatePolicy(greedyNetPolicy(options.model), HOLDOUT_GAMES, HOLDOUT_SEED)
+      const heuristic = evaluatePolicy(heuristicPolicy, HOLDOUT_GAMES, HOLDOUT_SEED)
+      const random = evaluatePolicy(randomPolicy, HOLDOUT_GAMES, HOLDOUT_SEED)
+      const match = options.match ?? playSelfPlayMatch({
+        seed: options.seed,
+        deckSource: 'generated',
+        agents: [
+          { ...DEFAULT_AGENT, name: 'Netz', model: options.model, search: null, temperature: 0 },
+          { ...DEFAULT_AGENT, name: 'Klon', model: options.model, search: null, temperature: 0 },
+        ],
+      })
+      const file = buildNetRun({
+        appVersion,
+        mode: options.mode,
+        episodes: options.episodes,
+        seed: options.seed,
+        model: options.model,
+        modelBefore: options.before,
+        score: net.winRate,
+        versus: { net: net.winRate, heuristic: heuristic.winRate, random: random.winRate, games: HOLDOUT_GAMES, seed: HOLDOUT_SEED },
+        validation: options.validation,
+        training: options.training,
+        match,
+      })
+      storeRun(file)
+      setBusy(false)
+      setProgress(1)
+    }, 30)
+  }, [appVersion, storeRun])
 
-  useEffect(() => {
-    if (!spectator || spectatorPaused || spectator.end) return
-    const delay = pace === 'fast' ? 120 : pace === 'hidden' ? 40 : 650
-    const t = window.setTimeout(() => setSpectator((m) => (m && !m.end ? stepSelfPlayMatch(m) : m)), delay)
-    return () => window.clearTimeout(t)
-  }, [spectator, spectatorPaused, pace])
-
-  const startSpectator = useCallback(() => {
-    setSpectator(createSelfPlayMatch({
-      seed: Date.now() % 100000,
-      agents: [
-        { ...DEFAULT_AGENT, model: netModel, search: SEARCH_PROFILES.game, temperature: 0.15, name: 'Klon A' },
-        { ...DEFAULT_AGENT, model: netModel, search: SEARCH_PROFILES.game, temperature: 0.15, name: 'Klon B' },
-      ],
-    }))
-    setSpectatorPaused(false)
-  }, [netModel])
-
-  const runTraining = useCallback(() => {
-    if (trainingBusy || !netModel) return
-    setTrainingBusy(true)
-    setVerifyOk(null)
-    setAnalysisDone(false)
-    setProof(null)
-    const total = 8
-    setTrainingProgress({ done: 0, total })
-    const before = checkpointRef.current ?? netModel
-    const beforeRate = evaluateSelfPlayWinRate(before)
-    let working = netModel
-    let curve = [...trainingCurve]
-    let last: SelfPlayResult | null = null
-
+  const runFast = useCallback(() => {
+    if (busy) return
+    setBusy(true)
+    setAuto(false)
+    setSpectator(null)
+    setProgress(0)
+    const seed = Date.now() % 0x7fffffff
+    const before = netModel
+    let model = netModel || createNetModel(16, seed)
+    setNetModel(model)
+    const chunk = 40
+    const steps = Math.ceil(episodes / chunk)
+    let validation = 0
+    let training = { wins: 0, losses: 0, draws: 0 }
     const step = (index: number) => {
-      if (index >= total) {
-        const afterRate = evaluateSelfPlayWinRate(working)
-        curve = [...curve, afterRate]
-        setTrainingCurve(curve)
-        setNetModel(working)
-        setLastResult(last)
-        const gate = passesImprovementGate(afterRate, beforeRate)
-        setGateMsg(gate.reason)
-        const built = buildProofFile({
-          appVersion,
-          model: working,
-          modelBefore: before,
-          lastMatch: last,
-          trainingCurve: curve,
-          gatePassed: gate.passed,
-          gateReason: gate.reason,
-          beforeWinRate: beforeRate,
-          afterWinRate: afterRate,
-        })
-        setProof(built)
-        setLeague(built.league)
-        setAnalysisDone(true)
-        setTrainingBusy(false)
+      if (index >= steps) {
+        measureAndStore({ model, before, mode: 'fast', episodes, seed, validation, training, match: null })
         return
       }
-      const batch = collectSelfPlayTrainingBatch(working, 3, 7000 + index * 10)
-      last = batch.results.at(-1) ?? last
-      const trained = trainFromSelfPlaySamples(attachValueHead(working), batch.samples, 0.02)
-      working = trained.policy
-      setTrainingProgress({ done: index + 1, total })
-      window.setTimeout(() => step(index + 1), 30)
+      const trained = trainNetPolicy({ model, episodes: Math.min(chunk, episodes - index * chunk), seed: seed + index, validationGames: 20 })
+      model = trained.model
+      validation = Math.max(validation, trained.bestValidation)
+      training = {
+        wins: training.wins + trained.wins,
+        losses: training.losses + trained.losses,
+        draws: training.draws + trained.draws,
+      }
+      setNetModel(model)
+      setProgress((index + 1) / (steps + 1))
+      setStatus(`Training ${Math.min(episodes, (index + 1) * chunk)} / ${episodes} ohne Brett`)
+      window.setTimeout(() => step(index + 1), 16)
     }
-    window.setTimeout(() => step(0), 30)
-  }, [trainingBusy, netModel, appVersion, setNetModel, trainingCurve])
+    setStatus('Training startet ohne Brett')
+    window.setTimeout(() => step(0), 16)
+  }, [busy, episodes, measureAndStore, netModel, setNetModel])
 
-  const runVerify = useCallback(() => {
-    if (!proof || !netModel) return
-    setVerifyBusy(true)
-    window.setTimeout(() => {
-      const result = verifyProofFile(proof, netModel)
-      setVerifyOk(result.ok)
-      setVerifyBusy(false)
-    }, 40)
-  }, [proof, netModel])
+  const startStep = useCallback(() => {
+    if (busy || !netModel) return
+    setAuto(false)
+    setStatus('Schritt für Schritt. Netz gegen seinen Klon.')
+    setSpectator(createSelfPlayMatch({
+      seed: Date.now() % 0x7fffffff,
+      deckSource: 'generated',
+      agents: [
+        { ...DEFAULT_AGENT, name: 'Netz', model: netModel, search: null, temperature: 0 },
+        { ...DEFAULT_AGENT, name: 'Klon', model: netModel, search: null, temperature: 0 },
+      ],
+    }))
+  }, [busy, netModel])
 
-  const saveCheckpoint = useCallback(() => {
-    if (!netModel || verifyOk !== true) return
-    const gate = passesImprovementGate(
-      evaluateSelfPlayWinRate(netModel),
-      evaluateSelfPlayWinRate(checkpointRef.current),
-    )
-    if (!gate.passed) {
-      setGateMsg(gate.reason)
-      return
+  const finishStep = useCallback(() => {
+    if (!spectator?.end || busy || !netModel) return
+    setBusy(true)
+    setAuto(false)
+    const result: SelfPlayResult = {
+      seed: spectator.seed,
+      decks: spectator.decks,
+      winner: spectator.winner,
+      end: spectator.end,
+      halfTurns: spectator.halfTurn,
+      lp: (() => {
+        const board = matchBoard(spectator)
+        return [board.player.lp, board.jarvis.lp]
+      })(),
+      moves: spectator.moves,
     }
-    try {
-      localStorage.setItem(CHECKPOINT_KEY, JSON.stringify(netModel))
-      checkpointRef.current = netModel
-      localStorage.removeItem(DRAFT_KEY)
-      setGateMsg('Checkpoint gespeichert.')
-    } catch {
-      setGateMsg('Speichern fehlgeschlagen.')
-    }
-  }, [netModel, verifyOk])
-
-  const mistakes = useMemo(
-    () => (lastResult ? findMistakeCandidates(lastResult.moves) : []),
-    [lastResult],
-  )
-  const stats = useMemo(
-    () => (lastResult ? aggregateReviewStats(lastResult.moves, mistakes) : null),
-    [lastResult, mistakes],
-  )
-
-  const downloadProof = useCallback(() => {
-    if (!proof) return
-    const blob = new Blob([JSON.stringify(proof, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `yugioh-nachweis-${proof.weightsSha256}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-  }, [proof])
+    measureAndStore({
+      model: netModel,
+      before: null,
+      mode: 'step',
+      episodes: 0,
+      seed: spectator.seed,
+      validation: 0,
+      training: { wins: 0, losses: 0, draws: 0 },
+      match: result,
+    })
+  }, [busy, measureAndStore, netModel, spectator])
 
   return (
-    <section className="ygo-dev-panel" aria-label="Yu-Gi-Oh Entwicklermenü">
-      <div className="ygo-dev-grid">
-        <div className="ygo-dev-col">
-          <h2>Zuschauen</h2>
-          <p>Zwei Kopien der aktuellen KI spielen gegeneinander. Dein eigenes Duell bleibt stehen, solange diese Ansicht offen ist.</p>
-          <div className="ygo-actions">
-            <button type="button" className="ygo-primary" onClick={startSpectator}>Partie starten</button>
-            <button type="button" disabled={!spectator} onClick={() => setSpectatorPaused((p) => !p)}>{spectatorPaused ? 'Weiter' : 'Pause'}</button>
-            <button type="button" disabled={!spectator} onClick={() => setSpectator(null)}>Schließen</button>
-          </div>
-          <label>Geschwindigkeit
-            <select value={pace} onChange={(e) => setPace(e.target.value as Pace)}>
-              <option value="realtime">Langsam, Zug für Zug</option>
-              <option value="fast">Schnell</option>
-              <option value="hidden">Nur das Ergebnis</option>
-            </select>
-          </label>
-          {spectator ? (
-            <p className="ygo-muted">{spectator.message} · Zug {spectator.halfTurn}{spectator.end ? ` · Ende: ${spectator.end}` : ''}</p>
-          ) : <p className="ygo-muted">Noch keine Partie. „Partie starten“ spielt eine Runde vor.</p>}
-          {board && pace !== 'hidden' ? (
-            <div className="ygo-mini-board" aria-hidden>
-              <span>Klon A {board.player.lp} LP</span>
-              <span>Klon B {board.jarvis.lp} LP</span>
-            </div>
-          ) : null}
+    <section className="ygo-lab" aria-label="Neuronales Netz">
+      <header className="ygo-lab-head">
+        <div>
+          <p className="ygo-eyebrow">NETZ</p>
+          <h2>Neuronales Netz</h2>
+          <p>{FEATURE_COUNT} Merkmale · {netModel?.hidden ?? 16} Neuronen · lokal auf dem Gerät</p>
         </div>
+        <YugiohNetViz model={netModel} training={busy} />
+      </header>
 
-        <div className="ygo-dev-col">
-          <h2>Lernen und prüfen</h2>
-          <p>Das Netz spielt 8 Durchgänge à 3 Partien gegen sich selbst. Danach prüfst du den Nachweis und speicherst nur, wenn die Prüfung grün ist.</p>
-          <button type="button" className="ygo-primary" disabled={trainingBusy || !netModel} onClick={runTraining}>
-            {trainingBusy ? `Lernt … ${trainingProgress.done}/${trainingProgress.total}` : netModel ? 'Lernen starten' : 'Zuerst ein Duell starten, damit ein Netz da ist'}
-          </button>
-          {trainingCurve.length ? (
-            <p>Siegquote nach jedem Durchgang: {trainingCurve.map((v) => `${(v * 100).toFixed(0)}%`).join(' → ')}</p>
-          ) : null}
-          {stats ? (
-            <p>Letzte Partie: {stats.mistakeCandidates} fragliche Züge von {stats.totalMoves}.</p>
-          ) : null}
-          {analysisDone ? (
-            <>
-              <button type="button" className="ygo-primary" disabled={verifyBusy} onClick={runVerify}>
-                {verifyBusy ? 'Prüfung läuft …' : 'Nachweis prüfen'}
-              </button>
-              {verifyOk === true ? (
-                <button type="button" className="ygo-primary" onClick={saveCheckpoint}>Geprüftes Netz merken</button>
-              ) : verifyOk === false ? (
-                <p className="ygo-error" role="alert">Prüfung fehlgeschlagen. Das alte Netz bleibt.</p>
-              ) : null}
-            </>
-          ) : null}
-          {gateMsg ? <p className="ygo-message">{gateMsg}</p> : null}
-          {proof ? (
-            <div className="ygo-actions">
-              <button type="button" onClick={downloadProof}>Nachweis herunterladen</button>
-              <button
-                type="button"
-                onClick={() => {
-                  const md = proofMarkdownSummary(proof)
-                  void navigator.clipboard?.writeText(md)
-                }}
-              >Kurztext kopieren</button>
-            </div>
-          ) : null}
-          {league.length ? (
-            <ul className="ygo-league-list">
-              {league.map((e) => (
-                <li key={e.id}>{e.label}: {Math.round(e.rating)} Punkte</li>
-              ))}
-            </ul>
-          ) : null}
+      <div className="ygo-lab-controls">
+        <div className="ygo-lab-presets" role="group" aria-label="Trainingslänge">
+          {PRESETS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={preset === item.id ? 'is-on' : ''}
+              aria-pressed={preset === item.id}
+              disabled={busy}
+              onClick={() => setPreset(item.id)}
+            >
+              {item.label}
+              <small>{item.episodes}</small>
+            </button>
+          ))}
         </div>
+        <button type="button" className="ygo-primary" disabled={busy} onClick={runFast}>
+          {busy && !spectator ? 'Läuft …' : 'Schnell ohne Brett'}
+        </button>
+        <button type="button" disabled={busy || !netModel} onClick={startStep}>
+          {netModel ? 'Schritt für Schritt' : 'Zuerst schnell trainieren'}
+        </button>
+        {netModel ? (
+          <button type="button" onClick={() => downloadJson(`yugioh-netz-${Date.now()}.json`, netFileFromModel(netModel))}>
+            Aktuelles Netz
+          </button>
+        ) : null}
       </div>
 
-      {lastResult && analysisDone ? (
-        <details className="ygo-match-log">
-          <summary>Match-Log ({lastResult.moves.length} Züge)</summary>
-          <button
-            type="button"
-            onClick={() => {
-              const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: 'application/json' })
-              const url = URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `selfplay-${lastResult.seed}.json`
-              a.click()
-              URL.revokeObjectURL(url)
-            }}
-          >JSON exportieren</button>
-          <ol>
-            {mistakes.slice(0, 12).map((m) => (
-              <li key={m.move}>Zug {m.move}: {m.label} (besser: {m.bestAlternative})</li>
-            ))}
-          </ol>
-        </details>
+      {busy || progress > 0 ? (
+        <div className="ygo-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
+          <i style={{ width: `${progress * 100}%` }} />
+        </div>
+      ) : null}
+      {status ? <p className="ygo-lab-status" role="status">{status}</p> : null}
+
+      {spectator ? (
+        <div className="ygo-lab-stage">
+          <GlassBoard match={spectator} />
+          <div className="ygo-lab-controls">
+            <button type="button" disabled={Boolean(spectator.end)} onClick={() => setSpectator((current) => (current && !current.end ? stepSelfPlayMatch(current) : current))}>Ein Zug</button>
+            <button type="button" disabled={Boolean(spectator.end)} onClick={() => setAuto((value) => !value)}>{auto ? 'Pause' : 'Automatisch'}</button>
+            <button type="button" disabled={!spectator.end || busy} onClick={finishStep}>{spectator.end ? 'Lauf speichern' : 'Partie läuft'}</button>
+            <button type="button" onClick={() => { setSpectator(null); setAuto(false) }}>Schließen</button>
+          </div>
+          <p className="ygo-muted">Zug {spectator.halfTurn}{spectator.end ? ` · ${spectator.end}` : ''}</p>
+        </div>
+      ) : null}
+
+      <div className="ygo-lab-list-head">
+        <h3>Läufe</h3>
+        <label>Sortierung
+          <select aria-label="Läufe sortieren" value={sort} onChange={(event) => setSort(event.target.value as RunSort)}>
+            <option value="score">Höchster Erfolg</option>
+            <option value="newest">Neueste</option>
+            <option value="episodes">Meiste Episoden</option>
+          </select>
+        </label>
+      </div>
+      {sorted.length ? (
+        <ul className="ygo-lab-list">
+          {sorted.map((run) => (
+            <li key={run.id} className={selected?.id === run.id ? 'is-on' : ''}>
+              <button type="button" className="ygo-lab-run" onClick={() => setSelectedId(run.id)}>
+                <strong>{pct(run.score)}</strong>
+                <span>{run.mode === 'fast' ? 'Schnell' : 'Schritt'} · {run.episodes} Episoden</span>
+                <small>{run.id}</small>
+              </button>
+              <div className="ygo-lab-run-actions">
+                <button type="button" onClick={() => downloadJson(`${run.id}.json`, run)}>Lauf-JSON</button>
+                <button type="button" onClick={() => downloadJson(`${run.id}-netz.json`, netFileFromRun(run))}>Netz</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="ygo-muted">Noch kein Lauf. Schnell trainiert ohne Brett. Schritt für Schritt zeigt jede Aktion.</p>}
+
+      {selected ? (
+        <article className="ygo-lab-detail" aria-label="Gewählter Lauf">
+          <header>
+            <strong>{selected.id}</strong>
+            <span>Erfolg {pct(selected.score)} · Heuristik {pct(selected.versus.heuristic)} · Zufall {pct(selected.versus.random)}</span>
+          </header>
+          <p>{selected.match ? `${selected.match.moves.length} Züge · ${selected.match.decks[0]} gegen ${selected.match.decks[1]} · ${selected.match.winnerLabel}` : 'Keine Partie im Lauf.'}</p>
+          {selected.improvements.length ? (
+            <ol>
+              {selected.improvements.slice(0, 6).map((item) => (
+                <li key={`${selected.id}-${item.move}`}>Zug {item.move}, {item.actor}: {item.label}. Besser: {item.better}.</li>
+              ))}
+            </ol>
+          ) : <p>Keine klaren Fehlzüge in der gespeicherten Partie.</p>}
+          <ul className="ygo-lab-notes">
+            {selected.notes.slice(0, 4).map((note) => <li key={note}>{note}</li>)}
+          </ul>
+        </article>
       ) : null}
     </section>
   )

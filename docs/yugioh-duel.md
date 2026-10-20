@@ -72,15 +72,18 @@ Materialregeln beschwörbar.
   control, combo, balanced, burn) mit Effekt-Monstern, Zaubern, Tunern und
   Extra Deck. **burn** wird nie trainiert und dient nur als unbekannter
   Gegner in der Auswertung.
-- `yugioh-net.ts`: 28 Aktionsmerkmale (Handkarten, Effekte, Ketten-Entscheidungen,
-  Extra-Deck-Beschwörung, Kampfausgang, LP/Feld-Kontext), ein kleines
-  neuronales Netz (16 tanh-Neuronen) oder ein lineares Modell darüber,
+- `yugioh-net.ts`: 38 Aktionsmerkmale. Effekte sind getrennt bewertet
+  (Suche, Brett, Zerstören, Entfernen, Schwächen, Boost, Mill, Abwerfen,
+  plus `effectValue` von −1 bis 1 aus der Lage). Dazu Hand, Kette,
+  Extra-Deck, Kampf und LP. Ein kleines Netz (16 tanh-Neuronen) oder ein
+  lineares Modell darüber. Ein gespeichertes Netz mit 28 Eingängen wird
+  verworfen. Die 38 Merkmale ersetzen die früheren 28.
   REINFORCE mit Baseline, Entropie-Bonus und Adam, Auswahl des besten
   Validierungsstands sowie Model Soup über Spezialisten (aggro/control/combo)
   mit gemeinsamem Startpunkt und Greedy-Aufnahme.
 - `npm run train:duel-net [Episoden] [Spiele] [Seed]` gibt eine Vergleichstabelle aus.
 
-Referenzlauf (4000 Episoden, 600 Holdout-Duelle, Seed 918273, wechselnde
+Referenzlauf der früheren 28 Merkmale (4000 Episoden, 600 Holdout-Duelle, Seed 918273, wechselnde
 Decks beider Seiten): Zufall 62,7 %, Heuristik 81,2 %, Linear 80,2 %,
 Netz 80,7 %, Netz-Soup 79,5 %. Das Netz lernt also deutlich mehr als
 Zufallsspiel und erreicht die handgeschriebene Heuristik auch gegen den
@@ -88,6 +91,10 @@ unbekannten Archetyp, **übertrifft sie aber nicht**; Unterschiede von
 1–2 Punkten liegen im Messrauschen. Der Gegner ist die skriptgesteuerte
 Engine-KI. Das Netz wurde auf der Spielerseite trainiert.
 das Netz steuert nun auch Jarvis im echten Duell (siehe unten).
+
+Das Dev-Menü ist nur das Netz. **Schnell ohne Brett** trainiert 120, 500 oder 1500 Episoden und misst danach still. **Schritt für Schritt** zeigt Netz gegen Klon, Zug für Zug. Jeder Lauf liegt in einer Liste, sortierbar nach Erfolg, Datum oder Episoden. Lauf-JSON enthält die Lauf-ID, die Gewichte, die Holdout-Zahlen, die komplette Zugfolge beider Seiten und die Stellen, die nachzuschärfen sind. Das Netz allein gibt es als eigene JSON.
+
+
 
 ### Netz steuert Jarvis, echte Decks
 
