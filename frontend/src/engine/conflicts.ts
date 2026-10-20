@@ -13,6 +13,7 @@ import { parsePortfolioIntent } from './portfolio-parse.ts'
 import { parseBotAskIntent } from './bot-ask.ts'
 import { parseXferIntent } from './xfer-parse.ts'
 import { parseImageAsk } from './image-parse.ts'
+import { parseToolIntent } from './tools-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
   return cands.filter((c) => c.id !== id)
@@ -407,6 +408,16 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   if (/\bfreitag\b/.test(t) && !/\bfriday\b/.test(t)) {
     out = drop(out, 'face')
     out = boost(out, 'calendar', 0.2)
+  }
+
+  const datedTodo = parseToolIntent(text)
+  if (
+    datedTodo?.kind === 'todo_create' &&
+    datedTodo.deadlineDate &&
+    /\b(?:to-?\s*do|aufgabenliste|aufgabe|hausaufgaben)\b/.test(t)
+  ) {
+    out = drop(out, 'calendar')
+    out = boost(out, 'todo', 0.25)
   }
 
   if (/\bwas\s+steht\b/.test(t) && /\bfriday\b/.test(t)) {

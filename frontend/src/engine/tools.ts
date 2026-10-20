@@ -19,7 +19,7 @@ import {
   type Todo,
   type ToolPending,
 } from './store.ts'
-import { moveToTodo, titlesFromLastStep } from './list-move.ts'
+import { moveToTodo, takeOpenShopping, titlesFromLastStep } from './list-move.ts'
 import { syncGlance } from './glance.ts'
 import { parseToolIntent } from './tools-parse.ts'
 import type { ToolIntent } from './tools-parse.ts'
@@ -158,7 +158,9 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
   }
 
   if (intent.kind === 'todo_create') {
-    if (intent.fromShopping) {
+    const deadlineDate = intent.deadlineDate || null
+    const deadlineTime = deadlineDate ? intent.deadlineTime || '18:00' : null
+    if (intent.fromShopping && !deadlineDate) {
       const moved = await moveToTodo([intent.title], conversationId)
       try {
         await syncGlance()
@@ -175,18 +177,28 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
         tool: { tool_status: 'executed', tool: 'todo', action: moved.fromShopping.length ? 'move' : 'create', label: 'To-Do', preview: name },
       }
     }
+    if (intent.fromShopping) await takeOpenShopping(intent.title)
     const open = (await listTodos()).filter((todo) => todo.status === 'open')
-    if (open.some((todo) => todo.title.toLocaleLowerCase() === intent.title.toLocaleLowerCase())) {
+    const existing = open.find((todo) => todo.title.toLocaleLowerCase() === intent.title.toLocaleLowerCase())
+    const when = deadlineDate ? ` Im Kalender ${deadlineDate} ${deadlineTime}.` : ''
+    if (existing) {
+      const sameWhen =
+        (existing.deadline_date || null) === deadlineDate && (existing.deadline_time || null) === deadlineTime
+      if (deadlineDate && (!sameWhen || !existing.event_id)) {
+        await updateTodo(existing.id, { deadlineDate, deadlineTime })
+        return {
+          handled: true,
+          reply: `In der To-do-Liste: ${existing.title}.${when}`,
+          tool: { tool_status: 'executed', tool: 'todo', action: 'update', label: 'Todo liegt', preview: existing.title },
+        }
+      }
       return { handled: true, reply: `„${intent.title}“ steht in der To-do-Liste schon offen.`, tool: { tool_status: 'duplicate', tool: 'todo', action: 'create', label: 'Todo schon offen' } }
     }
     await addTodo(intent.title, conversationId, {
       listId: 'todo-list-general',
-      deadlineDate: intent.deadlineDate || null,
-      deadlineTime: intent.deadlineTime || null,
+      deadlineDate,
+      deadlineTime,
     })
-    const when = intent.deadlineDate
-      ? ` Im Kalender ${intent.deadlineDate}${intent.deadlineTime ? ` ${intent.deadlineTime}` : ' 18:00'}.`
-      : ''
     return {
       handled: true,
       reply: `In der To-do-Liste: ${intent.title}.${when}`,

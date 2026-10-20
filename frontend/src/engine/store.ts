@@ -8,7 +8,7 @@ import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 import { recordLocalRevision } from './sync-revisions.ts'
 
-export const APP_VERSION = '18.66.14'
+export const APP_VERSION = '18.66.15'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -1252,6 +1252,15 @@ export async function collapseTodoLists(): Promise<TodoList> {
   return next[0]
 }
 
+async function requireTodoList(listId: string): Promise<void> {
+  if (await get<TodoList>('todo_lists', listId)) return
+  if (listId === 'todo-list-general') {
+    await listTodoLists()
+    if (await get<TodoList>('todo_lists', listId)) return
+  }
+  throw new Error('Die ausgewählte Todo-Liste existiert nicht.')
+}
+
 export async function addTodo(
   title: string,
   conversationId?: string,
@@ -1266,7 +1275,7 @@ export async function addTodo(
   const cleanTitle = title.trim()
   if (!cleanTitle) throw new Error('Die Todo-Aufgabe darf nicht leer sein.')
   const listId = opts.listId || 'todo-list-general'
-  if (!(await get<TodoList>('todo_lists', listId))) throw new Error('Die ausgewählte Todo-Liste existiert nicht.')
+  await requireTodoList(listId)
   validateTodoDeadline(opts.deadlineDate, opts.deadlineTime)
   const now = nowIso()
   const row: Todo = {
@@ -1310,7 +1319,7 @@ export async function updateTodo(
   const title = patch.title === undefined ? row.title : patch.title.trim()
   if (!title) throw new Error('Die Todo-Aufgabe darf nicht leer sein.')
   const listId = patch.listId || row.list_id || 'todo-list-general'
-  if (!(await get<TodoList>('todo_lists', listId))) throw new Error('Die ausgewählte Todo-Liste existiert nicht.')
+  await requireTodoList(listId)
   const deadlineDate = patch.deadlineDate === undefined ? row.deadline_date || null : patch.deadlineDate
   const deadlineTime = patch.deadlineTime === undefined ? row.deadline_time || null : patch.deadlineTime
   validateTodoDeadline(deadlineDate, deadlineTime)
