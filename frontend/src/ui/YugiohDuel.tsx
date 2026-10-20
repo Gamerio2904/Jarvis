@@ -71,7 +71,7 @@ import { YugiohNetViz } from './YugiohNetViz.tsx'
 import { YugiohSelfPlayDev } from './YugiohSelfPlayDev.tsx'
 import './yugioh-duel.css'
 
-const APP_VERSION = '18.66.11'
+const APP_VERSION = '18.66.12'
 
 function settleOwnActivation(state: DuelState): DuelState {
   if (state.pendingPrompt || state.pendingTarget || state.pendingTriggerOrder) return state

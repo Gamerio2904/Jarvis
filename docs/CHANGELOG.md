@@ -3,6 +3,12 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.12` — Eine Stimme — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.12`** (versionCode `186612`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Jede Antwort bleibt auf einer Spur. Der erste Satz wählt Conrad, und nur wenn der fehlt Algieba. Die weiteren Sätze warten auf diese Wahl und fallen nicht mehr auf die Geräte-Stimme zurück. Die Geräte-Stimme spricht nur, wenn beide Neural-Wege für die ganze Antwort fehlen. MP3 und System-TTS stoppen einander, bevor eines startet.
+
 ## `18.66.11` — Werkzeuge, Listen, Netz — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.11`** (versionCode `186611`). `engineStamp` bleibt **`18.60.0-ygo-md`**. Nachweis-Format bleibt **`jarvis-yugioh-proof-v1`**.

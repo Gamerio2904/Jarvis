@@ -1,6 +1,8 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge } from '../engine/edge-tts.ts'
-import { synthesizeGemini, wantGeminiVoice, wantNeuralMouth } from '../engine/tts.ts'
+import { edgeFirstTimeoutMs, synthesizeEdge } from '../engine/edge-tts.ts'
+import { createMouthDirector } from '../engine/mouth.ts'
+import { setChatSpeaking } from '../engine/speak-lock.ts'
+import { synthesizeGemini, wantGeminiVoice } from '../engine/tts.ts'
 import { pickHeard } from '../engine/heard.ts'
 import { repairSpeech } from '../engine/utterance.ts'
 import { upsertWorking } from '../engine/working-memory.ts'
@@ -409,78 +411,45 @@ export async function streamSseLines(
   }
 }
 
-type SpeakJob = { text: string; ready: Promise<Blob | 'native'> }
-type MouthLane = 'gemini' | 'edge' | 'native'
+type SpeakJob = { text: string; ready: Promise<Blob | 'native' | 'silence'> }
 
 async function freeNeural(text: string, timeoutMs: number): Promise<Blob | null> {
   return synthesizeEdge(text, { timeoutMs })
 }
 
+let activeStop: (() => void) | null = null
+
 export function createSpeakPipeline() {
+  let stopImpl: () => void = () => {}
+  const arm = () => stopImpl()
+  const prev = activeStop
+  activeStop = arm
+  prev?.()
+
   const q: SpeakJob[] = []
   const heard: string[] = []
   let running = false
   let stopped = false
   let open = false
-  let lane: MouthLane | null = null
+  const settings = loadSettings()
+  const edgeMs = edgeFirstTimeoutMs()
+  const mouth = createMouthDirector(
+    {
+      voiceTts: settings.voice_tts || 'auto',
+      geminiReady: wantGeminiVoice(),
+      edgeTimeoutMs: edgeMs,
+      retryTimeoutMs: settings.drive_mode ? edgeMs : Math.max(edgeMs, 4500),
+      // Lock the winning lane for the rest of this reply — no Pico jump mid-sentence.
+      preferEdge: preferEdgeForReply,
+    },
+    {
+      edge: (text, timeoutMs) => freeNeural(text, timeoutMs),
+      gemini: (text) => synthesizeGemini(text),
+    },
+  )
 
-  function prepare(text: string): Promise<Blob | 'native'> {
-    return (async () => {
-      if (!wantNeuralMouth() || lane === 'native') {
-        lane = 'native'
-        return 'native'
-      }
-      if (preferEdgeForReply(text) && lane !== 'gemini') {
-        const edge = await freeNeural(text, edgeFirstTimeoutMs())
-        if (edge) {
-          lane = 'edge'
-          return edge
-        }
-        if (wantGeminiVoice()) {
-          const gem = await synthesizeGemini(text)
-          if (gem) {
-            lane = 'gemini'
-            return gem
-          }
-        }
-        lane = 'native'
-        return 'native'
-      }
-      if (lane === 'gemini') {
-        const blob = await synthesizeGemini(text)
-        return blob || 'native'
-      }
-      if (lane === 'edge') {
-        const blob = await freeNeural(text, 4000)
-        return blob || 'native'
-      }
-      if (loadSettings().voice_tts === 'gemini') {
-        const gem = await synthesizeGemini(text)
-        if (gem) {
-          lane = 'gemini'
-          return gem
-        }
-        const edge = await freeNeural(text, 2500)
-        if (edge) {
-          lane = 'edge'
-          return edge
-        }
-        lane = 'native'
-        return 'native'
-      }
-      const jobs: Array<{ lane: 'gemini' | 'edge'; run: Promise<Blob | null> }> = [
-        { lane: 'edge', run: synthesizeEdge(text, { timeoutMs: edgeFirstTimeoutMs() }) },
-      ]
-      if (wantGeminiVoice()) jobs.push({ lane: 'gemini', run: synthesizeGemini(text) })
-      const hit = await firstBlobWins(jobs)
-      if (hit) {
-        // Lock the winning lane for the rest of this reply — no Pico jump mid-sentence.
-        lane = hit.lane
-        return hit.blob
-      }
-      lane = 'native'
-      return 'native'
-    })()
+  function prepare(text: string): Promise<Blob | 'native' | 'silence'> {
+    return mouth.prepare(text)
   }
 
   async function pump() {
@@ -491,21 +460,23 @@ export function createSpeakPipeline() {
       if (!job) continue
       const audio = await job.ready
       if (stopped) break
+      if (audio === 'silence') continue
       markFirstAudio()
       heard.push(job.text)
       if (audio instanceof Blob) await playBlob(audio)
-      else await speakNative(job.text)
+      else if (audio === 'native') await speakNative(job.text)
     }
     running = false
   }
 
-  return {
+  const api = {
     push(text: string) {
       const clean = text.replace(/\s+/g, ' ').trim()
       if (stopped || !clean) return
       if (!open) {
         open = true
         acquireTalk()
+        setChatSpeaking(true)
       }
       q.push({ text: clean, ready: prepare(clean) })
       void pump()
@@ -521,19 +492,30 @@ export function createSpeakPipeline() {
         open = false
         releaseTalk()
       }
+      setChatSpeaking(false)
     },
     stop() {
-      stopped = true
-      open = false
-      q.length = 0
-      void stopSpeak()
+      stopImpl()
     },
   }
+  stopImpl = () => {
+    stopped = true
+    q.length = 0
+    if (open) {
+      open = false
+      releaseTalk()
+    }
+    setChatSpeaking(false)
+    if (activeStop === arm) activeStop = null
+    void stopSpeak()
+  }
+  return api
 }
 
 function speakNative(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, ' ').replace(/\s+/g, ' ').trim()
   if (!clean) return Promise.resolve()
+  stopHtmlAudio()
   const gender = 'male'
   setAppTalking(true)
   const done = () => setAppTalking(false)
