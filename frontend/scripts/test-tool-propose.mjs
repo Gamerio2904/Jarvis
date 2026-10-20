@@ -268,7 +268,7 @@ function answerWith(tool, args) {
 }
 
 /** Ohne Vorschlagsweg: ehrliche Absage, kein Modell-Fake. */
-store.saveSettings({ tool_propose: false, groq_api_key: 'gsk_test' })
+store.saveSettings({ tool_propose: false, tool_agent: false, groq_api_key: 'gsk_test' })
 answerWith('set_timer', bag({ minutes: '12' }))
 const ohneWeg = await runDirectorTurn(CONV, 'stell mir einen Timer für den Kuchen im Ofen')
 assert.match(ohneWeg.hit?.reply || '', /nicht eingebaut/)
