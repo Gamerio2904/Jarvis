@@ -961,6 +961,22 @@ public class JarvisDevicePlugin extends Plugin {
         call.resolve(JarvisMail.list(host, user, pass, limit == null ? 8 : limit, query));
     }
 
+    /** Nur diese App. Das System zeigt die Deinstallation und wartet auf die Bestätigung. */
+    @PluginMethod
+    public void uninstallSelf(PluginCall call) {
+        JSObject r = new JSObject();
+        try {
+            Intent i = new Intent(Intent.ACTION_DELETE);
+            i.setData(Uri.parse("package:" + getContext().getPackageName()));
+            startExt(i);
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Deinstallation nicht geöffnet.");
+        }
+        call.resolve(r);
+    }
+
     @PluginMethod
     public void mailto(PluginCall call) {
         String to = call.getString("to", "");

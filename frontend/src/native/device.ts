@@ -29,6 +29,7 @@ type NativeDevice = {
   secureGet(opts: { key: string }): Promise<{ ok: boolean; found?: boolean; value?: string; message?: string }>
   securePut(opts: { key: string; value: string }): Promise<{ ok: boolean; message?: string }>
   secureDelete(opts: { key: string }): Promise<{ ok: boolean; message?: string }>
+  uninstallSelf(): Promise<{ ok: boolean; message?: string }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
@@ -47,6 +48,19 @@ export async function securePut(key: string, value: string): Promise<void> {
   }
   const result = await native.securePut({ key, value })
   if (!result.ok) throw new Error(result.message || 'Geschützter Gerätespeicher konnte nicht schreiben.')
+}
+
+export async function uninstallSelf(): Promise<{ ok: boolean; native: boolean; message?: string }> {
+  if (!native) return { ok: false, native: false }
+  try {
+    const result = await withTimeout(native.uninstallSelf(), 4_000, {
+      ok: false,
+      message: 'Deinstallation nicht geöffnet.',
+    })
+    return { ok: Boolean(result.ok), native: true, message: result.message }
+  } catch {
+    return { ok: false, native: true, message: 'Deinstallation nicht geöffnet.' }
+  }
 }
 
 export async function secureDelete(key: string): Promise<void> {

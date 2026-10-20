@@ -31,6 +31,8 @@ import {
 } from './research-pending.ts'
 import { promoteSplitPart, splitIntents } from './split-intents.ts'
 import { normalizeUtterance } from './utterance.ts'
+import { NOTFALL_REPLY, NOTFALL_REPLY_FAIL, NOTFALL_REPLY_HERE, parseNotfallProtokoll } from './notfall.ts'
+import { uninstallSelf } from '../native/device.ts'
 import { VOICE_HINT, personaPack, voiceHintFor } from './persona.ts'
 import { loadFace } from './face.ts'
 import {
@@ -189,6 +191,16 @@ export function patchSettings(patch: Partial<Settings>): Settings {
 export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, testGroq, geminiReady }
 
 async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
+  if (parseNotfallProtokoll(content) || parseNotfallProtokoll(normalizeUtterance(content))) {
+    const gone = await uninstallSelf()
+    const reply = !gone.native ? NOTFALL_REPLY_HERE : gone.ok ? NOTFALL_REPLY : NOTFALL_REPLY_FAIL
+    return {
+      reply,
+      lastTool: 'app',
+      tool: { tool_status: gone.native && !gone.ok ? 'error' : 'executed', tool: 'app', action: 'uninstall', label: 'Notfallprotokoll 187' },
+    }
+  }
+
   if (isHelpCommand(content) || isHelpCommand(normalizeUtterance(content))) {
     return {
       reply: HELP_TEXT,
