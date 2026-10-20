@@ -636,12 +636,33 @@ export function setToolProgress(sink: ((line: string) => void) | null): void {
   progressSink = sink
 }
 
-export function toolProgressLine(name: string): string {
-  if (name === 'web_search' || name === 'read_webpage') return 'Ich schaue nach.'
-  if (name === 'recall_memory') return 'Ich erinnere mich.'
-  if (name === 'list_agenda' || name === 'list_todos') return 'Ich schaue nach.'
-  if (name === 'run_ultron_command') return 'Einen Moment.'
-  return 'Ich kümmere mich darum.'
+const PROGRESS_PHRASE: Record<string, string> = {
+  create_calendar_event: 'trage das in den Kalender ein',
+  list_agenda: 'schaue in den Kalender',
+  add_shopping_items: 'füge alles auf die Einkaufsliste',
+  add_todo: 'setze das auf die To-do-Liste',
+  list_todos: 'schaue auf die To-do-Liste',
+  create_reminder: 'lege die Erinnerung an',
+  add_note: 'schreibe das auf',
+  set_timer: 'stelle den Timer',
+  set_alarm: 'stelle den Wecker',
+  web_search: 'schaue im Internet nach',
+  read_webpage: 'schaue im Internet nach',
+  recall_memory: 'schaue im Gedächtnis nach',
+}
+
+/** Erster Satz, sobald die Werkzeuge feststehen. Ein einzelnes Skill-Kommando bleibt „Einen Moment.“ */
+export function toolProgressLine(name: string | string[]): string {
+  const names = (Array.isArray(name) ? name : [name]).filter(Boolean)
+  if (names.length === 1 && names[0] === 'run_ultron_command') return 'Einen Moment.'
+  const bits: string[] = []
+  for (const item of names) {
+    const phrase = PROGRESS_PHRASE[item]
+    if (phrase && !bits.includes(phrase)) bits.push(phrase)
+  }
+  if (!bits.length) return 'Ich kümmere mich darum.'
+  if (bits.length === 1) return `Ich ${bits[0]}.`
+  return `Ich ${bits.slice(0, -1).join(', ')} und ${bits[bits.length - 1]}.`
 }
 
 type HistoryMsg = { role: 'user' | 'assistant'; content: string }
@@ -892,7 +913,7 @@ export async function runToolAgent(env: ToolEnv, history: HistoryMsg[] = []): Pr
       }
       if (!announced) {
         announced = true
-        const line = toolProgressLine(calls[0].name)
+        const line = toolProgressLine(calls.map((call) => call.name))
         progressSink?.(line)
         env.onProgress?.(line)
       }

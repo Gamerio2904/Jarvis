@@ -91,6 +91,7 @@ import { handlePc } from './pc.ts'
 import { handleClip } from './clip.ts'
 import { handleTaxi } from './taxi.ts'
 import { handleInterrupt } from './interrupt.ts'
+import { actionPlan, finishPlan, plansEveryPart } from './action-plan.ts'
 import { clearChain, partitionChain, popChain, writeChain } from './chain.ts'
 import { isCommNo, isCommYes } from './places-parse.ts'
 import { pendingYields } from './pending-yield.ts'
@@ -694,11 +695,29 @@ export async function streamChat(
     research: null,
   })
 
-  let toolLead = ''
+  const announce = { kind: 'none' as 'none' | 'placeholder' | 'action', lead: '', writes: false }
+  function showNow(reply: string) {
+    if (announce.kind !== 'none') handlers.onReplace?.(reply)
+    else emitToken(handlers, reply)
+  }
+  function pushModelToken(piece: string, full: string) {
+    if (announce.kind === 'placeholder') {
+      announce.kind = 'none'
+      announce.lead = ''
+      handlers.onReplace?.(full)
+      return
+    }
+    emitToken(handlers, piece)
+  }
   setToolProgress((line) => {
-    if (toolLead) return
-    toolLead = /[.!?]$/.test(line) ? `${line} ` : `${line}. `
-    emitToken(handlers, toolLead)
+    if (announce.kind === 'action') return
+    const next = /[.!?]$/.test(line.trim()) ? line.trim() : `${line.trim()}.`
+    const replace = announce.kind !== 'none'
+    announce.kind = 'action'
+    announce.lead = next
+    announce.writes = true
+    if (replace) handlers.onReplace?.(next)
+    else emitToken(handlers, next)
   })
   try {
     const corrected = await applyDurationCorrection(conversationId, content)
@@ -717,7 +736,8 @@ export async function streamChat(
     const rawParts = splitIntents(normalizeUtterance(content))
     const parts = rawParts.length > 1 ? rawParts.map(promoteSplitPart) : rawParts
     let queue = parts
-    if (parts.length > 1) {
+    if (plansEveryPart(parts)) clearChain()
+    else if (parts.length > 1) {
       const { reads, writes } = partitionChain(parts)
       writeChain(writes.slice(1))
       queue = writes.length ? [...reads, writes[0]] : reads
@@ -751,6 +771,13 @@ export async function streamChat(
       return
     }
     if (accepted) persistResearchDone('running')
+    const plan = !contradictionAsk && !accepted ? actionPlan(normalizeUtterance(content) || content) : null
+    if (plan && announce.kind !== 'action') {
+      announce.kind = plan.kind
+      announce.lead = plan.line
+      announce.writes = plan.writes
+      emitToken(handlers, plan.line)
+    }
     const routed: Array<RouteHit | null> = []
     /** Widerspruch nach Recherche/LLM nicht erst durch den Parser jagen — der würde suchen verhindern. */
     if (!contradictionAsk) {
@@ -771,18 +798,23 @@ export async function streamChat(
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       let joined = replies.join('\n\n')
-      if (found.length === 1 && !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '') && last.tool?.action !== 'agent') {
+      if (
+        found.length === 1 &&
+        announce.kind !== 'action' &&
+        !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '') &&
+        last.tool?.action !== 'agent'
+      ) {
         joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
       }
       if (asksForRecipe(content)) joined = formatRecipe(joined, content)
       else if (asksForSteps(content)) joined = formatStepGuide(joined)
-      if (toolLead && !joined.startsWith(toolLead.trim())) joined = `${toolLead}${joined}`
+      joined = finishPlan(announce.kind, announce.lead, joined, announce.writes)
       if (isTurnAborted()) {
         finishLatency()
         return
       }
       setLatencyPath('parser')
-      if (toolLead) handlers.onReplace?.(joined)
+      if (announce.kind !== 'none') handlers.onReplace?.(joined)
       else emitToken(handlers, joined)
       const assistant = await sayAssistant(conversationId, joined, {
         tool: last.tool,
@@ -813,7 +845,7 @@ export async function streamChat(
       })
       const reply = out.text.trim() || askReply(policyAsk.a, policyAsk.b)
       setLatencyPath('groq')
-      emitToken(handlers, reply)
+      showNow(reply)
       const assistant = await sayAssistant(conversationId, reply, {
         tool: { tool_status: 'executed', tool: 'clarify', action: 'ask', label: 'Rückfrage' },
       })
@@ -831,7 +863,7 @@ export async function streamChat(
           ? 'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
           : noBrainLine()
         setLatencyPath('parser')
-        emitToken(handlers, reply)
+        showNow(reply)
         const assistant = await sayAssistant(conversationId, reply)
         const updated = (await touchConversation(conversationId)) || convAfterUser
         finishLatency()
@@ -884,8 +916,7 @@ export async function streamChat(
           reply += await offerPendingLine()
         }
         reply = dressDocument(content, reply)
-        emitToken(handlers, reply)
-        handlers.onReplace?.(reply)
+        showNow(reply)
         const assistant = await sayAssistant(conversationId, reply, { research })
         const updated = (await touchConversation(conversationId)) || convAfterUser
         finishLatency()
@@ -898,8 +929,7 @@ export async function streamChat(
         return
       }
       const empty = RESEARCH_EMPTY
-      emitToken(handlers, empty)
-      handlers.onReplace?.(empty)
+      showNow(empty)
       const assistant = await sayAssistant(conversationId, empty, { research })
       const updated = (await touchConversation(conversationId)) || convAfterUser
       finishLatency()
@@ -995,7 +1025,7 @@ export async function streamChat(
             }),
             onToken: (_piece, full) => {
               acc = full
-              emitToken(handlers, _piece)
+              pushModelToken(_piece, full)
             },
             voice: opts?.voice,
             wantSearch,
@@ -1017,7 +1047,7 @@ export async function streamChat(
                   llmMessages,
                   (_piece, full) => {
                     acc = full
-                    emitToken(handlers, _piece)
+                    pushModelToken(_piece, full)
                   },
                   {
                     search: wantSearch && !deep,
@@ -1039,7 +1069,7 @@ export async function streamChat(
                     llmMessages,
                     (_piece, full) => {
                       acc = full
-                      emitToken(handlers, _piece)
+                      pushModelToken(_piece, full)
                     },
                     {
                       search: wantSearch,
@@ -1124,10 +1154,6 @@ export async function streamChat(
     })
     if (asksForRecipe(ask)) final = formatRecipe(final, ask)
     else if (asksForSteps(ask)) final = formatStepGuide(final)
-    if (toolLead && !final.startsWith(toolLead.trim())) {
-      final = `${toolLead}${final}`
-      handlers.onReplace?.(final)
-    }
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, ask)
     if (isLiveLookup(ask, discount) && !wantSearch) persistResearchOffer(ask, researchQuery(ask))
@@ -1143,6 +1169,8 @@ export async function streamChat(
       handlers.onReplace?.(final)
     }
     final = dressDocument(content, final)
+    final = finishPlan(announce.kind, announce.lead, final, announce.writes)
+    if (announce.kind !== 'none') handlers.onReplace?.(final)
     const assistant = await sayAssistant(conversationId, final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || convAfterUser
     finishLatency()

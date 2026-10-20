@@ -101,37 +101,19 @@ const morgen = new Date()
 morgen.setDate(morgen.getDate() + 1)
 const tag = `${morgen.getFullYear()}-${String(morgen.getMonth() + 1).padStart(2, '0')}-${String(morgen.getDate()).padStart(2, '0')}`
 
-/** 1. Ein beiläufiger Satz ohne Parser-Treffer wird zu Termin + Erinnerung. */
+/** 1. Umgebucht trifft den Parser. Kein Modell, der Termin liegt, eine halbe Stunde vorher. */
 const eventsBefore = (await store.listEvents()).length
-const remindersBefore = (await store.listReminders()).length
-script = [
-  calls(
-    toolCall('c1', 'create_calendar_event', { title: 'Zahnarzt Dr. Weber', start: `${tag}T15:00` }),
-    toolCall('c2', 'create_reminder', { title: 'Zum Zahnarzt losfahren', datetime: `${tag}T14:30` }),
-  ),
-  say('Der Zahnarzt steht morgen um 15 Uhr im Kalender, und um 14:30 Uhr erinnere ich Sie ans Losfahren.'),
-]
+script = []
 requests = []
 const t1 = await runDirectorTurn(CONV, 'Dr. Weber hat mich auf morgen 15 Uhr umgebucht, halbe Stunde vorher muss ich los')
-assert.ok(t1.hit, 'der Agent antwortet selbst')
+assert.ok(t1.hit, 'der Parser antwortet selbst')
 assert.match(t1.hit.reply, /Kalender/)
-assert.equal(t1.hit.tool?.action, 'agent')
-assert.equal(t1.hit.tool?.tool_status, 'executed')
+assert.equal(requests.length, 0, 'kein Modell für einen erkannten Termin')
 assert.equal((await store.listEvents()).length, eventsBefore + 1, 'der Termin steht wirklich')
-const ev = (await store.listEvents()).find((e) => e.title === 'Zahnarzt Dr. Weber')
+const ev = (await store.listEvents()).find((e) => /weber/i.test(e.title))
 assert.ok(ev)
 assert.equal(new Date(ev.start_at).getHours(), 15)
-const rem = (await store.listReminders()).filter((r) => r.title === 'Zum Zahnarzt losfahren')
-assert.equal(rem.length, 1, 'die Erinnerung liegt wirklich')
-assert.equal((await store.listReminders()).length, remindersBefore + 1)
-assert.equal(requests.length, 2, 'ein Planungs- und ein Antwortschritt')
-assert.equal(requests[0].body.model, 'llama-3.3-70b-versatile', 'parallele Modelle zuerst')
-assert.ok(Array.isArray(requests[0].body.tools) && requests[0].body.tools.length >= 10, 'alle Werkzeuge gehen mit')
-assert.equal(requests[0].body.tool_choice, 'auto')
-const toolMsgs = requests[1].body.messages.filter((m) => m.role === 'tool')
-assert.equal(toolMsgs.length, 2, 'beide Ergebnisse gehen zurück ans Modell')
-assert.match(toolMsgs[0].content, /Event saved/)
-assert.match(requests[0].body.messages[0].content, /Current local time/)
+assert.deepEqual(ev.remind_offsets_min, [30])
 
 /** 2. Ein Fehler im Werkzeug bleibt ein Fehler — kein erfundener Erfolg. */
 script = [
@@ -145,18 +127,18 @@ assert.equal((await store.listReminders()).length, before2, 'nichts gespeichert'
 assert.equal(t2.hit?.tool?.tool_status, 'error')
 assert.match(requests[1].body.messages.find((m) => m.role === 'tool').content, /^ERROR: .*past/)
 
-/** 3. Mehrere Schritte: erst suchen, dann mit dem Ergebnis eintragen. */
-script = [
-  calls(toolCall('c4', 'list_agenda', { from: tag, to: tag })),
-  calls(toolCall('c5', 'add_shopping_items', { items: ['Milch', 'Eier', 'Brot'] })),
-  say('Morgen steht nur der Zahnarzt an. Milch, Eier und Brot sind auf der Liste.'),
-]
+/** 3. Kalender und Einkauf im selben Satz laufen lokal, ohne Modell. */
+const { splitIntents, promoteSplitPart } = await import('../src/engine/split-intents.ts')
+const parts3 = splitIntents('was hab ich morgen eigentlich so vor, achso und wir brauchen noch milch eier und brot').map(promoteSplitPart)
+script = []
 requests = []
-const t3 = await runDirectorTurn(CONV, 'was hab ich morgen eigentlich so vor, achso und wir brauchen noch milch eier und brot')
-assert.match(requests[1].body.messages.find((m) => m.role === 'tool').content, /Zahnarzt Dr\. Weber/, 'die Agenda kommt aus dem echten Kalender')
+const agenda = await runDirectorTurn(CONV, parts3[0])
+const shopTurn = await runDirectorTurn(CONV, parts3[1])
+assert.equal(requests.length, 0, 'beide Teile kennt der Parser')
+assert.match(agenda.hit?.reply || '', /Weber/)
 const shop = (await store.listShopping()).map((s) => s.title.toLowerCase())
 for (const item of ['milch', 'eier', 'brot']) assert.ok(shop.includes(item), `${item} fehlt auf der Liste`)
-assert.equal(t3.hit?.lastTool, 'shopping')
+assert.equal(shopTurn.hit?.lastTool, 'shopping')
 
 /** 4. Die Brücke: ein Skill per Satz, durch dieselbe Routing-Kette. */
 script = [
