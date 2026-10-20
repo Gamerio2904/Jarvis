@@ -58,6 +58,7 @@
     "test:verb-front": "node --experimental-strip-types scripts/test-verb-front.mjs",
     "test:tool-propose": "node --experimental-strip-types scripts/test-tool-propose.mjs",
     "test:tool-agent": "node --experimental-strip-types scripts/test-tool-agent.mjs",
+    "test:list-move": "node --experimental-strip-types scripts/test-list-move.mjs",
     "test:app-ui": "node --experimental-strip-types scripts/test-app-ui.mjs",
     "test:18.8": "node --experimental-strip-types scripts/test-18.8.mjs",
     "test:recover": "node --experimental-strip-types scripts/test-recover.mjs",

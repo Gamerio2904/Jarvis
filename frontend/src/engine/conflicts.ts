@@ -159,6 +159,11 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'watchlist')
   }
 
+  if (/\b(?:to-?\s*do|aufgaben)\s*-?\s*liste\b/.test(t) || /\baufgabenliste\b/.test(t)) {
+    out = drop(out, 'shopping')
+    out = boost(out, 'todo', 0.35)
+  }
+
   if (/^\s*kein(?:en?|e)?\s+.+\s+mehr\s*[.!]?\s*$/i.test(text)) {
     out = drop(out, 'shopping')
     out = drop(out, 'calendar')

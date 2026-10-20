@@ -1,6 +1,7 @@
 export type ShopIntent =
   | { kind: 'create-list'; name?: string }
   | { kind: 'add'; item: string; items: string[]; listHint?: string }
+  | { kind: 'adopt-last' }
   | { kind: 'list'; listHint?: string }
   | { kind: 'got'; item: string; items: string[] }
   | { kind: 'clear' }
@@ -70,19 +71,39 @@ export function parseShopIntent(text: string): ShopIntent | null {
     const add = asAdd(onAmazon[1], 'Amazon')
     if (add) return add
   }
+  if (CORRECTION_TO_SHOP.test(t) && !isTodoListHint(t)) return { kind: 'adopt-last' }
   return parseAdd(t)
 }
 
 const ITEM_MODIFIER =
   /^(?:rote[rnms]?|frische[rnms]?|extra|bio|ohne|mit|große[rnms]?|grosse[rnms]?|kleine[rnms]?|ganze[rnms]?|halbe[rnms]?|volle[rnms]?|dunkle[rnms]?|helle[rnms]?|süße[rnms]?|suesse[rnms]?|saure[rnms]?|gemahlene[rnms]?|getrocknete[rnms]?|geriebene[rnms]?|gekochte[rnms]?|rohe[rnms]?|italienische[rnms]?|deutsche[rnms]?|griechische[rnms]?|vollfett|fettarm|mager|ein(?:e[mnrs]?)?|den|die|das|dem|zwei|drei|\d+(?:[.,]\d+)?(?:g|kg|ml|l|stk)?)$/i
 
-/** „Milch Eier“ wird zwei Posten. „Rote Paprika“ bleibt einer. */
+/** „Müll runterbringen“ ist eine Aufgabe, kein zweiter Posten. */
+const TASK_WORD = /(?:bringen|holen|nehmen|machen|legen|stellen|räumen|raeumen|werfen|tragen|geben|rufen|putzen|waschen|kaufen|erledigen)$/i
+
+/** „Milch Eier“ wird zwei Posten. „Rote Paprika“ und „Müll runterbringen“ bleiben einer. */
 function splitBareWords(part: string): string[] {
   const words = part.trim().split(/\s+/).filter(Boolean)
   if (words.length < 2 || words.length > 4) return [part]
-  if (words.some((word) => ITEM_MODIFIER.test(word))) return [part]
+  if (words.some((word) => ITEM_MODIFIER.test(word) || TASK_WORD.test(word))) return [part]
   return words
 }
+
+/** „To-Do“ und „Aufgaben“ sind die Aufgabenliste, keine Einkaufsliste. */
+export function isTodoListHint(raw?: string): boolean {
+  if (!raw) return false
+  const hint = raw
+    .trim()
+    .toLocaleLowerCase('de-DE')
+    .replace(/^(?:die|der|das|dem|den|meine[nrs]?|unsere[nrs]?)\s+/i, '')
+    .replace(/(?:-|\s)?liste$/i, '')
+    .replace(/[\s-]+/g, '')
+  return hint === 'todo' || hint === 'aufgaben' || hint === 'task' || hint === 'tasks'
+}
+
+const CORRECTION_WORD = /^(?:nein|nee+|nicht|doch|lieber|stattdessen)$/i
+const CORRECTION_TO_SHOP =
+  /^\s*(?:nein|nee+|nicht|doch|lieber|stattdessen)[,:]?\s+(?:auf\s+)?(?:die\s+|der\s+|meine[rn]?\s+)?(?:einkaufs)?liste\s*$/i
 
 export function splitShopItems(raw: string): string[] {
   const seen = new Set<string>()
@@ -128,9 +149,15 @@ function parseAdd(text: string): ShopIntent | null {
 function addFromList(source: string): ShopIntent | null {
   if (!source) return null
   const after = LIST_AFTER.exec(source)
-  if (after?.[1]) return asAdd(after[1], after[2])
+  if (after?.[1]) {
+    if (isTodoListHint(after[2])) return null
+    return asAdd(after[1], after[2])
+  }
   const named = LIST_TAIL.exec(source)
-  if (named?.[1]) return asAdd(named[1], named[2])
+  if (named?.[1]) {
+    if (isTodoListHint(named[2])) return null
+    return asAdd(named[1], named[2])
+  }
   const generic = GENERIC_TAIL.exec(source)
   if (generic?.[1]) return asAdd(generic[1])
   return null
@@ -168,6 +195,7 @@ function tidyItem(raw: string): string {
   t = t.replace(SHOP_LEAD, '').replace(PLACE_LEAD, '').trim()
   if (t.length < 2 || t.length > 64) return ''
   if (/^(?:und|sowie|bitte|noch|mal|auch|auf|zur|zum|liste|einkaufsliste)$/i.test(t)) return ''
+  if (CORRECTION_WORD.test(t)) return ''
   return t.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE'))
 }
 

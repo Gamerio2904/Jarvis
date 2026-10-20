@@ -9,6 +9,10 @@ Noch ohne eigene Version und ohne APK.
 
 Erkennt kein Parser den Satz, wählt das Modell jetzt selbst Werkzeuge und führt sie aus (`tool-agent.ts`): Erinnerung, Termin, Agenda lesen, Timer, Wecker, Todo, Einkauf, Notiz, Gedächtnis schreiben und lesen, Websuche, Webseite lesen, und über `run_ultron_command` jeder bestehende Skill per deutschem Satz. Mehrere Schritte pro Zug sind möglich (höchstens fünf), Ergebnisse gehen zurück ans Modell, Fehler bleiben Fehler. Groq (natives Function Calling) und Gemini (`functionDeclarations`) folgen `brain_primary`. Will das Modell kein Werkzeug, antwortet wie bisher der gestreamte Chat. Schalter: `tool_agent` bzw. „Werkzeug-Agent an/aus“. Der alte Vorschlagsweg läuft nur noch, wenn der Agent aus ist.
 
+## Unveröffentlicht — Listen verschieben — *CODE*
+
+„Nein auf die To-Do Liste“ verschiebt den letzten Einkaufsposten auf die To-Do-Liste, statt „Nein“ einzukaufen. „Müll runterbringen auf die To-Do-Liste“ bleibt eine Aufgabe, das Chip heißt To-Do. „Nein auf die Einkaufsliste“ schiebt die letzte Aufgabe zurück. Steht der genannte Posten auf der anderen Liste, wird er verschoben und nicht kopiert.
+
 ## `18.66.10` — Notfallprotokoll 187 — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.10`** (versionCode `186610`). `engineStamp` bleibt **`18.60.0-ygo-md`**.

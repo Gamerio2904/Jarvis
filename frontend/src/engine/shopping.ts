@@ -1,4 +1,5 @@
 import { parseShopIntent, splitShopItems } from './shopping-parse.ts'
+import { moveToShopping, titlesFromLastStep } from './list-move.ts'
 import {
   addShopping,
   clearGotShopping,
@@ -48,7 +49,8 @@ export async function handleShopping(
       bare.length >= 2 &&
       bare.length <= 80 &&
       !/[?]/.test(bare) &&
-      !/\b(termin|wecker|timer|todo|wetter|fahr|ruf|erinner|kalender)\b/i.test(bare)
+      !/\b(termin|wecker|timer|todo|to-do|aufgaben|wetter|fahr|ruf|erinner|kalender)\b/i.test(bare) &&
+      !/^(?:nein|nee+|nicht|doch|lieber|stattdessen)\b/i.test(bare)
     ) {
       intent = { kind: 'add', item: items[0], items }
     }
@@ -66,15 +68,42 @@ export async function handleShopping(
     }
   }
 
+  if (intent.kind === 'adopt-last') {
+    const titles = titlesFromLastStep()
+    if (loadSettings().last_step_tool === 'todo' && titles.length) {
+      const moved = await moveToShopping(titles, conversationId)
+      if (moved.length) {
+        const open = (await listShopping()).filter((s) => s.status === 'open')
+        rememberList(open.map((s) => s.title))
+        await syncGlance()
+        return {
+          handled: true,
+          reply: `Von der To-Do-Liste auf die Einkaufsliste: ${moved.join(', ')}.`,
+          tool: { tool_status: 'executed', tool: 'shopping', action: 'move', label: 'Einkauf', preview: moved.join(', ') },
+          lastTool: 'shopping',
+        }
+      }
+    }
+    if (loadSettings().last_step_tool === 'shopping' && titles.length) {
+      return { handled: true, reply: `Steht schon auf der Einkaufsliste: ${titles.join(', ')}.`, lastTool: 'shopping' }
+    }
+    return { handled: true, reply: 'Was soll auf die Einkaufsliste?' }
+  }
+
   if (intent.kind === 'add') {
     const lists = await listShoppingLists()
     const active = lists.find((list) => list.id === loadSettings().shopping_list_id)
     const titles: string[] = []
+    const fromTodo: string[] = []
     for (const item of intent.items) {
-      const row = await addShopping(item, {
-        conversationId,
-        ...(intent.listHint ? { listHint: intent.listHint } : active ? { listId: active.id } : {}),
-      })
+      const moved = await moveToShopping([item], conversationId, intent.listHint)
+      if (moved.length) fromTodo.push(moved[0])
+      const row = moved.length
+        ? { title: moved[0] }
+        : await addShopping(item, {
+            conversationId,
+            ...(intent.listHint ? { listHint: intent.listHint } : active ? { listId: active.id } : {}),
+          })
       if (!titles.some((title) => title.toLowerCase() === row.title.toLowerCase())) titles.push(row.title)
     }
     const open = (await listShopping()).filter((s) => s.status === 'open')
@@ -82,9 +111,13 @@ export async function handleShopping(
     await syncGlance()
     const where = intent.listHint ? await listLabel(intent.listHint) : 'der Liste'
     const preview = titles.join(', ')
+    const reply =
+      fromTodo.length && fromTodo.length === titles.length
+        ? `Von der To-Do-Liste auf die Einkaufsliste: ${preview}.`
+        : `Auf ${where}: ${preview}.`
     return {
       handled: true,
-      reply: `Auf ${where}: ${preview}.`,
+      reply,
       tool: { tool_status: 'executed', tool: 'shopping', action: 'add', label: 'Einkauf', preview },
       lastTool: 'shopping',
     }
