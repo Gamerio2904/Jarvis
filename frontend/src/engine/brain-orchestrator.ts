@@ -191,10 +191,12 @@ export async function runBrainOrchestrator(input: BrainOrchestratorInput): Promi
   }
 
   let result: BrainSlotResult
+  let failure: unknown = null
   try {
     result = await runSlot(primary, input, input.turn.policyAsk)
   } catch (err) {
     if (isAbortError(err)) throw err
+    failure = err
     result = { slot: primary, model: 'none', text: '' }
   }
   if (!result.text.trim() && geminiReady() && primary !== 'research-deep') {
@@ -213,8 +215,11 @@ export async function runBrainOrchestrator(input: BrainOrchestratorInput): Promi
       }
     } catch (err) {
       if (isAbortError(err)) throw err
-      /* nächster Slot tot — ehrliche Leere, kein Raten */
+      failure = err
     }
+  }
+  if (!result.text.trim() && failure) {
+    throw failure instanceof Error ? failure : new Error(String(failure))
   }
   return {
     text: result.text,
