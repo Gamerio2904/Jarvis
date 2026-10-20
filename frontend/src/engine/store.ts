@@ -481,6 +481,8 @@ export type Settings = {
   last_agent_id: string
   /** Darf das Modell ein Werkzeug **vorschlagen**, wenn kein Parser greift? */
   tool_propose: boolean
+  /** Darf das Modell Werkzeuge (Kalender, Erinnerung, Suche, Skills) selbst wählen und ausführen? */
+  tool_agent: boolean
   pc_dashboard_v2: boolean | null
   /** Name historisch. `true` = Lite-Canvas (weniger Ringe), **kein** WebGL. */
   globe_webgl: boolean
@@ -698,6 +700,7 @@ export const DEFAULT_SETTINGS: Settings = {
   brain_shadow_mode: false,
   last_agent_id: '',
   tool_propose: true,
+  tool_agent: true,
   pc_dashboard_v2: null,
   globe_webgl: false,
 }

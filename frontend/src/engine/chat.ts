@@ -754,7 +754,7 @@ export async function streamChat(
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       let joined = replies.join('\n\n')
-      if (found.length === 1 && !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '')) {
+      if (found.length === 1 && !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '') && last.tool?.action !== 'agent') {
         joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
       }
       if (asksForSteps(content)) joined = formatStepGuide(joined)

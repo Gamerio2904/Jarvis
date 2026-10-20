@@ -57,7 +57,7 @@ function textFrom(json: GroqResponse): string {
 }
 
 /** Reasoning-Modelle (Qwen, GPT-OSS) streamen oft nur `delta.reasoning` — ohne das bleibt der Stream leer. */
-function groqChatExtras(model: string): Record<string, unknown> {
+export function groqChatExtras(model: string): Record<string, unknown> {
   if (model.startsWith('qwen/')) return { reasoning_effort: 'none' }
   if (model.includes('gpt-oss')) return { reasoning_format: 'hidden', include_reasoning: false }
   return {}

@@ -20,6 +20,7 @@ import {
   missingActionFields,
 } from './tool-contract.ts'
 import { proposeReady, proposeTool } from './tool-propose.ts'
+import { recentHistory, runToolAgent, toolAgentReady, toolEnvFromCtx, toolMetaFor } from './tool-agent.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
 import { handleIdea } from './idea.ts'
@@ -325,6 +326,49 @@ async function rescueByProposal(conversationId: string, ctx: RouteCtx): Promise<
 }
 
 /**
+ * Die Brücke vom Werkzeug-Agenten zu den Parser-Agenten: der Satz geht durch
+ * dieselbe Routing-Kette wie eine getippte Äußerung.
+ */
+async function runCommandSentence(
+  conversationId: string,
+  sentence: string,
+): Promise<{ ok: boolean; reply: string; agent?: string }> {
+  const decision = decideTurn(makeDirectorCtx(conversationId, sentence))
+  if (decision.pick.kind === 'ask') {
+    return { ok: false, reply: `ambiguous between ${decision.pick.a} and ${decision.pick.b}, be more specific` }
+  }
+  if (decision.pick.kind !== 'run') return { ok: false, reply: 'no skill understood that command, rephrase it more simply' }
+  const id = decision.pick.id
+  const turn = await runPicked(id, decision.ctx, conversationId, sentence)
+  if (!turn.hit?.reply) return { ok: false, reply: 'the skill returned nothing' }
+  return { ok: turn.hit.tool?.tool_status !== 'error', reply: turn.hit.reply, agent: turn.hit.lastTool || id }
+}
+
+/**
+ * Kein Parser war zuständig: das Modell darf jetzt selbst Werkzeuge wählen.
+ * Wollte es keins, antwortet danach der normale Chat-Weg.
+ */
+async function rescueByAgent(conversationId: string, ctx: RouteCtx): Promise<DirectorTurn | null> {
+  if (!toolAgentReady()) return null
+  const history = await recentHistory(conversationId, ctx.text)
+  const result = await runToolAgent(
+    toolEnvFromCtx(ctx, (sentence) => runCommandSentence(conversationId, sentence)),
+    history,
+  )
+  if (!result) return null
+  setLastUserFacts(result.reply)
+  return {
+    hit: {
+      reply: result.reply,
+      tool: toolMetaFor(result),
+      research: result.research,
+      lastTool: result.lastAgent || 'tool-agent',
+    },
+    userFacts: result.reply,
+  }
+}
+
+/**
  * Ein Zug: preflight → router → execute → merge.
  *
  * Einen eigenen Verify-Schritt hat der Director **nicht**, und das ist eine
@@ -450,10 +494,12 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
       setLastUserFacts(reply)
       return { hit: { reply, lastTool: 'idea' }, userFacts: reply }
     }
-    const rescued = await rescueByProposal(conversationId, ctx)
+    const acted = await rescueByAgent(conversationId, ctx)
+    if (acted) return acted
+    const rescued = toolAgentReady() ? null : await rescueByProposal(conversationId, ctx)
     if (rescued) return rescued
     noteParseMiss(ctx.text)
-    if (looksCommandish(ctx.text)) {
+    if (looksCommandish(ctx.text) && !toolAgentReady()) {
       const reply = unknownReplyForCtx(ctx)
       setLastUserFacts(reply)
       return { hit: { reply, lastTool: 'unknown' }, userFacts: reply }
