@@ -122,6 +122,7 @@ function simModule(raw: string): HomeAppId | undefined {
   if (/tischplatte|werkbank|projekttafel/.test(t)) return 'tisch'
   if (/schach/.test(t)) return 'chess'
   if (/yu-?gi-?oh|yugioh|duell/.test(t)) return 'yugioh'
+  if (/\bcore\b|\bkern\b/.test(t)) return 'core'
   if (/gehirn|hirn/.test(t)) return 'hirn'
   if (/einstell/.test(t)) return 'settings'
   if (/film|watch/.test(t)) return 'watchlist'

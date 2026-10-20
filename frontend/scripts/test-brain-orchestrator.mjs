@@ -3,6 +3,7 @@
  */
 import assert from 'node:assert/strict'
 import { planBrainSlots, primaryChatModel } from '../src/engine/brain-tasks.ts'
+import { frontIndex, yawForIndex } from '../src/engine/core-brains.ts'
 
 assert.equal(
   primaryChatModel({
@@ -12,7 +13,29 @@ assert.equal(
     gemini_api_key: 'g',
     groq_api_key: 'x',
   }),
+  'groq',
+)
+
+assert.equal(
+  primaryChatModel({
+    brain_v2: true,
+    brain_primary: 'groq',
+    gemini_enabled: true,
+    gemini_api_key: 'g',
+    groq_api_key: '',
+  }),
   'gemini',
+)
+
+assert.equal(
+  primaryChatModel({
+    brain_v2: true,
+    brain_primary: 'local',
+    gemini_enabled: true,
+    gemini_api_key: 'g',
+    groq_api_key: 'x',
+  }),
+  'local',
 )
 
 assert.equal(
@@ -96,5 +119,9 @@ const researchSlots = planBrainSlots(
   },
 )
 assert.deepEqual(researchSlots, ['research-lite'])
+
+assert.equal(frontIndex(0, 3), 0)
+assert.equal(frontIndex((-2 * Math.PI) / 3, 3), 1)
+assert.equal(frontIndex(yawForIndex(2, 3, 0.4), 3), 2)
 
 console.log('test:brain-orchestrator ok')

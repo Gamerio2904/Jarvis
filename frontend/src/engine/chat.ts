@@ -165,7 +165,7 @@ export async function getHealth() {
           ? 'Gemini zuerst — bei Limit Groq, sonst 0,5B. Chat geht ins Netz.'
           : 'Gemini (Google) zuerst. Chat geht ins Netz.'
         : kind === 'groq'
-          ? 'Groq-Backup. Gemini aus oder ohne Key.'
+          ? 'Groq zuerst. Bei Ausfall Gemini, sonst 0,5B.'
           : kind === 'local'
             ? 'On-Device 0,5B — Backup, kein Server.'
             : err || 'Kein Hirn. Gemini-Key, Groq-Key oder Modell laden.',

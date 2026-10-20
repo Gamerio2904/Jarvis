@@ -67,6 +67,7 @@ import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { ShoppingListsOverlay } from './ui/ShoppingListsOverlay.tsx'
 import { ServerOverlay } from './ui/ServerOverlay.tsx'
 import { WeltOverlay } from './ui/WeltOverlay.tsx'
+import { CoreOverlay } from './ui/CoreOverlay.tsx'
 import { NotesOverlay } from './ui/NotesOverlay.tsx'
 import { TodoListsOverlay } from './ui/TodoListsOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
@@ -356,6 +357,7 @@ function App() {
   const [shoppingOpen, setShoppingOpen] = useState(false)
   const [serverOpen, setServerOpen] = useState(false)
   const [weltOpen, setWeltOpen] = useState(false)
+  const [coreOpen, setCoreOpen] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
   const [todosOpen, setTodosOpen] = useState(false)
   const overlayHistRef = useRef(false)
@@ -873,7 +875,7 @@ function App() {
 
   useEffect(() => {
     const overlayOpen =
-      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen || notesOpen || todosOpen || serverOpen || weltOpen
+      settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen || shoppingOpen || notesOpen || todosOpen || serverOpen || weltOpen || coreOpen
     if (!overlayOpen) return
     if (!overlayHistRef.current) {
       window.history.pushState({ jarvisOverlay: true }, '')
@@ -929,11 +931,13 @@ function App() {
       }
       if (weltOpen) {
         setWeltOpen(false)
+        return
       }
+      if (coreOpen) setCoreOpen(false)
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen, shoppingOpen, notesOpen, todosOpen, serverOpen, weltOpen])
+  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen, shoppingOpen, notesOpen, todosOpen, serverOpen, weltOpen, coreOpen])
 
   useEffect(() => {
     const onNotes = () => openNotesSheet()
@@ -2250,6 +2254,7 @@ function App() {
 
   function launchHomeApp(id: HomeAppId) {
     if (id !== 'welt') setWeltOpen(false)
+    if (id !== 'core') setCoreOpen(false)
     if (id === 'chat') {
       goDock('chat')
       return
@@ -2328,6 +2333,10 @@ function App() {
     }
     if (id === 'hirn') {
       openSettings('hirn')
+      return
+    }
+    if (id === 'core') {
+      setCoreOpen(true)
       return
     }
     if (id === 'watchlist') {
@@ -2702,6 +2711,7 @@ function App() {
           />
         ) : null}
         {yugiohOpen ? <YugiohDuel onClose={() => setYugiohOpen(false)} /> : null}
+        {coreOpen ? <CoreOverlay onClose={() => setCoreOpen(false)} /> : null}
         {homeOpen && !driveOpen && !chessOpen ? (
           <HomeScreen
             face="ultron"
@@ -3197,6 +3207,7 @@ function App() {
           todosOpen ||
           serverOpen ||
           weltOpen ||
+          coreOpen ||
           settingsPanelOpen
         }
         messages={messages}

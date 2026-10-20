@@ -181,6 +181,17 @@ function AppGlyph({ id }: { id: HomeAppId }) {
       </svg>
     )
   }
+  if (id === 'core') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <circle cx="12" cy="12" r="2.1" fill="currentColor" />
+        <circle cx="12" cy="4.6" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="18.4" cy="15.7" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="5.6" cy="15.7" r="1.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.7" />
+      </svg>
+    )
+  }
   if (id === 'welt') {
     return (
       <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>

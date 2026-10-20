@@ -1,0 +1,86 @@
+.core-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  color: #f4f8ff;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(80, 140, 255, 0.22), transparent 46%),
+    radial-gradient(ellipse at 50% 80%, rgba(80, 255, 210, 0.08), transparent 42%),
+    linear-gradient(180deg, #070b16 0%, #10182c 58%, #070b14 100%);
+  touch-action: none;
+}
+
+.core-overlay header,
+.core-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+  padding: 22px 24px 0;
+}
+
+.core-overlay h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.18em;
+  font-weight: 650;
+}
+
+.core-overlay header p,
+.core-caption p {
+  margin: 4px 0 0;
+  color: rgba(244, 248, 255, 0.72);
+}
+
+.core-overlay header button,
+.core-picks button {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.core-stage {
+  position: relative;
+  min-height: 0;
+}
+
+.core-stage canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+.core-stage canvas:active {
+  cursor: grabbing;
+}
+
+.core-caption {
+  align-items: center;
+  padding-bottom: 22px;
+}
+
+.core-picks {
+  display: flex;
+  gap: 8px;
+}
+
+.core-picks button.is-on {
+  border-color: rgba(140, 220, 255, 0.8);
+  box-shadow: 0 0 24px rgba(80, 160, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+@media (max-width: 720px) {
+  .core-overlay header,
+  .core-caption {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

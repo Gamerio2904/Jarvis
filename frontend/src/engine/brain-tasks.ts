@@ -1,3 +1,4 @@
+import { corePriorityOrder } from './core-brains.ts'
 import type { ResearchMeta } from './research-parse.ts'
 import type { PolicyPick } from './policy.ts'
 
@@ -38,9 +39,11 @@ export function primaryChatModel(settings: {
     return 'local'
   }
 
-  if (settings.brain_primary === 'local') return 'local'
-  if (geminiReady) return 'gemini'
-  if (groqReady) return 'groq'
+  for (const id of corePriorityOrder(settings.brain_primary)) {
+    if (id === 'gemini' && geminiReady) return 'gemini'
+    if (id === 'groq' && groqReady) return 'groq'
+    if (id === 'local') return 'local'
+  }
   return 'local'
 }
 
