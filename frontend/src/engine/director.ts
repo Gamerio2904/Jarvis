@@ -329,16 +329,40 @@ async function rescueByProposal(conversationId: string, ctx: RouteCtx): Promise<
  * Die Brücke vom Werkzeug-Agenten zu den Parser-Agenten: der Satz geht durch
  * dieselbe Routing-Kette wie eine getippte Äußerung.
  */
+const SKILL_DELETE = /\b(lösch\w*|loesch\w*|entfern\w*|leer(?:e|en)?|aufräum\w*)\b/i
+const SKILL_SWITCH = /\b(schalte|ausschalten|einschalten|anmachen|ausmachen)\b/i
+
+/** Schalten und Löschen warten auf „ja“. Lesen und Anlegen laufen direkt. */
+function skillNeedsConfirm(agentId: string, sentence: string): boolean {
+  const agent = agentById(agentId)
+  if (!agent) return false
+  if (agent.sideEffect === 'device' && !agent.factual) return true
+  if (agent.sideEffect === 'write' && (SKILL_DELETE.test(sentence) || SKILL_SWITCH.test(sentence))) return true
+  return false
+}
+
 async function runCommandSentence(
   conversationId: string,
   sentence: string,
-): Promise<{ ok: boolean; reply: string; agent?: string }> {
+): Promise<{ ok: boolean; reply: string; agent?: string; pending?: boolean }> {
   const decision = decideTurn(makeDirectorCtx(conversationId, sentence))
   if (decision.pick.kind === 'ask') {
     return { ok: false, reply: `ambiguous between ${decision.pick.a} and ${decision.pick.b}, be more specific` }
   }
   if (decision.pick.kind !== 'run') return { ok: false, reply: 'no skill understood that command, rephrase it more simply' }
   const id = decision.pick.id
+  if (skillNeedsConfirm(id, sentence)) {
+    const reply = `Verstanden als „${sentence}". Soll ich?`
+    await setPending({
+      conversation_id: conversationId,
+      tool: PROPOSAL_TOOL,
+      action: id,
+      args: { stage: 'confirmation', utterance: sentence },
+      preview: sentence,
+      created_at: new Date().toISOString(),
+    })
+    return { ok: true, pending: true, reply, agent: id }
+  }
   const turn = await runPicked(id, decision.ctx, conversationId, sentence)
   if (!turn.hit?.reply) return { ok: false, reply: 'the skill returned nothing' }
   return { ok: turn.hit.tool?.tool_status !== 'error', reply: turn.hit.reply, agent: turn.hit.lastTool || id }

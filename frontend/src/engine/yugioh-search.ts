@@ -23,6 +23,8 @@ export const SEARCH_PROFILES = {
   training: { maxMs: 0, maxNodes: 1_500, maxDepth: 4, beamWidth: 4, samples: 2, stopWhenStable: false },
   // Reproducible verification (proof files): fixed node budget, never time based.
   proof: { maxMs: 0, maxNodes: 6_000, maxDepth: 5, beamWidth: 5, samples: 3, stopWhenStable: false },
+  // Sichtbares Duell auf dem Handy: kurzes Budget, damit der Zug nicht einfriert.
+  duel: { maxMs: 250, maxNodes: 600, maxDepth: 3, beamWidth: 4, samples: 1, stopWhenStable: true },
 } as const satisfies Record<string, SearchBudget>
 
 export type SearchStop = 'trivial' | 'stable' | 'exhausted' | 'depth' | 'nodes' | 'time'

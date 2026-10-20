@@ -104,6 +104,7 @@ import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal.ts'
 import { type ToolMeta } from './tools.ts'
 import { routeRegistry, type RouteHit } from './registry.ts'
 import { runDirectorTurn } from './director.ts'
+import { setToolProgress } from './tool-agent.ts'
 import { pickRouteFromCtx } from './route-pick.ts'
 import { runBrainOrchestrator } from './brain-orchestrator.ts'
 import { getLastUserFacts, getPolicyAsk } from './agents/trace-store.ts'
@@ -683,6 +684,12 @@ export async function streamChat(
     research: null,
   })
 
+  let toolLead = ''
+  setToolProgress((line) => {
+    if (toolLead) return
+    toolLead = /[.!?]$/.test(line) ? `${line} ` : `${line}. `
+    emitToken(handlers, toolLead)
+  })
   try {
     const corrected = await applyDurationCorrection(conversationId, content)
     if (corrected) {
@@ -758,12 +765,14 @@ export async function streamChat(
         joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
       }
       if (asksForSteps(content)) joined = formatStepGuide(joined)
+      if (toolLead && !joined.startsWith(toolLead.trim())) joined = `${toolLead}${joined}`
       if (isTurnAborted()) {
         finishLatency()
         return
       }
       setLatencyPath('parser')
-      emitToken(handlers, joined)
+      if (toolLead) handlers.onReplace?.(joined)
+      else emitToken(handlers, joined)
       const assistant = await sayAssistant(conversationId, joined, {
         tool: last.tool,
         research,
@@ -945,7 +954,7 @@ export async function streamChat(
       if (asksForSteps(ask)) split.system = `${split.system}\n\n${STEP_HINT}`
       let llmMessages = [
         { role: 'system', content: split.system },
-        ...history.slice(cloud || opts?.voice ? -8 : -4).map((m) => ({
+        ...history.slice(cloud || opts?.voice ? -14 : -6).map((m) => ({
           role: m.role === 'assistant' ? 'assistant' : 'user',
           content: m.content,
         })),
@@ -1141,6 +1150,8 @@ export async function streamChat(
     finishLatency()
     handlers.onError?.(detail)
     throw new Error(detail)
+  } finally {
+    setToolProgress(null)
   }
 }
 

@@ -29,6 +29,7 @@ import {
   type SelfPlayResult,
   DEFAULT_AGENT,
 } from '../engine/yugioh-selfplay.ts'
+import { buildProofFile } from '../engine/yugioh-proof.ts'
 import { YugiohNetViz } from './YugiohNetViz.tsx'
 
 const PRESETS = [
@@ -138,6 +139,7 @@ export function YugiohSelfPlayDev({
       const net = evaluatePolicy(greedyNetPolicy(options.model), HOLDOUT_GAMES, HOLDOUT_SEED)
       const heuristic = evaluatePolicy(heuristicPolicy, HOLDOUT_GAMES, HOLDOUT_SEED)
       const random = evaluatePolicy(randomPolicy, HOLDOUT_GAMES, HOLDOUT_SEED)
+      const swapped = evaluatePolicy(greedyNetPolicy(options.model), 12, 424242, undefined, true)
       const match = options.match ?? playSelfPlayMatch({
         seed: options.seed,
         deckSource: 'generated',
@@ -160,10 +162,33 @@ export function YugiohSelfPlayDev({
         match,
       })
       storeRun(file)
+      setStatus(`${file.id} · Erfolg ${pct(file.score)} · Seitenwechsel ${pct(swapped.winRate)} (Seed 424242, 12 Duelle, entscheidet nicht)`)
       setBusy(false)
       setProgress(1)
     }, 30)
   }, [appVersion, storeRun])
+
+  const exportProof = useCallback((model: NetModel) => {
+    if (busy) return
+    setBusy(true)
+    setStatus('Nachweis wird gerechnet. Format jarvis-yugioh-proof-v1, dieselben öffentlichen Seeds wie bisher.')
+    window.setTimeout(() => {
+      try {
+        const proof = buildProofFile({
+          appVersion,
+          model,
+          gatePassed: false,
+          gateReason: 'manuell exportiert',
+        })
+        downloadJson(`yugioh-nachweis-${proof.weightsSha256}.json`, proof)
+        setStatus(`Nachweis ${proof.format} exportiert. Hash ${proof.weightsSha256}. Öffentliche Seeds ${proof.publicSeeds.join(', ')}.`)
+      } catch (error) {
+        setStatus(error instanceof Error ? error.message : 'Nachweis fehlgeschlagen.')
+      } finally {
+        setBusy(false)
+      }
+    }, 30)
+  }, [appVersion, busy])
 
   const runFast = useCallback(() => {
     if (busy) return
@@ -281,6 +306,11 @@ export function YugiohSelfPlayDev({
             Aktuelles Netz
           </button>
         ) : null}
+        {netModel ? (
+          <button type="button" disabled={busy} onClick={() => exportProof(netModel)}>
+            Nachweis
+          </button>
+        ) : null}
       </div>
 
       {busy || progress > 0 ? (
@@ -325,6 +355,7 @@ export function YugiohSelfPlayDev({
               <div className="ygo-lab-run-actions">
                 <button type="button" onClick={() => downloadJson(`${run.id}.json`, run)}>Lauf-JSON</button>
                 <button type="button" onClick={() => downloadJson(`${run.id}-netz.json`, netFileFromRun(run))}>Netz</button>
+                <button type="button" disabled={busy} onClick={() => exportProof(run.model)}>Nachweis</button>
               </div>
             </li>
           ))}

@@ -165,6 +165,9 @@ export function buildProofFile(options: BuildProofOptions): YugiohProofFile {
     scoreA: measurements[0].winRate,
     games: measurements[0].games,
     seeds: publicSeeds,
+    wins: measurements[0].wins,
+    losses: Math.max(0, measurements[0].games - measurements[0].wins),
+    draws: 0,
   })
   const generated = generateDeck(TRAINING_ARCHETYPES[0], seededRandom(42))
   const coverage = deckEffectCoverage(generated.main)

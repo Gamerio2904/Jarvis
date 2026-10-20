@@ -59,6 +59,8 @@ export type ToolOutcome = {
   agent?: string
   preview?: string
   research?: ResearchMeta
+  /** Gerät oder Löschen wartet auf „ja“ und ist noch nicht ausgeführt. */
+  pending?: boolean
 }
 
 export type ToolEnv = {
@@ -66,7 +68,9 @@ export type ToolEnv = {
   text: string
   now: Date
   /** Brücke zu den bestehenden Parser-Agenten — ein deutscher Satz wie getippt. */
-  runCommand?: (sentence: string) => Promise<{ ok: boolean; reply: string; agent?: string }>
+  runCommand?: (sentence: string) => Promise<{ ok: boolean; reply: string; agent?: string; pending?: boolean }>
+  /** Erster Satz, noch während die Werkzeuge laufen. */
+  onProgress?: (line: string) => void
 }
 
 export type AgentTool = {
@@ -543,6 +547,7 @@ export const AGENT_TOOLS: AgentTool[] = [
       if (!command) return fail('command is empty')
       if (!env.runCommand) return fail('skills not available here')
       const out = await env.runCommand(command)
+      if (out.pending) return { ok: true, pending: true, agent: out.agent, preview: command, data: out.reply.slice(0, MAX_TOOL_DATA) }
       if (!out.ok) return fail(out.reply || 'no skill understood that command, rephrase it more simply')
       return { ok: true, agent: out.agent, preview: command, data: out.reply.slice(0, MAX_TOOL_DATA) }
     },
@@ -618,10 +623,25 @@ type StepResult = { calls: ToolCall[]; text: string } | null
 
 export type ToolAgentResult = {
   reply: string
-  usedTools: Array<{ name: string; ok: boolean; preview?: string }>
+  usedTools: Array<{ name: string; ok: boolean; preview?: string; pending?: boolean }>
   lastAgent: string
   research?: ResearchMeta
   via: 'groq' | 'gemini'
+}
+
+let progressSink: ((line: string) => void) | null = null
+
+/** Der Chat setzt das für die Dauer eines Zuges, damit der erste Satz sofort erscheint. */
+export function setToolProgress(sink: ((line: string) => void) | null): void {
+  progressSink = sink
+}
+
+export function toolProgressLine(name: string): string {
+  if (name === 'web_search' || name === 'read_webpage') return 'Ich schaue nach.'
+  if (name === 'recall_memory') return 'Ich erinnere mich.'
+  if (name === 'list_agenda' || name === 'list_todos') return 'Ich schaue nach.'
+  if (name === 'run_ultron_command') return 'Einen Moment.'
+  return 'Ich kümmere mich darum.'
 }
 
 type HistoryMsg = { role: 'user' | 'assistant'; content: string }
@@ -638,7 +658,8 @@ function parseArgs(raw: unknown): Record<string, unknown> {
 }
 
 /** Groq (OpenAI-kompatibel): Modelle, die eigene Werkzeuge zuverlässig aufrufen. */
-const GROQ_TOOL_MODELS = ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'openai/gpt-oss-20b', 'qwen/qwen3.8-27b']
+// Parallel-fähige Modelle zuerst. gpt-oss-20b und gpt-oss-120b können keine parallelen Werkzeugaufrufe.
+const GROQ_TOOL_MODELS = ['llama-3.3-70b-versatile', 'qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b']
 
 export function groqToolModels(skipRaw: string): string[] {
   const skip = parseSkipMap(skipRaw)
@@ -856,6 +877,7 @@ export async function runToolAgent(env: ToolEnv, history: HistoryMsg[] = []): Pr
     let research: ResearchMeta | undefined
     let reply = ''
     let failedProvider = false
+    let announced = false
     for (let stepNo = 0; stepNo <= MAX_STEPS; stepNo++) {
       const out = await stepper.step(stepNo === MAX_STEPS)
       if (isTurnAborted()) return null
@@ -867,6 +889,12 @@ export async function runToolAgent(env: ToolEnv, history: HistoryMsg[] = []): Pr
       if (!calls.length) {
         reply = out.text
         break
+      }
+      if (!announced) {
+        announced = true
+        const line = toolProgressLine(calls[0].name)
+        progressSink?.(line)
+        env.onProgress?.(line)
       }
       const results = await Promise.all(
         calls.map(async (call) => {
@@ -890,7 +918,7 @@ export async function runToolAgent(env: ToolEnv, history: HistoryMsg[] = []): Pr
       )
       for (const { call, res } of results) {
         stepper.answer(call, res.data.slice(0, MAX_TOOL_DATA))
-        used.push({ name: call.name, ok: res.ok, preview: res.preview })
+        used.push({ name: call.name, ok: res.ok, preview: res.preview, pending: res.pending })
         if (res.ok && res.agent) lastAgent = res.agent
         if (res.research?.sources?.length) {
           research = research
@@ -908,7 +936,11 @@ export async function runToolAgent(env: ToolEnv, history: HistoryMsg[] = []): Pr
     })
     if (failedProvider && !used.length) continue
     if (!used.length) return null
-    if (!reply) {
+    if (used.some((u) => u.pending)) {
+      const ask = used.find((u) => u.pending)?.preview
+      const confirm = ask ? `Verstanden als „${ask}". Soll ich?` : 'Soll ich das ausführen?'
+      reply = reply && !/soll ich/i.test(reply) ? `${reply} ${confirm}` : reply || confirm
+    } else if (!reply) {
       const okOnes = used.filter((u) => u.ok)
       reply = okOnes.length
         ? `Erledigt: ${okOnes.map((u) => u.preview || toolLabel(u.name)).join('; ')}.`
@@ -921,9 +953,10 @@ export async function runToolAgent(env: ToolEnv, history: HistoryMsg[] = []): Pr
 
 export function toolMetaFor(result: ToolAgentResult): ToolMeta {
   const ok = result.usedTools.filter((u) => u.ok)
+  const waiting = result.usedTools.some((u) => u.pending)
   const labels = [...new Set(result.usedTools.map((u) => toolLabel(u.name)))]
   return {
-    tool_status: ok.length ? 'executed' : 'error',
+    tool_status: waiting ? 'pending' : ok.length ? 'executed' : 'error',
     tool: result.lastAgent || 'tool-agent',
     action: 'agent',
     label: labels.join(' · '),

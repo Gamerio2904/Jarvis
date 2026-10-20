@@ -71,7 +71,7 @@ import { YugiohNetViz } from './YugiohNetViz.tsx'
 import { YugiohSelfPlayDev } from './YugiohSelfPlayDev.tsx'
 import './yugioh-duel.css'
 
-const APP_VERSION = '18.66.10'
+const APP_VERSION = '18.66.11'
 
 function settleOwnActivation(state: DuelState): DuelState {
   if (state.pendingPrompt || state.pendingTarget || state.pendingTriggerOrder) return state
@@ -652,16 +652,19 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
     window.setTimeout(() => {
       try {
         const trained = trainDuelPolicy(weights, 500, Date.now() % 0x7fffffff)
+        const checkpoint = evaluateDuelPolicy(trained.weights, 80, 424242)
+        const checkpointBase = evaluateDuelPolicy(BASELINE_WEIGHTS, 80, 424242)
         const holdout = evaluateDuelPolicy(trained.weights, 300, 918273)
         const baseline = evaluateDuelPolicy(BASELINE_WEIGHTS, 300, 918273)
-        if (holdout.winRate > baseline.winRate) setWeights(trained.weights)
+        const keep = checkpoint.winRate > checkpointBase.winRate
+        if (keep) setWeights(trained.weights)
         setTrainingResult(trained)
         setEvaluation(holdout)
         setBaselineEvaluation(baseline)
         setNotice(
-          holdout.winRate > baseline.winRate
-            ? `Training verbessert die Holdout-Winrate um ${((holdout.winRate - baseline.winRate) * 100).toFixed(1)} Prozentpunkte. Policy gespeichert.`
-            : 'Training abgeschlossen, aber im Holdout nicht besser als die Baseline. Bisherige Policy bleibt erhalten.',
+          keep
+            ? `Gespeichert nach Prüfseed 424242. Die angezeigte Zahl ist der separate Holdout 918273: ${((holdout.winRate - baseline.winRate) * 100).toFixed(1)} Punkte gegen die Baseline.`
+            : 'Prüfseed 424242 war nicht besser. Die bisherige Policy bleibt. Die angezeigte Zahl ist der separate Holdout 918273 und hat nicht entschieden.',
         )
       } catch (error) {
         setNotice(error instanceof Error ? error.message : 'Das Policy-Training ist fehlgeschlagen.')
@@ -690,7 +693,7 @@ export function YugiohDuel({ onClose }: { onClose: () => void }) {
             random: evaluatePolicy(randomPolicy, 200, evalSeed),
             heuristic: evaluatePolicy(heuristicPolicy, 200, evalSeed),
           })
-          setNotice('Netz-Training fertig. Es wird nur gespeichert, was die Validierung nicht verschlechtert hat.')
+          setNotice('Netz-Training fertig. Gespeichert hat die Validierung 515151. Die Anzeige ist Holdout 918273 und hat nicht entschieden.')
           setNetBusy(false)
           return
         }

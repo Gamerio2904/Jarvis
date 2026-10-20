@@ -125,6 +125,7 @@ const rem = (await store.listReminders()).filter((r) => r.title === 'Zum Zahnarz
 assert.equal(rem.length, 1, 'die Erinnerung liegt wirklich')
 assert.equal((await store.listReminders()).length, remindersBefore + 1)
 assert.equal(requests.length, 2, 'ein Planungs- und ein Antwortschritt')
+assert.equal(requests[0].body.model, 'llama-3.3-70b-versatile', 'parallele Modelle zuerst')
 assert.ok(Array.isArray(requests[0].body.tools) && requests[0].body.tools.length >= 10, 'alle Werkzeuge gehen mit')
 assert.equal(requests[0].body.tool_choice, 'auto')
 const toolMsgs = requests[1].body.messages.filter((m) => m.role === 'tool')
@@ -195,6 +196,29 @@ requests = []
 await runDirectorTurn(CONV, 'stell einen Timer für 3 Minuten')
 assert.equal(requests.length, 0, 'eindeutige Befehle kosten keinen Modellaufruf')
 for (const t of await openTimers()) await stopTimer(t.id)
+
+/** 9. Schalten wartet auf Ja. Der erste Satz kommt, bevor das Werkzeug fertig ist. */
+script = [
+  calls(toolCall('c8', 'run_ultron_command', { command: 'Mach den Fernseher an' })),
+  say('Ich würde den Fernseher jetzt einschalten.'),
+]
+requests = []
+const heard = []
+agent.setToolProgress((line) => heard.push(line))
+const t9 = await runDirectorTurn(CONV, 'ich will jetzt etwas auf dem großen bildschirm schauen')
+agent.setToolProgress(null)
+assert.deepEqual(heard, ['Einen Moment.'])
+assert.equal(t9.hit?.tool?.tool_status, 'pending')
+assert.match(t9.hit?.reply || '', /Soll ich/)
+const waiting = await store.getPending(CONV)
+assert.equal(waiting?.action, 'tv')
+assert.match(String(waiting?.args?.utterance || ''), /Fernseher/)
+script = []
+requests = []
+const t9yes = await runDirectorTurn(CONV, 'ja')
+assert.ok(t9yes.hit, 'ja führt den wartenden Satz aus')
+assert.equal(await store.getPending(CONV) ?? null, null)
+assert.equal(requests.length, 0, 'die Bestätigung braucht kein zweites Modell')
 
 /** 8. Ausgeschaltet: der alte Weg, kein Agent. */
 store.saveSettings({ tool_agent: false, tool_propose: false })

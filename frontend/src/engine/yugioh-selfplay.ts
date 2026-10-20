@@ -289,10 +289,11 @@ export function collectSelfPlayTrainingBatch(
     const outcome = result.winner === 0 ? 1 : result.winner === 1 ? -1 : 0
     for (const move of result.moves) {
       if (move.candidateFeatures.length < 2) continue
+      const signed = move.side === 0 ? outcome : -outcome
       samples.push({
         features: move.candidateFeatures,
         chosen: move.chosen,
-        outcome,
+        outcome: signed,
         stateVector: move.stateVector,
       })
     }
