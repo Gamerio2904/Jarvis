@@ -3,6 +3,10 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## Unveröffentlicht — Listen verschieben — *CODE*
+
+„Nein auf die To-Do Liste“ verschiebt den letzten Einkaufsposten auf die To-Do-Liste, statt „Nein“ einzukaufen. „Müll runterbringen auf die To-Do-Liste“ bleibt eine Aufgabe, das Chip heißt To-Do. „Nein auf die Einkaufsliste“ schiebt die letzte Aufgabe zurück. Steht der genannte Posten auf der anderen Liste, wird er verschoben und nicht kopiert.
+
 ## `18.66.10` — Notfallprotokoll 187 — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.10`** (versionCode `186610`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
