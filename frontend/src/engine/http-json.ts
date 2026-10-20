@@ -1,4 +1,6 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core'
+import { germanNetworkError } from './cloud-errors.ts'
+import { nativeHttpJson } from './native-http.ts'
 import { shouldProxyWebHost, WEB_PROXY_PATH } from './web-proxy.ts'
 import { abortError, isTurnAborted, raceTurn, withTurnSignal } from './turn-abort.ts'
 
@@ -13,6 +15,40 @@ function abortAfter(ms: number): AbortSignal {
 
 function throwIfAborted(): void {
   if (isTurnAborted()) throw abortError()
+}
+
+function wrapNativeHttpError(err: unknown): never {
+  const msg = err instanceof Error ? err.message : String(err)
+  if (/not implemented|unimplemented|no such method/i.test(msg)) {
+    throw err instanceof Error ? err : new Error(msg)
+  }
+  if (
+    /unknownhost|unable to resolve|network|timeout|timed out|connect|ssl|certificate|refused|failed to fetch|handshake/i.test(
+      msg,
+    )
+  ) {
+    const hint = msg.replace(/\s+/g, ' ').slice(0, 140)
+    throw new Error(`${germanNetworkError()} (${hint})`)
+  }
+  throw err instanceof Error ? err : new Error(msg)
+}
+
+function parseJsonBody(raw: string): Record<string, unknown> {
+  try {
+    const parsed: unknown = raw ? JSON.parse(raw) : {}
+    if (Array.isArray(parsed)) return { items: parsed } as unknown as Record<string, unknown>
+    if (parsed && typeof parsed === 'object') return parsed as Record<string, unknown>
+  } catch {
+    /* unten */
+  }
+  return { error: { message: raw || 'Ungültige Antwort' } }
+}
+
+/** Android-Brücke serialisiert verschachteltes JSON zuverlässiger als rohe Objekte. */
+function nativePostData(body: unknown): string | Record<string, unknown> {
+  if (body == null) return '{}'
+  if (typeof body === 'string') return body
+  return JSON.stringify(body)
 }
 
 /** Browser darf User-Agent nicht setzen — das löst Preflight aus und killt Wikipedia/Frankfurter. */
@@ -52,15 +88,33 @@ export async function postJson(
   const connect = Math.min(8_000, Math.max(400, Math.min(read, Math.floor(read * 0.5))))
   if (Capacitor.isNativePlatform()) {
     throwIfAborted()
-    const res = await raceTurn(
-      CapacitorHttp.post({
-        url,
-        headers,
-        data: body,
-        connectTimeout: connect,
-        readTimeout: read,
-      }),
-    )
+    const payload = typeof body === 'string' ? body : JSON.stringify(body ?? {})
+    try {
+      const res = await raceTurn(
+        nativeHttpJson({ url, method: 'POST', body: payload, headers, timeoutMs: read }),
+      )
+      throwIfAborted()
+      return { status: res.status, json: parseJsonBody(res.body), headers: res.headers }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (!/not implemented|unimplemented|no such method|Kein nativer HTTP/i.test(msg)) {
+        wrapNativeHttpError(err)
+      }
+    }
+    let res
+    try {
+      res = await raceTurn(
+        CapacitorHttp.post({
+          url,
+          headers,
+          data: nativePostData(body),
+          connectTimeout: connect,
+          readTimeout: read,
+        }),
+      )
+    } catch (err) {
+      wrapNativeHttpError(err)
+    }
     throwIfAborted()
     let json: Record<string, unknown> = {}
     try {
@@ -143,6 +197,25 @@ export async function getJson(
 ): Promise<{ status: number; json: Record<string, unknown> }> {
   if (Capacitor.isNativePlatform()) {
     throwIfAborted()
+    try {
+      const res = await raceTurn(nativeHttpJson({ url, method: 'GET', headers, timeoutMs: 20_000 }))
+      throwIfAborted()
+      let parsed: unknown = {}
+      try {
+        parsed = res.body ? JSON.parse(res.body) : {}
+      } catch {
+        parsed = { error: { message: res.body || 'Ungültige Antwort' } }
+      }
+      const json = (
+        Array.isArray(parsed) ? parsed : parsed && typeof parsed === 'object' ? parsed : {}
+      ) as Record<string, unknown>
+      return { status: res.status, json }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (!/not implemented|unimplemented|no such method|Kein nativer HTTP/i.test(msg)) {
+        wrapNativeHttpError(err)
+      }
+    }
     const res = await raceTurn(
       CapacitorHttp.get({
         url,

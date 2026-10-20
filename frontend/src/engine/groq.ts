@@ -7,6 +7,7 @@ import {
   markSkip,
   parseSkipMap,
 } from './cloud-errors.ts'
+import { Capacitor } from '@capacitor/core'
 import { postJson } from './http-json.ts'
 import { streamSseLines } from '../native/voice.ts'
 import { loadSettings, saveSettings } from './store.ts'
@@ -48,12 +49,27 @@ export function groqReady(): boolean {
 /** Groq speech (PlayAI/Orpheus) is English/Arabic only — mouth stays Edge/Gemini. */
 
 function textFrom(json: GroqResponse): string {
-  return (json.choices?.[0]?.message?.content || '').trim()
+  const msg = json.choices?.[0]?.message
+  const content = (msg?.content || '').trim()
+  if (content) return content
+  const reasoning = (msg as { reasoning?: string } | undefined)?.reasoning
+  return typeof reasoning === 'string' ? reasoning.trim() : ''
+}
+
+/** Reasoning-Modelle (Qwen, GPT-OSS) streamen oft nur `delta.reasoning` — ohne das bleibt der Stream leer. */
+function groqChatExtras(model: string): Record<string, unknown> {
+  if (model.startsWith('qwen/')) return { reasoning_effort: 'none' }
+  if (model.includes('gpt-oss')) return { reasoning_format: 'hidden', include_reasoning: false }
+  return {}
 }
 
 function deltaFrom(json: Record<string, unknown>): string {
   const choices = json.choices as GroqChoice[] | undefined
-  return choices?.[0]?.delta?.content || ''
+  const delta = choices?.[0]?.delta as Record<string, unknown> | undefined
+  if (!delta) return ''
+  const content = delta.content
+  if (typeof content === 'string' && content) return content
+  return ''
 }
 
 export async function completeGroq(
@@ -73,24 +89,27 @@ export async function completeGroq(
     max_tokens: maxTokens,
   }
   let last = 'Groq antwortet nicht.'
+  const useStream = !Capacitor.isNativePlatform()
   for (const model of groqModelOrder(loadSettings().groq_skip_until)) {
     if (isTurnAborted()) throw abortError()
-    const streamed = await streamGroq({ ...body, stream: true, model }, key, onToken)
-    if (streamed.fatal) throw new Error(streamed.last)
-    if (streamed.text) {
-      groqUnskip(model)
-      return streamed.text
-    }
-    if (streamed.last) last = streamed.last
-    /**
-     * Ein Modell, das es nicht gibt, hat es auch beim zweiten Anlauf nicht.
-     * Vorher kostete genau dieser Fall **zwei** Anfragen pro Zug — bei 1.000
-     * am Tag und einem toten Modell an Position 1 die Hälfte des Budgets.
-     */
-    if (isUnknownModel(0, streamed.last)) {
-      skipGroqModel(model)
-      last = 'Groq-Modell nicht verfügbar.'
-      continue
+    if (useStream) {
+      const streamed = await streamGroq({ ...body, ...groqChatExtras(model), stream: true, model }, key, onToken)
+      if (streamed.fatal) throw new Error(streamed.last)
+      if (streamed.text) {
+        groqUnskip(model)
+        return streamed.text
+      }
+      if (streamed.last) last = streamed.last
+      /**
+       * Ein Modell, das es nicht gibt, hat es auch beim zweiten Anlauf nicht.
+       * Vorher kostete genau dieser Fall **zwei** Anfragen pro Zug — bei 1.000
+       * am Tag und einem toten Modell an Position 1 die Hälfte des Budgets.
+       */
+      if (isUnknownModel(0, streamed.last)) {
+        skipGroqModel(model)
+        last = 'Groq-Modell nicht verfügbar.'
+        continue
+      }
     }
     try {
       const { status, json, headers } = await postJson(
@@ -99,7 +118,7 @@ export async function completeGroq(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${key}`,
         },
-        { ...body, model, stream: false },
+        { ...body, ...groqChatExtras(model), model, stream: false },
         10_000,
       )
       noteQuotaHeaders('groq', headers)
@@ -109,10 +128,13 @@ export async function completeGroq(
       if (isFatalAuth(status, errMsg, errCode)) {
         throw new Error('Groq-Key ungültig. Unter console.groq.com/keys einen neuen holen.')
       }
-      if (isUnknownModel(status, errMsg, errCode) || status === 400) {
+      if (isUnknownModel(status, errMsg, errCode)) {
         skipGroqModel(model)
-        last = 'Groq-Modell nicht verfügbar.'
+        last = errMsg ? `Groq-Modell nicht verfügbar: ${errMsg}` : 'Groq-Modell nicht verfügbar.'
         continue
+      }
+      if (status === 400) {
+        throw new Error(errMsg ? `Groq HTTP 400: ${errMsg}` : 'Groq HTTP 400.')
       }
       if (status === 429) {
         if (isTurnAborted()) throw abortError()
@@ -127,7 +149,7 @@ export async function completeGroq(
         continue
       }
       if (isRetryableCloud(status, errMsg, errCode) || status < 200 || status >= 300) {
-        last = 'Groq gerade ausgelastet.'
+        last = errMsg ? `Groq HTTP ${status}: ${errMsg}` : `Groq HTTP ${status}.`
         continue
       }
       const text = textFrom(parsed)
@@ -141,7 +163,9 @@ export async function completeGroq(
     } catch (err) {
       if (isAbortError(err)) throw err
       const msg = err instanceof Error ? err.message : String(err)
-      if (msg.includes('ungültig')) throw err instanceof Error ? err : new Error(msg)
+      if (msg.includes('ungültig') || msg.includes('HTTP 400') || msg.includes('Verbindung')) {
+        throw err instanceof Error ? err : new Error(msg)
+      }
       last = msg
     }
   }
@@ -188,7 +212,7 @@ export async function completeGroqJson(opts: {
       const { status, json, headers } = await postJson(
         'https://api.groq.com/openai/v1/chat/completions',
         { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-        { ...body, model },
+        { ...body, ...groqChatExtras(model), model },
         opts.timeoutMs ?? 6_000,
       )
       noteQuotaHeaders('groq', headers)
@@ -231,7 +255,7 @@ async function streamGroq(
       url: 'https://api.groq.com/openai/v1/chat/completions',
       body,
       apiKey: key,
-      timeoutMs: 8_000,
+      timeoutMs: 14_000,
       auth: 'bearer',
     },
     (json) => {
@@ -245,7 +269,7 @@ async function streamGroq(
   const t = full.trim()
   if (t) return { text: t, last: '', fatal: false }
   const msg = (res.message || '').toLowerCase()
-  if (msg.includes('401') || msg.includes('403') || msg.includes('unauth')) {
+  if (res.status === 401 || res.status === 403 || msg.includes('401') || msg.includes('403') || msg.includes('unauth')) {
     return { text: '', last: 'Groq-Key ungültig. Unter console.groq.com/keys einen neuen holen.', fatal: true }
   }
   return { text: '', last: res.message || 'Groq-Stream leer.', fatal: false }
