@@ -67,6 +67,7 @@ import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { ShoppingListsOverlay } from './ui/ShoppingListsOverlay.tsx'
 import { ServerOverlay } from './ui/ServerOverlay.tsx'
 import { WeltOverlay } from './ui/WeltOverlay.tsx'
+import { isCoreId, type CoreId } from './engine/core-brains.ts'
 import { CoreOverlay } from './ui/CoreOverlay.tsx'
 import { NotesOverlay } from './ui/NotesOverlay.tsx'
 import { TodoListsOverlay } from './ui/TodoListsOverlay.tsx'
@@ -358,6 +359,7 @@ function App() {
   const [serverOpen, setServerOpen] = useState(false)
   const [weltOpen, setWeltOpen] = useState(false)
   const [coreOpen, setCoreOpen] = useState(false)
+  const [coreFlash, setCoreFlash] = useState<{ brain: CoreId; from?: CoreId } | null>(null)
   const [notesOpen, setNotesOpen] = useState(false)
   const [todosOpen, setTodosOpen] = useState(false)
   const overlayHistRef = useRef(false)
@@ -660,6 +662,12 @@ function App() {
     }
     if (action === 'welt') {
       launchHomeRef.current('welt')
+      return
+    }
+    if (action === 'core') {
+      const brain = String(tool.result?.brain || '')
+      const from = String(tool.result?.from || '')
+      if (isCoreId(brain)) setCoreFlash({ brain, from: isCoreId(from) ? from : undefined })
       return
     }
     if (action === 'dock') {
@@ -2712,6 +2720,14 @@ function App() {
         ) : null}
         {yugiohOpen ? <YugiohDuel onClose={() => setYugiohOpen(false)} /> : null}
         {coreOpen ? <CoreOverlay onClose={() => setCoreOpen(false)} /> : null}
+        {coreFlash ? (
+          <CoreOverlay
+            flash
+            target={coreFlash.brain}
+            from={coreFlash.from}
+            onClose={() => setCoreFlash(null)}
+          />
+        ) : null}
         {homeOpen && !driveOpen && !chessOpen ? (
           <HomeScreen
             face="ultron"

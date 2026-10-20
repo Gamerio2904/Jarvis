@@ -1,5 +1,7 @@
 import { normalizeUtterance } from './utterance.ts'
 import type { SettingsTopic } from './settings-ia.ts'
+import { parseCoreSwitch } from './core-brains.ts'
+import type { CoreId } from './core-brains.ts'
 import { parseWeltOpen } from './welt.ts'
 import {
   flagFromTitle,
@@ -22,6 +24,7 @@ export type AppIntent =
   | { kind: 'voice' }
   | { kind: 'theme'; accent: 'amber' | 'green' }
   | { kind: 'welt' }
+  | { kind: 'core'; brain: CoreId }
   | { kind: 'ui'; action: UiAction }
 
 const TOPIC_WORD: Array<{ re: RegExp; topic: SettingsTopic }> = [
@@ -71,6 +74,8 @@ export function parseAppIntent(text: string): AppIntent | null {
   if (/^\s*(?:was\s+weißt\s+du|was\s+hast\s+du\s+dir|erinnerst\s+du\s+dich)\b/i.test(t)) return null
   if (/\bdann\b/i.test(t)) return null
   if (parseWeltOpen(t)) return { kind: 'welt' }
+  const core = parseCoreSwitch(t)
+  if (core) return { kind: 'core', brain: core }
 
   if (
     /^\s*(?:einstellungen|overlay|folie|kalender|debug)\s+zu\s*[.!?]*$/i.test(t) ||

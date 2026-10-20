@@ -30,18 +30,32 @@ function readPrimary(): CoreId {
   return isCoreId(id) ? id : 'gemini'
 }
 
-export function CoreOverlay({ onClose }: { onClose: () => void }) {
+export function CoreOverlay({
+  onClose,
+  flash = false,
+  from,
+  target,
+}: {
+  onClose: () => void
+  flash?: boolean
+  from?: CoreId
+  target?: CoreId
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const yawRef = useRef(0)
   const velRef = useRef(0)
   const dragRef = useRef<{ x: number; moved: boolean } | null>(null)
-  const savedRef = useRef<CoreId>(readPrimary())
+  const savedRef = useRef<CoreId>(target && isCoreId(target) ? target : readPrimary())
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
   const [front, setFront] = useState<CoreId>(savedRef.current)
   const [ready, setReady] = useState(() => readyOf(savedRef.current))
 
   useEffect(() => {
-    const index = CORE_SPHERES.findIndex((sphere) => sphere.id === savedRef.current)
-    yawRef.current = yawForIndex(Math.max(0, index), CORE_SPHERES.length, 0)
+    if (!flash) {
+      const index = CORE_SPHERES.findIndex((sphere) => sphere.id === savedRef.current)
+      yawRef.current = yawForIndex(Math.max(0, index), CORE_SPHERES.length, 0)
+    }
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
@@ -52,7 +66,13 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [onClose, flash])
+
+  useEffect(() => {
+    if (!flash) return
+    const timer = window.setTimeout(() => closeRef.current(), 1000)
+    return () => window.clearTimeout(timer)
+  }, [flash])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -62,7 +82,13 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let frame = 0
     let last = performance.now()
+    const flashStart = performance.now()
     const count = CORE_SPHERES.length
+    const endIndex = Math.max(0, CORE_SPHERES.findIndex((sphere) => sphere.id === savedRef.current))
+    let startIndex = from ? CORE_SPHERES.findIndex((sphere) => sphere.id === from) : -1
+    if (startIndex < 0 || startIndex === endIndex) startIndex = (endIndex + count - 1) % count
+    const fromYaw = yawForIndex(startIndex, count, 0)
+    const toYaw = yawForIndex(endIndex, count, fromYaw)
 
     const commit = (index: number) => {
       const id = CORE_SPHERES[index].id
@@ -85,7 +111,15 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
         canvas.height = height
       }
       const dragging = Boolean(dragRef.current)
-      if (!dragging) {
+      let flashGlow = 1
+      if (flash) {
+        const elapsed = now - flashStart
+        const spin = Math.min(1, elapsed / 680)
+        const ease = reduced ? 1 : 1 - Math.pow(1 - spin, 3)
+        yawRef.current = fromYaw + (toYaw - fromYaw) * ease
+        velRef.current = 0
+        flashGlow = 1 + Math.sin(Math.min(1, elapsed / 1000) * Math.PI) * 1.7
+      } else if (!dragging) {
         yawRef.current += velRef.current * (dt / 16)
         velRef.current *= Math.pow(0.88, dt / 16)
         const snap = yawForIndex(frontIndex(yawRef.current, count), count, yawRef.current)
@@ -133,6 +167,7 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
         const perspective = 1.18 / (1.42 - depth * 0.58)
         const float = bob * Math.sin(now / 900 + index)
         const base = Math.min(radius * 0.26, 72 * dpr)
+        const pop = flash && depth > 0.35 ? 1 + 0.08 * Math.sin(Math.min(1, (now - flashStart) / 1000) * Math.PI) : 1
         return {
           sphere,
           index,
@@ -140,7 +175,7 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
           depth,
           x: cx + x * perspective,
           y: cy + radius * 0.22 * depth + float,
-          r: base * perspective,
+          r: base * perspective * pop,
         }
       }).sort((a, b) => a.z - b.z)
       for (const point of points) {
@@ -161,7 +196,8 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
         ctx.arc(point.x, point.y, point.r, 0, Math.PI * 2)
         ctx.fillStyle = gradient
         ctx.shadowColor = color.rim
-        ctx.shadowBlur = point.z > 0 ? 28 * dpr : 8 * dpr
+        const lit = flash && point.depth > 0.2
+        ctx.shadowBlur = (point.z > 0 ? 28 * dpr : 8 * dpr) * (lit ? flashGlow : 1)
         ctx.fill()
         ctx.shadowBlur = 0
         ctx.save()
@@ -197,7 +233,7 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
     }
     frame = window.requestAnimationFrame(draw)
     return () => window.cancelAnimationFrame(frame)
-  }, [])
+  }, [flash, from])
 
   function onPointerDown(event: PointerEvent<HTMLCanvasElement>) {
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -226,7 +262,14 @@ export function CoreOverlay({ onClose }: { onClose: () => void }) {
   const status = ready ? `${sphere.label} ist bereit und antwortet zuerst.` : `${sphere.label} ist Priorität. Sobald es bereit ist, antwortet es zuerst.`
 
   return createPortal(
-    <section className="core-overlay" role="dialog" aria-modal="true" aria-labelledby="core-title" data-core-primary={front}>
+    <section
+      className={flash ? 'core-overlay is-flash' : 'core-overlay'}
+      role="dialog"
+      aria-modal={flash ? undefined : true}
+      aria-labelledby="core-title"
+      data-core-primary={front}
+      data-core-flash={flash ? front : undefined}
+    >
       <header>
         <div>
           <p>CORE</p>

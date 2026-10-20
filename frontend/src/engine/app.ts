@@ -1,4 +1,5 @@
-import { clearPending, getPending, saveSettings, setPending } from './store.ts'
+import { CORE_SPHERES } from './core-brains.ts'
+import { clearPending, getPending, loadSettings, saveSettings, setPending } from './store.ts'
 import { parseAppIntent, type UiAction } from './app-parse.ts'
 import { resolveTopic, TOPIC_FACE, type SettingsTopic } from './settings-ia.ts'
 import { packVerified } from './action-fsm.ts'
@@ -19,6 +20,23 @@ export async function handleApp(
 ): Promise<AppHit> {
   const intent = parseAppIntent(text)
   if (!intent) return { handled: false }
+  if (intent.kind === 'core') {
+    const from = loadSettings().brain_primary
+    saveSettings({ brain_primary: intent.brain })
+    const label = CORE_SPHERES.find((sphere) => sphere.id === intent.brain)?.label || intent.brain
+    const packed = packVerified({
+      domain: 'app',
+      intent: `core:${intent.brain}`,
+      plan: 'core',
+      label,
+      observation: { action: 'core', brain: intent.brain, from },
+      verify: (obs) => obs.action === 'core' && obs.brain === intent.brain,
+      successReply: `${label} zuerst.`,
+      failReply: 'Hirn nicht gewechselt.',
+      extra: { brain: intent.brain, from },
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'app' }
+  }
   if (intent.kind === 'welt') {
     const packed = packVerified({
       domain: 'app',

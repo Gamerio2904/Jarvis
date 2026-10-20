@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Stände:** App-Code, UI und Test-APK **`18.66.8`**, versionCode `186608`; Android-Geräteabnahme mit ARCore offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, `engineStamp` `18.60.0-ygo-md`) steht in [`106-next.md`](./106-next.md) als **CODE**. Die Welt auf der Kamera (Sprints 551–559) steht in [`107-next.md`](./107-next.md) als **CODE**. Der Sideload ist `18.66.8`. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
+> **Stände:** App-Code, UI und Test-APK **`18.66.9`**, versionCode `186609`; Android-Geräteabnahme mit ARCore offen. `package.json` und `APP_VERSION` sind dieselbe Nummer. Yu-Gi-Oh!-Self-Play (Sprints 503–510) ist in [`104-next.md`](./104-next.md) als **CODE** im Baum; das TCG-Subset (Sprints 511–530, `engineStamp` `18.51.0-ygo-tcg`) ist in [`105-next.md`](./105-next.md) als **CODE** im Baum. Die Master-Duel-Bedienung (Sprints 531–550, `engineStamp` `18.60.0-ygo-md`) steht in [`106-next.md`](./106-next.md) als **CODE**. Die Welt auf der Kamera (Sprints 551–559) steht in [`107-next.md`](./107-next.md) als **CODE**. Der Sideload ist `18.66.9`. Die Zielnummern `18.32.0`–`18.41.0` in [`101-next.md`](./101-next.md) bis [`103-next.md`](./103-next.md) bleiben Gates mit offener Geräteabnahme, keine eigenen Sideload-Stände. Kein Test-Build ist eine finale Release-Freigabe.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -1034,11 +1034,12 @@ Sprints 424–430. Test: [`TEST-18.25.md`](./TEST-18.25.md).
 | `18.66.1` | Chat rechts nur auf der Planungstafel, an und aus, versionCode `186601` | CODE; Sideload inzwischen `18.66.2`, [`CHANGELOG.md`](./CHANGELOG.md) |
 | `18.66.2` | Welt quer, Menü, Würfel, Handskelett, versionCode `186602` | CODE; Sideload inzwischen `18.66.3`, [`CHANGELOG.md`](./CHANGELOG.md) |
 | `18.66.3` | Kalender ohne Scroll, Ziehen, Deadline-Sync, versionCode `186603` | CODE; Sideload inzwischen `18.66.4`, [`CHANGELOG.md`](./CHANGELOG.md) |
-| `18.66.4` | Würfel auf der Fläche im Blick, Handgitter, ohne untere Leiste, versionCode `186604` | CODE; Sideload inzwischen `18.66.8`, [`CHANGELOG.md`](./CHANGELOG.md) |
-| `18.66.5` | Eine Liste, Conrad, Flugzeuge, Würfel bleibt, versionCode `186605` | CODE; Sideload inzwischen `18.66.8`, [`CHANGELOG.md`](./CHANGELOG.md) |
-| `18.66.6` | Neue Partie, Tage bis Weihnachten, Sachfragen aus dem Netz, versionCode `186606` | CODE; Sideload inzwischen `18.66.8`, [`CHANGELOG.md`](./CHANGELOG.md) |
-| `18.66.7` | Netz-Labor, schärfere Effekte, versionCode `186607` | CODE; Sideload inzwischen `18.66.8`, [`CHANGELOG.md`](./CHANGELOG.md) |
-| `18.66.8` | Core-Ring wählt Gemini, Groq oder Lokal, versionCode `186608` | CODE + Test-APK, [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.66.4` | Würfel auf der Fläche im Blick, Handgitter, ohne untere Leiste, versionCode `186604` | CODE; Sideload inzwischen `18.66.9`, [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.66.5` | Eine Liste, Conrad, Flugzeuge, Würfel bleibt, versionCode `186605` | CODE; Sideload inzwischen `18.66.9`, [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.66.6` | Neue Partie, Tage bis Weihnachten, Sachfragen aus dem Netz, versionCode `186606` | CODE; Sideload inzwischen `18.66.9`, [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.66.7` | Netz-Labor, schärfere Effekte, versionCode `186607` | CODE; Sideload inzwischen `18.66.9`, [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.66.8` | Core-Ring wählt Gemini, Groq oder Lokal, versionCode `186608` | CODE; Sideload inzwischen `18.66.9`, [`CHANGELOG.md`](./CHANGELOG.md) |
+| `18.66.9` | Satz schaltet das Hirn, Ring eine Sekunde, versionCode `186609` | CODE + Test-APK, [`CHANGELOG.md`](./CHANGELOG.md) |
 | unpriorisiert | Formulierung egal | PLAN S1–S3; vor Umsetzung mit Routing-Gate 467–470 abgleichen, [`formulierung-plan.md`](./formulierung-plan.md) |
 
 ### `18.26` — Notizen und belegbarer Rückruf [`98-next.md`](./98-next.md) **CODE; RELEASE-GATE OFFEN**

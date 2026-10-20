@@ -1,12 +1,14 @@
-# Android-APK — Test-Build `18.66.8`
+# Android-APK — Test-Build `18.66.9`
 
-Test-Build **`18.66.8`** (versionCode `186608`), debug-signiert:
+Test-Build **`18.66.9`** (versionCode `186609`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
+
+**Neu in 18.66.9:** „Ändere auf lokal“, „wechsel zu Groq“ oder „Gemini zuerst“ schaltet das Hirn. Der Kugelring taucht eine Sekunde auf, dreht sich und leuchtet.
 
 **Neu in 18.66.8:** Die Kachel **Core** öffnet den Holo-Ring. Gemini, Groq und Lokal schweben im Kreis. Drehen rastet magnetisch ein und setzt diese Kugel als erste Antwort.
 

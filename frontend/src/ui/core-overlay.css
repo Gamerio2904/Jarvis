@@ -77,6 +77,33 @@
   box-shadow: 0 0 24px rgba(80, 160, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
+.core-overlay.is-flash {
+  z-index: 120;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 46%, rgba(90, 160, 255, 0.34), transparent 42%),
+    rgba(4, 8, 18, 0.42);
+  animation: core-pop 1s ease forwards;
+}
+
+.core-overlay.is-flash header,
+.core-overlay.is-flash .core-caption {
+  display: none;
+}
+
+@keyframes core-pop {
+  0% { opacity: 0; transform: scale(0.94); }
+  14% { opacity: 1; transform: scale(1); }
+  74% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .core-overlay.is-flash {
+    animation: none;
+  }
+}
+
 @media (max-width: 720px) {
   .core-overlay header,
   .core-caption {
