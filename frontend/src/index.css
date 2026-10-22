@@ -5025,6 +5025,26 @@ button.linkish {
   font-size: 0.88rem;
 }
 
+/* Termin-Details: nur lesen, Bearbeiten kommt vom Knopf. */
+.cal-detail-head {
+  margin: 6px 0 2px;
+  display: flex;
+}
+
+.cal-detail-title {
+  margin: 2px 0 6px;
+  font-size: 1.18rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.cal-detail-row {
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
 @keyframes calMonthIn {
   from {
     opacity: 0;
@@ -8186,34 +8206,156 @@ html.theme-wipe-dark::before {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
+.home-folder-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(2, 6, 10, 0.55);
+  backdrop-filter: blur(6px);
+  animation: fxBackdropIn 240ms var(--ease-out);
+}
+
 .home-folder {
   position: fixed;
   left: 50%;
-  bottom: calc(108px + env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
-  width: min(360px, calc(100vw - 28px));
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(70dvh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 60;
   display: grid;
   gap: 10px;
   padding: 14px;
-  border-radius: 18px;
+  border-radius: 20px;
   color: #f4f7fb;
-  background: rgba(8, 12, 18, 0.94);
+  background: rgba(8, 12, 18, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5);
+  animation: folderPop 260ms var(--ease-out);
 }
 
-.home-folder label,
-.home-folder li {
-  display: grid;
-  gap: 6px;
+@keyframes folderPop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
-.home-folder ul {
+@keyframes fxBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.home-folder-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.home-folder-name {
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+/* 9er-Raster: jede App im Ordner als Kachel antippbar. */
+.home-folder-grid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 8px 4px;
+}
+
+.home-folder-cell {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+.home-folder-app {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  border-radius: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 160ms var(--ease-out), background 160ms var(--ease-out);
+}
+
+.home-folder-app:active {
+  transform: scale(0.92);
+  background: color-mix(in srgb, var(--board-accent, #7dd3c7) 16%, transparent);
+}
+
+.home-folder-ico {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--board-accent, #7dd3c7);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--board-accent, #7dd3c7) 18%, transparent), color-mix(in srgb, #041018 55%, transparent)),
+    radial-gradient(circle at 30% 24%, color-mix(in srgb, var(--board-accent, #7dd3c7) 22%, transparent) 0%, transparent 62%);
+  border: 1px solid color-mix(in srgb, var(--board-accent, #7dd3c7) 42%, transparent);
+}
+
+.home-folder-ico svg {
+  width: 16px;
+  height: 16px;
+}
+
+.home-folder-label {
+  font-size: 0.52rem;
+  line-height: 1.1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.home-folder-eject {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 90, 98, 0.6);
+  background: rgba(30, 8, 12, 0.9);
+  color: #ff8a92;
+  font-size: 0.66rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.home-folder-rename {
+  display: grid;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 .home-folder input,
@@ -10951,6 +11093,219 @@ body.is-plan-chat .gui-stage {
   resize: vertical;
 }
 
+/* Gemeinsames Sheet für Todo-, Notiz- und Einkaufs-Eingaben:
+   Backdrop, Griffleiste, Glas, weiches Aufgleiten — wie das Kalender-Sheet. */
+.shop-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 19;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  animation: fxBackdropIn 220ms var(--ease-out);
+}
+
+.shop-sheet-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 6px 0 2px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.shop-sheet-handle i {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 55%, transparent);
+}
+
+.shop-add-sheet {
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+  box-shadow: 0 -18px 44px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px) saturate(1.15);
+}
+
+.notes-editor-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 72%;
+  padding: 8px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: rgba(8, 12, 10, 0.98);
+  border-top: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  box-shadow: 0 -18px 44px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px) saturate(1.15);
+  overscroll-behavior: contain;
+}
+
+.notes-editor-sheet textarea {
+  width: 100%;
+  min-height: 170px;
+  resize: none;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, #fff 5%, transparent);
+  color: var(--text);
+  padding: 12px 14px;
+  font: inherit;
+  line-height: 1.5;
+}
+
+.notes-editor-sheet textarea:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+
+.notes-count {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  align-self: center;
+}
+
+/* Todo-Editor: aufgeräumt, zweispaltig, mit Schnellchips. */
+.todo-editor-form {
+  display: grid;
+  gap: 12px;
+}
+
+.todo-editor-field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.todo-editor-field input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, #fff 5%, transparent);
+  color: var(--text);
+  padding: 11px 12px;
+  font: inherit;
+}
+
+.todo-editor-field input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+
+.todo-editor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.todo-quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.todo-quick-chip {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, #fff 4%, transparent);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: border-color 160ms var(--ease-out), color 160ms var(--ease-out), background 160ms var(--ease-out);
+}
+
+.todo-quick-chip.is-on {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.todo-editor-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.todo-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Termine in der Todo-Liste: der Kalender-Einblick. */
+.todo-termine {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--text-muted) 22%, transparent);
+  display: grid;
+  gap: 8px;
+}
+
+.todo-termine-head {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.todo-termine-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.todo-termin-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, #fff 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-muted) 14%, transparent);
+}
+
+.todo-termin-day {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.todo-termin-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+}
+
+.todo-termin-when {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ghost-btn.is-danger {
+  color: #ff8a92;
+  border-color: rgba(255, 90, 98, 0.45);
+}
+
 .notes-error {
   margin: 0;
   color: #ff9b91;
@@ -11130,6 +11485,7 @@ html[data-device='desktop'] .messages {
   .notes-toolbar,
   .notes-list,
   .notes-editor,
+  .notes-editor-sheet,
   .shop-items-scroll,
   .shop-list-grid,
   .shop-add-sheet,
@@ -11243,8 +11599,10 @@ html[data-device='desktop'] .messages {
   .shop-new-list > input,
   .notes-toolbar > input,
   .todo-editor label input,
+  .todo-editor-field input,
   .shop-add-input,
   .notes-editor textarea,
+  .notes-editor-sheet textarea,
   .cal-form input {
     flex: 1 1 8rem;
     width: 100%;

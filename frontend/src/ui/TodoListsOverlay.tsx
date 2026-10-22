@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { prefersReducedMotion } from '../engine/motion.ts'
-import { adoptOrphanDeadlineTodos } from '../engine/calendar.ts'
+import { adoptOrphanDeadlineTodos, isoDay } from '../engine/calendar.ts'
+import { expandEvents, eventEndAt, recurLabel } from '../engine/calendar-occur.ts'
 import {
   addTodo,
   collapseTodoLists,
   deleteTodo,
+  listEvents,
   listTodos,
   setTodoStatus,
   updateTodo,
+  type CalendarEvent,
   type Todo,
 } from '../engine/store.ts'
 
@@ -126,8 +129,42 @@ function TaskCard({
   )
 }
 
+function dayLabel(iso: string): string {
+  const parts = iso.split('-').map((n) => Number(n))
+  if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) return iso
+  const d = new Date(parts[0], parts[1] - 1, parts[2])
+  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+/** Termine der nächsten zwei Wochen — der Kalender-Einblick in der Todo-Liste. */
+function TerminSection({ events }: { events: CalendarEvent[] }) {
+  if (!events.length) return null
+  return (
+    <section className="todo-termine" aria-label="Termine der nächsten zwei Wochen">
+      <h3 className="todo-termine-head">Termine · nächste 2 Wochen</h3>
+      <ul className="todo-termine-list">
+        {events.map((event) => {
+          const d = new Date(event.start_at)
+          const end = eventEndAt(event)
+          const when = event.all_day
+            ? 'ganztägig'
+            : `${d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} – ${end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`
+          return (
+            <li key={`${event.id}-${event.start_at}`} className="todo-termin-row">
+              <span className="todo-termin-day">{dayLabel(isoDay(d))}</span>
+              <span className="todo-termin-title">{event.title}</span>
+              <span className="todo-termin-when">{when}{recurLabel(event) ? ` · ${recurLabel(event)}` : ''}</span>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
+
 export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => void; leaving?: boolean }) {
   const [todos, setTodos] = useState<Todo[]>([])
+  const [termine, setTermine] = useState<CalendarEvent[]>([])
   const [taskOpen, setTaskOpen] = useState(false)
   const [editing, setEditing] = useState<Todo | null>(null)
   const [title, setTitle] = useState('')
@@ -135,6 +172,9 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
   const [time, setTime] = useState('')
   const [selected, setSelected] = useState<string[]>([])
   const [error, setError] = useState('')
+  const [sheetDrag, setSheetDrag] = useState(0)
+  const sheetStartY = useRef<number | null>(null)
+  const sheetDragRef = useRef(0)
   const reduced = prefersReducedMotion()
 
   const refresh = useCallback(async () => {
@@ -142,6 +182,15 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
       await collapseTodoLists()
       await adoptOrphanDeadlineTodos()
       setTodos(await listTodos())
+      const [ev] = await Promise.all([listEvents()])
+      const from = new Date()
+      const until = new Date()
+      until.setDate(until.getDate() + 14)
+      setTermine(
+        expandEvents(ev, from, until)
+          .sort((a, b) => a.start_at.localeCompare(b.start_at))
+          .slice(0, 8),
+      )
       setError('')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Todo-Listen konnten nicht geladen werden.')
@@ -152,10 +201,14 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
     void refresh()
     const onChange = () => void refresh()
     window.addEventListener('jarvis-todos', onChange)
-    return () => window.removeEventListener('jarvis-todos', onChange)
+    window.addEventListener('jarvis-events', onChange)
+    return () => {
+      window.removeEventListener('jarvis-todos', onChange)
+      window.removeEventListener('jarvis-events', onChange)
+    }
   }, [refresh])
 
-  const rows = todos
+  const rows = useMemo(() => todos, [todos])
 
   function openTask(todo?: Todo) {
     setEditing(todo || null)
@@ -165,11 +218,19 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
     setTaskOpen(true)
   }
 
+  function closeTask() {
+    setTaskOpen(false)
+    setSheetDrag(0)
+    sheetStartY.current = null
+  }
+
   async function saveTask() {
+    const name = title.trim()
+    if (!name) return
     try {
-      if (editing) await updateTodo(editing.id, { title, listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
-      else await addTodo(title, undefined, { listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
-      setTaskOpen(false)
+      if (editing) await updateTodo(editing.id, { title: name, listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
+      else await addTodo(name, undefined, { listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
+      closeTask()
       await refresh()
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Todo konnte nicht gespeichert werden.')
@@ -184,6 +245,36 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Ausgewählte Todos konnten nicht gelöscht werden.')
     }
+  }
+
+  function quickDay(days: number) {
+    const d = new Date()
+    d.setDate(d.getDate() + days)
+    const iso = isoDay(d)
+    setDate((cur) => (cur === iso ? '' : iso))
+  }
+
+  function onSheetHandleDown(event: PointerEvent<HTMLDivElement>) {
+    sheetStartY.current = event.clientY
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function onSheetHandleMove(event: PointerEvent<HTMLDivElement>) {
+    if (sheetStartY.current == null) return
+    const dy = Math.max(0, event.clientY - sheetStartY.current)
+    sheetDragRef.current = dy
+    setSheetDrag(dy)
+  }
+
+  function onSheetHandleUp() {
+    const dy = sheetDragRef.current
+    sheetStartY.current = null
+    sheetDragRef.current = 0
+    if (dy > 88) {
+      closeTask()
+      return
+    }
+    setSheetDrag(0)
   }
 
   return (
@@ -219,21 +310,74 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
                 onToggle={() => setSelected((current) => current.includes(todo.id) ? current.filter((id) => id !== todo.id) : [...current, todo.id])}
               />
             )) : <p className="watch-empty">Noch keine Todos in dieser Liste.</p>}
+            <TerminSection events={termine} />
           </div>
           <button type="button" className="shop-fab cal-fab" aria-label="Todo hinzufügen" onClick={() => openTask()}>+</button>
         </>
       {taskOpen ? (
-        <div className="shop-add-sheet todo-editor fx-in" role="dialog" aria-label={editing ? 'Todo bearbeiten' : 'Todo erstellen'}>
-          <header className="watch-head">
-            <h2>{editing ? 'Todo bearbeiten' : 'Neues Todo'}</h2>
-            <button type="button" className="ghost-btn" onClick={() => setTaskOpen(false)}>Abbrechen</button>
-          </header>
-          {error ? <p className="notes-error" role="alert">{error}</p> : null}
-          <label>Aufgabe<input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-          <label>Deadline (optional)<input type="date" value={date} onChange={(event) => setDate(event.target.value)} /></label>
-          <label>Uhrzeit (optional)<input type="time" value={time} disabled={!date} onChange={(event) => setTime(event.target.value)} /></label>
-          <button type="button" className="ghost-btn" onClick={() => void saveTask()}>Speichern</button>
-        </div>
+        <>
+          <div className="shop-sheet-backdrop" onClick={closeTask} aria-hidden />
+          <div
+            className="shop-add-sheet todo-editor fx-in"
+            role="dialog"
+            aria-label={editing ? 'Todo bearbeiten' : 'Todo erstellen'}
+            style={sheetDrag ? { transform: `translateY(${sheetDrag}px)`, transition: 'none' } : undefined}
+          >
+            <div
+              className="shop-sheet-handle"
+              aria-hidden
+              onPointerDown={onSheetHandleDown}
+              onPointerMove={onSheetHandleMove}
+              onPointerUp={onSheetHandleUp}
+              onPointerCancel={onSheetHandleUp}
+            >
+              <i />
+            </div>
+            <header className="watch-head">
+              <h2>{editing ? 'Todo bearbeiten' : 'Neues Todo'}</h2>
+              <button type="button" className="ghost-btn" onClick={closeTask}>Abbrechen</button>
+            </header>
+            {error ? <p className="notes-error" role="alert">{error}</p> : null}
+            <form
+              className="todo-editor-form"
+              onSubmit={(event) => {
+                event.preventDefault()
+                void saveTask()
+              }}
+            >
+              <label className="todo-editor-field">
+                <span>Aufgabe</span>
+                <input
+                  autoFocus
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="Was ist zu tun?"
+                  maxLength={140}
+                />
+              </label>
+              <div className="todo-quick-chips" role="group" aria-label="Schnellauswahl Deadline">
+                <button type="button" className={`todo-quick-chip${date === isoDay(new Date()) ? ' is-on' : ''}`} onClick={() => quickDay(0)}>Heute</button>
+                <button type="button" className={`todo-quick-chip${(() => { const d = new Date(); d.setDate(d.getDate() + 1); return date === isoDay(d) })() ? ' is-on' : ''}`} onClick={() => quickDay(1)}>Morgen</button>
+                <button type="button" className={`todo-quick-chip${(() => { const d = new Date(); d.setDate(d.getDate() + 7); return date === isoDay(d) })() ? ' is-on' : ''}`} onClick={() => quickDay(7)}>Nächste Woche</button>
+              </div>
+              <div className="todo-editor-row">
+                <label className="todo-editor-field">
+                  <span>Deadline (optional)</span>
+                  <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+                </label>
+                <label className="todo-editor-field">
+                  <span>Uhrzeit (optional)</span>
+                  <input type="time" value={time} disabled={!date} onChange={(event) => setTime(event.target.value)} />
+                </label>
+              </div>
+              <p className="todo-editor-hint">Mit Deadline landet das Todo auch im Kalender.</p>
+              <div className="todo-editor-actions">
+                <button type="button" className="ghost-btn" onClick={closeTask}>Abbrechen</button>
+                <button type="submit" className="cal-add-btn" disabled={!title.trim()}>Speichern</button>
+              </div>
+            </form>
+          </div>
+        </>
       ) : null}
     </div>
   )

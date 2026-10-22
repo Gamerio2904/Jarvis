@@ -281,6 +281,7 @@ function EventCard({
   remind,
   theme,
   kind,
+  onOpen,
   onEdit,
   onDelete,
   onHold,
@@ -293,6 +294,7 @@ function EventCard({
   remind?: string
   theme?: CalThemeId
   kind?: string
+  onOpen?: () => void
   onEdit?: () => void
   onDelete?: () => void
   onHold?: (x: number, y: number) => void
@@ -307,8 +309,8 @@ function EventCard({
     <li className="cal-card" data-theme={theme || 'erinnerung'} style={tint}>
       <div
         className="cal-card-main"
-        role={onEdit ? 'button' : undefined}
-        tabIndex={onEdit ? 0 : undefined}
+        role={onOpen || onEdit ? 'button' : undefined}
+        tabIndex={onOpen || onEdit ? 0 : undefined}
         onPointerDown={
           onHold
             ? (e) => {
@@ -370,14 +372,16 @@ function EventCard({
             e.currentTarget.dataset.held = ''
             return
           }
-          onEdit?.()
+          if (onOpen) onOpen()
+          else onEdit?.()
         }}
         onKeyDown={
-          onEdit
+          onOpen || onEdit
             ? (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
-                  onEdit()
+                  if (onOpen) onOpen()
+                  else onEdit?.()
                 }
               }
             : undefined
@@ -422,7 +426,7 @@ function WeekBoard({
   selected,
   today,
   onSelect,
-  onEdit,
+  onDetails,
   onHold,
   onDrag,
 }: {
@@ -432,7 +436,7 @@ function WeekBoard({
   selected: Date
   today: Date
   onSelect: (day: Date) => void
-  onEdit: (event: CalendarEvent) => void
+  onDetails: (event: CalendarEvent) => void
   onHold: (event: CalendarEvent, x: number, y: number) => void
   onDrag: (id: string, title: string, phase: 'move' | 'end', x: number, y: number) => void
 }) {
@@ -474,7 +478,7 @@ function WeekBoard({
                         className="cal-week-all-item"
                         style={{ ['--cal-theme']: face.color, borderLeftColor: face.color } as CSSProperties}
                         label={e.title}
-                        onTap={() => onEdit(e)}
+                        onTap={() => onDetails(e)}
                         onHold={(x, y) => onHold(e, x, y)}
                         onDrag={(phase, x, y) => onDrag(e.id, e.title, phase, x, y)}
                       >
@@ -510,7 +514,7 @@ function WeekBoard({
                 endMin: Math.max(endMin, startMin + 15),
                 color: face.color,
                 rem: false,
-                onOpen: () => onEdit(e),
+                onOpen: () => onDetails(e),
                 onHold: (x: number, y: number) => onHold(e, x, y),
               }
             })
@@ -598,7 +602,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [editingId, setEditingId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
-  const [mode, setMode] = useState<CalMode>('week')
+  const [mode, setMode] = useState<CalMode>('month')
   const [yearMarks, setYearMarks] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
   const [chipMins, setChipMins] = useState<number[]>([0])
@@ -607,6 +611,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [hold, setHold] = useState<{ id: string; x: number; y: number } | null>(null)
   const [recur, setRecur] = useState<CalendarEvent['recur']>(null)
   const [monthDir, setMonthDir] = useState<'left' | 'right' | 'none'>('none')
+  const [detail, setDetail] = useState<CalendarEvent | null>(null)
   const [sheetDrag, setSheetDrag] = useState(0)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
   const sheetStartY = useRef<number | null>(null)
@@ -733,7 +738,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setMonthDir(next.getTime() === cur.getTime() ? 'none' : next > cur ? 'left' : 'right')
     setCursor(next)
     setSelected(new Date(today))
-    setMode('week')
+    setMode('month')
   }
 
   function shiftMonth(delta: number) {
@@ -792,7 +797,22 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setSheetOpen(true)
   }
 
+  /** Erst nur Details zeigen. Bearbeiten kommt vom Detail-Fenster aus. */
+  function openDetails(e: CalendarEvent) {
+    const master = events.find((row) => row.id === e.id) || e
+    const d = new Date(master.start_at)
+    setSelected(startOfDay(d))
+    setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
+    setDetail(master)
+    setErr(null)
+  }
+
+  function closeDetails() {
+    setDetail(null)
+  }
+
   function openEdit(e: CalendarEvent) {
+    setDetail(null)
     const master = events.find((row) => row.id === e.id) || e
     const d = new Date(master.start_at)
     setSelected(startOfDay(d))
@@ -1168,7 +1188,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                       className="cal-cell-chip"
                       style={{ ['--cal-theme']: face.color, borderLeftColor: face.color } as CSSProperties}
                       label={event.title}
-                      onTap={() => openEdit(event)}
+                      onTap={() => openDetails(event)}
                       onHold={(x, y) => setHold({ id: event.id, x, y })}
                       onDrag={(phase, x, y) => trackDrag(event.id, event.title, phase, x, y)}
                     >
@@ -1211,6 +1231,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                       remind={remindLabel(e)}
                       theme={eventTheme(e)}
                       busy={busy}
+                      onOpen={() => openDetails(e)}
                       onEdit={() => openEdit(e)}
                       onDelete={() => void onDelete(e.id)}
                       onHold={(x, y) => setHold({ id: e.id, x, y })}
@@ -1235,7 +1256,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           selected={selected}
           today={today}
           onSelect={(d) => showDay(d)}
-          onEdit={openEdit}
+          onDetails={openDetails}
           onHold={(event, x, y) => setHold({ id: event.id, x, y })}
           onDrag={trackDrag}
         />
@@ -1390,6 +1411,57 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         </form>
         {err ? <p className="settings-hint">{err}</p> : null}
       </div>
+
+      {detail
+        ? (() => {
+            const face = calThemeOf(eventTheme(detail))
+            const end = eventEndAt(detail)
+            const day = dayHeading(new Date(detail.start_at), today)
+            const span = detail.all_day
+              ? day
+              : `${day} · ${timeLabel(detail.start_at, detail.all_day)} – ${timeLabel(end.toISOString(), detail.all_day)}`
+            const place = detail.place ? `Ort: ${detail.place}` : ''
+            const series = recurLabel(detail)
+            const remind = remindLabel(detail)
+            return (
+              <>
+                <div className="cal-sheet-backdrop is-on" onClick={closeDetails} aria-hidden />
+                <div className="cal-sheet is-open" role="dialog" aria-label="Termin-Details">
+                  <div className="cal-sheet-handle" aria-hidden onClick={closeDetails}>
+                    <i />
+                  </div>
+                  <p className="cal-detail-head">
+                    <span className="cal-theme-pill" style={{ background: face.color }}>
+                      {face.label}
+                    </span>
+                  </p>
+                  <h3 className="cal-detail-title">{detail.title}</h3>
+                  <p className="cal-detail-row">{span}</p>
+                  {place ? <p className="cal-detail-row">{place}</p> : null}
+                  {series ? <p className="cal-detail-row">{series}</p> : null}
+                  {remind ? <p className="cal-detail-row">{remind}</p> : null}
+                  <div className="cal-sheet-actions">
+                    <button
+                      type="button"
+                      className="ghost-btn"
+                      disabled={busy}
+                      onClick={() => {
+                        const id = detail.id
+                        closeDetails()
+                        void onDelete(id)
+                      }}
+                    >
+                      Löschen
+                    </button>
+                    <button type="button" className="cal-add-btn" disabled={busy} onClick={() => openEdit(detail)}>
+                      Bearbeiten
+                    </button>
+                  </div>
+                </div>
+              </>
+            )
+          })()
+        : null}
       {hold
         ? createPortal(
             <div

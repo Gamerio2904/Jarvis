@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
 import { addNote, deleteNote, listNotes, updateNote, type Note } from '../engine/store.ts'
 
 export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void; leaving?: boolean }) {
@@ -9,6 +9,9 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
   const [editorOpen, setEditorOpen] = useState(false)
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState('')
+  const [sheetDrag, setSheetDrag] = useState(0)
+  const sheetStartY = useRef<number | null>(null)
+  const sheetDragRef = useRef(0)
 
   const refresh = useCallback(async () => {
     try {
@@ -36,12 +39,16 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
     setEditing(null)
     setBody('')
     setEditorOpen(false)
+    setSheetDrag(0)
+    sheetStartY.current = null
   }
 
   async function save() {
+    const text = body.trim()
+    if (!text) return
     try {
-      if (editing) await updateNote(editing.id, body)
-      else await addNote(body)
+      if (editing) await updateNote(editing.id, text)
+      else await addNote(text)
       closeEditor()
       await refresh()
     } catch (cause) {
@@ -64,6 +71,29 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
     }
   }
 
+  function onSheetHandleDown(event: PointerEvent<HTMLDivElement>) {
+    sheetStartY.current = event.clientY
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function onSheetHandleMove(event: PointerEvent<HTMLDivElement>) {
+    if (sheetStartY.current == null) return
+    const dy = Math.max(0, event.clientY - sheetStartY.current)
+    sheetDragRef.current = dy
+    setSheetDrag(dy)
+  }
+
+  function onSheetHandleUp() {
+    const dy = sheetDragRef.current
+    sheetStartY.current = null
+    sheetDragRef.current = 0
+    if (dy > 88) {
+      closeEditor()
+      return
+    }
+    setSheetDrag(0)
+  }
+
   const filtered = notes.filter((note) => note.body.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
   return (
     <div className={`watch-overlay notes-overlay fx-in${leaving ? ' is-leaving' : ''}`}>
@@ -73,24 +103,51 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
       </header>
       {error ? <p className="notes-error" role="alert">{error}</p> : null}
       {editorOpen ? (
-        <section className="notes-editor" aria-label={editing ? 'Notiz bearbeiten' : 'Neue Notiz'}>
-          <textarea
-            aria-label="Notiztext"
-            placeholder="Notiz schreiben"
-            value={body}
-            onChange={(event) => setBody(event.target.value)}
-            rows={5}
-          />
-          <div className="notes-actions">
-            <button type="button" className="ghost-btn" onClick={closeEditor}>Abbrechen</button>
-            <button type="button" className="ghost-btn" onClick={() => void save()}>Speichern</button>
-            {editing ? (
-              <button type="button" className="ghost-btn" disabled={deletingId === editing.id} onClick={() => void remove()}>
-                {deletingId === editing.id ? 'Wird gelöscht…' : 'Löschen'}
-              </button>
-            ) : null}
-          </div>
-        </section>
+        <>
+          <div className="shop-sheet-backdrop" onClick={closeEditor} aria-hidden />
+          <section
+            className="notes-editor-sheet fx-in"
+            aria-label={editing ? 'Notiz bearbeiten' : 'Neue Notiz'}
+            style={sheetDrag ? { transform: `translateY(${sheetDrag}px)`, transition: 'none' } : undefined}
+          >
+            <div
+              className="shop-sheet-handle"
+              aria-hidden
+              onPointerDown={onSheetHandleDown}
+              onPointerMove={onSheetHandleMove}
+              onPointerUp={onSheetHandleUp}
+              onPointerCancel={onSheetHandleUp}
+            >
+              <i />
+            </div>
+            <header className="watch-head">
+              <h2>{editing ? 'Notiz bearbeiten' : 'Neue Notiz'}</h2>
+              <span className="notes-count">{body.length} Zeichen</span>
+            </header>
+            <textarea
+              aria-label="Notiztext"
+              placeholder="Notiz schreiben"
+              value={body}
+              onChange={(event) => setBody(event.target.value)}
+              rows={6}
+              autoFocus
+            />
+            <div className="notes-actions">
+              {editing ? (
+                <button
+                  type="button"
+                  className="ghost-btn is-danger"
+                  disabled={deletingId === editing.id}
+                  onClick={() => void remove()}
+                >
+                  {deletingId === editing.id ? 'Wird gelöscht…' : 'Löschen'}
+                </button>
+              ) : null}
+              <button type="button" className="ghost-btn" onClick={closeEditor}>Abbrechen</button>
+              <button type="button" className="cal-add-btn" disabled={!body.trim()} onClick={() => void save()}>Speichern</button>
+            </div>
+          </section>
+        </>
       ) : (
         <>
           <div className="notes-toolbar">

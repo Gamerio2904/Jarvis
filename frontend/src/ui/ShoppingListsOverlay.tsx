@@ -167,6 +167,29 @@ export function ShoppingListsOverlay({
   const [selectedDone, setSelectedDone] = useState<string[]>([])
   const reduced = prefersReducedMotion()
   const debRef = useRef(0)
+  const addStartY = useRef<number | null>(null)
+  const [addDrag, setAddDrag] = useState(0)
+
+  function onAddHandleDown(e: PointerEvent<HTMLDivElement>) {
+    addStartY.current = e.clientY
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  function onAddHandleMove(e: PointerEvent<HTMLDivElement>) {
+    if (addStartY.current == null) return
+    setAddDrag(Math.max(0, e.clientY - addStartY.current))
+  }
+
+  function onAddHandleUp() {
+    const dragged = addDrag
+    addStartY.current = null
+    if (dragged > 88) {
+      setAddOpen(false)
+      setAddDrag(0)
+      return
+    }
+    setAddDrag(0)
+  }
 
   const refresh = useCallback(async () => {
     const [ls, all] = await Promise.all([listShoppingLists(), listShopping()])
@@ -288,22 +311,34 @@ export function ShoppingListsOverlay({
         <p className="watch-empty">Einkaufsliste wird geladen.</p>
       )}
       {addOpen && detail ? (
-        <div className="shop-add-sheet fx-in" role="dialog" aria-label="Hinzufügen">
-          <header className="watch-head">
-            <h2>Hinzufügen</h2>
-            <button type="button" className="ghost-btn" onClick={() => setAddOpen(false)}>
-              Zu
-            </button>
-          </header>
-          <input
-            className="shop-add-input"
-            type="search"
-            placeholder="Name oder Lebensmittel suchen"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            autoFocus
-          />
-          <ul className="shop-suggest">
+        <>
+          <div className="shop-sheet-backdrop" onClick={() => setAddOpen(false)} aria-hidden />
+          <div className="shop-add-sheet fx-in" role="dialog" aria-label="Hinzufügen" style={addDrag ? { transform: `translateY(${addDrag}px)`, transition: 'none' } : undefined}>
+            <div
+              className="shop-sheet-handle"
+              aria-hidden
+              onPointerDown={onAddHandleDown}
+              onPointerMove={onAddHandleMove}
+              onPointerUp={onAddHandleUp}
+              onPointerCancel={onAddHandleUp}
+            >
+              <i />
+            </div>
+            <header className="watch-head">
+              <h2>Hinzufügen</h2>
+              <button type="button" className="ghost-btn" onClick={() => setAddOpen(false)}>
+                Zu
+              </button>
+            </header>
+            <input
+              className="shop-add-input"
+              type="search"
+              placeholder="Name oder Lebensmittel suchen"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              autoFocus
+            />
+            <ul className="shop-suggest">
             {query.trim().length >= 2 ? (
               <li>
                 <button type="button" className="shop-suggest-row" onClick={() => void addFreeText()}>
@@ -319,8 +354,9 @@ export function ShoppingListsOverlay({
                 </button>
               </li>
             ))}
-          </ul>
-        </div>
+            </ul>
+          </div>
+        </>
       ) : null}
     </div>
   )

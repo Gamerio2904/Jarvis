@@ -305,14 +305,16 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     setGhost(null)
     setHover(null)
     const moved = Math.hypot(event.clientX - current.x, event.clientY - current.y) > 6
-    if (!current.dragging) {
-      if (moved) return
-      const cell = layout.cells[current.from]
+    const cell = layout.cells[current.from]
+    // Langsamer Tap: Der Halte-Timer machte ihn zum Drag und der Klick starb.
+    // Ohne echte Bewegung zählt jeder Druck als Antippen.
+    if (!moved) {
       if (!cell) return
       if (cell.kind === 'app') onOpen(cell.id)
       else setOpenFolder(cell.folder.id)
       return
     }
+    if (!current.dragging) return
     if (current.hover === null || current.hover === current.from) return
     const hoverMs = Date.now() - current.hoverAt
     commit(applyHomeDrop(layout, current.from, current.hover, hoverMs))
@@ -356,25 +358,49 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
       ))}
       {ghost ? <div className="home-app-ghost" style={{ left: ghost.x, top: ghost.y }}>{ghost.label}</div> : null}
       {open ? (
-        <div className="home-folder" role="dialog" aria-label={open.name}>
-          <label>
-            Ordnername
-            <input
-              value={open.name}
-              maxLength={24}
-              onChange={(event) => commit(renameHomeFolder(layout, open.id, event.target.value))}
-            />
-          </label>
-          <ul>
-            {open.apps.map((id) => (
-              <li key={id}>
-                <button type="button" onClick={() => onOpen(id)}>{HOME_APPS.find((app) => app.id === id)?.label || id}</button>
-                <button type="button" onClick={() => commit(ejectHomeApp(layout, open.id, id))}>Herausnehmen</button>
-              </li>
-            ))}
-          </ul>
-          <button type="button" onClick={() => setOpenFolder(null)}>Schließen</button>
-        </div>
+        <>
+          <div className="home-folder-backdrop" onClick={() => setOpenFolder(null)} aria-hidden />
+          <div className="home-folder" role="dialog" aria-label={open.name}>
+            <div className="home-folder-head">
+              <strong className="home-folder-name">{open.name}</strong>
+              <button type="button" className="ghost-btn" onClick={() => setOpenFolder(null)}>Schließen</button>
+            </div>
+            <ul className="home-folder-grid">
+              {open.apps.map((id) => {
+                const label = HOME_APPS.find((app) => app.id === id)?.label || id
+                return (
+                  <li key={id} className="home-folder-cell">
+                    <button
+                      type="button"
+                      className="home-folder-app"
+                      aria-label={`${label} öffnen`}
+                      onClick={() => onOpen(id)}
+                    >
+                      <span className="home-folder-ico"><AppGlyph id={id} /></span>
+                      <span className="home-folder-label">{label}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="home-folder-eject"
+                      aria-label={`${label} herausnehmen`}
+                      onClick={() => commit(ejectHomeApp(layout, open.id, id))}
+                    >
+                      ×
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+            <label className="home-folder-rename">
+              Ordnername
+              <input
+                value={open.name}
+                maxLength={24}
+                onChange={(event) => commit(renameHomeFolder(layout, open.id, event.target.value))}
+              />
+            </label>
+          </div>
+        </>
       ) : null}
     </div>
   )
