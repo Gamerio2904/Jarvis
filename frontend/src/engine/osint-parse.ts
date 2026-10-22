@@ -22,6 +22,10 @@ function hostOf(raw: string): string | null {
 export function parseOsintIntent(text: string): OsintIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
+  // QR-Codes gehören zur Kopplung (Hausstand/Server), nicht zur Netz-Suche.
+  if (/\b(?:qr|qe)[\s-]*code/i.test(t) || /\b(?:koppeln|kopplung|hausstand)\b/i.test(t)) {
+    return null
+  }
   if (/\b(?:portscan|port[- ]scan|nmap|osint\/sweep|cidr)\b/i.test(t) || /^\s*scan(?:ne)?\s+/i.test(t)) {
     return { kind: 'refuse_scan' }
   }

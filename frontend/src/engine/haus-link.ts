@@ -8,8 +8,14 @@ export type HausLinkIntent = 'offer' | 'scan' | 'sync_unavailable'
 
 const OFFER =
   /^\s*(?:hausstand\s+(?:übertragen|uebertragen)|(?:qr|qe)[\s-]*code\s+für\s+(?:den\s+)?hausstand|hausstand[\s-]*(?:qr|qe)[\s-]*code)\s*[.!]?\s*$/i
-const SCAN =
-  /^\s*(?:(?:scanne|scannen|scan)\s+(?:den\s+)?(?:qr|qe)[\s-]*code|(?:qr|qe)[\s-]*code\s+(?:scannen|scan))\s*[.!]?\s*$/i
+/**
+ * Scan-Sätze, auch mit Zusatz am Ende: „Scanne den QR Code für Kopplung mit dem
+ * Server“, „QR Code scannen für Server“, „Scanne den QR Code vom Tablet“.
+ * Nach dem Code-Kern sind bis zu fünf Zusatzwörter erlaubt.
+ */
+const SCAN_CORE = String.raw`(?:(?:scanne|scannen|scan)\s+(?:den\s+|den\s+ganzen\s+)?(?:qr|qe)[\s-]*code|(?:qr|qe)[\s-]*code\s+(?:scannen|scan)(?:nen)?)`
+const SCAN_TAIL = String.raw`(?:\s+(?:für|zum|vom|von|mit|auf|am|an|zu)\S*(?:\s+(?:die|der|dem|den|ein(?:e|em|en)?|unser(?:e|m|n)?|mein(?:e|m|n)?)?\s*\S+){0,3})?`
+const SCAN = new RegExp(`^\\s*${SCAN_CORE}${SCAN_TAIL}\\s*[.!?]*\\s*$`, 'i')
 
 export function parseHausLink(text: string): HausLinkIntent | null {
   const t = text.trim()
