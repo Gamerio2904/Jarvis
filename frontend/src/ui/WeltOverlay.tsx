@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
-import { CUBE_HALF, add, blick, fuegeWuerfel, gier, legeAuge, leereWelt, loslassen, mitTisch, norm, ohneTracker, orientierung, rot, schiebe, setzeFlaechen, setzeHand, setzen, sub, tischAnBlick, versuchGriff, type V3, type WeltCube, type WeltSession } from '../engine/welt.ts'
+import { CUBE_HALF, add, blick, fuegeWuerfel, gier, greifeWuerfel, legeAuge, leereWelt, loslassen, mitTisch, norm, ohneTracker, orientierung, rot, schiebe, setzeFlaechen, setzeHand, setzen, sub, tischAnBlick, versuchGriff, type V3, type WeltCube, type WeltSession } from '../engine/welt.ts'
 import { schritt } from '../engine/welt-physik.ts'
 import { handInWelt, type HandBild } from '../engine/welt-hand.ts'
 import { weltQuer, weltSample, weltStart, weltStop, type WeltSample } from '../native/welt.ts'
@@ -270,17 +270,20 @@ export function WeltOverlay({
   const drag = useRef<{ id: string; depth: number } | null>(null)
   const voiceRef = useRef(onVoice)
   voiceRef.current = onVoice
-  const [session, setSession] = useState<WeltSession>(() => leereWelt())
+  /**
+   * Die Welt lebt nur in der Referenz. Ein React-State hier hieße: ein
+   * Rendern pro Bild (60 pro Sekunde) für nichts — die Leinwand liest ohnehin
+   * die Referenz. bump() schreibt die Welt, paint() im nächsten Bild zeigt sie.
+   */
+  const bump = useRef((fn: (s: WeltSession) => WeltSession) => {
+    sessionRef.current = fn(sessionRef.current)
+  })
   const [cameraNote, setCameraNote] = useState('')
   const [still, setStill] = useState('')
   const [menu, setMenu] = useState(false)
   const [voiceOn, setVoiceOn] = useState(false)
   const arPose = useRef(false)
   const lage0 = useRef<number | null>(null)
-
-  useEffect(() => {
-    sessionRef.current = session
-  }, [session])
 
   useEffect(() => {
     void weltQuer(true)
@@ -297,7 +300,7 @@ export function WeltOverlay({
       while (delta > 180) delta -= 360
       while (delta < -180) delta += 360
       const yaw = (-delta * Math.PI) / 180
-      setSession((prev) => {
+      bump.current((prev) => {
         if (!prev.camera || arPose.current) return prev
         return blick(prev, { ...prev.camera, rotation: gier(yaw) })
       })
@@ -328,13 +331,15 @@ export function WeltOverlay({
     let stream: MediaStream | null = null
     let timer = 0
     let frame = 0
+    let stillAt = 0
+    let stillUrl = ''
     const stopStream = () => {
       stream?.getTracks().forEach((track) => track.stop())
       stream = null
     }
     const applySample = (sample: WeltSample) => {
       if (!sample.available) return
-      setSession((prev) => {
+      bump.current((prev) => {
         let next = setzeFlaechen(
           prev,
           (sample.planes || []).map((p) => ({
@@ -369,7 +374,18 @@ export function WeltOverlay({
         next = orientierung(next, sample.tracking !== 'weg')
         return mitTisch(next)
       })
-      if (sample.jpeg) setStill(`data:image/jpeg;base64,${sample.jpeg}`)
+      if (sample.jpeg) {
+        // Ein neues JPEG pro Probe heißt: Base64 dekodieren und neu malen.
+        // Ohne Drossel wären das acht Bildwechsel pro Sekunde — dafür gibt es
+        // keinen sichtbaren Gewinn, das Kamerabild ruckt eher.
+        const now = performance.now()
+        const next = `data:image/jpeg;base64,${sample.jpeg}`
+        if (now - stillAt > 240 && next !== stillUrl) {
+          stillAt = now
+          stillUrl = next
+          setStill(next)
+        }
+      }
     }
     const openEye = async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -393,7 +409,7 @@ export function WeltOverlay({
           frameSize.current = { w: video.videoWidth || video.clientWidth, h: video.videoHeight || video.clientHeight }
         }
         setCameraNote('')
-        setSession((prev) => legeAuge(ohneTracker(prev), window.innerWidth, window.innerHeight))
+        bump.current((prev) => legeAuge(ohneTracker(prev), window.innerWidth, window.innerHeight))
       } catch {
         if (!dead) setCameraNote('Kamera ist zu.')
       }
@@ -434,7 +450,8 @@ export function WeltOverlay({
     const loop = () => {
       if (dead) return
       frame = window.requestAnimationFrame(loop)
-      setSession((prev) => schritt(mitTisch(prev), 1 / 60))
+      // Physik direkt auf der Referenz — kein Rendern, nur malen.
+      sessionRef.current = schritt(mitTisch(sessionRef.current), 1 / 60)
       paint()
     }
     const handTimer = window.setInterval(() => {
@@ -453,7 +470,7 @@ export function WeltOverlay({
         if (!bild) {
           if (now - handAt.current > 500) {
             handBild.current = null
-            setSession((prev) => setzeHand(prev, null, null))
+            bump.current((prev) => setzeHand(prev, null, null))
           }
           return
         }
@@ -464,9 +481,29 @@ export function WeltOverlay({
           ? handInWelt({ ...bild, camera: current.camera, width: canvas.width, height: canvas.height })
           : null
         if (!drag.current) {
-          setSession((prev) => {
+          bump.current((prev) => {
             let next = setzeHand(prev, pose?.pinch ?? null, pose?.rotation ?? null)
             if (pose?.closed && !next.heldId) next = versuchGriff(next)
+            if (pose?.closed && !next.heldId && bild.bild.length >= 9) {
+              // Bildraum-Griff: Der Zangenpunkt liegt optisch auf dem Würfel,
+              // aber die geschätzte Welttiefe daneben. Dann greift der Würfel
+              // unter dem Schirmpunkt — genau das, was der Nutzer sieht.
+              const src = frameSize.current
+              const mid = { x: (bild.bild[4].x + bild.bild[8].x) / 2, y: (bild.bild[4].y + bild.bild[8].y) / 2 }
+              const sp = cover(mid.x, mid.y, src.w || 1, src.h || 1, canvas.width, canvas.height)
+              let near: string | null = null
+              let bestD = 96
+              for (const cube of next.objects) {
+                const p = project(cube.position, next, canvas.width, canvas.height)
+                if (!p) continue
+                const d = Math.hypot(p.x - sp.x, p.y - sp.y)
+                if (d < bestD) {
+                  bestD = d
+                  near = cube.id
+                }
+              }
+              if (near) next = greifeWuerfel(next, near)
+            }
             if (pose && !pose.closed && next.heldId && !next.dragId && pose.pinch) {
               const last = lastPinch.current
               const dt = last ? now - last.at : 0
@@ -495,7 +532,7 @@ export function WeltOverlay({
       window.clearInterval(handTimer)
       stopStream()
       void weltStop()
-      setSession(leereWelt())
+      sessionRef.current = leereWelt()
     }
   }, [])
 
@@ -540,7 +577,7 @@ export function WeltOverlay({
       drag.current = hit
       ev.currentTarget.setPointerCapture(ev.pointerId)
       const cube = sessionRef.current.objects.find((c) => c.id === hit.id)
-      if (cube) setSession((prev) => schiebe(prev, hit.id, cube.position))
+      if (cube) bump.current((prev) => schiebe(prev, hit.id, cube.position))
       return
     }
     const canvas = canvasRef.current
@@ -550,7 +587,7 @@ export function WeltOverlay({
     const ny = 1 - ((ev.clientY - rect.top) / rect.height) * 2
     const plane = tischAnBlick(mitTisch(sessionRef.current), nx, ny)
     if (!plane) return
-    setSession((prev) => setzen(prev, plane))
+    bump.current((prev) => setzen(prev, plane))
   }
 
   function onPointerMove(ev: PointerEvent<HTMLCanvasElement>) {
@@ -560,14 +597,14 @@ export function WeltOverlay({
     if (!at) return
     const point = aufTiefe(sessionRef.current, at.x, at.y, hold.depth)
     if (!point) return
-    setSession((prev) => schiebe(prev, hold.id, point))
+    bump.current((prev) => schiebe(prev, hold.id, point))
   }
 
   function onPointerUp() {
     const hold = drag.current
     if (!hold) return
     drag.current = null
-    setSession((prev) => (prev.heldId === hold.id ? loslassen(prev, { x: 0, y: 0, z: 0 }) : prev))
+    bump.current((prev) => (prev.heldId === hold.id ? loslassen(prev, { x: 0, y: 0, z: 0 }) : prev))
   }
 
   return (
@@ -608,7 +645,7 @@ export function WeltOverlay({
             type="button"
             role="menuitem"
             onClick={() =>
-              setSession((prev) => fuegeWuerfel(prev.camera ? prev : legeAuge(prev, window.innerWidth, window.innerHeight)))
+              bump.current((prev) => fuegeWuerfel(prev.camera ? prev : legeAuge(prev, window.innerWidth, window.innerHeight)))
             }
           >
             Würfel

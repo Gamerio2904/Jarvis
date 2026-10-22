@@ -3,7 +3,7 @@
 export const CUBE_EDGE = 0.08
 export const CUBE_HALF = CUBE_EDGE / 2
 export const CUBE_MASS = 0.2
-export const GRAB_REACH = 0.12
+export const GRAB_REACH = 0.16
 export const MAX_CUBES = 8
 
 export type V3 = { x: number; y: number; z: number }
@@ -512,6 +512,23 @@ export function loslassen(s: WeltSession, handVelocity: V3): WeltSession {
           }
         : c,
     ),
+  }
+}
+
+/**
+ * Griff über den Bildraum: Der Würfel, der auf dem Schirm unter dem
+ * Zangenpunkt liegt, wird gehalten. Die Tiefenschätzung aus der Handgröße
+ * sitzt oft Meter daneben — der Blick auf den Schirm nie.
+ */
+export function greifeWuerfel(s: WeltSession, id: string): WeltSession {
+  if (s.heldId && cubeById(s, s.heldId)) return s
+  const cube = cubeById(s, id)
+  if (!cube) return s
+  return {
+    ...s,
+    heldId: cube.id,
+    note: 'gegriffen',
+    objects: s.objects.map((c) => (c.id === cube.id ? { ...c, state: 'gehalten' } : c)),
   }
 }
 

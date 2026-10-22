@@ -22,7 +22,7 @@ export function zangeZu(punkte: V3[]): boolean {
   if (punkte.length < 10) return false
   const hand = len(sub(punkte[MITTE], punkte[HANDGELENK]))
   if (hand < 1e-5) return false
-  return len(sub(punkte[DAUMEN], punkte[ZEIGE])) / hand < 0.45
+  return len(sub(punkte[DAUMEN], punkte[ZEIGE])) / hand < 0.52
 }
 
 export type HandBild = {
