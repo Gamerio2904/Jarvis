@@ -168,9 +168,17 @@ script = [
   say('Die Steuererklärung steht auf der Liste.'),
 ]
 requests = []
-await runDirectorTurn(CONV, 'ich darf auf keinen fall die steuererklärung verpennen bis morgen')
+await runDirectorTurn(CONV, 'ich darf auf keinen fall die steuererklärung verpennen')
 assert.notEqual(requests[0].body.model, requests[1].body.model, 'nach 404 ein anderes Modell')
 assert.ok((await store.listTodos()).some((t) => t.title === 'Steuererklärung abgeben' && t.deadline_date === tag))
+
+/** 6b. Sätze mit Frist schreibt der Parser jetzt selbst lokal — kein Modellaufruf. */
+requests = []
+await runDirectorTurn(CONV, 'ich darf auf keinen fall die finanzberichte verpennen bis freitag')
+assert.equal(requests.length, 0, 'Aufgabe mit Frist läuft ohne Modellaufruf')
+const frist = (await store.listTodos()).find((t) => /finanzbericht/i.test(t.title))
+assert.ok(frist, 'die Frist-Aufgabe liegt auf der Liste')
+assert.ok(frist.deadline_date, 'die Frist steht im Kalenderfeld')
 
 /** 7. Ein Parser-Treffer bleibt beim Parser — kein Modellaufruf. */
 script = []

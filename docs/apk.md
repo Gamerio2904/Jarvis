@@ -1,6 +1,6 @@
-# Android-APK — Test-Build `18.66.10`
+# Android-APK — Test-Build `18.66.15`
 
-Test-Build **`18.66.10`** (versionCode `186610`), debug-signiert:
+Test-Build **`18.66.15`** (versionCode `186615`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
@@ -8,7 +8,10 @@ Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
 
-**Neu in 18.66.10:** „Notfallprotokoll 187“ öffnet die Deinstallation dieser App. Das System fragt noch einmal.
+**Neu in 18.66.15:** Ordner als Neuner-Raster mit Seiten, Rezepte als Schritt-Anleitung,
+Aufträge werden zuerst angesagt, Sätze mit Frist schreiben To-dos lokal in Liste
+und Kalender, Posten wandern zwischen Einkaufs- und To-do-Liste, der Monatskalender
+bekommt ein Detail-Fenster, und die Welt rendert sparsamer pro Bild.
 
 **Neu in 18.66.9:** „Ändere auf lokal“, „wechsel zu Groq“ oder „Gemini zuerst“ schaltet das Hirn. Der Kugelring taucht eine Sekunde auf, dreht sich und leuchtet.
 

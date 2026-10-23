@@ -3,6 +3,14 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.15` — Ordnerraster, Rezepte, Fristen — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.15`** (versionCode `186615`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Ordner auf dem Homescreen öffnen ein Neuner-Raster mit Seiten: Wischen blättert, Ziehen verschiebt Apps, ein Tip startet sie. Rezepte laufen als Schritt-Anleitung. Der Auftrag wird zuerst gesagt, dann ausgeführt, dann als erledigt gezeigt. Sätze mit Frist („… bis Freitag") schreibt der Parser jetzt selbst — lokal, mit Kalendereintrag, ohne Modellaufruf; ohne Frist wählt weiter der Werkzeug-Agent, und der Test deckt beide Wege ab. Posten wandern zwischen Einkaufs- und To-do-Liste, statt „Nein" einzukaufen.
+
+Der Monatskalender bekommt ein Detail-Fenster und Listen-Sheets. Die Welt rendert nicht mehr pro Bild, der Griff liegt im Bildraum. Scanne-QR-Sätze erreichen den Hausstand-Scanner. Dies ist der erste GitHub-Release-Stand: die APK liegt zusätzlich als Release-Asset bei.
+
 ## `18.66.12` — Eine Stimme — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.12`** (versionCode `186612`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
