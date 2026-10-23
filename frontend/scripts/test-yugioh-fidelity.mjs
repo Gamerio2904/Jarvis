@@ -29,7 +29,7 @@ test('Deck-Coverage-Metrik Schema v2', () => {
     { id: 2, name: 'B', type: 'Normal Monster', kind: 'monster' },
     { id: 3, name: 'C', type: 'Spell Card', kind: 'spell', effect: { kind: 'damage', amount: 500 } },
   ]
-  const report = deckEffectCoverage(deck)
+  const report = deckEffectCoverage(/** @type {any} */ (deck))
   assert.equal(report.schemaVersion, EFFECT_SCHEMA_VERSION)
   assert.ok(report.ratio >= 0.5)
 })

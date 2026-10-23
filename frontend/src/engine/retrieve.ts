@@ -353,7 +353,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
 }
 
 export async function retrieve(text: string): Promise<RetrieveHit[]> {
-  const [memory, messages, convs, events, notes, reminders, shopping, knowledge, library] = await Promise.all([
+  const [memory, allMessages, convs, events, allNotes, reminders, shopping, knowledge, library] = await Promise.all([
     listMemory(),
     getAll<Message>('messages'),
     getAll<Conversation>('conversations'),
@@ -364,6 +364,11 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
     listKnowledgePacks(),
     listLibrary(),
   ])
+  // T3: Abruf-Korpus begrenzen — der Voll-Scan über die gesamte Historie wuchs
+  // mit jedem Chat und verlangsamte jeden Zug. Der Rückblick braucht keine
+  // 5 000 Nachrichten: die letzten 240 genügen, Notizen die letzten 120.
+  const messages = allMessages.slice(-240)
+  const notes = allNotes.slice(-120)
   const hits = retrieveFromCorpus(text, { memory, messages, convs, events, notes, reminders, shopping, knowledge, library })
   rememberRecallHits(hits)
   return hits

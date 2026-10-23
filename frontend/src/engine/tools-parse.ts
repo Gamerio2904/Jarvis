@@ -26,6 +26,9 @@ const NOTE_WRITE =
 const LIST_PREFIX =
   /^\s*(?:setz(?:e)?|pack(?:e)?|tu)\s+(?:das\s+)?(?:auf\s+die\s+liste|auf\s+die\s+todos?)[:\s]+(.+)$/is
 const MUST_DO = /^\s*ich\s+muss\s+(?:noch\s+)?(?!(?:los|sagen|mal|kurz|weg|pennen|schlafen)\b)(?!.+\b(?:kaufen|holen|besorgen)\s*$)(.{4,})$/is
+/** „Mama anrufen wegen Geburtstag“ — Verb vorn/mitten, trotzdem ein Todo (I9). */
+const INFINITIVE_TASK =
+  /^\s*(.{2,40}?)\s+(anrufen|abholen|putzen|waschen|aufräumen|erledigen|besorgen|ausdrucken|unterschreiben)\s+(?:wegen|für|bevor|nachdem|bis)\s+(.{2,60})$/i
 const TASK_TAIL =
   /^\s*(?:bitte\s+)?(.{2,40}?)\s+(abholen|anrufen|putzen|waschen)\s*[.!]?\s*$/i
 const TODO_LIST =
@@ -44,76 +47,242 @@ function localDate(date: Date): string {
 
 /** Auch Schreibfehler wie „nähste/nekste/näxte Woiche“ sind nächste Woche. */
 const WEEK_PHRASE = String.raw`(?:n[aäe][a-z]{0,2}ste[rn]?|n[aäe]xte[rn]?|kommende[rn]?)\s+w[oö]che`
-const DEADLINE_DAY = String.raw`morgen|heute|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag`
+// Reihenfolge: längeres „übermorgen“ vor „morgen“ — sonst frisst der
+// Alternations-Kurztreffer den vorderen Teil von „bis übermorgen“.
+const DEADLINE_DAY = String.raw`übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag|morgen|heute`
+const WEEKDAY_ONLY = String.raw`montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag`
+/** I2: relative Zeitspans, Wochenende, Monatsende, Kalenderdaten, Tageszeiten. */
+const IN_SPAN =
+  /\bin\s+(\d{1,2}|ein(?:e[rm]?)?|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf)\s+(tagen?|wochen?)\b/i
+const NEXT_WEEKDAY = new RegExp(String.raw`\b(?:n[aäe][a-z]{0,2}sten|kommenden)\s+(${WEEKDAY_ONLY})\b`, 'i')
+const WEEKEND = /\b(?:am|bis\s+(?:zum\s+)?|zum)\s+wochenende\b/i
+const MONTH_END = /\b(?:bis\s+)?(?:ende\s+(?:des\s+)?monats?|monatsende)\b/i
+const DATE_MONTH =
+  /\b(\d{1,2})\.?\s+(januar|februar|märz|maerz|april|mai|juni|juli|august|september|oktober|november|dezember)\b(?:\s*(\d{4}))?/i
+/** „am 14.03.“ / „bis 14.3.2026“ / „am 14.“ — keine Uhrzeit dahinter („bis 10.45 uhr“). */
+const DATE_WITH_MONTH = /\b(?:am|bis(?:\s+zum)?)\s+(\d{1,2})\.(?:\s?(\d{1,2})\.)?(?:\s?(\d{2,4}))?(?!\s*\d*\s*uhr)/i
+const HALF_HOUR = /\b(?:um\s+)?halb\s+(\d{1,2})(?:\s*uhr)?\b/i
+const CLOCK_AFTER = /\bum\s+(\d{1,2})(?::(\d{2}))?(?:\s*uhr)?\b/i
+const CLOCK_BARE = /\b(\d{1,2})\s+uhr\b/i
+const DAYTIME =
+  /\b(früh|frueh|morgens|vormittags|mittags|nachmittags|abends|nachts)\b/i
+
+const SPAN_WORDS: Record<string, number> = {
+  ein: 1, eine: 1, einem: 1, einen: 1,
+  zwei: 2, drei: 3, vier: 4, 'fünf': 5, sechs: 6, sieben: 7,
+  acht: 8, neun: 9, zehn: 10, elf: 11, 'zwölf': 12,
+}
+/** Tageszeit → grobe Uhrzeit. „abends“ heißt 19 Uhr, „früh“ 8 Uhr. */
+const DAYTIME_HOURS: Record<string, number> = {
+  'früh': 8, frueh: 8, morgens: 9, vormittags: 10, mittags: 12, nachmittags: 15, abends: 19, nachts: 21,
+}
+const MONTH_INDEX: Record<string, number> = {
+  januar: 0, februar: 1, 'märz': 2, maerz: 2, april: 3, mai: 4, juni: 5, juli: 6,
+  august: 7, september: 8, oktober: 9, november: 10, dezember: 11,
+}
+
+function weekdayOffset(dayName: string, nextWeek: boolean, base: Date): number {
+  const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
+  const target = days.indexOf(dayName.toLocaleLowerCase())
+  if (nextWeek) {
+    const toMonday = (8 - base.getDay()) % 7 || 7
+    return toMonday + (target === 0 ? 6 : target - 1)
+  }
+  return (target - base.getDay() + 7) % 7 || 7
+}
+
+/** „halb 5“ = 4:30 — als Deadline aber fast immer nachmittags gemeint,
+ * deshalb bis „halb 7“ die Nachmittags-Lesart (16:30), danach die Morgens-Lesart. */
+function halbTime(n: number): { hour: number; minute: number } | null {
+  if (!Number.isFinite(n) || n < 1 || n > 12) return null
+  let hour = n - 1
+  if (n <= 7) hour += 12
+  return { hour: hour % 24, minute: 30 }
+}
 
 export function parseLocalDeadline(
   text: string,
   now = new Date(),
   relaxed = false,
 ): { date: string; time: string | null; remaining: string } | null {
-  const tail = String.raw`(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2}))?(?:\s*uhr)?)?`
-  type Core = { day: string; nextWeek: boolean; hour?: string; minute?: string }
+  type Core = { apply: (d: Date) => void; hour?: string; minute?: string }
   type Hit = Core & { start: number; end: number }
-  const scan = (re: RegExp, pick: (m: RegExpExecArray) => Core): Hit | null => {
+  const scan = (re: RegExp, pick: (m: RegExpExecArray) => Core | null): Hit | null => {
     const m = re.exec(text)
-    return m ? { ...pick(m), start: m.index, end: m.index + m[0].length } : null
+    if (!m) return null
+    const core = pick(m)
+    return core ? { ...core, start: m.index, end: m.index + m[0].length } : null
   }
+  const weekday = (name: string, nextWeek: boolean): Core => ({
+    apply: (d) => d.setDate(d.getDate() + weekdayOffset(name, nextWeek, now)),
+  })
+  const tail = String.raw`(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2}))?(?:\s*uhr)?)?`
   const strict = scan(
     new RegExp(String.raw`\b(?:bis|am)\s+((?:${WEEK_PHRASE})\s+)?(${DEADLINE_DAY})(?:\s+(${WEEK_PHRASE}))?${tail}`, 'i'),
-    (m) => ({ day: m[2], nextWeek: Boolean(m[1] || m[3]), hour: m[4], minute: m[5] }),
+    (m) => {
+      const day = m[2]
+      const nextWeek = Boolean(m[1] || m[3])
+      const low = day.toLocaleLowerCase()
+      const apply = (d: Date) => {
+        if (low === 'morgen') d.setDate(d.getDate() + 1)
+        else if (low === 'übermorgen') d.setDate(d.getDate() + 2)
+        else if (low !== 'heute') d.setDate(d.getDate() + weekdayOffset(low, nextWeek, now))
+      }
+      return { apply, hour: m[4], minute: m[5] }
+    },
   )
+  const inSpan = scan(IN_SPAN, (m) => {
+    const n = /^\d+$/.test(m[1]) ? Number(m[1]) : SPAN_WORDS[m[1].toLocaleLowerCase()]
+    if (!n || n > 366) return null
+    const days = /wochen?/i.test(m[2]) ? n * 7 : n
+    return { apply: (d) => d.setDate(d.getDate() + days) }
+  })
+  const dateMonth = scan(DATE_MONTH, (m) => {
+    const day = Number(m[1])
+    const month = MONTH_INDEX[m[2].toLocaleLowerCase()]
+    const year = m[3] ? Number(m[3]) : now.getFullYear()
+    if (!month && month !== 0 || day < 1 || day > 31) return null
+    const target = new Date(year, month, day)
+    // Vergangene Tage im selben Jahr rutschen aufs nächste Jahr.
+    if (!m[3] && target.getTime() < new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()) {
+      target.setFullYear(year + 1)
+    }
+    return {
+      apply: (d) => {
+        d.setFullYear(target.getFullYear())
+        d.setMonth(target.getMonth())
+        d.setDate(target.getDate())
+      },
+    }
+  })
+  const dateWithMonth = scan(DATE_WITH_MONTH, (m) => {
+    const day = Number(m[1])
+    if (day < 1 || day > 31) return null
+    const month = m[2] ? Number(m[2]) - 1 : now.getMonth()
+    if (m[2] && (Number(m[2]) < 1 || Number(m[2]) > 12)) return null
+    let year = m[3] ? Number(m[3]) : now.getFullYear()
+    if (m[3] && year < 100) year += 2000
+    const base = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    let target = new Date(year, month, day)
+    if (!m[3] && target.getTime() < base.getTime()) {
+      // Ohne Jahr in der Vergangenheit → nächstes Jahr („am 14.03.“ im Oktober).
+      target = new Date(year + 1, month, day)
+    }
+    return {
+      apply: (d) => {
+        d.setFullYear(target.getFullYear())
+        d.setMonth(target.getMonth())
+        d.setDate(target.getDate())
+      },
+    }
+  })
+  const weekend = scan(WEEKEND, () => ({
+    apply: (d) => d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)),
+  }))
+  const monthEnd = scan(MONTH_END, () => ({
+    // Erster des Monats → einen Monat weiter → Tag 0 = letzter Tag des Monats.
+    apply: (d) => {
+      d.setDate(1)
+      d.setMonth(d.getMonth() + 1)
+      d.setDate(0)
+    },
+  }))
+  const nextWeekday = relaxed ? scan(NEXT_WEEKDAY, (m) => weekday(m[1], true)) : null
+  // Achtung: \b ist in JavaScript ASCII-only — „übermorgen“ beginnt mit „ü“,
+  // dort gibt es also keine Wortgrenze. Grenze deshalb über (?:^|\s) bauen;
+  // der mitgeschluckte Leerraum fällt beim Zusammenschieben weg.
+  const over = relaxed ? scan(/(?:^|\s)übermorgen\b/i, () => ({ apply: (d) => d.setDate(d.getDate() + 2) })) : null
+  const bareDay = relaxed ? scan(/^\s*(?:morgen|heute)\b/i, (m) => {
+    const low = m[0].trim().toLocaleLowerCase()
+    return { apply: (d) => d.setDate(d.getDate() + (low === 'morgen' ? 1 : 0)) }
+  }) : null
+  const weekPhraseDay =
+    relaxed
+      ? scan(new RegExp(String.raw`\b(${WEEK_PHRASE})\s+(${DEADLINE_DAY})${tail}`, 'i'), (m) => ({
+          ...weekday(m[2], true),
+          hour: m[3],
+          minute: m[4],
+        }))
+      : null
+  const dayWeekPhrase =
+    relaxed
+      ? scan(new RegExp(String.raw`\b(${DEADLINE_DAY})\s+(${WEEK_PHRASE})${tail}`, 'i'), (m) => ({
+          ...weekday(m[1], true),
+          hour: m[3],
+          minute: m[4],
+        }))
+      : null
+  const bareWeek =
+    relaxed
+      ? scan(new RegExp(String.raw`\b(?:bis\s+)?(${WEEK_PHRASE})\b`, 'i'), () => ({
+          apply: (d) => d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)),
+        }))
+      : null
   const hit =
     strict ||
-    (relaxed
-      ? scan(new RegExp(String.raw`\b(${WEEK_PHRASE})\s+(${DEADLINE_DAY})${tail}`, 'i'), (m) => ({
-          day: m[2],
-          nextWeek: true,
-          hour: m[3],
-          minute: m[4],
-        })) ||
-        scan(new RegExp(String.raw`\b(${DEADLINE_DAY})\s+(${WEEK_PHRASE})${tail}`, 'i'), (m) => ({
-          day: m[1],
-          nextWeek: true,
-          hour: m[3],
-          minute: m[4],
-        })) ||
-        scan(new RegExp(String.raw`\b(?:bis\s+)?(${WEEK_PHRASE})\b`, 'i'), () => ({
-          day: '',
-          nextWeek: true,
-        }))
-      : null)
+    inSpan ||
+    dateMonth ||
+    dateWithMonth ||
+    weekend ||
+    monthEnd ||
+    nextWeekday ||
+    over ||
+    weekPhraseDay ||
+    dayWeekPhrase ||
+    bareDay ||
+    bareWeek
   if (!hit) return null
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const dayName = hit.day.toLocaleLowerCase()
-  if (!hit.day) {
-    // Nur „nächste Woche" ohne Wochentag: Termin am Montag der nächsten Woche.
-    date.setDate(date.getDate() + ((8 - date.getDay()) % 7 || 7))
-  } else if (hit.nextWeek && dayName !== 'morgen' && dayName !== 'heute' && dayName !== 'übermorgen') {
-    const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
-    const target = days.indexOf(dayName)
-    const toMonday = (8 - date.getDay()) % 7 || 7
-    date.setDate(date.getDate() + toMonday + (target === 0 ? 6 : target - 1))
-  } else if (dayName === 'morgen') date.setDate(date.getDate() + 1)
-  else if (dayName === 'übermorgen') date.setDate(date.getDate() + 2)
-  else if (dayName !== 'heute') {
-    const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
-    const target = days.indexOf(dayName)
-    date.setDate(date.getDate() + ((target - date.getDay() + 7) % 7 || 7))
+  hit.apply(date)
+  let hour: number | null = hit.hour != null ? Number(hit.hour) : null
+  let minute = hit.minute ? Number(hit.minute) : 0
+  let spanStart = hit.start
+  let spanEnd = hit.end
+  // Uhrzeit nachreichen, wenn der Tag-Match keine mitgebracht hat:
+  // „um halb 5“, „um 17:30“, „9 uhr“, Tageszeiten wie „abends“.
+  if (hour == null) {
+    const addTime = (m: RegExpExecArray, h: number, min: number, expand: boolean) => {
+      hour = h
+      minute = min
+      if (expand) {
+        spanStart = Math.min(spanStart, m.index)
+        spanEnd = Math.max(spanEnd, m.index + m[0].length)
+      }
+    }
+    const halb = HALF_HOUR.exec(text)
+    if (halb) {
+      const t = halbTime(Number(halb[1]))
+      if (t) addTime(halb, t.hour, t.minute, true)
+    }
+    if (hour == null) {
+      const clock = CLOCK_AFTER.exec(text) || CLOCK_BARE.exec(text)
+      const h = clock ? Number(clock[1]) : NaN
+      const min = clock && clock[2] ? Number(clock[2]) : 0
+      if (clock && h <= 23 && min <= 59) addTime(clock, h, min, true)
+    }
+    if (hour == null) {
+      const daytime = DAYTIME.exec(text)
+      if (daytime) {
+        const h = DAYTIME_HOURS[daytime[1].toLocaleLowerCase()]
+        if (h != null) addTime(daytime, h, 0, true)
+      }
+    }
   }
   let time: string | null = null
-  if (hit.hour != null) {
-    const hour = Number(hit.hour)
-    const minute = hit.minute ? Number(hit.minute) : 0
+  if (hour != null) {
     if (hour > 23 || minute > 59) return null
     time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
   }
-  const remaining = `${text.slice(0, hit.start)} ${text.slice(hit.end)}`.replace(/\s+/g, ' ').trim()
+  const remaining = `${text.slice(0, spanStart)} ${text.slice(spanEnd)}`.replace(/\s+/g, ' ').trim()
   return { date: localDate(date), time, remaining }
 }
 
-/** Wörter, die klein bleiben, obwohl sie kurz sind (GM soll GM bleiben). */
+/** Wörter, die klein bleiben, obwohl sie kurz sind (GM soll GM bleiben).
+ * Oma/Opa sind normale Wörter — „An Oma denken“ statt „An OMA denken“. */
 const SMALL_WORD =
-  /^(?:in|im|am|an|auf|aus|bei|bis|da|dem|den|der|des|die|das|du|er|es|für|ich|ihm|ihn|ist|ja|je|man|mein|mir|mit|nach|nicht|noch|nur|ob|oder|ohne|schon|sehr|sie|so|und|um|vom|von|vor|was|weil|wie|wo|zu|zum|zur|mal|ab|eh|als|auch|hab|hat|war)$/i
+  /^(?:in|im|am|an|auf|aus|bei|bis|da|dem|den|der|des|die|das|du|er|es|für|ich|ihm|ihn|ist|ja|je|man|mein|mir|mit|nach|nicht|noch|nur|ob|oder|ohne|schon|sehr|sie|so|und|um|vom|von|vor|was|weil|wie|wo|zu|zum|zur|mal|ab|eh|als|auch|hab|hat|war|oma|opa|mama|papa|öl)$/i
+/** Familienwörter werden normal geschrieben — „An Oma denken“, „Mama anrufen“. */
+const PERSON_WORD = /^(oma|opa|mama|papa)$/i
 
 /**
  * Selbstständiger Aufgabenname: Füllwörter und anfassende Verben am Anfang
@@ -134,12 +303,15 @@ export function polishTitle(raw: string): string {
   if (!t) return ''
   t = t
     .split(' ')
-    .map((word) =>
-      word.length >= 2 && word.length <= 3 && !SMALL_WORD.test(word) && /^\p{Ll}{2,3}$/u.test(word)
+    .map((word) => {
+      if (PERSON_WORD.test(word)) return word[0].toLocaleUpperCase('de-DE') + word.slice(1).toLocaleLowerCase('de-DE')
+      return word.length >= 2 && word.length <= 3 && !SMALL_WORD.test(word) && /^\p{Ll}{2,3}$/u.test(word)
         ? word.toLocaleUpperCase('de-DE')
-        : word,
-    )
+        : word
+    })
     .join(' ')
+  // „Folie EIN“ — Partikel am Ende sprechen klein (Diktat schreit sie gern).
+  t = t.replace(/\s(EIN|AUS|AN|AB|AUF|ZU)$/u, (_, w) => ` ${w.toLocaleLowerCase('de-DE')}`)
   return t.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE'))
 }
 
@@ -147,6 +319,11 @@ export function polishTitle(raw: string): string {
 export function tidyTaskTitle(text: string): string {
   return text
     .replace(new RegExp(`\\b(?:${WEEK_PHRASE})\\b`, 'gi'), ' ')
+    .replace(/\bin\s+\d{1,2}\s+(?:tagen?|wochen?)\b/gi, ' ')
+    .replace(/\b(?:am\s+|zum\s+)?wochenende\b/gi, ' ')
+    .replace(/\b(?:ende\s+(?:des\s+)?monats?|monatsende)\b/gi, ' ')
+    .replace(/\b(?:früh|morgens|vormittags|mittags|nachmittags|abends|nachts)\b/gi, ' ')
+    .replace(/\b(?:um\s+)?halb\s+\d{1,2}(?:\s*uhr)?\b/gi, ' ')
     .replace(/\b(?:um\s+)?\d{1,2}(?::\d{2})?\s*uhr\b/gi, ' ')
     .replace(/^(?:noch|dann|mal|bitte|eben)\s+/i, '')
     .replace(/^(?:die|den|das|der|dem|ein|eine|einen|meiner|meine|mein|meinen)\s+/i, '')
@@ -206,9 +383,16 @@ function placeTitle(raw: string): string {
 /** Aufgabe mit „bis/am Freitag“, auch wenn der Tag nicht am Satzanfang steht. */
 function datedTask(text: string): ToolIntent | null {
   if (/[?]/.test(text)) return null
+  // Erinnerungs-/Wecker-Sätze gehören ihrem Agenten — die neue „in N Tagen“-
+  // Stufe darf sie nicht als Todo klauen.
+  if (/^\s*(?:erinner|erinnere|denk(?:e)?\s+dran|weck(?:e)?\b|alarm|timer)\b/i.test(text)) return null
   if (/^\s*(?:was|wie|wann|welche|zeig|zeige|öffne|habe|hab|lösch|streich|änder)\b/i.test(text)) return null
   const day = parseLocalDeadline(text)
   if (!day) return null
+  // Eine Frist in der Vergangenheit ist keine Aufgabe, sondern ein Datum in
+  // einer Erinnerung/Erzählung („am 1.1.2001“) — der Todo-Weg bleibt außen.
+  const todayIso = localDate(new Date())
+  if (day.date < todayIso) return null
   const rest = day.remaining
     .replace(new RegExp(String.raw`^(?:${PLACE_VERB})\s+`, 'i'), '')
     .replace(/\s+(?:ein|hinzu)$/i, '')
@@ -317,7 +501,9 @@ export function parseToolIntent(text: string): ToolIntent | null {
   }
   const updateTodo = /^\s*(?:ändere|ändere|setz(?:e)?)\s+(?:das\s+)?todo\s+(.+?)\s+(?:auf|zu)\s+(.+)$/is.exec(text)
   if (updateTodo) {
-    const deadline = parseLocalDeadline(updateTodo[2])
+    // relaxed: „ändere das todo Milch auf morgen“ soll das Datum finden —
+    // streng versteht der Parser nur bis/am + Tag.
+    const deadline = parseLocalDeadline(updateTodo[2], new Date(), true)
     return {
       kind: 'todo_update',
       query: updateTodo[1].trim(),
@@ -357,13 +543,31 @@ export function parseToolIntent(text: string): ToolIntent | null {
   const dated = datedTask(text)
   if (dated) return dated
 
+  // I9: „mama anrufen wegen geburtstag“ — Verb vorn, trotzdem ein Todo mit
+  // vollständigem Namen statt einem Stumm-Satz.
+  const infinitive = INFINITIVE_TASK.exec(text)
+  if (infinitive && !/[?]/.test(text)) {
+    const title = polishTitle(`${infinitive[1]} ${infinitive[2]} ${infinitive[3]}`)
+    if (title.length >= 2) return { kind: 'todo_create', title }
+  }
+
+  // I9: „notiere: PCR abholen“ bleibt eine Notiz — der Todo-Rest-Parser
+  // (TASK_TAIL) darf ihn nicht mehr klauen.
+  // P4: „Notiz oder Todo: Milch“ ist eine echte Frage — der Schreiber lässt
+  // Alternativ-Fragmente stehen, damit die Ambiguität-Policy nachfragen kann.
+  const noteWrite = NOTE_WRITE.exec(text)
+  if (noteWrite) {
+    const body = noteWrite[1].trim()
+    if (!/^\s*oder\b/i.test(body) && !/\soder\s+(?:todos?|aufgaben?)\b/i.test(body)) {
+      return { kind: 'note_create', body }
+    }
+  }
+
   const tail = TASK_TAIL.exec(text)
   if (tail && !/[?]/.test(text) && text.trim().length <= 60 && !/anrufen/i.test(tail[2])) {
     return { kind: 'todo_create', title: `${tail[1].trim()} ${tail[2].toLowerCase()}` }
   }
 
-  const noteWrite = NOTE_WRITE.exec(text)
-  if (noteWrite) return { kind: 'note_create', body: noteWrite[1].trim() }
   if (TODO_DELETE_LAST.test(text)) return { kind: 'todo_delete_last' }
   const todoDel = TODO_DELETE.exec(text)
   if (todoDel) return { kind: 'todo_delete', query: todoDel[1].replace(/[.!?]+$/, '').trim() }

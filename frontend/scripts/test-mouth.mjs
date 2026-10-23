@@ -40,6 +40,7 @@ function director(over = {}, synth = {}) {
 
 resetMouthSession()
 {
+/** @type {((value?: any) => void) | undefined} */
   let release
   const gate = new Promise((r) => {
     release = r
@@ -64,10 +65,10 @@ resetMouthSession()
   const first = dir.prepare('eins')
   const second = dir.prepare('zwei')
   assert.equal(started, 1)
-  release()
+  release?.()
   const a = await first
   const b = await second
-  assert.equal(a.size, 1)
+  assert.equal(/** @type {any} */ (a)?.size ?? 0, 1)
   assert.equal(b, 'silence')
   assert.equal(calls.some((row) => row[0] === 'gemini'), false)
   assert.equal(currentMouthLane(), 'edge')
@@ -104,7 +105,7 @@ resetMouthSession()
     },
   )
   const audio = await dir.prepare('Wetter heute.')
-  assert.equal(audio.size, 4)
+  assert.equal(/** @type {any} */ (audio)?.size ?? 0, 4)
   assert.equal(calls.some((row) => row[0] === 'gemini'), false)
   assert.equal(calls[0][2], 3200)
   assert.equal(calls[1][2], 4500)
@@ -119,7 +120,7 @@ resetMouthSession()
       gemini: async () => blob(2),
     },
   )
-  assert.equal((await dir.prepare('eins')).size, 2)
+  assert.equal(/** @type {any} */ ((await dir.prepare('eins')))?.size ?? 0, 2)
   const again = createMouthDirector(
     {
       voiceTts: 'auto',
@@ -139,7 +140,7 @@ resetMouthSession()
       },
     },
   )
-  assert.equal((await again.prepare('zwei')).size, 2)
+  assert.equal(/** @type {any} */ ((await again.prepare('zwei')))?.size ?? 0, 2)
   assert.equal(calls.some((row) => row[0] === 'edge-later'), false)
   assert.equal(currentMouthLane(), 'gemini')
 }
@@ -147,7 +148,7 @@ resetMouthSession()
 resetMouthSession()
 {
   const first = director({}, { edge: async () => blob(1), gemini: async () => blob(2) })
-  assert.equal((await first.dir.prepare('Das Wetter ist gut.')).size, 1)
+  assert.equal(/** @type {any} */ ((await first.dir.prepare('Das Wetter ist gut.')))?.size ?? 0, 1)
   const second = director(
     { preferEdge: () => false },
     {
@@ -157,12 +158,13 @@ resetMouthSession()
       },
     },
   )
-  assert.equal((await second.dir.prepare('Okay.')).size, 1)
+  assert.equal(/** @type {any} */ ((await second.dir.prepare('Okay.')))?.size ?? 0, 1)
   assert.equal(second.calls.some((row) => row[0] === 'gemini'), false)
 }
 
 resetMouthSession()
 {
+/** @type {((value?: any) => void) | undefined} */
   let release
   const gate = new Promise((r) => {
     release = r
@@ -185,9 +187,9 @@ resetMouthSession()
     },
   )
   const audio = await second.dir.prepare('neu')
-  release()
+  release?.()
   await pending
-  assert.equal(audio.size, 2)
+  assert.equal(/** @type {any} */ (audio)?.size ?? 0, 2)
   assert.equal(currentMouthLane(), 'gemini')
 }
 
@@ -204,7 +206,7 @@ resetMouthSession()
     { voiceTts: 'gemini', preferEdge: () => true },
     { gemini: async () => blob(2), edge: async () => blob(1) },
   )
-  assert.equal((await dir.prepare('Das ist Deutsch.')).size, 2)
+  assert.equal(/** @type {any} */ ((await dir.prepare('Das ist Deutsch.')))?.size ?? 0, 2)
   assert.equal(calls[0][0], 'gemini')
   assert.equal(calls.some((row) => row[0] === 'edge'), false)
 }

@@ -3,6 +3,8 @@ import 'fake-indexeddb/auto'
 
 const mem = Object.create(null)
 globalThis.localStorage = {
+  length: 0,
+  key: () => null,
   getItem: (k) => (k in mem ? mem[k] : null),
   setItem: (k, v) => {
     mem[k] = String(v)
