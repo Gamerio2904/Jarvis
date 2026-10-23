@@ -950,17 +950,31 @@ public class JarvisVoicePlugin extends Plugin {
                 ArrayList<String> chunks = new ArrayList<>();
                 String line;
                 String errTail = "";
+                final boolean okStream = code >= 200 && code < 300;
                 while ((line = reader.readLine()) != null) {
                     if (line.endsWith("\r")) line = line.substring(0, line.length() - 1);
                     if (!line.startsWith("data:")) {
-                        if (code < 200 || code >= 300) {
+                        if (!okStream) {
                             if (errTail.length() < 2_048) errTail += line;
                         }
                         continue;
                     }
                     String data = line.substring(5).trim();
                     if (data.isEmpty() || "[DONE]".equals(data)) continue;
-                    chunks.add(data);
+                    if (okStream) {
+                        // Sofort ausliefern: Der Sinn des Streamens ist der erste
+                        // Satz, nicht der letzte. Bisher sammelte dieser Loop ALLE
+                        // Zeilen und feuerte erst am Ende — das native Streaming
+                        // wirkte deshalb wie ein kompletter Warteblock.
+                        final String fData = data;
+                        main.post(() -> {
+                            JSObject ev = new JSObject();
+                            ev.put("data", fData);
+                            notifyListeners("sse", ev);
+                        });
+                    } else {
+                        chunks.add(data);
+                    }
                 }
                 final int fCode = code;
                 final String fErrTail = errTail;
