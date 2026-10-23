@@ -13,6 +13,7 @@ import {
   type CalendarEvent,
   type Todo,
 } from '../engine/store.ts'
+import { allTags, filterByTags, sortByTags, tagColor } from '../engine/tags.ts'
 
 const SWIPE_THRESHOLD = 72
 const HOLD_MS = 550
@@ -113,9 +114,24 @@ function TaskCard({
         if (done && selecting) onToggle()
       }}
     >
-      <button type="button" className="todo-card-main" onClick={() => { if (!done) onEdit() }} aria-label={`${done ? 'Erledigt' : 'Bearbeiten'}: ${todo.title}`}>
+      <button
+        type="button"
+        className="todo-card-main"
+        style={todo.tags?.length ? { borderColor: tagColor(todo.tags[0]) } : undefined}
+        onClick={() => { if (!done) onEdit() }}
+        aria-label={`${done ? 'Erledigt' : 'Bearbeiten'}: ${todo.title}`}
+      >
         <span className="todo-card-title">{todo.title}</span>
         {todo.deadline_date ? <span className="todo-deadline">{todo.deadline_date}{todo.deadline_time ? ` · ${todo.deadline_time}` : ''}</span> : null}
+        {todo.tags?.length ? (
+          <span className="tag-chip-row">
+            {todo.tags.map((tag) => (
+              <em key={tag} className="tag-chip is-static" style={{ borderColor: tagColor(tag), color: tagColor(tag) }}>
+                #{tag}
+              </em>
+            ))}
+          </span>
+        ) : null}
         <span className="shop-card-hint">{done ? (selecting ? (selected ? 'Ausgewählt · tippen zum Abwählen' : 'Tippen zum Auswählen') : 'Gedrückt halten zum Auswählen') : reduced ? '' : 'Links erledigen · rechts löschen'}</span>
       </button>
       {(reduced && !done) || (done && selecting) ? (
@@ -170,6 +186,9 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
   const [title, setTitle] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
+  const [tagDraft, setTagDraft] = useState('')
+  const [activeTags, setActiveTags] = useState<string[]>([])
+  const [sortByTag, setSortByTag] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
   const [error, setError] = useState('')
   const [sheetDrag, setSheetDrag] = useState(0)
@@ -208,13 +227,18 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
     }
   }, [refresh])
 
-  const rows = useMemo(() => todos, [todos])
+  const rows = useMemo(
+    () => (sortByTag ? sortByTags(filterByTags(todos, activeTags)) : filterByTags(todos, activeTags)),
+    [todos, activeTags, sortByTag],
+  )
+  const tagPool = useMemo(() => allTags(todos), [todos])
 
   function openTask(todo?: Todo) {
     setEditing(todo || null)
     setTitle(todo?.title || '')
     setDate(todo?.deadline_date || '')
     setTime(todo?.deadline_time || '')
+    setTagDraft((todo?.tags || []).join(', '))
     setTaskOpen(true)
   }
 
@@ -228,8 +252,12 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
     const name = title.trim()
     if (!name) return
     try {
-      if (editing) await updateTodo(editing.id, { title: name, listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
-      else await addTodo(name, undefined, { listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null })
+      const tags = tagDraft
+        .split(/[,:\s]+/)
+        .map((raw) => raw.replace(/^#/, '').trim())
+        .filter(Boolean)
+      if (editing) await updateTodo(editing.id, { title: name, listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null, tags })
+      else await addTodo(name, undefined, { listId: 'todo-list-general', deadlineDate: date || null, deadlineTime: time || null, tags })
       closeTask()
       await refresh()
     } catch (cause) {
@@ -293,6 +321,38 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
               <span>{selected.length} erledigte ausgewählt</span>
               <button type="button" className="ghost-btn" onClick={() => void removeSelected()}>Löschen</button>
               <button type="button" className="ghost-btn" onClick={() => setSelected([])}>Abbrechen</button>
+            </div>
+          ) : null}
+          {tagPool.length ? (
+            <div className="tag-filter-row" role="group" aria-label="Todos nach Tag filtern">
+              <button
+                type="button"
+                className={`tag-chip${activeTags.length ? '' : ' is-on'}`}
+                onClick={() => setActiveTags([])}
+              >
+                Alle
+              </button>
+              {tagPool.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`tag-chip${activeTags.includes(tag) ? ' is-on' : ''}`}
+                  style={activeTags.includes(tag) ? { borderColor: tagColor(tag), color: tagColor(tag) } : undefined}
+                  onClick={() =>
+                    setActiveTags((current) => (current.includes(tag) ? current.filter((row) => row !== tag) : [...current, tag]))
+                  }
+                >
+                  #{tag}
+                </button>
+              ))}
+              <button
+                type="button"
+                className={`tag-chip${sortByTag ? ' is-on' : ''}`}
+                onClick={() => setSortByTag((on) => !on)}
+                aria-pressed={sortByTag}
+              >
+                nach Tag sortieren
+              </button>
             </div>
           ) : null}
           <div className="shop-items-scroll">
@@ -360,6 +420,15 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
                 <button type="button" className={`todo-quick-chip${(() => { const d = new Date(); d.setDate(d.getDate() + 1); return date === isoDay(d) })() ? ' is-on' : ''}`} onClick={() => quickDay(1)}>Morgen</button>
                 <button type="button" className={`todo-quick-chip${(() => { const d = new Date(); d.setDate(d.getDate() + 7); return date === isoDay(d) })() ? ' is-on' : ''}`} onClick={() => quickDay(7)}>Nächste Woche</button>
               </div>
+              <label className="tag-edit-row">
+                <span>Tags (Komma oder Leerzeichen, # optional)</span>
+                <input
+                  aria-label="Todo-Tags"
+                  placeholder="haushalt projekt einkauf"
+                  value={tagDraft}
+                  onChange={(event) => setTagDraft(event.target.value)}
+                />
+              </label>
               <div className="todo-editor-row">
                 <label className="todo-editor-field">
                   <span>Deadline (optional)</span>

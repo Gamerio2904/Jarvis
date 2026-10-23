@@ -21,6 +21,8 @@ import {
 } from './store.ts'
 import { moveToTodo, takeOpenShopping, titlesFromLastStep } from './list-move.ts'
 import { syncGlance } from './glance.ts'
+import { listLibrary, searchLibrary, updateLibraryTags } from './files.ts'
+import { normalizeTag } from './tags.ts'
 import { parseToolIntent } from './tools-parse.ts'
 import type { ToolIntent } from './tools-parse.ts'
 
@@ -61,7 +63,7 @@ async function todoTargets(query: string, listId?: string): Promise<Todo[]> {
   return exactOrContains((await listTodos()).filter((todo) => !listId || (todo.list_id || 'todo-list-general') === listId), query, (todo) => todo.title)
 }
 
-function emitOpen(name: 'notes' | 'todos', detail?: string) {
+function emitOpen(name: 'notes' | 'todos' | 'library', detail?: string) {
   if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent(`jarvis-open-${name}`, { detail }))
 }
 
@@ -215,6 +217,72 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
       ...(intent.deadlineDate !== undefined ? { deadlineDate: intent.deadlineDate, deadlineTime: intent.deadlineTime || null } : {}),
     })
     return { handled: true, reply: `Todo aktualisiert: ${intent.title || todo.title}${intent.deadlineDate ? ` — Deadline ${intent.deadlineDate}${intent.deadlineTime ? ` ${intent.deadlineTime}` : ''}` : ''}.` }
+  }
+
+  if (intent.kind === 'library_open') {
+    emitOpen('library')
+    const entries = await listLibrary()
+    return { handled: true, reply: entries.length ? `Bibliothek offen — ${entries.length} Einträge.` : 'Bibliothek offen — noch leer. Dateien hochladen und ich lese sie mit.' }
+  }
+
+  if (intent.kind === 'library_list') {
+    const entries = intent.query ? await searchLibrary(intent.query) : await listLibrary()
+    if (!entries.length) {
+      return { handled: true, reply: intent.query ? `In der Bibliothek finde ich nichts zu „${intent.query}“.` : 'Die Bibliothek ist noch leer.' }
+    }
+    const lines = entries.slice(0, 8).map((entry, index) => {
+      const summary = (entry.summary || '').replace(/\s+/g, ' ').trim()
+      const detail = summary ? ` — ${summary.slice(0, 140)}` : ''
+      const tags = entry.tags?.length ? ` [${entry.tags.join(', ')}]` : ''
+      return `${index + 1}. ${entry.name}${tags}${detail}`
+    })
+    return { handled: true, reply: lines.join('\n') }
+  }
+
+  if (intent.kind === 'tag_add') {
+    const tag = normalizeTag(intent.tag)
+    if (!tag) return { handled: true, reply: 'Welcher Tag denn? Sag zum Beispiel: „tagge die notiz projekt mit arbeit“.' }
+    if (intent.target === 'library') {
+      const entries = await searchLibrary(intent.query)
+      const entry = entries.find((row) => row.name.toLocaleLowerCase().includes(intent.query.toLocaleLowerCase())) || entries[0]
+      if (!entry) return { handled: true, reply: `Ich finde keinen Bibliothekseintrag zu „${intent.query}“.` }
+      await updateLibraryTags(entry.id, [...(entry.tags || []), tag])
+      return { handled: true, reply: `Tag „${tag}“ hängt jetzt an „${entry.name}“.` }
+    }
+    if (intent.target === 'note') {
+      const notes = await listNotes()
+      const note = notes.find((row) => row.body.toLocaleLowerCase().includes(intent.query.toLocaleLowerCase()))
+      if (!note) return { handled: true, reply: `Ich finde keine Notiz zu „${intent.query}“.` }
+      const nextTags = [...new Set([...(note.tags || []), tag])]
+      const { updateNote } = await import('./store.ts')
+      await updateNote(note.id, note.body, nextTags)
+      return { handled: true, reply: `Tag „${tag}“ hängt jetzt an der Notiz „${note.body.slice(0, 60)}“.` }
+    }
+    const todos = await listTodos()
+    const todo = todos.find((row) => row.title.toLocaleLowerCase().includes(intent.query.toLocaleLowerCase()))
+    if (!todo) return { handled: true, reply: `Ich finde keine Aufgabe zu „${intent.query}“.` }
+    await updateTodo(todo.id, { tags: [...new Set([...(todo.tags || []), tag])] })
+    return { handled: true, reply: `Tag „${tag}“ hängt jetzt an „${todo.title}“.` }
+  }
+
+  if (intent.kind === 'tag_show') {
+    const tag = normalizeTag(intent.tag)
+    if (intent.target === 'library') {
+      const entries = (await listLibrary()).filter((entry) => (entry.tags || []).map(normalizeTag).includes(tag))
+      emitOpen('library')
+      if (!entries.length) return { handled: true, reply: `Keine Bibliothekseinträge mit Tag „${tag}“.` }
+      return { handled: true, reply: entries.map((entry, index) => `${index + 1}. ${entry.name}`).join('\n') }
+    }
+    if (intent.target === 'note') {
+      const notes = (await listNotes()).filter((note) => (note.tags || []).map(normalizeTag).includes(tag))
+      emitOpen('notes')
+      if (!notes.length) return { handled: true, reply: `Keine Notizen mit Tag „${tag}“.` }
+      return { handled: true, reply: notes.map((note, index) => `${index + 1}. ${note.body.split('\n')[0]}`).join('\n') }
+    }
+    const todos = (await listTodos()).filter((row) => (row.tags || []).map(normalizeTag).includes(tag) && row.status === 'open')
+    emitOpen('todos')
+    if (!todos.length) return { handled: true, reply: `Keine offenen Todos mit Tag „${tag}“.` }
+    return { handled: true, reply: todos.map((row, index) => `${index + 1}. ${row.title}`).join('\n') }
   }
 
   if (intent.kind === 'note_create') {

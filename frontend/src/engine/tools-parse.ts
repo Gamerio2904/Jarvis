@@ -14,6 +14,10 @@ export type ToolIntent =
   | { kind: 'todo_done_first' }
   | { kind: 'todo_delete'; query: string }
   | { kind: 'todo_delete_last' }
+  | { kind: 'library_open' }
+  | { kind: 'library_list'; query?: string }
+  | { kind: 'tag_add'; target: 'note' | 'todo' | 'library'; query: string; tag: string }
+  | { kind: 'tag_show'; target: 'note' | 'todo' | 'library'; tag: string }
 
 const TODO_WRITE = /^\s*(?:todo|to-?do|aufgabe)\b(?!n\b)(?![sS])\s*(?!anzeigen\b|liste\b)[:-]?\s*(.+)$/is
 const NOTE_WRITE =
@@ -176,6 +180,40 @@ export function parseToolIntent(text: string): ToolIntent | null {
         deadlineTime: parsed.deadlineTime,
       }
     }
+  }
+
+  const libraryOpen = /^(?:öffne|zeig(?:e)?(?:\s+mir)?|mach\s+auf)\s+die\s+bibliothek\s*\??$/i.exec(placed) || /^bibliothek\s*\??$/i.exec(placed)
+  if (libraryOpen) return { kind: 'library_open' }
+
+  const librarySearch = /^(?:was\s+(?:ist|liegt|steht)(?:\s+denn)?\s+(?:in|in\s+der)\s+bibliothek|(?:such(?:e)?|finde)\s+(?:in\s+der\s+bibliothek\s+)?(?:nach|zu|über)\s+(.+?)|was\s+ist\s+in\s+der\s+bibliothek\s+(?:zu|über|nach)\s+(.+?))\s*\??$/i.exec(placed)
+  if (librarySearch) {
+    const query = (librarySearch[1] || librarySearch[2] || '').trim() || undefined
+    return { kind: 'library_list', query }
+  }
+
+  const tagAdd =
+    /^(?:tag(?:ge)?|markiere)\s+(?:die\s+)?(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s+mit\s+(?:(?:dem\s+)?tag\s+)?([#a-zäöüß0-9_-]+)\s*$/i.exec(placed) ||
+    /^(?:füge|füg)\s+(?:den\s+)?tag\s+([#a-zäöüß0-9_-]+)\s+(?:zur|zum|der|dem)\s+(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s+(?:hinzu|dazu)\s*$/i.exec(placed) ||
+    /^setz(?:e)?\s+(?:den\s+)?tag\s+([#a-zäöüß0-9_-]+)\s+auf\s+(?:die\s+)?(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s*$/i.exec(placed)
+  if (tagAdd) {
+    let kind: string, query: string, tag: string
+    if (tagAdd.length === 4 && /^(?:tag|markiere)/i.test(placed)) {
+      kind = tagAdd[1]; query = tagAdd[2]; tag = tagAdd[3]
+    } else if (/^(?:füge|füg)/i.test(placed)) {
+      tag = tagAdd[1]; kind = tagAdd[2]; query = tagAdd[3]
+    } else {
+      tag = tagAdd[1]; kind = tagAdd[2]; query = tagAdd[3]
+    }
+    const target = /^(notiz)/i.test(kind) ? 'note' : /^(bibliothek|datei)/i.test(kind) ? 'library' : 'todo'
+    return { kind: 'tag_add', target: target as 'note' | 'todo' | 'library', query: query.trim(), tag }
+  }
+
+  const tagShow =
+    /^(?:zeig(?:e)?(?:\s+mir)?|welche)\s+(?:alle\s+)?(notizen|todos?|aufgaben|bibliothek|dateien)(?:\s+mit\s+(?:dem\s+)?tag|\s+getaggt\s+mit|\s+mit)\s+([#a-zäöüß0-9_-]+)\s*\??$/i.exec(placed) ||
+    /^(?:zeig(?:e)?\s+mir\s+)?(notizen|todos?|aufgaben|bibliothek|dateien)\s+mit\s+(?:dem\s+)?tag\s+([#a-zäöüß0-9_-]+)\s*\??$/i.exec(placed)
+  if (tagShow) {
+    const target = /^notiz/i.test(tagShow[1]) ? 'note' : /^(bibliothek|dateien)/i.test(tagShow[1]) ? 'library' : 'todo'
+    return { kind: 'tag_show', target: target as 'note' | 'todo' | 'library', tag: tagShow[2] }
   }
 
   const noteUpdate = /^\s*ändere\s+(?:die\s+)?notiz\s+(.+?)\s+(?:zu|auf)\s+(.+)$/is.exec(text)
