@@ -140,7 +140,8 @@ export function parseIdeaIntent(text: string): IdeaIntent | null {
   const nimm = /^\s*nimm\s+in\s+sprint\s+(\d+)\s+(.+)$/i.exec(t)
   if (nimm) return { kind: 'add_line', sprint: Number(nimm[1]), line: nimm[2].trim() }
   const erg = /^\s*ergänz(?:e)?(?:\s+den)?(?:\s+plan)?(?:\s+um)?\s+(.+)$/i.exec(t)
-  if (erg) return { kind: 'add_line', line: erg[1].trim() }
+  // „ergänze tag amazon“ gehört zum Tag-Werkzeug, nicht zum Sprintplan.
+  if (erg && !/^\s*tag\b/i.test(erg[1])) return { kind: 'add_line', line: erg[1].trim() }
 
   const extra = /^\s*(?:custom\s+sprint(?:\s+für)?(?:\s+idee)?|extra\s+sprint)\s*[:\s]+(.+)$/i.exec(t)
   if (extra) {

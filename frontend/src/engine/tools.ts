@@ -239,9 +239,71 @@ async function handleIntent(conversationId: string, intent: ToolIntent): Promise
     return { handled: true, reply: lines.join('\n') }
   }
 
+  if (intent.kind === 'tag_add_last') {
+    const tag = normalizeTag(intent.tag)
+    if (!tag) return { handled: true, reply: 'Welcher Tag denn? Sag zum Beispiel: „ergänze tag arbeit“.' }
+    const s = loadSettings()
+    const lastTitle = (s.last_step_title || '').trim()
+    const lastTool = (s.last_step_tool || '').trim()
+    if (lastTool === 'todo' && lastTitle) {
+      const todos = await todoTargets(lastTitle)
+      if (todos.length) {
+        await updateTodo(todos[0].id, { tags: [...new Set([...(todos[0].tags || []), tag])] })
+        emitOpen('todos')
+        return { handled: true, reply: `Tag „${tag}“ hängt jetzt an „${todos[0].title}“.` }
+      }
+    }
+    if (lastTool === 'notes' && lastTitle) {
+      const notes = await noteTargets(lastTitle)
+      if (notes.length) {
+        await updateNote(notes[0].id, notes[0].body, [...new Set([...(notes[0].tags || []), tag])])
+        emitOpen('notes')
+        return { handled: true, reply: `Tag „${tag}“ hängt jetzt an der Notiz „${notes[0].body.slice(0, 60)}“.` }
+      }
+    }
+    const open = (await listTodos()).filter((todo) => todo.status !== 'done').sort((a, b) => (a.updated_at || a.created_at) < (b.updated_at || b.created_at) ? 1 : -1)
+    if (open.length) {
+      await updateTodo(open[0].id, { tags: [...new Set([...(open[0].tags || []), tag])] })
+      emitOpen('todos')
+      return { handled: true, reply: `Tag „${tag}“ hängt jetzt an „${open[0].title}“.` }
+    }
+    const notes = await listNotes()
+    const newest = [...notes].sort((a, b) => (a.updated_at || a.created_at) < (b.updated_at || b.created_at) ? 1 : -1)
+    if (newest.length) {
+      await updateNote(newest[0].id, newest[0].body, [...new Set([...(newest[0].tags || []), tag])])
+      emitOpen('notes')
+      return { handled: true, reply: `Tag „${tag}“ hängt jetzt an der Notiz „${newest[0].body.slice(0, 60)}“.` }
+    }
+    return { handled: true, reply: `Woran soll der Tag „${tag}“ dran? Es gibt noch keinen Eintrag — sag zum Beispiel: „tag die notiz einkauf mit amazon“.` }
+  }
+
   if (intent.kind === 'tag_add') {
     const tag = normalizeTag(intent.tag)
     if (!tag) return { handled: true, reply: 'Welcher Tag denn? Sag zum Beispiel: „tagge die notiz projekt mit arbeit“.' }
+    if (intent.target === 'auto') {
+      // Ziel selbst suchen: erst Todos, dann Notizen, dann Bibliothek.
+      const q = intent.query.toLocaleLowerCase()
+      const todo = (await listTodos()).find(
+        (row) => row.status !== 'done' && row.title.toLocaleLowerCase().includes(q),
+      )
+      if (todo) {
+        await updateTodo(todo.id, { tags: [...new Set([...(todo.tags || []), tag])] })
+        emitOpen('todos')
+        return { handled: true, reply: `Tag „${tag}“ hängt jetzt an „${todo.title}“.` }
+      }
+      const note = (await listNotes()).find((row) => row.body.toLocaleLowerCase().includes(q))
+      if (note) {
+        await updateNote(note.id, note.body, [...new Set([...(note.tags || []), tag])])
+        emitOpen('notes')
+        return { handled: true, reply: `Tag „${tag}“ hängt jetzt an der Notiz „${note.body.slice(0, 60)}“.` }
+      }
+      const entry = (await listLibrary()).find((row) => row.name.toLocaleLowerCase().includes(q))
+      if (entry) {
+        await updateLibraryTags(entry.id, [...(entry.tags || []), tag])
+        return { handled: true, reply: `Tag „${tag}“ hängt jetzt an „${entry.name}“.` }
+      }
+      return { handled: true, reply: `Ich finde keinen Eintrag zu „${intent.query}“ — erst anlegen, dann taggen.` }
+    }
     if (intent.target === 'library') {
       const entries = await searchLibrary(intent.query)
       const entry = entries.find((row) => row.name.toLocaleLowerCase().includes(intent.query.toLocaleLowerCase())) || entries[0]

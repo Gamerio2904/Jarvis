@@ -60,6 +60,7 @@ import { GlanceRail } from './ui/GlanceRail.tsx'
 import { MiniChat } from './ui/MiniChat.tsx'
 import { VoiceSphere } from './ui/VoiceSphere.tsx'
 import { HausScan } from './ui/HausScan.tsx'
+import { QrScan } from './ui/QrScan.tsx'
 import { hausStop, watchHausIncoming } from './native/haus.ts'
 import { applyBackup, parseImportPayload } from './engine/backup.ts'
 import { type HomeAppId } from './engine/home-apps.ts'
@@ -332,6 +333,7 @@ function App() {
   }, [chatMenu])
   const [statusNote, setStatusNote] = useState<string | null>(null)
   const [hausScan, setHausScan] = useState(false)
+  const [qrScan, setQrScan] = useState(false)
   const [composerFocused, setComposerFocused] = useState(false)
   const [threadKey, setThreadKey] = useState(0)
   const [enterIds, setEnterIds] = useState<Record<string, true>>({})
@@ -429,6 +431,8 @@ function App() {
   useEffect(() => {
     const open = () => setHausScan(true)
     window.addEventListener('jarvis-haus-scan', open)
+    const openQr = () => setQrScan(true)
+    window.addEventListener('jarvis-qr-scan', openQr)
     const stop = watchHausIncoming((json) => {
       if (loadSettings().tablet_mode) return
       const choice = parseImportPayload(json)
@@ -440,6 +444,7 @@ function App() {
     })
     return () => {
       window.removeEventListener('jarvis-haus-scan', open)
+      window.removeEventListener('jarvis-qr-scan', openQr)
       stop()
     }
   }, [])
@@ -3332,6 +3337,14 @@ function App() {
         open={hausScan}
         onClose={() => setHausScan(false)}
         onDone={(line) => setStatusNote(line)}
+      />
+      <QrScan
+        open={qrScan}
+        onClose={() => setQrScan(false)}
+        onDone={(line) => {
+          setStatusNote(line)
+          void refreshSettings()
+        }}
       />
       {!driveOpen && !chessOpen ? (
         <NavIsland

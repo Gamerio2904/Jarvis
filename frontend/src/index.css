@@ -8297,6 +8297,55 @@ html.theme-wipe-dark::before {
   text-transform: uppercase;
 }
 
+/* Handy: Der Ordner-Dialog darf nicht am Schließen-Button scheitern. */
+@media (max-width: 899px) {
+  .home-folder-back {
+    padding: 12px 10px calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .home-folder {
+    max-height: calc(100dvh - 128px);
+    overflow-y: auto;
+    gap: 12px;
+    padding: 14px 12px 12px;
+  }
+
+  .home-folder-grid {
+    min-height: 0;
+  }
+
+  .home-folder-app .home-app-ico {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+  }
+
+  .home-folder-slot {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+  }
+}
+
+/* Allgemeiner QR-Scanner: Ergebnis-Karte */
+.qr-result {
+  display: grid;
+  gap: 12px;
+  justify-items: stretch;
+}
+
+.qr-result-text {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+
 .glance-rail {
   position: fixed;
   top: 0;

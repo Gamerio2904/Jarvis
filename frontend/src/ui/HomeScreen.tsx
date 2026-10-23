@@ -9,7 +9,7 @@ import {
   serializeHomeLayout,
   type HomeLayout,
 } from '../engine/home-layout.ts'
-import { loadSettings, saveSettings } from '../engine/store.ts'
+import { loadSettings, saveSettings, setStandAt } from '../engine/store.ts'
 import { clockLabel, weekdayLabel } from '../engine/glance-snap.ts'
 import { parseThemeHint, DEFAULT_THEME, type BoardTheme } from '../engine/board-theme.ts'
 import { draftFramesOpen } from '../engine/entwurf-parse.ts'
@@ -242,6 +242,8 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
    * pointerup, der den Ordner öffnet, einen click auf den jetzt obenliegenden
    * Backdrop — ohne Sperre schließt der den Ordner nach ~100 ms wieder. */
   const folderOpenedAt = useRef(0)
+  /** Schon per pointerup geöffnet: der nachfolgende click darf nicht doppelt öffnen. */
+  const tapHandledAt = useRef(0)
   const [ghost, setGhost] = useState<{ x: number; y: number; label: string } | null>(null)
   const [hover, setHover] = useState<number | null>(null)
   const drag = useRef<{
@@ -264,6 +266,9 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
   function commit(next: HomeLayout) {
     setLayout(next)
     saveSettings({ home_layout_json: serializeHomeLayout(next) })
+    // Der Hausstand-Zeitstempel folgt: Layout-Änderungen sind ein neuer Stand
+    // und gewinnen damit beim Abgleich zwischen den Geräten.
+    setStandAt(new Date().toISOString())
   }
 
   function labelOf(index: number): string {
@@ -328,13 +333,8 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     // Langsamer Tap: Der Halte-Timer machte ihn zum Drag und der Klick starb.
     // Ohne echte Bewegung zählt jeder Druck als Antippen.
     if (!moved) {
-      if (!cell) return
-      if (cell.kind === 'app') onOpen(cell.id)
-      else {
-        setFolderPage(0)
-        folderOpenedAt.current = Date.now()
-        setOpenFolder(cell.folder.id)
-      }
+      tapHandledAt.current = Date.now()
+      openCell(cell)
       return
     }
     if (!current.dragging) return
@@ -348,6 +348,18 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
   const folderPages = open ? folderPageCount(open.apps.length) : 1
   const folderSlots = open ? folderPageSlots(open.apps, folderPage) : []
   const folderDot = ((folderPage % folderPages) + folderPages) % folderPages
+
+  /** Öffnen aus dem Pointer-Pfad heraus; der Klick-Fallback greift nur, wenn
+   * der pointerup auf dem Handy verloren ging. */
+  function openCell(cell: (typeof layout.cells)[number]) {
+    if (!cell) return
+    if (cell.kind === 'app') onOpen(cell.id)
+    else {
+      setFolderPage(0)
+      folderOpenedAt.current = Date.now()
+      setOpenFolder(cell.folder.id)
+    }
+  }
 
   function onFolderPointerDown(event: PointerEvent<HTMLDivElement>) {
     if (event.button !== 0) return
@@ -378,6 +390,10 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
           onPointerDown={(event) => onPointerDown(event, index)}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
+          onClick={() => {
+            if (Date.now() - tapHandledAt.current < 700) return
+            openCell(layout.cells[index])
+          }}
           onPointerCancel={(event) => {
             const current = drag.current
             if (!current || event.pointerId !== current.pointerId) return

@@ -1,6 +1,7 @@
 export type ToolIntent =
   | { kind: 'todo_create'; title: string; listName?: string; deadlineDate?: string | null; deadlineTime?: string | null; fromShopping?: boolean }
   | { kind: 'todo_adopt_last' }
+  | { kind: 'tag_add_last'; tag: string }
   | { kind: 'todo_list_create'; name: string }
   | { kind: 'todo_list_open'; name: string }
   | { kind: 'todo_due'; through: string; label: string }
@@ -16,7 +17,7 @@ export type ToolIntent =
   | { kind: 'todo_delete_last' }
   | { kind: 'library_open' }
   | { kind: 'library_list'; query?: string }
-  | { kind: 'tag_add'; target: 'note' | 'todo' | 'library'; query: string; tag: string }
+  | { kind: 'tag_add'; target: 'note' | 'todo' | 'library' | 'auto'; query: string; tag: string }
   | { kind: 'tag_show'; target: 'note' | 'todo' | 'library'; tag: string }
 
 const TODO_WRITE = /^\s*(?:todo|to-?do|aufgabe)\b(?!n\b)(?![sS])\s*(?!anzeigen\b|liste\b)[:-]?\s*(.+)$/is
@@ -41,48 +42,111 @@ function localDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
-const WEEK_PHRASE = String.raw`(?:nächste[rn]?|kommende[rn]?)\s+woche`
+/** Auch Schreibfehler wie „nähste/nekste/näxte Woiche“ sind nächste Woche. */
+const WEEK_PHRASE = String.raw`(?:n[aäe][a-z]{0,2}ste[rn]?|n[aäe]xte[rn]?|kommende[rn]?)\s+w[oö]che`
 const DEADLINE_DAY = String.raw`morgen|heute|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag`
 
 export function parseLocalDeadline(
   text: string,
   now = new Date(),
+  relaxed = false,
 ): { date: string; time: string | null; remaining: string } | null {
-  const match = new RegExp(
-    String.raw`\b(?:bis|am)\s+(?:(${WEEK_PHRASE})\s+)?(${DEADLINE_DAY})(?:\s+(${WEEK_PHRASE}))?(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2}))?(?:\s*uhr)?)?`,
-    'i',
-  ).exec(text)
-  if (!match) return null
+  const tail = String.raw`(?:\s+(?:um\s+)?(\d{1,2})(?::(\d{2}))?(?:\s*uhr)?)?`
+  type Core = { day: string; nextWeek: boolean; hour?: string; minute?: string }
+  type Hit = Core & { start: number; end: number }
+  const scan = (re: RegExp, pick: (m: RegExpExecArray) => Core): Hit | null => {
+    const m = re.exec(text)
+    return m ? { ...pick(m), start: m.index, end: m.index + m[0].length } : null
+  }
+  const strict = scan(
+    new RegExp(String.raw`\b(?:bis|am)\s+((?:${WEEK_PHRASE})\s+)?(${DEADLINE_DAY})(?:\s+(${WEEK_PHRASE}))?${tail}`, 'i'),
+    (m) => ({ day: m[2], nextWeek: Boolean(m[1] || m[3]), hour: m[4], minute: m[5] }),
+  )
+  const hit =
+    strict ||
+    (relaxed
+      ? scan(new RegExp(String.raw`\b(${WEEK_PHRASE})\s+(${DEADLINE_DAY})${tail}`, 'i'), (m) => ({
+          day: m[2],
+          nextWeek: true,
+          hour: m[3],
+          minute: m[4],
+        })) ||
+        scan(new RegExp(String.raw`\b(${DEADLINE_DAY})\s+(${WEEK_PHRASE})${tail}`, 'i'), (m) => ({
+          day: m[1],
+          nextWeek: true,
+          hour: m[3],
+          minute: m[4],
+        })) ||
+        scan(new RegExp(String.raw`\b(?:bis\s+)?(${WEEK_PHRASE})\b`, 'i'), () => ({
+          day: '',
+          nextWeek: true,
+        }))
+      : null)
+  if (!hit) return null
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const day = match[2].toLocaleLowerCase()
-  const nextWeek = Boolean(match[1] || match[3])
-  if (nextWeek && day !== 'morgen' && day !== 'heute' && day !== 'übermorgen') {
+  const dayName = hit.day.toLocaleLowerCase()
+  if (!hit.day) {
+    // Nur „nächste Woche" ohne Wochentag: Termin am Montag der nächsten Woche.
+    date.setDate(date.getDate() + ((8 - date.getDay()) % 7 || 7))
+  } else if (hit.nextWeek && dayName !== 'morgen' && dayName !== 'heute' && dayName !== 'übermorgen') {
     const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
-    const target = days.indexOf(day)
+    const target = days.indexOf(dayName)
     const toMonday = (8 - date.getDay()) % 7 || 7
     date.setDate(date.getDate() + toMonday + (target === 0 ? 6 : target - 1))
-  } else if (day === 'morgen') date.setDate(date.getDate() + 1)
-  else if (day === 'übermorgen') date.setDate(date.getDate() + 2)
-  else if (day !== 'heute') {
+  } else if (dayName === 'morgen') date.setDate(date.getDate() + 1)
+  else if (dayName === 'übermorgen') date.setDate(date.getDate() + 2)
+  else if (dayName !== 'heute') {
     const days = ['sonntag', 'montag', 'dienstag', 'mittwoch', 'donnerstag', 'freitag', 'samstag']
-    const target = days.indexOf(day)
+    const target = days.indexOf(dayName)
     date.setDate(date.getDate() + ((target - date.getDay() + 7) % 7 || 7))
   }
   let time: string | null = null
-  if (match[4]) {
-    const hour = Number(match[4])
-    const minute = match[5] ? Number(match[5]) : 0
+  if (hit.hour != null) {
+    const hour = Number(hit.hour)
+    const minute = hit.minute ? Number(hit.minute) : 0
     if (hour > 23 || minute > 59) return null
     time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
   }
-  const remaining = `${text.slice(0, match.index)} ${text.slice(match.index + match[0].length)}`.replace(/\s+/g, ' ').trim()
+  const remaining = `${text.slice(0, hit.start)} ${text.slice(hit.end)}`.replace(/\s+/g, ' ').trim()
   return { date: localDate(date), time, remaining }
+}
+
+/** Wörter, die klein bleiben, obwohl sie kurz sind (GM soll GM bleiben). */
+const SMALL_WORD =
+  /^(?:in|im|am|an|auf|aus|bei|bis|da|dem|den|der|des|die|das|du|er|es|für|ich|ihm|ihn|ist|ja|je|man|mein|mir|mit|nach|nicht|noch|nur|ob|oder|ohne|schon|sehr|sie|so|und|um|vom|von|vor|was|weil|wie|wo|zu|zum|zur|mal|ab|eh|als|auch|hab|hat|war)$/i
+
+/**
+ * Selbstständiger Aufgabenname: Füllwörter und anfassende Verben am Anfang
+ * weg, Anfang groß, kurze Fachwörter (gm → GM) hoch.
+ */
+export function polishTitle(raw: string): string {
+  let t = String(raw || '').replace(/[.!?]+$/g, '').replace(/\s+/g, ' ').trim()
+  const filler = /^(?:bitte|mal|noch|eben|kurz|danke|und|also|dann|jetzt|gleich)\s+/i
+  const verb =
+    /^(?:setz|stell|leg|pack|schreib|füg|fueg|ergänz|ergaenz|mach|trag|nimm|tu|tue|notier|kauf|hol|besorg|lösch|loesch|hinzufüg)(?:e|t|te|st)?\s+(?:mir\s+)?(?:das\s+|den\s+|die\s+|dem\s+|ein\s+|eine\s+|einen\s+)?/i
+  const article = /^(?:das|den|die|dem|der|ein|eine|einen|mein|meine|meinen)\s+/i
+  for (let i = 0; i < 3; i++) {
+    const before = t
+    t = t.replace(filler, '').replace(verb, '')
+    if (t === before) break
+  }
+  t = t.replace(article, '').replace(/\s+/g, ' ').trim()
+  if (!t) return ''
+  t = t
+    .split(' ')
+    .map((word) =>
+      word.length >= 2 && word.length <= 3 && !SMALL_WORD.test(word) && /^\p{Ll}{2,3}$/u.test(word)
+        ? word.toLocaleUpperCase('de-DE')
+        : word,
+    )
+    .join(' ')
+  return t.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE'))
 }
 
 /** Datum, Uhrzeit und Füllwörter gehören nicht in den Aufgabennamen. */
 export function tidyTaskTitle(text: string): string {
   return text
-    .replace(/\b(?:nächste[rn]?|kommende[rn]?)\s+woche\b/gi, ' ')
+    .replace(new RegExp(`\\b(?:${WEEK_PHRASE})\\b`, 'gi'), ' ')
     .replace(/\b(?:um\s+)?\d{1,2}(?::\d{2})?\s*uhr\b/gi, ' ')
     .replace(/^(?:noch|dann|mal|bitte|eben)\s+/i, '')
     .replace(/^(?:die|den|das|der|dem|ein|eine|einen|meiner|meine|mein|meinen)\s+/i, '')
@@ -92,14 +156,14 @@ export function tidyTaskTitle(text: string): string {
 }
 
 function taskTitle(remaining: string, fallback: string): string {
-  return tidyTaskTitle(remaining) || tidyTaskTitle(fallback) || fallback.replace(/\s+/g, ' ').trim() || 'Aufgabe'
+  return polishTitle(tidyTaskTitle(remaining)) || polishTitle(tidyTaskTitle(fallback)) || fallback.replace(/\s+/g, ' ').trim() || 'Aufgabe'
 }
 
 function todoFromText(raw: string): { title: string; deadlineDate: string | null; deadlineTime: string | null } {
   const cleaned = raw.replace(/[.!?]+$/g, '').replace(/\s+/g, ' ').trim()
-  const deadline = parseLocalDeadline(cleaned)
+  const deadline = parseLocalDeadline(cleaned, new Date(), true)
   return {
-    title: deadline ? taskTitle(deadline.remaining, cleaned) : cleaned,
+    title: deadline ? taskTitle(deadline.remaining, cleaned) : polishTitle(cleaned),
     deadlineDate: deadline?.date ?? null,
     deadlineTime: deadline?.time ?? null,
   }
@@ -133,14 +197,10 @@ const NOT_A_TASK =
   /\b(?:kaufen|holen|besorgen|termin|keine|frei|zeit|zahnarzt|arzt|meeting|feier|party|treffen|geburtstag|training|flug|urlaub|klausur|vorlesung)\b/i
 
 function placeTitle(raw: string): string {
-  const title = raw
-    .replace(/^(?:bitte|mal|noch|eben|das|den|die|dem|ein|eine|einen)\s+/i, '')
-    .replace(/[.!?]+$/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
+  const title = polishTitle(raw)
   if (title.length < 2 || title.length > 80) return ''
   if (/^(?:nein|nee+|nicht|doch|lieber|stattdessen)$/i.test(title)) return ''
-  return title.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE'))
+  return title
 }
 
 /** Aufgabe mit „bis/am Freitag“, auch wenn der Tag nicht am Satzanfang steht. */
@@ -158,7 +218,7 @@ function datedTask(text: string): ToolIntent | null {
   if (/^(?:früh|frueh|abend|mittag|nacht|vormittag)$/i.test(title)) return null
   return {
     kind: 'todo_create',
-    title: title.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE')),
+    title,
     deadlineDate: day.date,
     deadlineTime: day.time,
   }
@@ -185,27 +245,38 @@ export function parseToolIntent(text: string): ToolIntent | null {
   const libraryOpen = /^(?:öffne|zeig(?:e)?(?:\s+mir)?|mach\s+auf)\s+die\s+bibliothek\s*\??$/i.exec(placed) || /^bibliothek\s*\??$/i.exec(placed)
   if (libraryOpen) return { kind: 'library_open' }
 
-  const librarySearch = /^(?:was\s+(?:ist|liegt|steht)(?:\s+denn)?\s+(?:in|in\s+der)\s+bibliothek|(?:such(?:e)?|finde)\s+(?:in\s+der\s+bibliothek\s+)?(?:nach|zu|über)\s+(.+?)|was\s+ist\s+in\s+der\s+bibliothek\s+(?:zu|über|nach)\s+(.+?))\s*\??$/i.exec(placed)
+  // Bibliothekssuche nur, wenn die Bibliothek auch gemeint ist —
+  // „Suche nach Küchengeräte“ gehört der Recherche, nicht der Bibliothek.
+  const librarySearch =
+    /^(?:was\s+(?:ist|liegt|steht)(?:\s+denn)?\s+(?:in|in\s+der)\s+bibliothek|(?:such(?:e)?|finde)\s+(?:in\s+(?:der|unserer)\s+bibliothek)\s+(?:nach|zu|über)\s+(.+?)|was\s+ist\s+in\s+der\s+bibliothek\s+(?:zu|über|nach)\s+(.+?))\s*\??$/i.exec(placed)
   if (librarySearch) {
     const query = (librarySearch[1] || librarySearch[2] || '').trim() || undefined
     return { kind: 'library_list', query }
   }
 
+  const tagAddLast =
+    /^(?:füge|füg|ergänz(?:e)?|ergaenz(?:e)?|pack(?:e)?|add(?:e)?)\s+(?:den\s+|ein\s+)?tag\s+([#a-zäöüß0-9_-]+)\s*(?:hinzu|dazu)?\s*$/i.exec(placed) ||
+    /^tag(?:ge)?\s+([#a-zäöüß0-9_-]+)\s*(?:hinzu|dazu)?\s*$/i.exec(placed)
+  if (tagAddLast) return { kind: 'tag_add_last', tag: tagAddLast[1] }
+
   const tagAdd =
     /^(?:tag(?:ge)?|markiere)\s+(?:die\s+)?(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s+mit\s+(?:(?:dem\s+)?tag\s+)?([#a-zäöüß0-9_-]+)\s*$/i.exec(placed) ||
-    /^(?:füge|füg)\s+(?:den\s+)?tag\s+([#a-zäöüß0-9_-]+)\s+(?:zur|zum|der|dem)\s+(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s+(?:hinzu|dazu)\s*$/i.exec(placed) ||
-    /^setz(?:e)?\s+(?:den\s+)?tag\s+([#a-zäöüß0-9_-]+)\s+auf\s+(?:die\s+)?(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s*$/i.exec(placed)
+    /^(?:füge|füg|ergänz(?:e)?|ergaenz(?:e)?)\s+(?:den\s+)?tag\s+([#a-zäöüß0-9_-]+)\s+(?:zur|zum|der|dem)\s+(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s+(?:hinzu|dazu)\s*$/i.exec(placed) ||
+    /^setz(?:e)?\s+(?:den\s+)?tag\s+([#a-zäöüß0-9_-]+)\s+auf\s+(?:die\s+)?(notiz|bibliothek|bibliothekseintrag|datei|aufgabe|todo)\s+(.+?)\s*$/i.exec(placed) ||
+    // Ohne Zielwort: „tag minecraft mit amazon“ — das Ziel sucht sich der Handler.
+    /^(?:tag(?:ge)?|markiere)\s+(.+?)\s+mit\s+(?:(?:dem\s+)?tag\s+)?([#a-zäöüß0-9_-]+)\s*$/i.exec(placed)
   if (tagAdd) {
-    let kind: string, query: string, tag: string
-    if (tagAdd.length === 4 && /^(?:tag|markiere)/i.test(placed)) {
-      kind = tagAdd[1]; query = tagAdd[2]; tag = tagAdd[3]
-    } else if (/^(?:füge|füg)/i.test(placed)) {
-      tag = tagAdd[1]; kind = tagAdd[2]; query = tagAdd[3]
-    } else {
-      tag = tagAdd[1]; kind = tagAdd[2]; query = tagAdd[3]
+    const tagTarget = (kind: string): 'note' | 'todo' | 'library' | 'auto' =>
+      /^(notiz)/i.test(kind) ? 'note' : /^(bibliothek|datei)/i.test(kind) ? 'library' : /^(todo|aufgabe)/i.test(kind) ? 'todo' : 'auto'
+    if (tagAdd.length === 3) {
+      // Muster ohne Zielwort: „tag minecraft mit amazon“
+      return { kind: 'tag_add', target: 'auto', query: String(tagAdd[1] || '').trim(), tag: tagAdd[2] }
     }
-    const target = /^(notiz)/i.test(kind) ? 'note' : /^(bibliothek|datei)/i.test(kind) ? 'library' : 'todo'
-    return { kind: 'tag_add', target: target as 'note' | 'todo' | 'library', query: query.trim(), tag }
+    if (/^(?:tag|markiere)/i.test(placed)) {
+      return { kind: 'tag_add', target: tagTarget(tagAdd[1]), query: String(tagAdd[2] || '').trim(), tag: tagAdd[3] }
+    }
+    // „füge tag X zur notiz Y hinzu“ und „setze tag X auf die notiz Y“
+    return { kind: 'tag_add', target: tagTarget(tagAdd[2]), query: String(tagAdd[3] || '').trim(), tag: tagAdd[1] }
   }
 
   const tagShow =
@@ -239,7 +310,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
     return {
       kind: 'todo_create',
       listName: inList[1].trim(),
-      title: deadline ? taskTitle(deadline.remaining, inList[2]) : inList[2].trim(),
+      title: deadline ? taskTitle(deadline.remaining, inList[2]) : polishTitle(inList[2]) || inList[2].trim(),
       deadlineDate: deadline?.date || null,
       deadlineTime: deadline?.time || null,
     }
@@ -252,7 +323,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
       query: updateTodo[1].trim(),
       ...(deadline
         ? { deadlineDate: deadline.date, deadlineTime: deadline.time }
-        : { title: updateTodo[2].trim() }),
+        : { title: polishTitle(updateTodo[2]) || updateTodo[2].trim() }),
     }
   }
   const deadlineTodo = /^\s*(?:setz(?:e)?\s+)?(?:eine\s+)?deadline\s*:\s*(.+)$/is.exec(text)
@@ -266,7 +337,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
     const deadline = parseLocalDeadline(todoWrite[1])
     return {
       kind: 'todo_create',
-      title: deadline ? taskTitle(deadline.remaining, todoWrite[1]) : todoWrite[1].trim(),
+      title: deadline ? taskTitle(deadline.remaining, todoWrite[1]) : polishTitle(todoWrite[1]) || todoWrite[1].trim(),
       deadlineDate: deadline?.date || null,
       deadlineTime: deadline?.time || null,
     }

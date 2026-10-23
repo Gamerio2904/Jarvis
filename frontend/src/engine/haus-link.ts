@@ -61,6 +61,12 @@ export function openHausScan(): void {
   window.dispatchEvent(new Event('jarvis-haus-scan'))
 }
 
+/** Allgemeiner QR-Scanner: liest jeden Code, nicht nur den Hausstand. */
+export function openQrScan(): void {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new Event('jarvis-qr-scan'))
+}
+
 export async function offerHausQr(json: string): Promise<{ reply: string; blocks?: ChatBlock[] }> {
   const live = await hausOffer(json)
   if (!live.ok || !live.url) {

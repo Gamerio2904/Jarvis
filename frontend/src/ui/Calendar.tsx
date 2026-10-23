@@ -621,6 +621,11 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const headRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
+    // Der Kalender öffnet grundsätzlich in der Monatsansicht — immer.
+    setMode('month')
+  }, [])
+
+  useEffect(() => {
     if (!hold) return
     const close = () => setHold(null)
     window.addEventListener('pointerdown', close)
