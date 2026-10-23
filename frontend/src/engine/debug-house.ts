@@ -37,6 +37,7 @@ const FLAG_KEYS: Array<keyof Settings> = [
   'tv_enabled',
   'research_opt_in',
   'tool_propose',
+  'tool_agent',
   'hud_accent',
   'drive_speak',
   'globe_webgl',

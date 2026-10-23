@@ -4,6 +4,7 @@ import {
   autoDiscardForHandLimit,
   attack,
   checkActivation,
+  duelStateVector,
   endJarvisTurn,
   setSpellTrap,
   createDuel,
@@ -28,6 +29,7 @@ import {
   TRAINING_ARCHETYPES,
   type DeckArchetype,
 } from './yugioh-decks.ts'
+import { SEARCH_PROFILES, searchAction, type SearchBudget } from './yugioh-search.ts'
 
 export const FEATURE_NAMES = [
   'summon', 'extra', 'attack', 'direct', 'effect', 'pass',
@@ -37,8 +39,16 @@ export const FEATURE_NAMES = [
   'effectMill', 'effectDiscard', 'effectValue', 'effectHits', 'effectCost',
   'lpDiff', 'hand', 'ownField', 'oppField', 'tributes', 'materials', 'chainDecision',
   'passWithOptions', 'bias',
+  // Hinter bias: alte 38er-Netze behalten ihre Indizes. Neue Merkmale lesen nur neue Netze.
+  'phaseMain1', 'phaseBattle', 'phaseMain2', 'oppHand', 'oppBackrow', 'ownLpAbs', 'oppLpAbs',
 ] as const
 export const FEATURE_COUNT = FEATURE_NAMES.length
+/** Gewichte, die vor den Zustandsmerkmalen trainiert wurden. */
+export const LEGACY_FEATURE_COUNT = 38
+/** Anzeige-Holdout. Entscheidet nicht, welches Checkpoint behalten wird. */
+export const REPORT_HOLDOUT_SEED = 918273
+/** Checkpoint-Entscheidung, getrennt vom Anzeige-Holdout. */
+export const CHECKPOINT_SEED = 424242
 
 type ActionKind = 'summon' | 'extra' | 'attack' | 'direct' | 'effect' | 'pass'
 
@@ -82,14 +92,34 @@ function emptyFeatures(): number[] {
   return features
 }
 
-type Context = { lpDiff: number; hand: number; ownField: number; oppField: number }
+type Context = {
+  lpDiff: number
+  hand: number
+  ownField: number
+  oppField: number
+  phaseMain1: number
+  phaseBattle: number
+  phaseMain2: number
+  oppHand: number
+  oppBackrow: number
+  ownLpAbs: number
+  oppLpAbs: number
+}
 
 function contextOf(state: DuelState): Context {
+  const backrow = state.jarvis.spells.length + (state.jarvis.fieldSpell ? 1 : 0)
   return {
     lpDiff: clamp((state.player.lp - state.jarvis.lp) / 8000),
     hand: Math.min(1, state.player.hand.length / 8),
     ownField: state.player.monsters.length / 5,
     oppField: state.jarvis.monsters.length / 5,
+    phaseMain1: state.phase === 'main1' ? 1 : 0,
+    phaseBattle: state.phase === 'battle' ? 1 : 0,
+    phaseMain2: state.phase === 'main2' ? 1 : 0,
+    oppHand: Math.min(1, state.jarvis.hand.length / 8),
+    oppBackrow: Math.min(1, backrow / 5),
+    ownLpAbs: clamp(state.player.lp / 8000, 0, 1),
+    oppLpAbs: clamp(state.jarvis.lp / 8000, 0, 1),
   }
 }
 
@@ -101,7 +131,23 @@ function base(kind: ActionKind, context: Context, chain: boolean): number[] {
   features[featureIndex.ownField] = context.ownField
   features[featureIndex.oppField] = context.oppField
   features[featureIndex.chainDecision] = chain ? 1 : 0
+  features[featureIndex.phaseMain1] = context.phaseMain1
+  features[featureIndex.phaseBattle] = context.phaseBattle
+  features[featureIndex.phaseMain2] = context.phaseMain2
+  features[featureIndex.oppHand] = context.oppHand
+  features[featureIndex.oppBackrow] = context.oppBackrow
+  features[featureIndex.ownLpAbs] = context.ownLpAbs
+  features[featureIndex.oppLpAbs] = context.oppLpAbs
   return features
+}
+
+function alignFeatures(features: number[], inputs: number): number[] {
+  if (features.length === inputs) return features
+  if (features.length > inputs) return features.slice(0, inputs)
+  const padded = features.slice()
+  while (padded.length < inputs) padded.push(0)
+  if (inputs > featureIndex.bias) padded[featureIndex.bias] = 1
+  return padded
 }
 
 function mark(features: number[], name: (typeof FEATURE_NAMES)[number], value = 1): void {
@@ -388,8 +434,9 @@ export function createNetModel(hidden = 16, seed = 1): NetModel {
   return { inputs, hidden, params: Array.from({ length: count }, () => (random() * 2 - 1) * scale) }
 }
 
-function scoreWithHidden(model: NetModel, x: number[]): { score: number; hidden: number[] } {
+function scoreWithHidden(model: NetModel, raw: number[]): { score: number; hidden: number[] } {
   const { inputs, hidden, params } = model
+  const x = alignFeatures(raw, inputs)
   if (hidden === 0) {
     let sum = params[inputs]
     for (let i = 0; i < inputs; i += 1) sum += params[i] * x[i]
@@ -412,8 +459,10 @@ export function netScore(model: NetModel, features: number[]): number {
   return scoreWithHidden(model, features).score
 }
 
-function accumulateGradient(model: NetModel, x: number[], hidden: number[], dOut: number, grad: number[]): void {
+function accumulateGradient(model: NetModel, raw: number[], hiddenActs: number[], dOut: number, grad: number[]): void {
   const { inputs, params } = model
+  const x = alignFeatures(raw, inputs)
+  const hidden = hiddenActs
   if (model.hidden === 0) {
     for (let i = 0; i < inputs; i += 1) grad[i] += dOut * x[i]
     grad[inputs] += dOut
@@ -437,11 +486,14 @@ function softmax(scores: number[]): number[] {
   return exp.map((value) => value / total)
 }
 
+export function expectedParamCount(inputs: number, hidden: number): number {
+  return hidden === 0 ? inputs + 1 : hidden * inputs + 2 * hidden + 1
+}
+
 export function validateNetModel(model: NetModel): NetModel {
-  const expected = model.hidden === 0
-    ? FEATURE_COUNT + 1
-    : model.hidden * FEATURE_COUNT + 2 * model.hidden + 1
-  if (!Number.isInteger(model.hidden) || model.hidden < 0 || model.hidden > 64 || model.inputs !== FEATURE_COUNT) {
+  const inputsOk = model.inputs === LEGACY_FEATURE_COUNT || model.inputs === FEATURE_COUNT
+  const expected = expectedParamCount(model.inputs, model.hidden)
+  if (!Number.isInteger(model.hidden) || model.hidden < 0 || model.hidden > 64 || !inputsOk) {
     throw new Error('Netzwerkmodell hat eine ungültige Architektur.')
   }
   if (!Array.isArray(model.params) || model.params.length !== expected || model.params.some((value) => !Number.isFinite(value))) {
@@ -455,7 +507,7 @@ export function averageNetModels(models: readonly NetModel[]): NetModel {
   const first = validateNetModel(models[0])
   for (const model of models) {
     validateNetModel(model)
-    if (model.hidden !== first.hidden) throw new Error('Alle Soup-Modelle brauchen dieselbe Architektur.')
+    if (model.hidden !== first.hidden || model.inputs !== first.inputs) throw new Error('Alle Soup-Modelle brauchen dieselbe Architektur.')
   }
   return {
     inputs: first.inputs,
@@ -517,25 +569,58 @@ export const heuristicPolicy: Policy = (actions) => {
 
 // --- Game loop ---
 
-type GameResult = { outcome: 'win' | 'loss' | 'draw'; invalid: number }
+type GameResult = { outcome: 'win' | 'loss' | 'draw'; invalid: number; states: number[][] }
+type OpponentKind = 'script' | 'heuristic' | 'net' | 'search'
+type Opener = 'learner' | 'script'
 
-function playGame(policy: Policy, random: () => number, agentArchetype: DeckArchetype, opponentArchetype: DeckArchetype): GameResult {
+const TRAIN_SEARCH: SearchBudget = { maxMs: 0, maxNodes: 40, maxDepth: 2, beamWidth: 3, samples: 1, stopWhenStable: false }
+
+function opponentKindOf(random: () => number): OpponentKind {
+  const roll = random()
+  if (roll < 0.5) return 'script'
+  if (roll < 0.8) return 'heuristic'
+  if (roll < 0.95) return 'net'
+  return 'search'
+}
+
+function playGame(
+  policy: Policy,
+  random: () => number,
+  agentArchetype: DeckArchetype,
+  opponentArchetype: DeckArchetype,
+  opponent: OpponentKind = 'script',
+  frozen: NetModel | null = null,
+  opener: Opener = 'learner',
+): GameResult {
   const own = generateDeck(agentArchetype, random)
   const other = generateDeck(opponentArchetype, random)
   const strategy = DUEL_STRATEGIES[Math.floor(random() * DUEL_STRATEGIES.length)]
   let state = createDuel(own.main, other.main, random, own.extra, other.extra, strategy)
   let invalid = 0
+  const states: number[][] = []
+  if (opener === 'script' && !state.winner) {
+    try {
+      state = advanceDuelPhase({ ...state, phase: 'end', chain: [], chainPriority: null, chainPasses: 0 })
+    } catch {
+      // Der Skript-Gegner konnte nicht eröffnen. Der Lernende beginnt wie bisher.
+    }
+  }
   for (let step = 0; !state.winner && state.turn <= 40 && step < 1500; step += 1) {
     if ((state.discardNeeded || 0) > 0) {
       state = autoDiscardForHandLimit(state)
       continue
     }
     if (!state.chain.length && (state.phase === 'draw' || state.phase === 'standby' || state.phase === 'end')) {
+      if (state.phase === 'end' && opponent !== 'script') {
+        state = runNetJarvisTurn(state, frozen || createNetModel(0, 1), opponent === 'search' ? 'search' : opponent === 'net' ? 'net' : 'heuristic')
+        continue
+      }
       state = advanceDuelPhase(state)
       continue
     }
     const actions = candidateActions(state)
     const index = actions.length === 1 ? 0 : policy(actions, random)
+    if (actions.length !== 1) states.push(duelStateVector(state))
     try {
       state = applyAction(state, actions[index])
     } catch {
@@ -548,7 +633,7 @@ function playGame(policy: Policy, random: () => number, agentArchetype: DeckArch
     }
   }
   const outcome = state.winner === 'player' ? 'win' : state.winner === 'jarvis' ? 'loss' : 'draw'
-  return { outcome, invalid }
+  return { outcome, invalid, states }
 }
 
 export function evaluatePolicy(
@@ -556,6 +641,7 @@ export function evaluatePolicy(
   games = 100,
   seed = 9001,
   archetypes: readonly DeckArchetype[] = EVALUATION_ARCHETYPES,
+  sideSwap = false,
 ): NetEvaluation {
   if (!Number.isInteger(games) || games < 1 || games > 5000) throw new Error('Evaluationsumfang muss zwischen 1 und 5000 Duellen liegen.')
   const random = seededRandom(seed)
@@ -564,7 +650,7 @@ export function evaluatePolicy(
   for (let i = 0; i < games; i += 1) {
     const agent = archetypes[i % archetypes.length]
     const opponent = archetypes[Math.floor(i / archetypes.length) % archetypes.length]
-    const game = playGame(policy, random, agent, opponent)
+    const game = playGame(policy, random, agent, opponent, 'script', null, sideSwap && i % 2 === 1 ? 'script' : 'learner')
     result.games += 1
     result.invalidActions += game.invalid
     const point = game.outcome === 'win' ? 1 : game.outcome === 'draw' ? 0.5 : 0
@@ -620,6 +706,8 @@ export function trainNetPolicy(options: NetTrainingOptions = {}): NetTrainingRes
   const random = seededRandom(options.seed ?? 7)
   const m1 = new Array<number>(model.params.length).fill(0)
   const m2 = new Array<number>(model.params.length).fill(0)
+  let frozen: NetModel = { ...model, params: [...model.params] }
+  let valueHead = attachValueHead(model, 8, (options.seed ?? 7) + 99).value
   const validate = (candidate: NetModel) => evaluatePolicy(greedyNetPolicy(candidate), validationGames, VALIDATION_SEED, TRAINING_ARCHETYPES).winRate
   let best = { ...model, params: [...model.params] }
   let bestValidation = validate(model)
@@ -644,21 +732,45 @@ export function trainNetPolicy(options: NetTrainingOptions = {}): NetTrainingRes
       trajectory.push({ xs: actions.map((action) => action.features), hidden: scored.map((entry) => entry.hidden), probs, chosen })
       return chosen
     }
-    const game = playGame(policy, random, agents[episode % agents.length], opponents[Math.floor(random() * opponents.length)])
+    if (episode % 40 === 0) frozen = { ...model, params: [...model.params] }
+    const opponent = opponentKindOf(random)
+    const game = playGame(
+      policy,
+      random,
+      agents[episode % agents.length],
+      opponents[Math.floor(random() * opponents.length)],
+      opponent,
+      frozen,
+    )
     const reward = game.outcome === 'win' ? 1 : game.outcome === 'loss' ? -1 : 0
     if (reward === 1) wins += 1
     else if (reward === -1) losses += 1
     else draws += 1
-    const advantage = reward - baseline
-    baseline += 0.03 * advantage
-    for (const decision of trajectory) {
+    const advantageFallback = reward - baseline
+    baseline += 0.03 * advantageFallback
+    const vGrad = valueHead ? new Array<number>(valueHead.params.length).fill(0) : null
+    for (let t = 0; t < trajectory.length; t += 1) {
+      const decision = trajectory[t]
+      const vector = game.states[t]
+      let advantage = advantageFallback
+      if (valueHead && vGrad && vector && vector.length === STATE_VALUE_DIM) {
+        const fwd = valueForward(valueHead.params, valueHead.hidden, vector)
+        advantage = reward - fwd.score
+        accumulateValueGradient(valueHead.params, valueHead.hidden, vector, fwd.activations, fwd.score, fwd.score - reward, vGrad)
+      }
       const entropy = -decision.probs.reduce((sum, p) => sum + (p > 0 ? p * Math.log(p) : 0), 0)
       decision.probs.forEach((p, i) => {
         const policyTerm = (i === decision.chosen ? 1 : 0) - p
         const entropyTerm = -p * ((p > 0 ? Math.log(p) : 0) + entropy)
-        const dScore = (advantage * policyTerm + 0.01 * entropyTerm) / trajectory.length
+        const dScore = (advantage * policyTerm + 0.01 * entropyTerm) / Math.max(1, trajectory.length)
         accumulateGradient(model, decision.xs[i], decision.hidden[i], dScore, grad)
       })
+    }
+    if (valueHead && vGrad && trajectory.length) {
+      const scale = 0.08 / trajectory.length
+      for (let i = 0; i < valueHead.params.length; i += 1) {
+        valueHead.params[i] = Math.max(-4, Math.min(4, valueHead.params[i] - scale * vGrad[i]))
+      }
     }
     if ((episode + 1) % batch === 0 || episode === episodes - 1) {
       step += 1
@@ -780,9 +892,10 @@ function mirrorWinner(winner: DuelState['winner']): DuelState['winner'] {
 
 // Jarvis' turn, decided by the network. The board is mirrored so the same player-side rules and
 // features apply; the human opponent still answers effect chains through the scripted responder.
-export function runNetJarvisTurn(state: DuelState, model: NetModel): DuelState {
+export function runNetJarvisTurn(state: DuelState, model: NetModel, driver: 'net' | 'heuristic' | 'search' = 'net'): DuelState {
   if (state.winner) return state
-  const policy = greedyNetPolicy(validateNetModel(model))
+  if (driver === 'net') validateNetModel(model)
+  const policy = driver === 'heuristic' ? heuristicPolicy : greedyNetPolicy(model)
   const random = seededRandom(state.turn * 7919 + 13)
   const jarvis = { ...state.jarvis, deck: [...state.jarvis.deck], hand: [...state.jarvis.hand] }
   const card = jarvis.deck.pop()
@@ -803,7 +916,13 @@ export function runNetJarvisTurn(state: DuelState, model: NetModel): DuelState {
   let animation: DuelState['lastAnimation'] = { id: 0, kind: 'draw' }
   for (let step = 0; step < 60 && !view.winner && view.phase !== 'end'; step += 1) {
     const actions = candidateActions(view)
-    const chosen = actions[actions.length === 1 ? 0 : policy(actions, random)]
+    let picked = 0
+    if (actions.length > 1) {
+      picked = driver === 'search'
+        ? searchAction(view, actions, { model, budget: TRAIN_SEARCH, random }).index
+        : policy(actions, random)
+    }
+    const chosen = actions[picked]
     let next: DuelState
     try {
       next = applyAction(view, chosen)
@@ -961,9 +1080,26 @@ export function jarvisStep(state: DuelState, model: NetModel | null): DuelState 
     }
   }
   const actions = candidateActions(view)
-  const policy = model ? greedyNetPolicy(validateNetModel(model)) : heuristicPolicy
   const random = seededRandom(base.turn * 7919 + steps * 104729 + 13)
-  const chosen = actions[actions.length === 1 ? 0 : policy(actions, random)]
+  const policy = model ? greedyNetPolicy(validateNetModel(model)) : heuristicPolicy
+  let picked = actions.length === 1 ? 0 : policy(actions, random)
+  if (actions.length > 1) {
+    try {
+      const found = searchAction(view, actions, { model, budget: SEARCH_PROFILES.duel, random })
+      const searchPick = actions[found.index]
+      const priorPick = actions[picked]
+      const givesUpClearMove = Boolean(
+        searchPick && priorPick
+        && searchPick.kind === 'pass'
+        && priorPick.kind !== 'pass'
+        && heuristicScore(priorPick.features) > heuristicScore(searchPick.features) + 1.5,
+      )
+      if (!givesUpClearMove && found.index >= 0 && found.index < actions.length) picked = found.index
+    } catch {
+      picked = policy(actions, random)
+    }
+  }
+  const chosen = actions[picked]
   try {
     if (chosen.kind === 'pass') return advance()
     if (chosen.kind === 'effect' && chosen.cardId !== undefined) {
@@ -1057,18 +1193,44 @@ export function attachValueHead(policy: NetModel, hidden = 8, seed = 3): NetBund
   return { schema: 2, policy: validated, value: { hidden, params } }
 }
 
-export function valueScore(bundle: NetBundle, stateVector: number[]): number {
-  if (!bundle.value || stateVector.length !== STATE_VALUE_DIM) return 0
-  const { hidden, params } = bundle.value
+function valueForward(params: number[], hidden: number, stateVector: number[]): { score: number; activations: number[] } {
   const b1 = hidden * STATE_VALUE_DIM
   const w2 = b1 + hidden
+  const activations = new Array<number>(hidden)
   let out = params[w2 + hidden]
   for (let j = 0; j < hidden; j += 1) {
     let sum = params[b1 + j]
-    for (let i = 0; i < STATE_VALUE_DIM; i += 1) sum += params[j * STATE_VALUE_DIM + i] * stateVector[i]
-    out += params[w2 + j] * Math.tanh(sum)
+    for (let i = 0; i < STATE_VALUE_DIM; i += 1) sum += params[j * STATE_VALUE_DIM + i] * (stateVector[i] || 0)
+    activations[j] = Math.tanh(sum)
+    out += params[w2 + j] * activations[j]
   }
-  return Math.tanh(out)
+  return { score: Math.tanh(out), activations }
+}
+
+function accumulateValueGradient(
+  params: number[],
+  hidden: number,
+  stateVector: number[],
+  activations: number[],
+  score: number,
+  dScore: number,
+  grad: number[],
+): void {
+  const dOut = dScore * (1 - score * score)
+  const b1 = hidden * STATE_VALUE_DIM
+  const w2 = b1 + hidden
+  grad[w2 + hidden] += dOut
+  for (let j = 0; j < hidden; j += 1) {
+    grad[w2 + j] += dOut * activations[j]
+    const dHidden = dOut * params[w2 + j] * (1 - activations[j] * activations[j])
+    grad[b1 + j] += dHidden
+    for (let i = 0; i < STATE_VALUE_DIM; i += 1) grad[j * STATE_VALUE_DIM + i] += dHidden * (stateVector[i] || 0)
+  }
+}
+
+export function valueScore(bundle: NetBundle, stateVector: number[]): number {
+  if (!bundle.value || stateVector.length !== STATE_VALUE_DIM) return 0
+  return valueForward(bundle.value.params, bundle.value.hidden, stateVector).score
 }
 
 export type SelfPlayTrainSample = {
@@ -1090,21 +1252,28 @@ export function trainFromSelfPlaySamples(
   }
   if (!samples.length) return next
   const grad = new Array<number>(next.policy.params.length).fill(0)
+  const vGrad = next.value ? new Array<number>(next.value.params.length).fill(0) : null
   for (const sample of samples) {
+    const baseline = next.value && sample.stateVector.length === STATE_VALUE_DIM ? valueScore(next, sample.stateVector) : 0
+    const advantage = sample.outcome - baseline
     const scored = sample.features.map((x) => scoreWithHidden(next.policy, x))
     const probs = softmax(scored.map((entry) => entry.score))
     probs.forEach((p, i) => {
       const target = i === sample.chosen ? 1 : 0
-      accumulateGradient(next.policy, sample.features[i], scored[i].hidden, (target - p) * sample.outcome, grad)
+      accumulateGradient(next.policy, sample.features[i], scored[i].hidden, (target - p) * advantage, grad)
     })
-    if (next.value && next.schema === 2) {
-      const err = sample.outcome - valueScore(next, sample.stateVector)
-      const vGrad = err * learningRate * 0.2
-      for (let i = 0; i < next.value.params.length; i += 1) next.value.params[i] += vGrad * 0.01
+    if (next.value && vGrad && sample.stateVector.length === STATE_VALUE_DIM) {
+      const fwd = valueForward(next.value.params, next.value.hidden, sample.stateVector)
+      accumulateValueGradient(next.value.params, next.value.hidden, sample.stateVector, fwd.activations, fwd.score, fwd.score - sample.outcome, vGrad)
     }
   }
   const scale = learningRate / samples.length
   for (let i = 0; i < next.policy.params.length; i += 1) next.policy.params[i] += grad[i] * scale
+  if (next.value && vGrad) {
+    for (let i = 0; i < next.value.params.length; i += 1) {
+      next.value.params[i] = Math.max(-4, Math.min(4, next.value.params[i] - scale * vGrad[i]))
+    }
+  }
   return next
 }
 

@@ -2,6 +2,8 @@ import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
 import {
   applyHomeDrop,
   ejectHomeApp,
+  folderPageCount,
+  folderPageSlots,
   parseHomeLayout,
   renameHomeFolder,
   serializeHomeLayout,
@@ -224,6 +226,9 @@ function AppGlyph({ id }: { id: HomeAppId }) {
 function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
   const [layout, setLayout] = useState<HomeLayout>(() => parseHomeLayout(loadSettings().home_layout_json))
   const [openFolder, setOpenFolder] = useState<string | null>(null)
+  const [folderPage, setFolderPage] = useState(0)
+  const folderSwipe = useRef<{ x: number; y: number; id: number } | null>(null)
+  const folderMoved = useRef(false)
   const [ghost, setGhost] = useState<{ x: number; y: number; label: string } | null>(null)
   const [hover, setHover] = useState<number | null>(null)
   const drag = useRef<{
@@ -311,7 +316,10 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     if (!moved) {
       if (!cell) return
       if (cell.kind === 'app') onOpen(cell.id)
-      else setOpenFolder(cell.folder.id)
+      else {
+        setFolderPage(0)
+        setOpenFolder(cell.folder.id)
+      }
       return
     }
     if (!current.dragging) return
@@ -322,6 +330,26 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
 
   const folder = layout.cells.find((cell) => cell?.kind === 'folder' && cell.folder.id === openFolder)
   const open = folder?.kind === 'folder' ? folder.folder : null
+  const folderPages = open ? folderPageCount(open.apps.length) : 1
+  const folderSlots = open ? folderPageSlots(open.apps, folderPage) : []
+  const folderDot = ((folderPage % folderPages) + folderPages) % folderPages
+
+  function onFolderPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) return
+    folderMoved.current = false
+    folderSwipe.current = { x: event.clientX, y: event.clientY, id: event.pointerId }
+  }
+
+  function onFolderPointerUp(event: PointerEvent<HTMLDivElement>) {
+    const start = folderSwipe.current
+    folderSwipe.current = null
+    if (!start || start.id !== event.pointerId || folderPages < 2) return
+    const dx = event.clientX - start.x
+    const dy = event.clientY - start.y
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
+    folderMoved.current = true
+    setFolderPage((page) => page + (dx < 0 ? 1 : -1))
+  }
 
   return (
     <div className={`home-grid${ghost ? ' is-dragging' : ''}`} aria-label="Apps">
@@ -358,49 +386,65 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
       ))}
       {ghost ? <div className="home-app-ghost" style={{ left: ghost.x, top: ghost.y }}>{ghost.label}</div> : null}
       {open ? (
-        <>
-          <div className="home-folder-backdrop" onClick={() => setOpenFolder(null)} aria-hidden />
-          <div className="home-folder" role="dialog" aria-label={open.name}>
-            <div className="home-folder-head">
-              <strong className="home-folder-name">{open.name}</strong>
-              <button type="button" className="ghost-btn" onClick={() => setOpenFolder(null)}>Schließen</button>
-            </div>
-            <ul className="home-folder-grid">
-              {open.apps.map((id) => {
-                const label = HOME_APPS.find((app) => app.id === id)?.label || id
-                return (
-                  <li key={id} className="home-folder-cell">
-                    <button
-                      type="button"
-                      className="home-folder-app"
-                      aria-label={`${label} öffnen`}
-                      onClick={() => onOpen(id)}
-                    >
-                      <span className="home-folder-ico"><AppGlyph id={id} /></span>
-                      <span className="home-folder-label">{label}</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="home-folder-eject"
-                      aria-label={`${label} herausnehmen`}
-                      onClick={() => commit(ejectHomeApp(layout, open.id, id))}
-                    >
-                      ×
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-            <label className="home-folder-rename">
-              Ordnername
+        <div className="home-folder-back" onClick={() => setOpenFolder(null)}>
+          <div
+            className="home-folder"
+            role="dialog"
+            aria-label={open.name}
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={onFolderPointerDown}
+            onPointerUp={onFolderPointerUp}
+          >
+            <label className="home-folder-name">
               <input
                 value={open.name}
                 maxLength={24}
+                aria-label="Ordnername"
                 onChange={(event) => commit(renameHomeFolder(layout, open.id, event.target.value))}
               />
             </label>
+            <div className="home-folder-grid">
+              {folderSlots.map((id, index) => id ? (
+                <button
+                  key={id}
+                  type="button"
+                  className="home-app home-folder-app"
+                  onClick={() => {
+                    if (folderMoved.current) {
+                      folderMoved.current = false
+                      return
+                    }
+                    setOpenFolder(null)
+                    onOpen(id)
+                  }}
+                  onContextMenu={(event) => {
+                    event.preventDefault()
+                    commit(ejectHomeApp(layout, open.id, id))
+                  }}
+                >
+                  <span className="home-app-ico"><AppGlyph id={id} /></span>
+                  <span className="home-app-label">{HOME_APPS.find((app) => app.id === id)?.label || id}</span>
+                </button>
+              ) : (
+                <div key={`leer-${folderDot}-${index}`} className="home-folder-slot" />
+              ))}
+            </div>
+            {folderPages > 1 ? (
+              <div className="home-folder-dots" aria-label="Seiten">
+                {Array.from({ length: folderPages }, (_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={index === folderDot ? 'is-on' : ''}
+                    aria-label={`Seite ${index + 1}`}
+                    onClick={() => setFolderPage(index)}
+                  />
+                ))}
+              </div>
+            ) : null}
+            <button type="button" className="home-folder-close" onClick={() => setOpenFolder(null)}>Schließen</button>
           </div>
-        </>
+        </div>
       ) : null}
     </div>
   )

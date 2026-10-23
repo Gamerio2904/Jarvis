@@ -1,5 +1,6 @@
 export type ToolIntent =
-  | { kind: 'todo_create'; title: string; listName?: string; deadlineDate?: string | null; deadlineTime?: string | null }
+  | { kind: 'todo_create'; title: string; listName?: string; deadlineDate?: string | null; deadlineTime?: string | null; fromShopping?: boolean }
+  | { kind: 'todo_adopt_last' }
   | { kind: 'todo_list_create'; name: string }
   | { kind: 'todo_list_open'; name: string }
   | { kind: 'todo_due'; through: string; label: string }
@@ -114,7 +115,69 @@ function dayThrough(text: string): { through: string; label: string } | null {
   return null
 }
 
+const TODO_LIST_NAME = String.raw`(?:to-?\s*do|aufgaben)(?:-|\s)?liste`
+const CORRECTION_TO_TODO = new RegExp(
+  String.raw`^\s*(?:nein|nee+|nicht|doch|lieber|stattdessen)[,:]?\s+(?:auf\s+)?(?:die\s+|der\s+|meine[rn]?\s+)?${TODO_LIST_NAME}\s*$`,
+  'i',
+)
+const PLACE_VERB = String.raw`setz(?:e)?|pack(?:e)?|tu(?:e)?|leg(?:e)?|schreib(?:e)?|verschieb(?:e)?|schieb(?:e)?|nimm|trag(?:e)?|eintrag(?:e)?|stell(?:e)?|mach(?:e)?`
+const PLACE_ON_TODO = new RegExp(
+  String.raw`^\s*(?:bitte\s+)?(?:(?:${PLACE_VERB})\s+(?:mir\s+)?)?(?:bitte\s+)?(.+?)\s+(?:auf|in|zu[rm]?)\s+(?:die\s+|der\s+|das\s+|dem\s+|den\s+|meine[rn]?\s+)?${TODO_LIST_NAME}(?:\s+(?:ein|hinzu))?\s*$`,
+  'i',
+)
+const NOT_A_TASK =
+  /\b(?:kaufen|holen|besorgen|termin|keine|frei|zeit|zahnarzt|arzt|meeting|feier|party|treffen|geburtstag|training|flug|urlaub|klausur|vorlesung)\b/i
+
+function placeTitle(raw: string): string {
+  const title = raw
+    .replace(/^(?:bitte|mal|noch|eben|das|den|die|dem|ein|eine|einen)\s+/i, '')
+    .replace(/[.!?]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (title.length < 2 || title.length > 80) return ''
+  if (/^(?:nein|nee+|nicht|doch|lieber|stattdessen)$/i.test(title)) return ''
+  return title.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE'))
+}
+
+/** Aufgabe mit „bis/am Freitag“, auch wenn der Tag nicht am Satzanfang steht. */
+function datedTask(text: string): ToolIntent | null {
+  if (/[?]/.test(text)) return null
+  if (/^\s*(?:was|wie|wann|welche|zeig|zeige|öffne|habe|hab|lösch|streich|änder)\b/i.test(text)) return null
+  const day = parseLocalDeadline(text)
+  if (!day) return null
+  const rest = day.remaining
+    .replace(new RegExp(String.raw`^(?:${PLACE_VERB})\s+`, 'i'), '')
+    .replace(/\s+(?:ein|hinzu)$/i, '')
+  const title = taskTitle(rest, rest)
+  if (title.length < 2 || title.length > 60) return null
+  if (NOT_A_TASK.test(title)) return null
+  if (/^(?:früh|frueh|abend|mittag|nacht|vormittag)$/i.test(title)) return null
+  return {
+    kind: 'todo_create',
+    title: title.replace(/^\p{Ll}/u, (c) => c.toLocaleUpperCase('de-DE')),
+    deadlineDate: day.date,
+    deadlineTime: day.time,
+  }
+}
+
 export function parseToolIntent(text: string): ToolIntent | null {
+  const placed = text.trim().replace(/[.!?]+\s*$/g, '').trim()
+  if (CORRECTION_TO_TODO.test(placed)) return { kind: 'todo_adopt_last' }
+  const onTodo = PLACE_ON_TODO.exec(placed)
+  if (onTodo) {
+    const parsed = todoFromText(onTodo[1])
+    const title = placeTitle(parsed.title)
+    if (title) {
+      return {
+        kind: 'todo_create',
+        title,
+        fromShopping: true,
+        deadlineDate: parsed.deadlineDate,
+        deadlineTime: parsed.deadlineTime,
+      }
+    }
+  }
+
   const noteUpdate = /^\s*ändere\s+(?:die\s+)?notiz\s+(.+?)\s+(?:zu|auf)\s+(.+)$/is.exec(text)
   if (noteUpdate) return { kind: 'note_update', query: noteUpdate[1].trim(), body: noteUpdate[2].trim() }
   const noteDelete = /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:die\s+)?notiz(?:\s+(.+?))?\s*[.!?]*$/is.exec(text)
@@ -174,8 +237,16 @@ export function parseToolIntent(text: string): ToolIntent | null {
   const listPrefix = LIST_PREFIX.exec(text)
   if (listPrefix) return { kind: 'todo_create', ...todoFromText(listPrefix[1]) }
 
+  if (/^\s*(?:bis|am)\s+/i.test(text)) {
+    const lead = datedTask(text)
+    if (lead) return lead
+  }
+
   const must = MUST_DO.exec(text)
   if (must) return { kind: 'todo_create', ...todoFromText(must[1]) }
+
+  const dated = datedTask(text)
+  if (dated) return dated
 
   const tail = TASK_TAIL.exec(text)
   if (tail && !/[?]/.test(text) && text.trim().length <= 60 && !/anrufen/i.test(tail[2])) {

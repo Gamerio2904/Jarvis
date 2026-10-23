@@ -8206,170 +8206,95 @@ html.theme-wipe-dark::before {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
-.home-folder-backdrop {
+.home-folder-back {
   position: fixed;
   inset: 0;
-  z-index: 55;
-  background: rgba(2, 6, 10, 0.55);
-  backdrop-filter: blur(6px);
-  animation: fxBackdropIn 240ms var(--ease-out);
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 46%),
+    rgba(2, 4, 8, 0.86);
 }
 
 .home-folder {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(420px, calc(100vw - 24px));
-  max-height: min(70dvh, 560px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  z-index: 60;
+  width: min(420px, calc(100vw - 28px));
   display: grid;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 20px;
+  gap: 16px;
+  padding: 18px 16px 14px;
+  border-radius: 22px;
   color: #f4f7fb;
-  background: rgba(8, 12, 18, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5);
-  animation: folderPop 260ms var(--ease-out);
+  background:
+    linear-gradient(180deg, rgba(18, 8, 12, 0.96), rgba(6, 8, 12, 0.96));
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.65),
+    0 18px 48px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  touch-action: pan-y;
 }
 
-@keyframes folderPop {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+.home-folder-name input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #f4f7fb;
+  font: inherit;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
 }
 
-@keyframes fxBackdropIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.home-folder-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.home-folder-name {
-  font-size: 1rem;
-  letter-spacing: -0.01em;
-}
-
-/* 9er-Raster: jede App im Ordner als Kachel antippbar. */
 .home-folder-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-  gap: 8px 4px;
-}
-
-.home-folder-cell {
-  position: relative;
-  display: grid;
-  min-width: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 8px;
+  min-height: 276px;
 }
 
 .home-folder-app {
-  appearance: none;
+  touch-action: manipulation;
+}
+
+.home-folder-slot {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto;
+  border-radius: 18px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.home-folder-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.home-folder-dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 99px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.home-folder-dots button.is-on {
+  background: var(--accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.home-folder-close {
+  justify-self: center;
   border: 0;
   background: transparent;
-  color: var(--text);
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-  padding: 4px 2px;
-  border-radius: 12px;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: transform 160ms var(--ease-out), background 160ms var(--ease-out);
-}
-
-.home-folder-app:active {
-  transform: scale(0.92);
-  background: color-mix(in srgb, var(--board-accent, #7dd3c7) 16%, transparent);
-}
-
-.home-folder-ico {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  color: var(--board-accent, #7dd3c7);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--board-accent, #7dd3c7) 18%, transparent), color-mix(in srgb, #041018 55%, transparent)),
-    radial-gradient(circle at 30% 24%, color-mix(in srgb, var(--board-accent, #7dd3c7) 22%, transparent) 0%, transparent 62%);
-  border: 1px solid color-mix(in srgb, var(--board-accent, #7dd3c7) 42%, transparent);
-}
-
-.home-folder-ico svg {
-  width: 16px;
-  height: 16px;
-}
-
-.home-folder-label {
-  font-size: 0.52rem;
-  line-height: 1.1;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   color: var(--text-muted);
-  text-align: center;
-}
-
-.home-folder-eject {
-  position: absolute;
-  top: -4px;
-  right: -2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 90, 98, 0.6);
-  background: rgba(30, 8, 12, 0.9);
-  color: #ff8a92;
-  font-size: 0.66rem;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  padding: 0;
-}
-
-.home-folder-rename {
-  display: grid;
-  gap: 6px;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.home-folder input,
-.home-folder button {
   font: inherit;
-}
-
-.home-folder input {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: inherit;
-  padding: 8px 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .glance-rail {

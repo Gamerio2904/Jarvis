@@ -30,6 +30,108 @@ import type { ToolMeta } from './tools.ts'
 export { parseReminderIntent } from './remind-parse.ts'
 export { formatDue }
 
+const LEAD_WORD: Record<string, number> = {
+  ein: 1,
+  eine: 1,
+  zwei: 2,
+  drei: 3,
+  vier: 4,
+  fünf: 5,
+  sechs: 6,
+  zwölf: 12,
+  vierundzwanzig: 24,
+}
+
+const LEAD_RE =
+  /^(?:bitte\s+)?erinner(?:e|n)?\s+mich(?:\s+daran)?(?:\s+bitte)?\s+(\d+|vierundzwanzig|eine?|zwei|drei|vier|fünf|sechs|zwölf)\s*(minuten?|stunden?|tage(?:n)?)\s+(?:davor|vorher)\s*$/i
+
+/** „Erinnere mich 24 Stunden davor“ — Minuten vor der letzten Frist, sonst null. */
+export function leadReminderMinutes(text: string): number | null {
+  const t = text.replace(/\s+/g, ' ').trim().replace(/[.!?]+$/g, '')
+  const hit = LEAD_RE.exec(t)
+  if (!hit) return null
+  const n = /^\d+$/.test(hit[1]) ? Number(hit[1]) : LEAD_WORD[hit[1].toLowerCase()]
+  if (!Number.isFinite(n) || n <= 0) return null
+  const unit = hit[2].toLowerCase()
+  if (unit.startsWith('min')) return n
+  if (unit.startsWith('stund')) return n * 60
+  return n * 24 * 60
+}
+
+function deadlineOf(date: string, time: string | null): Date {
+  const [y, mo, d] = date.split('-').map(Number)
+  const [hh, mm] = (time || '18:00').split(':').map(Number)
+  return new Date(y, (mo || 1) - 1, d || 1, hh || 18, mm || 0, 0, 0)
+}
+
+/** Hängt die Erinnerung an die zuletzt genannte Aufgabe oder den nächsten Termin. */
+export async function remindAheadOfLast(
+  conversationId: string,
+  text: string,
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
+  const minutes = leadReminderMinutes(text)
+  if (minutes == null) return { handled: false }
+  const todos = (await listTodos()).filter((todo) => todo.status !== 'done' && todo.deadline_date)
+  const todo = todos[0]
+  let title = ''
+  let at: Date | null = null
+  if (todo?.deadline_date) {
+    title = todo.title
+    at = deadlineOf(todo.deadline_date, todo.deadline_time || null)
+  } else {
+    const now = Date.now()
+    const events = (await listEvents())
+      .filter((event) => Date.parse(event.start_at) > now - 60_000)
+      .sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
+    const event = events[0]
+    if (event) {
+      title = event.title
+      at = new Date(event.start_at)
+    }
+  }
+  if (!title || !at) {
+    return {
+      handled: true,
+      reply: 'Woran soll ich Sie vorher erinnern? Nennen Sie zuerst die Aufgabe mit dem Tag.',
+      tool: { tool_status: 'ask', tool: 'reminder', action: 'ahead', label: 'Erinnerung' },
+    }
+  }
+  const due = new Date(at.getTime() - minutes * 60_000)
+  if (due.getTime() <= Date.now() - 5_000) {
+    return {
+      handled: true,
+      reply: `Die Frist ${formatDue(at)} liegt dafür zu nah. ${formatDue(due)} ist schon vorbei.`,
+      tool: { tool_status: 'error', tool: 'reminder', action: 'ahead', label: 'Zeit vorbei' },
+    }
+  }
+  const row = await addReminder({ title, due_at: due.toISOString(), conversationId })
+  const perm = await requestNotifyPermission()
+  const scheduled = await scheduleNotify({
+    id: notifyIdOf(row),
+    title: 'Ultron',
+    body: row.title,
+    at: due,
+    alarm: true,
+    tone: loadSettings().alarm_tone_uri,
+  })
+  await syncGlance()
+  const ping = perm && scheduled.ok
+    ? 'Klingelt auch bei Bildschirm aus.'
+    : 'Gespeichert. Benachrichtigung unter Android erlauben, sonst kein Klingeln.'
+  const ahead = minutes % 60 === 0 ? `${minutes / 60} Stunden davor` : `${minutes} Minuten davor`
+  return {
+    handled: true,
+    reply: `Ich erinnere Sie ${ahead}. ${row.title}, ${formatDue(due)}. ${ping}`,
+    tool: {
+      tool_status: 'executed',
+      tool: 'reminder',
+      action: 'create',
+      label: 'Erinnerung liegt',
+      preview: `${row.title} · ${formatDue(due)}`,
+    },
+  }
+}
+
 export async function handleReminders(
   conversationId: string,
   text: string,
@@ -65,7 +167,11 @@ export async function handleReminders(
       }
     }
   }
-  if (!intent) return { handled: false }
+  if (!intent) {
+    const ahead = await remindAheadOfLast(conversationId, text)
+    if (ahead.handled) return ahead
+    return { handled: false }
+  }
 
   if (intent.kind === 'create') {
     if (intent.due.getTime() <= Date.now() - 5_000) {

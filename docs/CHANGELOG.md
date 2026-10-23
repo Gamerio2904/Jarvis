@@ -3,6 +3,22 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.66.12` — Eine Stimme — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.12`** (versionCode `186612`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Jede Antwort bleibt auf einer Spur. Der erste Satz wählt Conrad, und nur wenn der fehlt Algieba. Die weiteren Sätze warten auf diese Wahl und fallen nicht mehr auf die Geräte-Stimme zurück. Die Geräte-Stimme spricht nur, wenn beide Neural-Wege für die ganze Antwort fehlen. MP3 und System-TTS stoppen einander, bevor eines startet.
+
+## `18.66.11` — Werkzeuge, Listen, Netz — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.11`** (versionCode `186611`). `engineStamp` bleibt **`18.60.0-ygo-md`**. Nachweis-Format bleibt **`jarvis-yugioh-proof-v1`**.
+
+Erkennt kein Parser den Satz, wählt das Modell Werkzeuge selbst. Der erste Satz erscheint, während sie laufen. Groq nimmt zuerst Modelle, die mehrere Werkzeuge parallel können. Schalten und Löschen über die Skill-Brücke warten auf „ja“. Lesen und Anlegen nicht. Gedächtnis, Notizen und Chats werden mit einem lokalen Hash-Embedding nachsortiert.
+
+„Nein auf die To-Do Liste“ verschiebt den letzten Einkaufsposten. „Müll runterbringen“ bleibt eine Aufgabe.
+
+Das Yu-Gi-Oh-Netz liest Phase, gegnerische Hand, Hinterreihe und beide Life Points hinter dem alten Bias. 38er-Gewichte bleiben ladbar. Training spielt gegen Skript, Heuristik, ein eingefrorenes Netz und eine kurze Suche. Der Wert-Kopf hat einen echten Gradienten, Self-Play-Seiten das richtige Vorzeichen, der Vorteil gilt pro Zug. Die Liga zählt Siege. Prüfseed und Holdout 918273 sind getrennt. Im Duell sucht Ultron mit kurzem Budget. Nachweis und Lauf-JSON exportieren wie bisher.
+
 ## `18.66.10` — Notfallprotokoll 187 — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.10`** (versionCode `186610`). `engineStamp` bleibt **`18.60.0-ygo-md`**.

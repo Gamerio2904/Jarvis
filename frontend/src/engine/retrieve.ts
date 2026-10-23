@@ -90,6 +90,55 @@ function isDebugConversation(c: Conversation | undefined): boolean {
   return Boolean(c && /^Debug \d{4}-/.test(c.title || ''))
 }
 
+const EMBED_DIM = 32
+
+/** Hashed n-Gramme, kein Download. Reihenfolge unter Treffern mit Wortüberlappung, plus nahe Paraphrasen im Gedächtnis. */
+function hashEmbed(text: string): Float64Array {
+  const vector = new Float64Array(EMBED_DIM)
+  const tokens = text
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/)
+    .filter((token) => token.length > 1)
+  const grams: string[] = []
+  for (const token of tokens) {
+    grams.push(token)
+    for (let i = 0; i < token.length - 1; i += 1) grams.push(token.slice(i, i + 2))
+  }
+  for (let i = 0; i < tokens.length - 1; i += 1) grams.push(`${tokens[i]}_${tokens[i + 1]}`)
+  for (const gram of grams) {
+    let hash = 2166136261
+    for (let i = 0; i < gram.length; i += 1) {
+      hash ^= gram.charCodeAt(i)
+      hash = Math.imul(hash, 16777619)
+    }
+    const index = (hash >>> 0) % EMBED_DIM
+    vector[index] += (hash & 1) === 0 ? 1 : -1
+  }
+  let norm = 0
+  for (let i = 0; i < EMBED_DIM; i += 1) norm += vector[i] * vector[i]
+  norm = Math.sqrt(norm)
+  if (norm > 0) for (let i = 0; i < EMBED_DIM; i += 1) vector[i] /= norm
+  return vector
+}
+
+function hashCosine(left: string, right: string): number {
+  const a = hashEmbed(left)
+  const b = hashEmbed(right)
+  let dot = 0
+  for (let i = 0; i < EMBED_DIM; i += 1) dot += a[i] * b[i]
+  return dot
+}
+
+function withEmbed(tokenScore: number, query: string, blob: string, paraphraseFloor: number, allowParaphrase: boolean): number {
+  if (tokenScore <= 0 && !allowParaphrase) return tokenScore
+  if (!query.trim() || !blob.trim()) return tokenScore
+  const cosine = hashCosine(query, blob)
+  if (tokenScore > 0) return tokenScore + 0.2 * Math.max(0, cosine)
+  return cosine >= 0.72 ? paraphraseFloor : tokenScore
+}
+
 function scoreBlob(q: string, blob: string): number {
   const n = q.toLowerCase()
   const b = blob.toLowerCase()
@@ -211,7 +260,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
         title: m.key,
         body: m.value,
         id: m.id,
-        rank: boostMemoryRank(text, m, scoreBlob(q, memoryBlob(m)) + 1.5),
+        rank: boostMemoryRank(text, m, withEmbed(scoreBlob(q, memoryBlob(m)), q, memoryBlob(m), 0.2, true) + 1.5),
       }))
       .filter((h) => h.rank > 1.5)
       .sort((a, b) => b.rank - a.rank)
@@ -231,7 +280,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
           store: 'messages',
           title: snippet.slice(0, 48),
           body: snippet,
-          rank: scoreBlob(q, m.content),
+          rank: withEmbed(scoreBlob(q, m.content), q, m.content, 2, false),
         }
       })
       .filter((h) => h.rank >= 2)
@@ -250,7 +299,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
         store: 'notes',
         title: 'Notiz',
         body: n.body.slice(0, 140),
-        rank: scoreBlob(q, n.body),
+        rank: withEmbed(scoreBlob(q, n.body), q, n.body, 0.4, true),
       }))
       .filter((h) => h.rank > 0)
     const remHits = reminders

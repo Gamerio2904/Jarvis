@@ -51,7 +51,7 @@ assert.ok(neighbors.includes('Öffne Watchliste'))
 assert.ok(neighbors.length <= 3)
 assert.match(unknownReply('Stell irgendwas mit der Watchliste an', routeForEval), /nicht eingebaut/)
 
-store.saveSettings({ groq_api_key: 'gsk_test', tool_propose: true })
+store.saveSettings({ groq_api_key: 'gsk_test', tool_propose: true, tool_agent: false })
 let calls = 0
 globalThis.fetch = async () => {
   calls += 1

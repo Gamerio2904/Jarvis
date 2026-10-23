@@ -55,7 +55,7 @@ function topicFrom(t: string): SettingsTopic {
 
 function parseFlagSet(t: string): Extract<UiAction, { id: 'settings.set' }> | null {
   const hit =
-    /^\s*(research|forschung|gemini|werkzeug(?:-|\s*)vorschlag|kugel-lite|tv-schalter)\s+(an|aus|ein|on|off)\s*[.!?]*$/i.exec(
+    /^\s*(research|forschung|gemini|werkzeug(?:-|\s*)vorschlag|werkzeug(?:-|\s*)agent|kugel-lite|tv-schalter)\s+(an|aus|ein|on|off)\s*[.!?]*$/i.exec(
       t,
     )
   if (!hit) return null

@@ -1020,9 +1020,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Conrad, die deutsche Edge-Neuralstimme, spricht die Antwort. Liegt ein Gemini-Schlüssel und Conrad
-                kommt nicht, spricht Algieba. Die Geräte-Stimme nur, wenn beide Neural-Wege fehlen. Navi-Ansagen bleiben
-                die Geräte-Stimme. Kein ElevenLabs, kein Stimmklon.
+                Eine Stimme für die ganze Antwort. Conrad spricht. Kommt er für diesen Satz nicht, spricht Algieba
+                den Rest — nicht abwechselnd, und nicht die Geräte-Stimme mitten im Satz. Die Geräte-Stimme nur, wenn
+                beide Neural-Wege für die Antwort fehlen. Navi-Ansagen bleiben die Geräte-Stimme. Kein ElevenLabs, kein
+                Stimmklon.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>

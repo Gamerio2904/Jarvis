@@ -21,6 +21,7 @@ export type JarvisFlag =
   | 'tv_enabled'
   | 'research_opt_in'
   | 'tool_propose'
+  | 'tool_agent'
   | 'hud_accent'
   | 'drive_speak'
   | 'globe_webgl'
@@ -30,6 +31,7 @@ export const JARVIS_FLAG_TITLES: Record<JarvisFlag, string> = {
   tv_enabled: 'Fernseher',
   research_opt_in: 'Research',
   tool_propose: 'Werkzeug-Vorschlag',
+  tool_agent: 'Werkzeug-Agent',
   hud_accent: 'Lage-Akzent',
   drive_speak: 'Fahrt-Stimme',
   globe_webgl: 'Kugel-Lite',
@@ -43,6 +45,8 @@ const TITLE_TO_FLAG: Record<string, JarvisFlag> = {
   'werkzeug-vorschlag': 'tool_propose',
   werkzeugvorschlag: 'tool_propose',
   vorschlag: 'tool_propose',
+  'werkzeug-agent': 'tool_agent',
+  werkzeugagent: 'tool_agent',
   'kugel-lite': 'globe_webgl',
   kugellite: 'globe_webgl',
   'tv-schalter': 'tv_enabled',

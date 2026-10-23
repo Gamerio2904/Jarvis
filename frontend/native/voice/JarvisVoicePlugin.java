@@ -589,6 +589,7 @@ public class JarvisVoicePlugin extends Plugin {
             tts.setSpeechRate(0.94f);
             tts.setPitch(0.90f);
             pickGermanVoice();
+            preemptPlayback();
             Bundle params = new Bundle();
             String utterId = "jarvis-voice-" + gen;
             int queued = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, utterId);
@@ -673,6 +674,11 @@ public class JarvisVoicePlugin extends Plugin {
             return;
         }
         call.setKeepAlive(true);
+        main.post(() -> {
+            if (tts != null) {
+                try { tts.stop(); } catch (Exception ignored) {}
+            }
+        });
         PluginCall prev = playCall;
         playCall = null;
         if (prev != null && prev != call) {
@@ -731,6 +737,19 @@ public class JarvisVoicePlugin extends Plugin {
             f.delete();
             finishPlay(false);
         }
+    }
+
+    /** Geräte-Stimme und MP3 dürfen nicht gleichzeitig laufen. */
+    private void preemptPlayback() {
+        playGen++;
+        stopMp3Player();
+        PluginCall prev = playCall;
+        playCall = null;
+        if (prev == null) return;
+        JSObject over = new JSObject();
+        over.put("ok", false);
+        over.put("message", "überholt");
+        prev.resolve(over);
     }
 
     private void stopMp3Player() {

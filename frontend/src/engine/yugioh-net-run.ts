@@ -91,7 +91,7 @@ export function notesForRun(result: SelfPlayResult | null, mode: 'fast' | 'step'
   const notes = [
     `Das Netz liest ${FEATURE_NAMES.length} Zugmerkmale. Kartennamen und Volltext sieht es nicht.`,
     'Suche, Brettaufbau, Zerstören, Verbannen, Schwächen, Boost, Mill und Abwerfen haben eigene Werte. effectValue ist die Lagebewertung von −1 bis 1.',
-    'Trainiert wird auf erzeugten Archetypen gegen die Skript-Engine. Burn kommt nur in der Erfolgsmessung vor.',
+    'Trainiert wird auf erzeugten Archetypen. Der Gegner wechselt zwischen Skript, Heuristik, einem eingefrorenen Netz und einer kurzen Suche. Burn kommt nur in der Erfolgsmessung vor.',
     'Erfolg ist die Holdout-Siegquote des gierigen Netzes. Remis zählt halb. Seed der Messung steht in versus.seed.',
     'Netz und Klon sind dasselbe Gewicht. Seite 0 ist Netz, Seite 1 ist Klon. Temperatur 0, keine Suche.',
   ]

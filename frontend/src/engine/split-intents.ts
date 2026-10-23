@@ -12,8 +12,20 @@ function partIsToolish(part: string): boolean {
 const SPLIT = /\s+und\s+|\s+dann\s+|\s+danach\s+|\s*,\s+|(?<=[a-zäöüß])\.\s+(?=[A-ZÄÖÜ])/i
 
 /** Tool-Sätze an und/dann/Komma. Memory-Sätze bleiben ganz. */
+/** „…, achso und wir brauchen noch Milch“ ist ein zweiter Auftrag, auch in einer Frage. */
+function peelSideJob(raw: string): string[] | null {
+  const hit = /^([\s\S]+?)\s*,?\s*(?:achso|übrigens|ausserdem|außerdem)\s+und\s+(.+)$/i.exec(raw)
+  if (!hit) return null
+  const head = hit[1].trim().replace(/[,.\s]+$/g, '')
+  const tail = hit[2].trim()
+  if (head.length < 8 || tail.length < 8) return null
+  return [head, tail]
+}
+
 export function splitIntents(text: string): string[] {
   const raw = text.trim()
+  const peeled = peelSideJob(raw)
+  if (peeled) return peeled
   if (!raw || MEMORY_WRITE.test(raw)) return [raw]
   if (/[?？]\s*$/.test(raw) || /^(?:was|wie|wer|wo|wann|warum|wieso|weshalb|welche[rsnm]?)\b/i.test(raw)) {
     return [raw]
