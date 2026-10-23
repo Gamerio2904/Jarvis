@@ -8,7 +8,7 @@ import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 import { recordLocalRevision } from './sync-revisions.ts'
 
-export const APP_VERSION = '18.66.15'
+export const APP_VERSION = '18.67.0'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -84,6 +84,7 @@ export type MemoryItem = {
 export type Note = {
   id: string
   body: string
+  tags?: string[]
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -101,6 +102,7 @@ export type Todo = {
   title: string
   status: 'open' | 'done' | string
   list_id?: string
+  tags?: string[]
   deadline_date?: string | null
   deadline_time?: string | null
   /** Termin, der diese Deadline im Kalender zeigt. */
@@ -873,7 +875,7 @@ let dbPromise: Promise<IDBDatabase> | null = null
 function openDb(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise
   dbPromise = new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 17)
+    const req = indexedDB.open('jarvis-ondevice', 18)
     req.onupgradeneeded = (evt) => {
       const db = req.result
       const oldVersion = (evt.oldVersion as number) || 0
@@ -902,6 +904,7 @@ function openDb(): Promise<IDBDatabase> {
         'rm_scene_skills',
         'memory_proposals',
         'todo_lists',
+        'library',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -1270,6 +1273,7 @@ export async function addTodo(
     deadlineTime?: string | null
     eventId?: string | null
     linkOnly?: boolean
+    tags?: string[]
   } = {},
 ): Promise<Todo> {
   const cleanTitle = title.trim()
@@ -1278,11 +1282,13 @@ export async function addTodo(
   await requireTodoList(listId)
   validateTodoDeadline(opts.deadlineDate, opts.deadlineTime)
   const now = nowIso()
+  const { extractTags, mergeTags, stripTags } = await import('./tags.ts')
   const row: Todo = {
     id: newId(),
-    title: cleanTitle,
+    title: stripTags(cleanTitle) || cleanTitle,
     status: 'open',
     list_id: listId,
+    tags: mergeTags(extractTags(cleanTitle), opts.tags),
     deadline_date: opts.deadlineDate || null,
     deadline_time: opts.deadlineTime || null,
     event_id: opts.eventId || null,
@@ -1312,7 +1318,7 @@ export async function setTodoStatus(id: string, status: string): Promise<void> {
 
 export async function updateTodo(
   id: string,
-  patch: { title?: string; listId?: string; deadlineDate?: string | null; deadlineTime?: string | null; eventId?: string | null },
+  patch: { title?: string; listId?: string; deadlineDate?: string | null; deadlineTime?: string | null; eventId?: string | null; tags?: string[] },
 ): Promise<Todo> {
   const row = await get<Todo>('todos', id)
   if (!row) throw new Error('Das Todo existiert nicht mehr.')
@@ -1327,6 +1333,7 @@ export async function updateTodo(
     ...row,
     title,
     list_id: listId,
+    tags: patch.tags === undefined ? row.tags || [] : patch.tags,
     deadline_date: deadlineDate,
     deadline_time: deadlineTime,
     event_id: patch.eventId === undefined ? row.event_id || null : patch.eventId,
@@ -1372,12 +1379,14 @@ export async function listNotes(conversationId?: string): Promise<Note[]> {
     .sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
 }
 
-export async function addNote(body: string, conversationId?: string): Promise<Note> {
+export async function addNote(body: string, conversationId?: string, opts: { tags?: string[] } = {}): Promise<Note> {
   const cleanBody = body.trim()
   if (!cleanBody) throw new Error('Eine Notiz darf nicht leer sein.')
+  const { extractTags, mergeTags } = await import('./tags.ts')
   const row: Note = {
     id: newId(),
     body: cleanBody,
+    tags: mergeTags(extractTags(cleanBody), opts.tags),
     source_conversation_id: conversationId || null,
     created_at: nowIso(),
     updated_at: nowIso(),
@@ -1387,12 +1396,14 @@ export async function addNote(body: string, conversationId?: string): Promise<No
   return row
 }
 
-export async function updateNote(id: string, body: string): Promise<Note> {
+export async function updateNote(id: string, body: string, tags?: string[]): Promise<Note> {
   const row = await get<Note>('notes', id)
   if (!row) throw new Error('Die Notiz existiert nicht mehr.')
   const cleanBody = body.trim()
   if (!cleanBody) throw new Error('Eine Notiz darf nicht leer sein.')
-  const updated = { ...row, body: cleanBody, updated_at: nowIso() }
+  const { extractTags, mergeTags } = await import('./tags.ts')
+  const nextTags = tags === undefined ? mergeTags(row.tags, extractTags(cleanBody)) : tags
+  const updated = { ...row, body: cleanBody, tags: nextTags, updated_at: nowIso() }
   await put('notes', updated)
   emitHouse('jarvis-notes')
   return updated

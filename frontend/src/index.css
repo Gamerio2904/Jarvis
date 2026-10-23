@@ -11859,3 +11859,158 @@ html[data-device='desktop'] .messages {
     box-shadow: 0 0 0 12px rgba(255, 59, 78, 0);
   }
 }
+
+/* ---------- Tags: farbige Rahmen, Filter, Chips (Todos, Notizen, Bibliothek) ---------- */
+.tag-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 16px 2px;
+}
+
+.tag-chip {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.tag-chip.is-on {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.tag-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.tag-chip.is-static {
+  font-style: normal;
+  font-size: 0.64rem;
+  padding: 3px 7px;
+  cursor: default;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.tag-edit-row {
+  display: grid;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 2px 0 10px;
+}
+
+.tag-edit-row input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+}
+
+/* ---------- Bibliothek ---------- */
+.library-overlay .watch-head p {
+  color: var(--text-muted);
+}
+
+.library-busy {
+  padding: 4px 16px;
+  font-size: 0.74rem;
+  color: color-mix(in srgb, var(--accent) 70%, var(--text));
+}
+
+.library-card strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.library-kind {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 75%, var(--text));
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 6px;
+  padding: 2px 5px;
+}
+
+.library-preview {
+  width: 100%;
+  max-height: 42dvh;
+  object-fit: contain;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.library-text {
+  margin: 0;
+  max-height: 30dvh;
+  overflow: auto;
+  font-family: var(--mono, 'Sarasa Mono SC', monospace);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.28);
+  padding: 10px 12px;
+  color: var(--text);
+}
+
+.library-summary {
+  margin: 10px 0 4px;
+  display: grid;
+  gap: 4px;
+}
+
+.library-summary h3 {
+  margin: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.library-summary p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.library-detail .library-tag-edit {
+  display: grid;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 8px 0 12px;
+}
+
+.library-detail .library-tag-edit input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font: inherit;
+}

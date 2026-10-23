@@ -13,6 +13,8 @@ import {
   type Reminder,
   type ShoppingItem,
 } from './store.ts'
+import { listLibrary } from './files.ts'
+import type { LibraryEntry } from './files.ts'
 import { formatDue } from './remind-parse.ts'
 import { qualityPack } from './quality-pack.ts'
 import { aliasQueries, expandBlob, utteranceHints } from './memory-alias.ts'
@@ -237,6 +239,7 @@ export type RetrieveCorpus = {
   reminders?: Reminder[]
   shopping?: ShoppingItem[]
   knowledge?: KnowledgePack[]
+  library?: LibraryEntry[]
 }
 
 export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): RetrieveHit[] {
@@ -250,6 +253,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
   const reminders = corpus.reminders || []
   const shopping = corpus.shopping || []
   const knowledge = corpus.knowledge || []
+  const library = corpus.library || []
   const pool = structuredMemoryPool(text, memory)
   const memSource = pool === null ? memory : pool
   const lists: RetrieveHit[][] = []
@@ -330,14 +334,26 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
         }
       })
       .filter((h) => h.rank > 2.2)
-    lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...knowHits, ...msgHits])
+    const libHits = library
+      .map((entry) => {
+        const blob = [entry.name, (entry.tags || []).join(' '), entry.summary || '', entry.text || ''].join(' ')
+        return {
+          store: 'library',
+          title: `Bibliothek: ${entry.name}`,
+          body: (entry.summary || entry.text || entry.name).slice(0, 200),
+          id: entry.id,
+          rank: scoreBlob(q, blob) + 2.4,
+        }
+      })
+      .filter((h) => h.rank > 2.4)
+    lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...knowHits, ...libHits, ...msgHits])
   }
   const fused = expandHops(rrf(lists), memory).sort((a, b) => b.rank - a.rank).slice(0, 6)
   return applyE5Rerank(fused, text)
 }
 
 export async function retrieve(text: string): Promise<RetrieveHit[]> {
-  const [memory, messages, convs, events, notes, reminders, shopping, knowledge] = await Promise.all([
+  const [memory, messages, convs, events, notes, reminders, shopping, knowledge, library] = await Promise.all([
     listMemory(),
     getAll<Message>('messages'),
     getAll<Conversation>('conversations'),
@@ -346,8 +362,9 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
     listReminders(),
     listShopping(),
     listKnowledgePacks(),
+    listLibrary(),
   ])
-  const hits = retrieveFromCorpus(text, { memory, messages, convs, events, notes, reminders, shopping, knowledge })
+  const hits = retrieveFromCorpus(text, { memory, messages, convs, events, notes, reminders, shopping, knowledge, library })
   rememberRecallHits(hits)
   return hits
 }

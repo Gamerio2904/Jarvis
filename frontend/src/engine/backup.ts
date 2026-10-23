@@ -43,6 +43,8 @@ import {
   type WatchMovie,
   type WatchedMovie,
 } from './store.ts'
+import { listLibrary } from './files.ts'
+import type { LibraryEntry } from './files.ts'
 import { isPrefValue } from './memory-parse.ts'
 import type { ToolMeta } from './tools.ts'
 import { Capacitor } from '@capacitor/core'
@@ -160,6 +162,7 @@ export type HausBackup = {
   notes: Note[]
   todos: Todo[]
   todo_lists?: TodoList[]
+  library?: LibraryEntry[]
   ideas?: Idea[]
   plans?: Ablauf[]
   portfolio?: PortfolioRow[]
@@ -184,6 +187,7 @@ export type BackupPreview = {
   reminders: number
   events: number
     notes: number
+    library?: number
   ideas: number
   watch: number
   favorite: number
@@ -242,6 +246,7 @@ export function previewBackup(raw: unknown): BackupPreview {
     reminders: (data.reminders || []).length,
     events: (data.events || []).length,
     notes: (data.notes || []).length,
+    library: (data.library || []).length,
     ideas: (data.ideas || []).length,
     watch: (data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length,
     favorite: (data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length,
@@ -272,6 +277,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     reminders: arr(o.reminders),
     events,
     notes: arr(o.notes),
+    library: Object.prototype.hasOwnProperty.call(o, 'library') ? arr(o.library) : undefined,
     todos: arr(o.todos),
     ideas: normalizeBackupIdeas(o.ideas),
     plans: Object.prototype.hasOwnProperty.call(o, 'plans') ? arr(o.plans) : undefined,
@@ -416,6 +422,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     reminders: await listReminders(),
     events,
     notes: await listNotes(),
+    library: await listLibrary(),
     todos: await listTodos(),
     todo_lists: await listTodoLists(),
     ideas: await listIdeas(),
@@ -456,6 +463,7 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   await replaceStore('reminders', data.reminders || [])
   await replaceStore('events', data.events || [])
   await replaceStore('notes', data.notes || [])
+  if (data.library) await replaceStore('library', data.library)
   if (data.todo_lists) await replaceStore('todo_lists', data.todo_lists)
   await listTodoLists()
   await replaceStore('todos', data.todos || [])

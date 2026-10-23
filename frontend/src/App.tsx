@@ -71,6 +71,7 @@ import { isCoreId, type CoreId } from './engine/core-brains.ts'
 import { CoreOverlay } from './ui/CoreOverlay.tsx'
 import { NotesOverlay } from './ui/NotesOverlay.tsx'
 import { TodoListsOverlay } from './ui/TodoListsOverlay.tsx'
+import { LibraryOverlay } from './ui/LibraryOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
 import { PcDashboard } from './ui/PcDashboard.tsx'
 import { VoiceMode } from './ui/VoiceMode.tsx'
@@ -362,6 +363,7 @@ function App() {
   const [coreFlash, setCoreFlash] = useState<{ brain: CoreId; from?: CoreId } | null>(null)
   const [notesOpen, setNotesOpen] = useState(false)
   const [todosOpen, setTodosOpen] = useState(false)
+  const [libraryOpen, setLibraryOpen] = useState(false)
   const overlayHistRef = useRef(false)
   const tischWasRef = useRef<boolean | null>(null)
   const planAtRef = useRef<number | null>(null)
@@ -518,6 +520,23 @@ function App() {
   function closeTodos() {
     setTodosOpen(false)
     dropOverlayHistory()
+  }
+
+  function closeLibrary() {
+    setLibraryOpen(false)
+    dropOverlayHistory()
+  }
+
+  function openLibrarySheet() {
+    setLibraryOpen(true)
+    setNotesOpen(false)
+    setTodosOpen(false)
+    setShoppingOpen(false)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    setSettingsPanelOpen(false)
+    setSidebarOpen(false)
+    closeVoice()
   }
 
   function openNotesSheet() {
@@ -952,9 +971,12 @@ function App() {
     const onTodos = () => openTodosSheet()
     window.addEventListener('jarvis-open-notes', onNotes)
     window.addEventListener('jarvis-open-todos', onTodos)
+    const onLibrary = () => openLibrarySheet()
+    window.addEventListener('jarvis-open-library', onLibrary)
     return () => {
       window.removeEventListener('jarvis-open-notes', onNotes)
       window.removeEventListener('jarvis-open-todos', onTodos)
+      window.removeEventListener('jarvis-open-library', onLibrary)
     }
   })
 
@@ -2113,6 +2135,7 @@ function App() {
   const weltLayer = useOverlay(weltOpen)
   const notesLayer = useOverlay(notesOpen)
   const todosLayer = useOverlay(todosOpen)
+  const libraryLayer = useOverlay(libraryOpen)
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
   const lageOn = !homeOpen && (lageWide
@@ -2361,6 +2384,10 @@ function App() {
     }
     if (id === 'todos') {
       openTodosSheet()
+      return
+    }
+    if (id === 'library') {
+      openLibrarySheet()
       return
     }
     openSettings('keys')
@@ -2776,6 +2803,7 @@ function App() {
         ) : null}
         {notesLayer.shown ? <NotesOverlay leaving={notesLayer.leaving} onClose={closeNotes} /> : null}
         {todosLayer.shown ? <TodoListsOverlay leaving={todosLayer.leaving} onClose={closeTodos} /> : null}
+        {libraryLayer.shown ? <LibraryOverlay leaving={libraryLayer.leaving} onClose={closeLibrary} /> : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {

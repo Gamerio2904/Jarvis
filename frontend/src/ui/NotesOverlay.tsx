@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react'
 import { addNote, deleteNote, listNotes, updateNote, type Note } from '../engine/store.ts'
+import { allTags, filterByTags, sortByTags, tagColor } from '../engine/tags.ts'
 
 export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void; leaving?: boolean }) {
   const [notes, setNotes] = useState<Note[]>([])
@@ -10,6 +11,9 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState('')
   const [sheetDrag, setSheetDrag] = useState(0)
+  const [activeTags, setActiveTags] = useState<string[]>([])
+  const [sortByTag, setSortByTag] = useState(false)
+  const [tagDraft, setTagDraft] = useState('')
   const sheetStartY = useRef<number | null>(null)
   const sheetDragRef = useRef(0)
 
@@ -32,23 +36,33 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
   function startEdit(note?: Note) {
     setEditing(note || null)
     setBody(note?.body || '')
+    setTagDraft((note?.tags || []).join(', '))
     setEditorOpen(true)
   }
 
   function closeEditor() {
     setEditing(null)
     setBody('')
+    setTagDraft('')
     setEditorOpen(false)
     setSheetDrag(0)
     sheetStartY.current = null
+  }
+
+  function parseTagDraft(): string[] {
+    return tagDraft
+      .split(/[,\s]+/)
+      .map((raw) => raw.replace(/^#/, '').trim())
+      .filter(Boolean)
   }
 
   async function save() {
     const text = body.trim()
     if (!text) return
     try {
-      if (editing) await updateNote(editing.id, text)
-      else await addNote(text)
+      const tags = parseTagDraft()
+      if (editing) await updateNote(editing.id, text, tags.length ? tags : undefined)
+      else await addNote(text, undefined, { tags })
       closeEditor()
       await refresh()
     } catch (cause) {
@@ -94,7 +108,10 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
     setSheetDrag(0)
   }
 
-  const filtered = notes.filter((note) => note.body.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
+  const filtered = sortByTag
+    ? sortByTags(filterByTags(notes.filter((note) => note.body.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())), activeTags))
+    : filterByTags(notes.filter((note) => note.body.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())), activeTags)
+  const tagPool = allTags(notes)
   return (
     <div className={`watch-overlay notes-overlay fx-in${leaving ? ' is-leaving' : ''}`}>
       <header className="watch-head">
@@ -126,12 +143,21 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
             </header>
             <textarea
               aria-label="Notiztext"
-              placeholder="Notiz schreiben"
+              placeholder="Notiz schreiben — #tags werden automatisch Merkmal"
               value={body}
               onChange={(event) => setBody(event.target.value)}
               rows={6}
               autoFocus
             />
+            <label className="tag-edit-row">
+              Tags (Komma oder Leerzeichen, # optional)
+              <input
+                aria-label="Notiz-Tags"
+                placeholder="projekt arbeit ideen"
+                value={tagDraft}
+                onChange={(event) => setTagDraft(event.target.value)}
+              />
+            </label>
             <div className="notes-actions">
               {editing ? (
                 <button
@@ -154,12 +180,58 @@ export function NotesOverlay({ onClose, leaving = false }: { onClose: () => void
             <input type="search" aria-label="Notizen durchsuchen" placeholder="Notizen durchsuchen" value={query} onChange={(event) => setQuery(event.target.value)} />
             <button type="button" className="ghost-btn" onClick={() => startEdit()}>Neue Notiz</button>
           </div>
+          {tagPool.length ? (
+            <div className="tag-filter-row" role="group" aria-label="Notizen nach Tag filtern">
+              <button
+                type="button"
+                className={`tag-chip${activeTags.length ? '' : ' is-on'}`}
+                onClick={() => setActiveTags([])}
+              >
+                Alle
+              </button>
+              {tagPool.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`tag-chip${activeTags.includes(tag) ? ' is-on' : ''}`}
+                  style={activeTags.includes(tag) ? { borderColor: tagColor(tag), color: tagColor(tag) } : undefined}
+                  onClick={() =>
+                    setActiveTags((current) => (current.includes(tag) ? current.filter((row) => row !== tag) : [...current, tag]))
+                  }
+                >
+                  #{tag}
+                </button>
+              ))}
+              <button
+                type="button"
+                className={`tag-chip${sortByTag ? ' is-on' : ''}`}
+                onClick={() => setSortByTag((on) => !on)}
+                aria-pressed={sortByTag}
+              >
+                nach Tag sortieren
+              </button>
+            </div>
+          ) : null}
           <div className="notes-list">
             {filtered.map((note) => (
               <div key={note.id} className="notes-card-row">
-                <button type="button" className="notes-card workbench-card" onClick={() => startEdit(note)}>
+                <button
+                  type="button"
+                  className="notes-card workbench-card"
+                  style={note.tags?.length ? { borderColor: tagColor(note.tags[0]) } : undefined}
+                  onClick={() => startEdit(note)}
+                >
                   <strong>{note.body.split('\n')[0] || 'Leere Notiz'}</strong>
                   {note.body.includes('\n') ? <span>{note.body.slice(note.body.indexOf('\n') + 1)}</span> : null}
+                  {note.tags?.length ? (
+                    <span className="tag-chip-row">
+                      {note.tags.map((tag) => (
+                        <em key={tag} className="tag-chip is-static" style={{ borderColor: tagColor(tag), color: tagColor(tag) }}>
+                          #{tag}
+                        </em>
+                      ))}
+                    </span>
+                  ) : null}
                 </button>
                 <button
                   type="button"

@@ -183,6 +183,15 @@ function AppGlyph({ id }: { id: HomeAppId }) {
       </svg>
     )
   }
+  if (id === 'library') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" d="M4 4.5h6.5v15H4V4.5Z" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" d="M13.5 4.5H20v15h-6.5v-15Z" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M6.5 8h1.5M6.5 11h1.5M15.5 8H17M15.5 11H17M15.5 14h1.5" />
+      </svg>
+    )
+  }
   if (id === 'core') {
     return (
       <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
@@ -229,6 +238,10 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
   const [folderPage, setFolderPage] = useState(0)
   const folderSwipe = useRef<{ x: number; y: number; id: number } | null>(null)
   const folderMoved = useRef(false)
+  /** Schützt den Ordner vor dem Phantom-Klick: Der Browser feuert nach dem
+   * pointerup, der den Ordner öffnet, einen click auf den jetzt obenliegenden
+   * Backdrop — ohne Sperre schließt der den Ordner nach ~100 ms wieder. */
+  const folderOpenedAt = useRef(0)
   const [ghost, setGhost] = useState<{ x: number; y: number; label: string } | null>(null)
   const [hover, setHover] = useState<number | null>(null)
   const drag = useRef<{
@@ -286,7 +299,8 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     const current = drag.current
     if (!current || event.pointerId !== current.pointerId) return
     const distance = Math.hypot(event.clientX - current.x, event.clientY - current.y)
-    if (!current.dragging && distance > 6) {
+    // Zitternde Finger bis 12px bleiben ein Tap; erst danach beginnt ein Drag.
+    if (!current.dragging && distance > 12) {
       current.dragging = true
       window.clearTimeout(current.hold)
     }
@@ -309,7 +323,7 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     drag.current = null
     setGhost(null)
     setHover(null)
-    const moved = Math.hypot(event.clientX - current.x, event.clientY - current.y) > 6
+    const moved = Math.hypot(event.clientX - current.x, event.clientY - current.y) > 12
     const cell = layout.cells[current.from]
     // Langsamer Tap: Der Halte-Timer machte ihn zum Drag und der Klick starb.
     // Ohne echte Bewegung zählt jeder Druck als Antippen.
@@ -318,6 +332,7 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
       if (cell.kind === 'app') onOpen(cell.id)
       else {
         setFolderPage(0)
+        folderOpenedAt.current = Date.now()
         setOpenFolder(cell.folder.id)
       }
       return
@@ -386,7 +401,13 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
       ))}
       {ghost ? <div className="home-app-ghost" style={{ left: ghost.x, top: ghost.y }}>{ghost.label}</div> : null}
       {open ? (
-        <div className="home-folder-back" onClick={() => setOpenFolder(null)}>
+        <div
+          className="home-folder-back"
+          onClick={() => {
+            if (Date.now() - folderOpenedAt.current < 450) return
+            setOpenFolder(null)
+          }}
+        >
           <div
             className="home-folder"
             role="dialog"
