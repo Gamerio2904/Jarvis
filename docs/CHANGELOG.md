@@ -3,6 +3,20 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.68.0` — Fristen, Namen, QR-Scanner, Server-Sätze, Vollabgleich — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.68.0`** (versionCode `186800`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Fix: der **Frist-Parser** versteht „nächste Woche" auch falsch geschrieben („nähste", „näxte", „kommende") und legt „ich muss bis freitag nähste woche …" auf den Freitag der **nächsten** Woche — nicht mehr zufällig auf diese Woche. Ohne Wochentag fällt „bis nächste Woche" auf den Montag der nächsten Woche. Todos und Einkaufsposten heißen nicht mehr 1:1 wie der Satz: der Parser bildet selbstständig einen passenden Namen („setzte minecraft auf todoliste" → **Minecraft**, „ich muss bis freitag … hausaufgaben in gm machen" → **Hausaufgaben in GM machen**) und der Werkzeug-Agent bekommt dieselbe Regel in seine Werkzeugbeschreibung. Todos landen offen — niemals als erledigt.
+
+Fix: **„ergänze tag amazon"** ging vorher auf die Einkaufsliste und in den Sprintplan. Tag-Sätze haben jetzt Vorfahrt: ohne Ziel trifft der Tag den zuletzt berührten Eintrag (sonst das neueste offene Todo, sonst die neueste Notiz), „tag minecraft mit amazon" sucht das Ziel selbst (Todo → Notiz → Bibliothek). Einkauf und Planung fassen Tag-Sätze nicht mehr an.
+
+Neu: der **allgemeine QR-Scanner**. „Scanne QR Code" öffnet einen Scanner, der jeden Code liest — Kopplungscodes koppeln das Gerät sofort und gleichen den Hausstand direkt ab, Links öffnen sich per Knopf, jeder andere Text wird angezeigt und kann kopiert werden. Neu: **„starte server"** (Gerät 1) startet den HTTPS-Hausstand-Server und legt den Kopplungs-QR in den Chat, **„verbinde mit server"** (Gerät 2) gleicht sofort ab oder öffnet den Scanner.
+
+Neu: der **Hausstand-Vollabgleich** schließt den Startbildschirm ein — Ordner-Raster und App-Layout (`home_layout_json`) reisen mit, Layout-Änderungen heben den Stand-Zeitstempel, beim Vereinigen gewinnt das Layout des neueren Geräts. Die **Bibliothek** fehlte im Merge-Pfad und wird jetzt mit vereinigt. Kalender öffnet garantiert in der **Monatsansicht**; der Ordner-Dialog passt auf schmalen Handy-Displays (Icons kleiner, Dialog scrollbar) und der Tap-Start hat einen Klick-Fallback für Handys.
+
+Fix: **Antwortzeiten** — der Werkzeug-Agent überspringt den letzten Modell-Rundgang, wenn nur Schreib-Werkzeuge gelaufen sind (Erinnerung, Todo, Einkauf, Timer, Wecker, Termin, Notiz, Merksatz) und antwortet sofort aus den Vorschauen. Testsuite wächst um `test:round2`; Beispielprompts und Testanleitung in [`TEST-18.68.0.md`](./TEST-18.68.0.md).
+
 ## `18.67.0` — Bibliothek, Tags, Ordner-Fix — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.67.0`** (versionCode `186700`). `engineStamp` bleibt **`18.60.0-ygo-md`**.

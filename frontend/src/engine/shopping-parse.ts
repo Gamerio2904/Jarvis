@@ -141,6 +141,8 @@ function parseAdd(text: string): ShopIntent | null {
   if (TIMED.test(text)) return null
   if (/\b(?:aufgaben|aufgabenliste|todos?)\b/i.test(text)) return null
   const bare = text.replace(TAIL, '').trim()
+  // „ergänze tag amazon“ ist ein Tag-Befehl, kein Einkaufsposten.
+  if (/^\s*tag\b/i.test(bare.replace(SHOP_LEAD, '').trim()) || /\btag\s+[#a-zäöüß0-9_-]+\s+(?:hinzu|dazu)\s*$/i.test(bare)) return null
   const shop = bare.replace(SHOP_LEAD, '').trim()
   const forced = shop !== bare
   const fromList = addFromList(shop) || addFromList(bare.replace(PLACE_LEAD, '').trim())
@@ -148,6 +150,9 @@ function parseAdd(text: string): ShopIntent | null {
   const prefixed = ADD_PREFIX.exec(shop) || ADD_PREFIX.exec(bare)
   if (prefixed) return asAdd(prefixed[1])
   if (forced && shopSubject(shop)) return asAdd(shop)
+  // Imperativ ohne Listennamen: „kauf Minecraft“, „hol Milch“.
+  const imperativeBuy = /^\s*(?:kauf|kaufe|besorg(?:e)?|hol(?:e)?)\s+(?:mir\s+)?(?:noch\s+)?(.{2,80}?)\s*$/i.exec(bare)
+  if (imperativeBuy && !/[?]/.test(bare) && shopSubject(imperativeBuy[1])) return asAdd(imperativeBuy[1])
   const buy = ADD_BUY.exec(bare)
   if (buy && !/[?]/.test(bare) && shopSubject(buy[1])) return asAdd(buy[1])
   return null
@@ -198,6 +203,10 @@ function tidyItem(raw: string): string {
   let t = clean(raw)
     .replace(/^(?:und|sowie|plus|auch|noch|bitte|mal)\s+/i, '')
     .replace(/^(?:ein(?:e[mnrs]?)?|den|die|das|dem)\s+/i, '')
+    .trim()
+  // Anfassende Verben gehören nicht in den Postennamen: „kauf Minecraft“ → „Minecraft“.
+  t = t
+    .replace(/^(?:kauf|kaufe|kaufte|besorg|besorge|hol|hole|beschauf)\s+(?:mir\s+)?(?:noch\s+)?/i, '')
     .trim()
   t = t.replace(SHOP_LEAD, '').replace(PLACE_LEAD, '').trim()
   if (t.length < 2 || t.length > 64) return ''

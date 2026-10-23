@@ -83,6 +83,22 @@ export type AgentTool = {
 const MAX_STEPS = 5
 const MAX_TOOL_DATA = 3500
 
+/**
+ * Schreib-Werkzeuge mit fertigem Ergebnis. Wenn nur diese gelaufen sind,
+ * antwortet der Agent sofort aus den Vorschauen — ohne den zusätzlichen
+ * Modell-Rundgang, der Antworten sonst spürbar verlangsamt.
+ */
+const INSTANT_TOOLS = new Set([
+  'create_reminder',
+  'create_calendar_event',
+  'set_timer',
+  'set_alarm',
+  'add_todo',
+  'add_shopping_items',
+  'add_note',
+  'remember_fact',
+])
+
 function str(v: unknown): string {
   return typeof v === 'string' ? v.replace(/\p{Cc}/gu, ' ').replace(/\s+/g, ' ').trim() : ''
 }
@@ -375,11 +391,12 @@ export const AGENT_TOOLS: AgentTool[] = [
   },
   {
     name: 'add_todo',
-    description: 'Add a task to the user\'s todo list, optionally with a due date.',
+    description:
+      'Add a task to the user\'s todo list, optionally with a due date. Write a clean German task name: no leading verbs (never "setze", "kauf", "mach"), no filler words. "setzte minecraft auf die todoliste" → title "Minecraft". "ich muss bis freitag hausaufgaben in gm machen" → title "Hausaufgaben in GM machen", due_date = Friday.',
     parameters: {
       type: 'object',
       properties: {
-        title: { type: 'string', description: 'The task, short German phrase.' },
+        title: { type: 'string', description: 'Clean short German task name without leading verbs or filler words.' },
         due_date: { type: 'string', description: 'Optional YYYY-MM-DD.' },
         due_time: { type: 'string', description: 'Optional HH:MM, only together with due_date.' },
       },
@@ -416,11 +433,12 @@ export const AGENT_TOOLS: AgentTool[] = [
   },
   {
     name: 'add_shopping_items',
-    description: 'Put one or more items on the shopping list (Einkaufsliste). Split "Milch, Eier und Brot" into three items.',
+    description:
+      'Put one or more items on the shopping list (Einkaufsliste). Split "Milch, Eier und Brot" into three items. Clean item names: no leading verbs ("kauf Minecraft" → "Minecraft").',
     parameters: {
       type: 'object',
       properties: {
-        items: { type: 'array', items: { type: 'string' }, description: 'Items, each a short German noun phrase.' },
+        items: { type: 'array', items: { type: 'string' }, description: 'Items, each a short German noun phrase without leading verbs.' },
       },
       required: ['items'],
     },
@@ -946,6 +964,12 @@ export async function runToolAgent(env: ToolEnv, history: HistoryMsg[] = []): Pr
             ? { ...research, sources: [...(research.sources || []), ...res.research.sources] }
             : res.research
         }
+      }
+      // Alles erledigt, nichts zu lesen, nichts offen → sofort fertig statt
+      // noch einem Modell-Lauf hinterherzujagen.
+      if (used.length && used.every((u) => u.ok && !u.pending && INSTANT_TOOLS.has(u.name))) {
+        reply = `Erledigt: ${used.map((u) => u.preview || toolLabel(u.name)).join('; ')}.`
+        break
       }
     }
     pushAgentTrace({

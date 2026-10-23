@@ -23,13 +23,26 @@ export function mergeRows<T extends Row>(local: T[] | undefined, remote: T[] | u
   return [...map.values()]
 }
 
-function fillSettings(local: Partial<Settings>, remote: Partial<Settings>): Partial<Settings> {
+function fillSettings(
+  local: Partial<Settings>,
+  remote: Partial<Settings>,
+  localStand = '',
+  remoteStand = '',
+): Partial<Settings> {
   const out: Partial<Settings> = { ...local }
   const bag = out as Record<string, unknown>
+  const remoteNewer = Date.parse(remoteStand || '') > Math.max(Date.parse(localStand || ''), 0)
   for (const [key, value] of Object.entries(remote)) {
     if (key === 'sync_token' || key === 'sync_url' || key === 'sync_fingerprint') continue
     if (typeof value !== 'string' || !value.trim()) continue
     const current = bag[key]
+    // Startbildschirm mit Ordner-Layout reist mit dem Abgleich: der Stand mit
+    // dem neueren Hausstand bestimmt das Layout, nicht die Zufallslage.
+    if (key === 'home_layout_json') {
+      const localEmpty = !(typeof current === 'string' && current.trim())
+      if (localEmpty || remoteNewer) bag[key] = value
+      continue
+    }
     if (typeof current === 'string' && !current.trim()) bag[key] = value
   }
   return out
@@ -48,9 +61,10 @@ export function mergeHaus(local: HausBackup, remote: HausBackup): MergeReport {
   for (const list of lists) {
     for (const row of list || []) if (row?.id) before.add(row.id)
   }
+  if (local.library) for (const row of local.library) if (row?.id) before.add(row.id)
   const backup: HausBackup = {
     ...local,
-    settings: fillSettings(local.settings || {}, remote.settings || {}),
+    settings: fillSettings(local.settings || {}, remote.settings || {}, local.stand_at || '', remote.stand_at || ''),
     memory: mergeRows(local.memory, remote.memory),
     reminders: mergeRows(local.reminders, remote.reminders),
     events: mergeRows(local.events, remote.events),
@@ -70,6 +84,7 @@ export function mergeHaus(local: HausBackup, remote: HausBackup): MergeReport {
     memory_proposals: mergeRows(local.memory_proposals, remote.memory_proposals),
     conversations: mergeRows(local.conversations, remote.conversations),
     messages: mergeRows(local.messages, remote.messages),
+    library: mergeRows(local.library, remote.library),
   }
   let added = 0
   const after = [
@@ -77,6 +92,7 @@ export function mergeHaus(local: HausBackup, remote: HausBackup): MergeReport {
     backup.ideas, backup.plans, backup.portfolio, backup.drafts, backup.watch_movies, backup.watched_movies,
     backup.shopping, backup.shopping_lists, backup.price_watches, backup.knowledge_packs,
     backup.memory_proposals, backup.conversations, backup.messages,
+    backup.library,
   ]
   for (const list of after) {
     for (const row of list || []) if (row?.id && !before.has(row.id)) added += 1

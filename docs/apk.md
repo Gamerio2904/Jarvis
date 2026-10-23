@@ -1,12 +1,14 @@
-# Android-APK — Test-Build `18.67.0`
+# Android-APK — Test-Build `18.68.0`
 
-Test-Build **`18.67.0`** (versionCode `186700`), debug-signiert:
+Test-Build **`18.68.0`** (versionCode `186800`), debug-signiert:
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Dieselbe Nummer steht in `frontend/package.json` und `APP_VERSION`.
 `engineStamp` bleibt `18.60.0-ygo-md`. Die Android-Geräteabnahme mit ARCore
 steht noch aus. Diese APK ist nur zum Testen gedacht, keine finale
 Release-Freigabe.
+
+**Neu in 18.68.0:** Frist-Parser versteht „nächste Woche“ auch falsch geschrieben und legt den Termin in die nächste Woche; Todos heißen selbstständig benannt („Minecraft“ statt „Setzte minecraft“); „ergänze tag amazon“ trifft den letzten Eintrag statt der Einkaufsliste; allgemeiner QR-Scanner (liest jeden Code, Kopplung + sofortiger Abgleich); „starte server“ und „verbinde mit server“ per Satz; Hausstand-Vollabgleich inklusive Ordner-Layout und Bibliothek; Kalender öffnet in der Monatsansicht; schnellere Werkzeug-Antworten. Testanleitung: [`TEST-18.68.0.md`](./TEST-18.68.0.md).
 
 **Neu in 18.67.0:** Bibliothek (Bilder/Dokumente hochladen, Gemini liest Inhalte,
 Verknüpfungen statt redundanter Dateien im Hausstand), Tags für Todos und Notizen

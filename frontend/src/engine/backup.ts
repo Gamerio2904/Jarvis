@@ -2,7 +2,9 @@ import { listPlans, type Ablauf } from './ablauf.ts'
 import type { Draft } from './entwurf-muster.ts'
 import { listPortfolio, mirrorPortfolio, type PortfolioRow } from './portfolio.ts'
 import type { ChatBlock } from './chat-blocks.ts'
-import { offerHausQr, openHausScan, parseHausLink } from './haus-link.ts'
+import { offerHausQr, openQrScan, parseHausLink } from './haus-link.ts'
+import { serverQr, startDeskServer } from './server-desk.ts'
+import { isPaired, reconcilePairedStand } from './tablet-sync.ts'
 import {
   DEFAULT_SETTINGS,
   getAll,
@@ -586,10 +588,22 @@ export async function shareOrDownloadBackup(includeChats: boolean): Promise<stri
   return native.message || 'Datei nicht in Downloads geschrieben. Ordner Downloads prüfen oder nochmal.'
 }
 
-export function parseBackupIntent(text: string): 'export' | 'import' | 'offer' | 'scan' | 'sync_unavailable' | null {
+export function parseBackupIntent(
+  text: string,
+): 'export' | 'import' | 'offer' | 'scan' | 'start_server' | 'connect_server' | 'sync_unavailable' | null {
+  const t = text.trim()
+  // Server-Sätze zuerst: „verbinde mit server“ schlägt den allgemeinen Sync-Hinweis.
+  if (/(?:\b(?:starte|start)\w*\s+(?:den\s+|das\s+)?(?:hausstand[\s-]*)?server\b|\b(?:hausstand[\s-]*)?server\s+(?:starten|anmachen|anschalten|hochfahren)\b)/i.test(t)) {
+    return 'start_server'
+  }
+  if (
+    /\bverbind\w*\s+(?:(?:mich|ich)\s+)*(?:mit\s+)?(?:dem\s+|der\s+|zum\s+|zur\s+)?server\b/i.test(t) ||
+    /\bmit\s+(?:dem\s+|der\s+)?server\s+(?:verbind\w*|koppel\w*)\b/i.test(t)
+  ) {
+    return 'connect_server'
+  }
   const link = parseHausLink(text)
   if (link) return link
-  const t = text.trim()
   if (/\b(hausstand|einstellungen)\s+export(?:ieren)?\b/i.test(t) || /^\s*backup\s+export/i.test(t)) return 'export'
   if (/\b(hausstand|einstellungen)\s+import(?:ieren)?\b/i.test(t)) return 'import'
   return null
@@ -610,11 +624,47 @@ export async function handleBackup(
     }
   }
   if (intent === 'scan') {
-    openHausScan()
+    openQrScan()
     return {
       handled: true,
-      reply: 'Scanner ist offen. Den Code auf dem anderen Gerät vor die Kamera.',
-      tool: { tool_status: 'executed', tool: 'backup', action: 'scan', label: 'Hausstand' },
+      reply: 'Scanner ist offen. Er liest jeden QR-Code: Kopplung, Links, Texte.',
+      tool: { tool_status: 'executed', tool: 'backup', action: 'scan', label: 'QR-Scanner' },
+    }
+  }
+  if (intent === 'start_server') {
+    const health = await startDeskServer()
+    if (!health.running) {
+      return {
+        handled: true,
+        reply: `${health.message} In der App: Einstellungen → Server, oder „Tabletmodus an“ — dann nochmal „starte server“.`,
+        tool: { tool_status: 'error', tool: 'backup', action: 'server_start', label: 'Server' },
+      }
+    }
+    const code = serverQr()
+    return {
+      handled: true,
+      reply: code
+        ? `Server läuft im WLAN (${health.url || 'HTTPS'}). Auf dem anderen Gerät: „verbinde mit server“ sagen oder den Code scannen.`
+        : `Server läuft im WLAN (${health.url || 'HTTPS'}). Auf dem anderen Gerät: „verbinde mit server“ sagen oder den Code unter Einstellungen → Server scannen.`,
+      ...(code ? { blocks: [{ kind: 'image', src: code, alt: 'Kopplungs-Code', source: 'Hausstand' }] as ChatBlock[] } : {}),
+      tool: { tool_status: 'executed', tool: 'backup', action: 'server_start', label: 'Server läuft' },
+    }
+  }
+  if (intent === 'connect_server') {
+    const paired = await isPaired()
+    if (!paired) {
+      openQrScan()
+      return {
+        handled: true,
+        reply: 'Noch kein gekoppeltes Gerät. Der Scanner ist offen — den Kopplungs-Code vom Server-Gerät scannen.',
+        tool: { tool_status: 'executed', tool: 'backup', action: 'scan', label: 'Kopplung' },
+      }
+    }
+    const out = await reconcilePairedStand()
+    return {
+      handled: true,
+      reply: out.ok ? out.line : `${out.line} Im Server auf Verbinden tippen oder neu koppeln.`,
+      tool: { tool_status: out.ok ? 'executed' : 'error', tool: 'backup', action: 'connect', label: 'Abgleich' },
     }
   }
   if (intent === 'offer') {
