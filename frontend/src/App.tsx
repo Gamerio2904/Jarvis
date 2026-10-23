@@ -2796,6 +2796,7 @@ function App() {
               dropOverlayHistory()
             }}
           />
+          </PanelBoundary>
         ) : null}
         {serverLayer.shown ? (
           <PanelBoundary label="Server">
@@ -2811,6 +2812,7 @@ function App() {
               void sendVoiceTurn(text)
             }}
           />
+          </PanelBoundary>
         ) : null}
         {watchlistLayer.shown ? (
           <PanelBoundary label="Filme">
@@ -2820,6 +2822,7 @@ function App() {
             onFocus={setWatchlistFocus}
             onClose={closeWatchlist}
           />
+          </PanelBoundary>
         ) : null}
         {shoppingLayer.shown ? (
           <PanelBoundary label="Einkauf">
