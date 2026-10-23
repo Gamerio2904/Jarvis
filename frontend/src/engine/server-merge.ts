@@ -116,7 +116,7 @@ export function mergeHaus(local: HausBackup, remote: HausBackup): MergeReport {
   const before = new Set<string>()
   const lists = MERGE_LISTS.map((key) => local[key] as unknown[] | undefined)
   for (const list of lists) {
-    for (const row of list || []) if (row?.id) before.add((row as { id: string }).id)
+    for (const row of (list || []) as Array<{ id?: string } | null>) if (row?.id) before.add(row.id)
   }
   if (local.library) for (const row of local.library) if (row?.id) before.add(row.id)
   const mergedSettings = fillSettings(local.settings || {}, remote.settings || {}, local.stand_at || '', remote.stand_at || '')
@@ -150,7 +150,7 @@ export function mergeHaus(local: HausBackup, remote: HausBackup): MergeReport {
   let added = 0
   const after = MERGE_LISTS.map((key) => backup[key] as unknown[] | undefined)
   for (const list of after) {
-    for (const row of list || []) if (row?.id && !before.has((row as { id: string }).id)) added += 1
+    for (const row of (list || []) as Array<{ id?: string } | null>) if (row?.id && !before.has(row.id)) added += 1
   }
   return { backup, added }
 }

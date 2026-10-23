@@ -109,6 +109,7 @@ import { setPresenceChatHandler, syncPresenceBind } from './native/presence.ts'
 import { beginVoiceSession, endVoiceSession, listenOnce, speakText, consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice.ts'
 import { bindChromeFx, prefersReducedMotion } from './fx.ts'
 import { bindKeyboardInset } from './engine/keyboard-inset.ts'
+import { runDailyWatches } from './engine/briefing.ts'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify.ts'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate.ts'
 import { lageSessionActive, setLageSession } from './engine/lage-session.ts'
@@ -801,6 +802,17 @@ function App() {
     apply()
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
+  }, [])
+
+  // I8: Morgen-Briefing + Fristen-Wache — einmal pro Tag beim App-Start.
+  useEffect(() => {
+    const kick = () => void runDailyWatches().catch(() => null)
+    kick()
+    const onVis = () => {
+      if (!document.hidden) kick()
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
   useEffect(() => {

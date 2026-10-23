@@ -192,7 +192,8 @@ export function startJarvisPcServer(opts = {}) {
 
   return new Promise((resolve, reject) => {
     server.once('error', reject)
-    server.jarvisPcToken = finalToken
+    const tagged = /** @type {any} */ (server)
+    tagged.jarvisPcToken = finalToken
     server.listen(port, host, () => resolve(server))
   })
 }
@@ -205,7 +206,8 @@ if (isMain) {
   const stub = process.argv.includes('--stub')
   const host = process.env.JARVIS_PC_HOST || '0.0.0.0'
   const server = await startJarvisPcServer({ port, token, stub, host })
-  console.log(`Ultron PC ${stub ? 'stub' : 'node'} http://${host}:${port} token=${server.jarvisPcToken}`)
+  const listed = /** @type {any} */ (server)
+  console.log(`Ultron PC ${stub ? 'stub' : 'node'} http://${host}:${port} token=${listed.jarvisPcToken}`)
   console.log('Ohne JARVIS_PC_TOKEN ist der Schlüssel zufällig und gilt nur für diesen Start.')
   server.on('error', (err) => {
     console.error(err)

@@ -424,6 +424,8 @@ export type Settings = {
   /** Grabsteine gelöschter Einträge — reisen mit dem Abgleich, damit
    * Gelöschtes endlich gelöscht bleibt (B6). Format: [{id, at}] capped. */
   sync_tombstones_json: string
+  /** Letzter Tag, an dem Fristen-Wache/Morgen-Briefing gelaufen sind (I8). */
+  last_watch_day: string
   /** „Geändert am“ je Settings-Schlüssel — beim Abgleich gewinnt die jüngste
    * Änderung statt „leeres Feld füllen“ (B11). Format: {key: ISO}. */
   settings_stamps_json: string
@@ -668,6 +670,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sync_fingerprint: '',
   sync_tombstones_json: '',
   settings_stamps_json: '',
+  last_watch_day: '',
   tischplatte_view: 'sprints',
   workbench_open: false,
   tischplatte_focus: '',

@@ -85,6 +85,8 @@ import {
   type Message,
   type Settings,
 } from './store.ts'
+import { lookupSmalltalk, rememberSmalltalk } from './smalltalk-cache.ts'
+import { preheatEdgeTts } from './edge-tts.ts'
 import { handlePlaces } from './places.ts'
 import { handleReminders, leadReminderMinutes, remindAheadOfLast } from './reminders.ts'
 import { handlePc } from './pc.ts'
@@ -965,13 +967,26 @@ export async function streamChat(
       }
     }
     const spokenHint = opts?.voice ? voiceHintFor(routeNow) : ''
+    // T5: Die Sprach-Ausgabe verbindet sich schon, während das Modell denkt.
+    void preheatEdgeTts()
     let wantSearch = Boolean((geminiReady() && live) || accepted || contradictionAsk)
     let research: ResearchMeta | undefined
     let acc = ''
     let raw = ''
     let text = ''
 
-    for (let pass = 0; pass < 2; pass++) {
+    // Antwort-Cache: identische Smalltalk-Fragen sind nach dem ersten Mal
+    // sofort da — ohne ein einziges Modell.
+    const smallCached = lookupSmalltalk(ask)
+    if (smallCached) {
+      acc = smallCached
+      raw = smallCached
+      text = smallCached
+      setLatencyPath('parser')
+      handlers.onReplace?.(text)
+    }
+
+    for (let pass = 0; pass < 2 && !smallCached; pass++) {
       if (wantSearch && !researchHasSources(research)) {
         research = await fillResearchLinks(ask, '', research)
       }
@@ -1150,7 +1165,8 @@ export async function streamChat(
       break
     }
 
-    if (!wantSearch && (looksTruncated(text) || isSearchRefusal(text))) {
+    if (smallCached) rememberSmalltalk(ask, text)
+    if (!wantSearch && !smallCached && (looksTruncated(text) || isSearchRefusal(text))) {
       persistResearchOffer(ask, researchQuery(ask))
     }
     if (looksTruncated(text)) {

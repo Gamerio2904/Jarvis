@@ -39,6 +39,24 @@ export function edgeFirstTimeoutMs(inDrive = loadSettings().drive_mode): number 
   return inDrive ? EDGE_FIRST_MS_DRIVE : EDGE_FIRST_MS_STANDING
 }
 
+let preheatedAt = 0
+/** T5: Verbindung vorwärmen — DNS/TLS zur Edge-Sprachspur schon aufbauen,
+ * während das Modell noch denkt. Spart bis zu ~1 s auf der ersten Spur.
+ * Fire-and-forget: Fehler sind egal, es zählt nur die warme Leitung. */
+export function preheatEdgeTts(): void {
+  if (Date.now() - preheatedAt < 60_000) return
+  preheatedAt = Date.now()
+  if (typeof fetch !== 'function') return
+  try {
+    void fetch(
+      `https://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=${EDGE_TRUSTED_TOKEN}&Sec-MS-GEC-Version=${EDGE_GEC_VERSION}`,
+      { method: 'HEAD', mode: 'cors' },
+    ).catch(() => null)
+  } catch {
+    /* egal */
+  }
+}
+
 export function spokenForEdge(text: string): string {
   return spokenForGemini(text)
 }
