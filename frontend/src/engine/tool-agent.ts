@@ -80,7 +80,10 @@ export type AgentTool = {
   run: (args: Record<string, unknown>, env: ToolEnv) => Promise<ToolOutcome>
 }
 
-const MAX_STEPS = 5
+// T2: Bis zu 5 Modell-Runden hintereinander bedeuteten bis zu 5 Wartezeiten.
+// Drei Runden reichen für echte Ketten (suchen → lesen → schreiben); alles
+// Längere bricht ab, statt den Nutzer hängen zu lassen.
+const MAX_STEPS = 3
 const MAX_TOOL_DATA = 3500
 
 /**

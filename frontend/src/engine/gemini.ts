@@ -10,11 +10,10 @@ import {
   markSkip,
   userFacingCloudError,
 } from './cloud-errors.ts'
-import { Capacitor } from '@capacitor/core'
+import { streamSseLines } from '../native/voice.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { postJson } from './http-json.ts'
 import { noteQuotaExhausted } from './quota.ts'
-import { streamSseLines } from '../native/voice.ts'
 import { GEMINI_PERSONA } from './persona.ts'
 import { isGeminiConfigured, loadSettings, saveSettings } from './store.ts'
 
@@ -194,16 +193,9 @@ export async function streamGemini(
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
   }
-  /** Native SSE war racey — auf dem Gerät direkt generateContent (POST). */
-  if (Capacitor.isNativePlatform()) {
-    return completeGemini(messages, onToken, {
-      ...opts,
-      maxOutputTokens: opts?.maxOutputTokens || 480,
-      timeoutMs: opts?.timeoutMs || 12_000,
-      maxModels: 2,
-      thinking: false,
-    })
-  }
+  /** T1: Natives Streaming läuft jetzt wieder mit. Der Java-SSE-Kanal liefert
+   * jeden Chunk sofort aus (statt alles am Ende in einem Rutsch) — deshalb ist
+   * der frühere „generateContent auf dem Gerät"-Umweg abgeschaltet. */
   const key = loadSettings().gemini_api_key.trim()
   const order = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
   const preferred = loadSettings().gemini_model
@@ -220,10 +212,13 @@ export async function streamGemini(
     })
     let full = ''
     let streamErr = ''
+    let finishReason = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
     const res = await streamSseLines({ url, body, apiKey: key, timeoutMs: Math.min(12_000, left) }, (json) => {
       const err = json.error as { message?: string; code?: number } | undefined
       if (err?.message) streamErr = err.message
+      const cand0 = (json as { candidates?: Array<{ finishReason?: string }> }).candidates?.[0]
+      if (cand0?.finishReason) finishReason = cand0.finishReason
       const incoming = textFrom(json as GeminiResponse, false)
       if (!incoming) return
       let piece = incoming
@@ -244,7 +239,13 @@ export async function streamGemini(
     }
     if (full.trim()) {
       const t = full.trim()
-      if (!/[.!?…]$/.test(t)) {
+      // T4: Zweiter Modell-Lauf nur bei echtem Abbruch — harte Token-Grenze oder
+      // Mini-Fragment. Ein langer Satz ohne Schlusszeichen (Stream-Ende knapp
+      // vor dem Punkt) wird akzeptiert und mit Punkt beendet, statt alles
+      // nochmal zu generieren.
+      const cut = /max_tokens/i.test(finishReason)
+      const short = t.length < 40
+      if ((cut || short) && !/[.!?…]$/.test(t)) {
         return completeGemini(messages, onToken, {
           ...opts,
           maxOutputTokens: Math.max(opts?.maxOutputTokens || 0, 1800),
@@ -254,7 +255,7 @@ export async function streamGemini(
         })
       }
       saveSettings({ gemini_model: model })
-      return { text: t }
+      return { text: /[.!?…]$/.test(t) ? t : `${t}.` }
     }
     if (
       res.status === 401 ||

@@ -504,8 +504,11 @@ public class JarvisHausPlugin extends Plugin {
                 write(sock, 200, pingReply.toString());
                 return;
             }
-            if (!appVersion().equals(remoteVersion) || !"3".equals(remoteProtocol)) {
-                write(sock, 409, "{\"ok\":false,\"message\":\"version_mismatch\"}");
+            // B9: Protokoll und Token sind Pflicht. Die App-Version allein ist
+            // nur noch ein Hinweis — nach einem Update auf einem Gerät soll der
+            // Abgleich weiterlaufen, nicht komplett verweigern.
+            if (!"3".equals(remoteProtocol)) {
+                write(sock, 409, "{\"ok\":false,\"message\":\"protocol_mismatch\"}");
                 return;
             }
             if ("GET".equals(method)) {

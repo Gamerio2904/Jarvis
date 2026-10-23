@@ -90,6 +90,7 @@ import { clipboardImageFile } from './engine/clipboard-image.ts'
 import { fileToJpegDataUrl } from './engine/eye.ts'
 import { saveLastEyeImage } from './engine/agent-session.ts'
 import { useOverlay } from './overlay.ts'
+import { PanelBoundary } from './ui/ErrorBoundary.tsx'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm.ts'
 import { closeDrive, subscribeDrive } from './engine/drive.ts'
 import { addMessage, deleteMessage, listTodos, loadSettings, patchMessage, saveSettings } from './engine/store.ts'
@@ -108,6 +109,7 @@ import { setPresenceChatHandler, syncPresenceBind } from './native/presence.ts'
 import { beginVoiceSession, endVoiceSession, listenOnce, speakText, consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice.ts'
 import { bindChromeFx, prefersReducedMotion } from './fx.ts'
 import { bindKeyboardInset } from './engine/keyboard-inset.ts'
+import { runDailyWatches } from './engine/briefing.ts'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify.ts'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate.ts'
 import { lageSessionActive, setLageSession } from './engine/lage-session.ts'
@@ -800,6 +802,17 @@ function App() {
     apply()
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
+  }, [])
+
+  // I8: Morgen-Briefing + Fristen-Wache — einmal pro Tag beim App-Start.
+  useEffect(() => {
+    const kick = () => void runDailyWatches().catch(() => null)
+    kick()
+    const onVis = () => {
+      if (!document.hidden) kick()
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
   useEffect(() => {
@@ -2750,8 +2763,8 @@ function App() {
             initialUtterance={voiceSeed}
           />
         ) : null}
-        {yugiohOpen ? <YugiohDuel onClose={() => setYugiohOpen(false)} /> : null}
-        {coreOpen ? <CoreOverlay onClose={() => setCoreOpen(false)} /> : null}
+        {yugiohOpen ? <PanelBoundary label="Duell"><YugiohDuel onClose={() => setYugiohOpen(false)} /></PanelBoundary> : null}
+        {coreOpen ? <PanelBoundary label="Kern"><CoreOverlay onClose={() => setCoreOpen(false)} /></PanelBoundary> : null}
         {coreFlash ? (
           <CoreOverlay
             flash
@@ -2774,7 +2787,8 @@ function App() {
           />
         ) : null}
         {calendarLayer.shown ? (
-          <CalendarView
+          <PanelBoundary label="Kalender">
+            <CalendarView
             leaving={calendarLayer.leaving}
             onClose={() => {
               setCalendarOpen(false)
@@ -2782,33 +2796,42 @@ function App() {
               dropOverlayHistory()
             }}
           />
+          </PanelBoundary>
         ) : null}
         {serverLayer.shown ? (
-          <ServerOverlay leaving={serverLayer.leaving} onClose={() => setServerOpen(false)} />
+          <PanelBoundary label="Server">
+            <ServerOverlay leaving={serverLayer.leaving} onClose={() => setServerOpen(false)} />
+          </PanelBoundary>
         ) : null}
         {weltLayer.shown ? (
-          <WeltOverlay
+          <PanelBoundary label="Welt">
+            <WeltOverlay
             leaving={weltLayer.leaving}
             onClose={() => setWeltOpen(false)}
             onVoice={(text) => {
               void sendVoiceTurn(text)
             }}
           />
+          </PanelBoundary>
         ) : null}
         {watchlistLayer.shown ? (
-          <WatchlistOverlay
+          <PanelBoundary label="Filme">
+            <WatchlistOverlay
             leaving={watchlistLayer.leaving}
             focus={watchlistFocus}
             onFocus={setWatchlistFocus}
             onClose={closeWatchlist}
           />
+          </PanelBoundary>
         ) : null}
         {shoppingLayer.shown ? (
-          <ShoppingListsOverlay leaving={shoppingLayer.leaving} onClose={closeShopping} />
+          <PanelBoundary label="Einkauf">
+            <ShoppingListsOverlay leaving={shoppingLayer.leaving} onClose={closeShopping} />
+          </PanelBoundary>
         ) : null}
-        {notesLayer.shown ? <NotesOverlay leaving={notesLayer.leaving} onClose={closeNotes} /> : null}
-        {todosLayer.shown ? <TodoListsOverlay leaving={todosLayer.leaving} onClose={closeTodos} /> : null}
-        {libraryLayer.shown ? <LibraryOverlay leaving={libraryLayer.leaving} onClose={closeLibrary} /> : null}
+        {notesLayer.shown ? <PanelBoundary label="Notizen"><NotesOverlay leaving={notesLayer.leaving} onClose={closeNotes} /></PanelBoundary> : null}
+        {todosLayer.shown ? <PanelBoundary label="To-dos"><TodoListsOverlay leaving={todosLayer.leaving} onClose={closeTodos} /></PanelBoundary> : null}
+        {libraryLayer.shown ? <PanelBoundary label="Bibliothek"><LibraryOverlay leaving={libraryLayer.leaving} onClose={closeLibrary} /></PanelBoundary> : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {
@@ -3138,6 +3161,7 @@ function App() {
       </main>
 
       {settingsLayer.shown ? (
+        <PanelBoundary label="Einstellungen">
         <SettingsScreen
           leaving={settingsLayer.leaving}
           topic={settingsTopic}
@@ -3242,6 +3266,7 @@ function App() {
           }}
           debugBusy={busy}
         />
+        </PanelBoundary>
       ) : null}
 
       <DebugChatDock

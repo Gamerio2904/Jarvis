@@ -3,6 +3,8 @@ import 'fake-indexeddb/auto'
 
 const mem = Object.create(null)
 globalThis.localStorage = {
+  length: 0,
+  key: () => null,
   getItem: (k) => (k in mem ? mem[k] : null),
   setItem: (k, v) => {
     mem[k] = String(v)
@@ -24,8 +26,8 @@ const { listIdeas, loadSettings, saveSettings } = await import('../src/engine/st
 
 assert.deepEqual(splitShopItems('Milch Eier und Kuchen'), ['Milch', 'Eier', 'Kuchen'])
 assert.deepEqual(splitShopItems('Rote Paprika und Milch'), ['Rote Paprika', 'Milch'])
-assert.deepEqual(parseShopIntent('Milch Eier und Kuchen auf die Einkaufsliste')?.items, ['Milch', 'Eier', 'Kuchen'])
-assert.deepEqual(parseShopIntent('Hafermilch und Mehl auf die Liste')?.items, ['Hafermilch', 'Mehl'])
+assert.deepEqual(/** @type {any} */ (parseShopIntent('Milch Eier und Kuchen auf die Einkaufsliste'))?.items, ['Milch', 'Eier', 'Kuchen'])
+assert.deepEqual(/** @type {any} */ (parseShopIntent('Hafermilch und Mehl auf die Liste'))?.items, ['Hafermilch', 'Mehl'])
 
 const must = parseToolIntent('Ich muss bis Dienstag Aufgabe 5 erledigen')
 assert.equal(must?.kind, 'todo_create')

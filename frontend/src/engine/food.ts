@@ -11,7 +11,7 @@ export function parseFoodIntent(text: string): FoodIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 160) return null
   const m =
-    /(?:was\s+ist\s+das\s+für\s+ein\s+produkt|lebensmittel|open\s+food\s+facts|zutaten\s+von|barcode|ean)\s*[: -]?\s*(.*)$/i.exec(
+    /\b(?:was\s+ist\s+das\s+für\s+ein\s+produkt|lebensmittel|open\s+food\s+facts|zutaten\s+von|barcode|ean)\b\s*[: -]?\s*(.*)$/i.exec(
       t,
     )
   if (!m && !/\b(produktinfo|nährwert)\b/i.test(t)) return null

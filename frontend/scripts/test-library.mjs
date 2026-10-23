@@ -54,8 +54,8 @@ const [{ entry: textEntry }] = await library.addLibraryFiles([
   { name: 'projekt-themen.md', mime: 'text/markdown', bytes: new TextEncoder().encode(text) },
 ])
 assert.equal(textEntry.kind, 'text')
-assert.ok(textEntry.text.includes('Marktplatz'), 'Lesetext liegt an der Verknüpfung')
-assert.ok(textEntry.summary.includes('Projekt-Themen'), 'Zusammenfassung gezogen')
+assert.ok((textEntry.text ?? '').includes('Marktplatz'), 'Lesetext liegt an der Verknüpfung')
+assert.ok((textEntry.summary ?? '').includes('Projekt-Themen'), 'Zusammenfassung gezogen')
 assert.equal(textEntry.where, 'geraet')
 assert.ok(await library.libraryPreviewUrl(textEntry.id), 'Bytes liegen im Cache')
 

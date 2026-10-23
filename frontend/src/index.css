@@ -11302,6 +11302,11 @@ body.is-plan-chat .gui-stage {
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
+  /* Wisch-Geste (links erledigt, rechts löschen) braucht die Freigabe —
+     sonst übernimmt der Handy-Browser die Geste und bricht sie mit
+     pointercancel ab. pan-y lässt vertikales Scrollen zu, waagrechtes
+     Wischen gehört der Karte. */
+  touch-action: pan-y;
 }
 
 .todo-card-main {

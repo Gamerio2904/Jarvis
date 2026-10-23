@@ -41,7 +41,7 @@ export function contradictionSearchAsk(text: string, step?: LastStep | null): st
 }
 
 const FOLLOW_UP =
-  /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|entferne(?:n)?(\s+(?:das|es|den))?|ja\s+entfernen\s+(?:es|das)|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch|stattdessen\s+um\s+\d{1,2}|in\s+\d+\s+(?:minuten?|stunden?)|morgen\s+\d{1,2}(?:[:.]\d{2})?)\s*[.?!]?$/i
+  /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|entferne(?:n)?(\s+(?:das|es|den))?|ja\s+entfernen\s+(?:es|das)|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+(?:morgen|übermorgen)\??|(?:morgen|übermorgen)\s+auch|stattdessen\s+um\s+\d{1,2}|in\s+\d+\s+(?:minuten?|stunden?)|(?:morgen|übermorgen)\s+\d{1,2}(?:[:.]\d{2})?)\s*[.?!]?$/i
 
 const REMOVE_THAT =
   /^(?:ja\s+)?(?:entferne(?:n)?|lösch(?:e|en)?)\s+(?:das|es|den|ihn|sie)(?:\s+(?:bitte|mal))?\s*[.!?]?$/i
@@ -165,6 +165,31 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     return utterance || null
   }
 
+  // I3/P6: „wie eben“ / „mach das nochmal“ — derselbe Auftrag läuft nochmal,
+  // ohne dass das Modell gefragt werden muss.
+  if (/^(?:wie\s+(?:eben|gerade|zuvor)|mach(?:e)?\s+das\s+noch(?:\s*mal|mals)?|das\s+noch(?:\s*mal|mals)?\s+bitte)(?:\s+bitte)?[.!?]*$/i.test(raw)) {
+    return utterance || null
+  }
+
+  // P3: Korrektur-Sätze — „nein, ich meinte doch dienstag“ zielt den letzten
+  // Auftrag neu, statt alles neu sagen zu müssen.
+  const correction = /^(?:nein|nee+|nicht|doch|lieber|stattdessen)[,:]\s+(?:ich\s+)?(?:meinte?|hab(?:e)?\s+gemeint|mein\s+ich)\s+(?:doch\s+|vielmehr\s+|eigentlich\s+)?(.{2,40})$/i.exec(raw)
+  if (correction && utterance && !CONFIRM.test(utterance)) {
+    const spec = correction[1].trim()
+    const dayRe = /(montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag|morgen|heute|übermorgen)/gi
+    const day = dayRe.exec(spec)?.[0]
+    const timeSpec = /(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?/i.exec(spec)
+    let out = utterance
+    if (day) out = out.replace(dayRe, day.toLocaleLowerCase())
+    if (timeSpec && /\d{1,2}(?:[:.]\d{2})?\s*uhr/i.test(spec)) {
+      const clock = `${timeSpec[1].padStart(2, '0')}:${(timeSpec[2] ?? '00').padStart(2, '0')}`
+      out = out.replace(/\d{1,2}[:.]\d{2}/, clock)
+    }
+    if (out !== utterance) return out
+    // Kein Tag/Zeit im Korrekturteil: Ziel-Text anhängen, wo der alte stand.
+    return spec
+  }
+
   if (tool === 'sport' && isSportOverviewAsk(raw)) {
     return utterance && /\b(bundesliga|tabelle|liga|spielstand)\b/i.test(utterance)
       ? utterance
@@ -183,7 +208,26 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     return /^(?:an|ein)/i.test(raw) ? 'Taschenlampe an' : 'Taschenlampe aus'
   }
 
-  if (!FOLLOW_UP.test(raw)) return null
+  if (!FOLLOW_UP.test(raw)) {
+    // I3/P3: „verschieb das auf morgen“ / „ersetz X durch Y“ — der Nachfolger
+    // greift den letzten Titel und baut daraus einen kompletten Auftrag.
+    const shift = /^(?:verschieb(?:e)?|schieb(?:e)?)\s+(?:das|es|den|ihn|sie)\s+(?:auf|zu|nach)\s+(.{2,40})$/i.exec(raw)
+    if (shift && title) {
+      const target = shift[1].trim()
+      if (tool === 'calendar') return `Termin ${target} ${title}`
+      if (tool === 'reminder') return `erinner mich ${target} an ${title}`
+      if (tool === 'todo') return `ändere das todo ${title} auf ${target}`
+      if (tool === 'alarm') return `Wecker ${target}`
+    }
+    const replace = /^(?:ersetz(?:e)?|tausche?|tausch)\s+(?:das\s+)?(.{2,40}?)\s+durch\s+(.{2,40})$/i.exec(raw)
+    if (replace) {
+      const target = replace[2].trim()
+      if (tool === 'todo') return `ändere das todo ${replace[1].trim()} auf ${target}`
+      if (tool === 'calendar') return `Termin ${target}`
+      if (tool === 'reminder') return `erinner mich an ${target}`
+    }
+    return null
+  }
   if (!tool || tool === 'weather') return null
 
   const relFollow = /^in\s+(\d+)\s+(minuten?|stunden?)\s*[.!?]?$/i.exec(raw)

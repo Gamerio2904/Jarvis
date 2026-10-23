@@ -85,6 +85,8 @@ import {
   type Message,
   type Settings,
 } from './store.ts'
+import { lookupSmalltalk, rememberSmalltalk } from './smalltalk-cache.ts'
+import { preheatEdgeTts } from './edge-tts.ts'
 import { handlePlaces } from './places.ts'
 import { handleReminders, leadReminderMinutes, remindAheadOfLast } from './reminders.ts'
 import { handlePc } from './pc.ts'
@@ -942,10 +944,14 @@ export async function streamChat(
       return
     }
 
-    const history = await listMessages(conversationId)
-    const mem = await listMemory()
-    const hits = await retrieve(ask)
-    const packs = await listKnowledgePacks().catch(() => [])
+    // T3: Vorab-Laden parallel — vier hintereinander laufende await-Ketten
+    // summierten ihre Netz-Latenz; gleichzeitig sparen hier 0,2-0,4 s.
+    const [history, mem, hits, packs] = await Promise.all([
+      listMessages(conversationId),
+      listMemory(),
+      retrieve(ask),
+      listKnowledgePacks().catch(() => []),
+    ])
     // Fachwissen gehört nur in eine Frage, für die es keinen Agenten gibt.
     // Erreicht eine Äußerung mit klarem Parser-Treffer trotzdem das Modell,
     // hat der Agent abgelehnt — dann ist Fachwissen erst recht die falsche
@@ -961,13 +967,26 @@ export async function streamChat(
       }
     }
     const spokenHint = opts?.voice ? voiceHintFor(routeNow) : ''
+    // T5: Die Sprach-Ausgabe verbindet sich schon, während das Modell denkt.
+    void preheatEdgeTts()
     let wantSearch = Boolean((geminiReady() && live) || accepted || contradictionAsk)
     let research: ResearchMeta | undefined
     let acc = ''
     let raw = ''
     let text = ''
 
-    for (let pass = 0; pass < 2; pass++) {
+    // Antwort-Cache: identische Smalltalk-Fragen sind nach dem ersten Mal
+    // sofort da — ohne ein einziges Modell.
+    const smallCached = lookupSmalltalk(ask)
+    if (smallCached) {
+      acc = smallCached
+      raw = smallCached
+      text = smallCached
+      setLatencyPath('parser')
+      handlers.onReplace?.(text)
+    }
+
+    for (let pass = 0; pass < 2 && !smallCached; pass++) {
       if (wantSearch && !researchHasSources(research)) {
         research = await fillResearchLinks(ask, '', research)
       }
@@ -1130,17 +1149,24 @@ export async function streamChat(
       }
       // Groq ist das Standard-Hirn, und genau dort blieb der abgebrochene Satz
       // stehen („volatil. bis eine“) — der Retry hing vorher an Gemini allein.
-      // Das lokale 0,5B bleibt außen vor: es bricht oft ab und braucht Sekunden,
-      // ein zweiter Lauf kostet dort mehr Zeit als er Qualität bringt. Die
-      // Schleife lässt ohnehin nur `pass` 0 und 1 zu.
+      // T4: Der zweite Lauf startet nur noch bei echtem Abbruch — leerer Text
+      // oder ein Satz, der mitten in der Zeile endet. Fehlt bloß das
+      // Schlusszeichen und ist die Antwort ordentlich lang, nimmt Jarvis sie
+      // mit Punkt — der zweite Modell-Lauf kostete sonst doppelt Zeit.
       if (pass === 0 && looksTruncated(text) && kind !== 'local') {
-        continue
+        const t = text.trim()
+        const onlyPunctMissing =
+          Boolean(t) && t.length >= 120 && !/[.!?…»"')\]]$/u.test(t) && !/[.!?]\s+[a-zäöü]/.test(t)
+        if (!onlyPunctMissing) continue
+        text = `${t}.`
+        handlers.onReplace?.(text)
       }
       if (pass === 1 && text) handlers.onReplace?.(text)
       break
     }
 
-    if (!wantSearch && (looksTruncated(text) || isSearchRefusal(text))) {
+    if (smallCached) rememberSmalltalk(ask, text)
+    if (!wantSearch && !smallCached && (looksTruncated(text) || isSearchRefusal(text))) {
       persistResearchOffer(ask, researchQuery(ask))
     }
     if (looksTruncated(text)) {

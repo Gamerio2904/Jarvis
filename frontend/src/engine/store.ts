@@ -8,7 +8,7 @@ import { parsePlan, type IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 import { recordLocalRevision } from './sync-revisions.ts'
 
-export const APP_VERSION = '18.68.0'
+export const APP_VERSION = '18.70.0'
 
 /** Offene Folien (Kalender, Filme, Einkauf) hören mit, ohne den Store zu pollen. */
 export function emitHouse(
@@ -421,6 +421,14 @@ export type Settings = {
   sync_url: string
   sync_token: string
   sync_fingerprint: string
+  /** Grabsteine gelöschter Einträge — reisen mit dem Abgleich, damit
+   * Gelöschtes endlich gelöscht bleibt (B6). Format: [{id, at}] capped. */
+  sync_tombstones_json: string
+  /** Letzter Tag, an dem Fristen-Wache/Morgen-Briefing gelaufen sind (I8). */
+  last_watch_day: string
+  /** „Geändert am“ je Settings-Schlüssel — beim Abgleich gewinnt die jüngste
+   * Änderung statt „leeres Feld füllen“ (B11). Format: {key: ISO}. */
+  settings_stamps_json: string
   tischplatte_view: string
   workbench_open: boolean
   tischplatte_focus: string
@@ -660,6 +668,9 @@ export const DEFAULT_SETTINGS: Settings = {
   sync_url: '',
   sync_token: '',
   sync_fingerprint: '',
+  sync_tombstones_json: '',
+  settings_stamps_json: '',
+  last_watch_day: '',
   tischplatte_view: 'sprints',
   workbench_open: false,
   tischplatte_focus: '',
@@ -795,6 +806,15 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   if (effective.gemini_api_key !== undefined && effective.gemini_enabled === undefined && next.gemini_api_key.trim()) {
     next.gemini_enabled = true
   }
+  // B11: „Geändert am“ je Schlüssel mitschreiben — der Abgleich entscheidet
+  // damit nach jüngster Änderung, nicht nur nach leeren Feldern.
+  const stamps = readStamps()
+  const nowIso = new Date().toISOString()
+  for (const key of Object.keys(effective)) {
+    if (key === 'settings_stamps_json' || key === 'version') continue
+    stamps[key] = nowIso
+  }
+  next.settings_stamps_json = JSON.stringify(stamps)
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(next))
   } catch {
@@ -802,6 +822,88 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   }
   emitHouse('jarvis-settings')
   return next
+}
+
+function readStamps(): Record<string, string> {
+  try {
+    const raw = JSON.parse(loadSettings().settings_stamps_json || '{}') as Record<string, string>
+    return raw && typeof raw === 'object' ? raw : {}
+  } catch {
+    return {}
+  }
+}
+
+export function settingsStamps(): Record<string, string> {
+  return readStamps()
+}
+
+/** Grabsteine: Gelöschte Einträge merken sich ihr „gelöscht am“. Der Abgleich
+ * lässt sie nicht wiederauferstehen, nur weil das andere Gerät sie noch hat. */
+export type Tombstone = { id: string; at: string }
+const TOMBSTONE_CAP = 400
+
+function readTombstonesRaw(): Tombstone[] {
+  try {
+    const rows = JSON.parse(loadSettings().sync_tombstones_json || '[]') as Tombstone[]
+    if (!Array.isArray(rows)) return []
+    return rows.filter((r) => r && typeof r.id === 'string' && typeof r.at === 'string')
+  } catch {
+    return []
+  }
+}
+
+export function tombstoneList(): Tombstone[] {
+  return readTombstonesRaw()
+}
+
+export function tombstoneStamp(id: string): number {
+  for (const row of readTombstonesRaw()) {
+    if (row.id === id) {
+      const at = Date.parse(row.at)
+      return Number.isFinite(at) ? at : 0
+    }
+  }
+  return 0
+}
+
+export function recordTombstone(id: string): void {
+  if (!id) return
+  const rows = readTombstonesRaw().filter((r) => r.id !== id)
+  rows.push({ id, at: new Date().toISOString() })
+  try {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ ...loadSettings(), sync_tombstones_json: JSON.stringify(rows.slice(-TOMBSTONE_CAP)), version: APP_VERSION }),
+    )
+  } catch {
+    /* node tests */
+  }
+}
+
+/** Grabsteine vom anderen Gerät vereinigen — beide Seiten lernen beide Löschungen. */
+export function mergeTombstones(remoteJson: string): void {
+  let remote: Tombstone[] = []
+  try {
+    const parsed = JSON.parse(remoteJson || '[]') as Tombstone[]
+    if (Array.isArray(parsed)) remote = parsed.filter((r) => r && typeof r.id === 'string' && typeof r.at === 'string')
+  } catch {
+    remote = []
+  }
+  if (!remote.length) return
+  const map = new Map(readTombstonesRaw().map((r) => [r.id, r]))
+  for (const row of remote) {
+    const have = map.get(row.id)
+    if (!have || Date.parse(row.at) > Date.parse(have.at)) map.set(row.id, row)
+  }
+  const rows = [...map.values()].sort((a, b) => a.at.localeCompare(b.at)).slice(-TOMBSTONE_CAP)
+  try {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ ...loadSettings(), sync_tombstones_json: JSON.stringify(rows), version: APP_VERSION }),
+    )
+  } catch {
+    /* node tests */
+  }
 }
 
 function asTitleList(v: unknown): string[] {
@@ -1030,8 +1132,15 @@ export async function clearStore(name: string): Promise<void> {
 }
 
 export async function replaceStore<T>(name: string, rows: T[]): Promise<void> {
-  await clearStore(name)
-  for (const row of rows) await put(name, row)
+  // B7: Ein Vorgang statt „erst leeren, dann füllen“ — bricht etwas ab,
+  // rollt die Transaktion zurück und der alte Stand bleibt komplett stehen.
+  const db = await openDb()
+  const tx = db.transaction(name, 'readwrite')
+  const os = tx.objectStore(name)
+  os.clear()
+  for (const row of rows) os.put(row as unknown as object)
+  await txDone(tx)
+  touchStand(name)
 }
 
 export async function getAll<T>(store: string): Promise<T[]> {
@@ -1080,6 +1189,7 @@ export async function deleteConversation(id: string): Promise<void> {
     await del('messages', m.id)
   }
   await del('pending', id)
+  recordTombstone(id)
   await del('conversations', id)
 }
 
@@ -1116,6 +1226,7 @@ export async function patchMessage(id: string, content: string): Promise<Message
 }
 
 export async function deleteMessage(id: string): Promise<void> {
+  recordTombstone(id)
   await del('messages', id)
 }
 
@@ -1190,6 +1301,7 @@ export async function pruneStaleAfterWrite(now = Date.now()): Promise<number> {
 }
 
 export async function deleteMemory(id: string): Promise<void> {
+  recordTombstone(id)
   await del('memory', id)
 }
 
@@ -1230,6 +1342,7 @@ export async function deleteTodoList(id: string): Promise<void> {
   if (!list) throw new Error('Die Todo-Liste existiert nicht mehr.')
   const todos = (await getAll<Todo>('todos')).filter((todo) => todo.list_id === id)
   for (const todo of todos) await put('todos', { ...todo, list_id: 'todo-list-general', updated_at: nowIso() })
+  recordTombstone(id)
   await del('todo_lists', id)
 }
 
@@ -1354,6 +1467,7 @@ export async function deleteTodo(id: string): Promise<void> {
   if (!row) throw new Error('Das Todo existiert nicht mehr.')
   const { forgetTodoCalendar } = await import('./calendar.ts')
   await forgetTodoCalendar(row)
+  recordTombstone(id)
   await del('todos', id)
   emitHouse('jarvis-todos')
 }
@@ -1365,6 +1479,7 @@ export async function deleteDoneTodos(): Promise<number> {
     const { forgetTodoCalendar } = await import('./calendar.ts')
     for (const t of done) {
       await forgetTodoCalendar(t)
+      recordTombstone(t.id)
       await del('todos', t.id)
     }
     emitHouse('jarvis-todos')
@@ -1411,6 +1526,7 @@ export async function updateNote(id: string, body: string, tags?: string[]): Pro
 
 export async function deleteNote(id: string): Promise<void> {
   if (!(await get<Note>('notes', id))) throw new Error('Die Notiz existiert nicht mehr.')
+  recordTombstone(id)
   await del('notes', id)
   emitHouse('jarvis-notes')
 }
@@ -1562,6 +1678,7 @@ export async function moveWatchMovie(id: string, to: WatchListKind): Promise<Wat
 }
 
 export async function deleteWatchMovie(id: string): Promise<void> {
+  recordTombstone(id)
   await del('watch_movies', id)
   emitHouse('jarvis-watchlist')
 }
@@ -1571,6 +1688,7 @@ export async function removeWatchMovie(id: string, list: WatchListKind): Promise
   if (!row) return
   const lists = (row.lists || []).filter((x) => x !== list)
   if (!lists.length) {
+    recordTombstone(id)
     await del('watch_movies', id)
     emitHouse('jarvis-watchlist')
     return
@@ -1680,6 +1798,7 @@ export async function setReminderStatus(id: string, status: string): Promise<voi
 }
 
 export async function deleteReminder(id: string): Promise<void> {
+  recordTombstone(id)
   await del('reminders', id)
   emitHouse('jarvis-reminders')
 }
@@ -1856,6 +1975,7 @@ export async function deleteShoppingList(id: string): Promise<boolean> {
   for (const item of items) {
     if (item.list_id === id) await put('shopping', { ...item, list_id: def.id, updated_at: nowIso() })
   }
+  recordTombstone(id)
   await del('shopping_lists', id)
   emitShopping()
   return true
@@ -1954,6 +2074,7 @@ export async function markShoppingGot(query: string): Promise<ShoppingItem | und
 export async function deleteShoppingItem(id: string): Promise<boolean> {
   const rows = await getAll<ShoppingItem>('shopping')
   if (!rows.some((s) => s.id === id)) return false
+  recordTombstone(id)
   await del('shopping', id)
   emitShopping()
   return true
@@ -1981,6 +2102,7 @@ export async function clearGotShopping(): Promise<number> {
 }
 
 export async function deleteEvent(id: string): Promise<void> {
+  recordTombstone(id)
   await del('events', id)
   emitHouse('jarvis-events')
 }
@@ -2041,6 +2163,7 @@ export async function putPriceWatch(row: PriceWatch): Promise<void> {
 }
 
 export async function deletePriceWatch(id: string): Promise<void> {
+  recordTombstone(id)
   await del('price_watches', id)
 }
 

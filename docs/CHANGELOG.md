@@ -3,6 +3,33 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.70.0` — Master-Runde: Oberflächen-Fixes, Tempo, Sprach-Freiheiten, Sync-Härte, Intelligenz — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.70.0`** (versionCode `187000`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+### Oberfläche (Phase 1)
+Todo-Wischen auf dem Handy funktioniert zuverlässig (`touch-action: pan-y` auf `.todo-card` — der Browser bricht die Geste nicht mehr mit pointercancel ab). Der kaputte CSS-Selektor `.home-grididden` ist repariert (`.home-grid[hidden]`). **Ordner umbenennen** tippt jetzt in einen lokalen Entwurf und speichert erst beim Verlassen des Feldes oder mit Enter — Leerzeichen bleiben erhalten, Leeren des Feldes bricht ab statt auf „Ordner“ zurückzufallen, und nicht mehr jeder Tastendruck löst Speichern + Broadcast + zweifaches Neuparsen aus. **Kalender**: Ziehen eines Termins zur Seite wechselt nicht mehr zusätzlich den Monat (Drag-Merkung wird erst im nächsten Bild-Durchlauf geleert). **Fehler sind sichtbar**: Löschen im Kalender, „Nochmal lesen“ in der Bibliothek und alle Server-Aktionen (Start/Stop/Verbinden/Neues Gerät) zeigen jetzt eine Meldung, wenn etwas scheitert; dazu ein globaler Fehler-Ringpuffer (`error-report.ts`), der ungefangene Fehler sammelt. **Schutzgitter je Fenster**: Kalender, Einstellungen, Duell, Kern, Welt, Filme, Einkauf, Notizen, To-dos, Bibliothek, Server und Startbildschirm crasht nur noch lokal — der Rest der App läuft weiter (`PanelBoundary`). **Doppel-Tap-Schutz** beim Todo-Speichern, **MiniChat scrollt automatisch mit**, die 700-ms-Klick-Sperre gilt nur noch für die angetippte Kachel. **Import-Sicherung**: vor jedem Überschreiben-Import wird eine Haus-Sicherung angelegt und ein Knopf „Import-Rückgängig“ holt sie zurück.
+
+### Tempo (Phase 2)
+**Natives Gemini-Streaming** läuft wieder: der Java-SSE-Kanal lieferte bisher alle Chunks am Ende in einem Rutsch — jetzt feuert er jeden Chunk sofort, der erste Satz kommt nach ~1 s statt nach 5–12 s. **Vorab-Laden parallel** (Nachrichten, Gedächtnis, Abruf, Wissenspakete per `Promise.all`), der Abruf-Korpus ist begrenzt (letzte 240 Nachrichten, 120 Notizen), **Werkzeug-Agent max. 3 Runden** (vorher 5), der **zweite Modell-Lauf startet nur bei echtem Abbruch** (harte Token-Grenze oder Mini-Fragment — ein fehlender Schlusspunkt wird nicht mehr doppelt generiert), **Edge-TTS verbindet sich vorglühen** während das Modell denkt, und der **Antwort-Cache** für Standard-Fragen ist angeschlossen („hallo“-Klasse: sofortige Antwort ohne Modell).
+
+### Sprache (Phase 2)
+**Mehrfachbefehle**: „kauf Milch und ruf Mama an“ wird geteilt und beide Hälften laufen ihren eigenen Weg; Zeitangaben nach dem Komma („Termin für den 5.9., 15:00 Uhr Zahnarzt“) bleiben ein Satz. **Neue Fristen** ohne Modell: „übermorgen“, „in drei Tagen“, „in 2 Wochen“, „am Wochenende“ (Samstag), „Ende des Monats“, „am 14.03.“/„am 14. März“ (ohne Jahr rutscht in die Zukunft), „nächsten Montag“, „um halb 5“ (Deadline-Lesart 16:30), Tageszeiten (früh/morgens/abends …) und Satz-anfangendes „morgen/heute“ (relaxed). Zwei tiefe Parser-Bugs sind nebenbei gefixt: JavaScript-`\b` ist ASCII-only („übermorgen“ am Satzanfang wurde nie gefunden) und „morgen“ fraß als Kurztreffer das „übermorgen“ aus „bis übermorgen“. **Nachfolge-Sätze**: „verschieb das auf morgen“, „ersetze X durch Y“, „wie eben“, „mach das nochmal“, „und übermorgen“ laufen lokal; **Korrektur-Sätze** wie „nein, ich meinte doch dienstag“ zielen den letzten Auftrag neu. **Ordnungszahlen bis „das zwölfte“** plus „nummer 9“. **polishTitle**: „An Oma denken“ statt „An OMA denken“, „Folie ein“ statt „Folie EIN“, „mama anrufen wegen geburtstag“ wird jetzt ein ganzes Todo. „Notiz oder Todo: Milch“ bleibt eine Rückfrage (Ambiguität-Policy) statt einer Müll-Notiz; „beantworte…“ routet nicht mehr versehentlich in Lebensmittel (Word-Boundary-Fix).
+
+### Sync & Sicherheit (Phase 3)
+**Grabsteine**: Gelöschte Todos, Notizen, Termine, Erinnerungen, Einkaufsposten, Bibliothekseinträge u. a. merken sich ihr „gelöscht am“ und reisen mit dem Abgleich — Gelöschtes kommt nicht mehr vom anderen Gerät zurück (das einzige echte Datenverlust-Risiko im Sync ist zu). **Atomarer Abgleich**: `replaceStore` schreibt in einer IndexedDB-Transaktion; ein Abbruch lässt den alten Stand komplett stehen statt halb leer. **Versions-Gate zur Warnung**: Nach einem Update auf einem Gerät blockiert der Abgleich nicht mehr komplett — Protokoll- und Sicherheits-Abgleich bleiben Pflicht, der Versionsunterschied erscheint als Hinweis in der Bestätigung (Java-Server + JS-Klient). **Zeitstempel**: Bibliothekseinträge haben `updated_at` (Tags, Lesetext), jede Settings-Änderung bekommt einen „geändert am“-Stempel; beim Vereinigen gewinnt die jüngere Änderung statt „nur leere Felder füllen“. **PC-Kopplung ohne Fest-Token**: `jarvis-pc.mjs` erzeugt ohne `JARVIS_PC_TOKEN` einen zufälligen 24-Zeichen-Schlüssel pro Start statt „123456“.
+
+### Intelligenz (Phase 4)
+**Bibliotheks-RAG**: Dokumente werden in ~600-Zeichen-Abschnitte geschnitten; der Rückgriff liefert dem Modell die zur Frage beste Passage statt der ersten 200 Zeichen — „Was steht in dem Brief?“ wird zitierfähig, komplett offline. **Morgen-Briefing + Fristen-Wache**: einmal pro Tag beim App-Start meldet Jarvis Termine und fällige Todos von heute („Guten Morgen — die Lage“) und warnt am Vortag vor morgen Fälligem (Fristen-Wache). Deja-vu-Schutz über `last_watch_day`. Die lokalen KI-Baustellen (Offline-Spracherkennung Vosk, lokales LLM Gemma 3n) bleiben als eigene nächste Runde — sie brauchen Modell-Dateien (50 MB bzw. 529 MB), die nicht ins APK wandern.
+
+### Tests
+Die komplette Testsuite läuft wieder grün: `eval` (952 Fälle), `eval:ambiguity`, `test:prompts`, `test:dead-code`, `test:18.18`, `tsc:scripts` sind gefixt (veraltete Goldenerwartungen, Allowlist, typkorrekte Testskripte), `test-round2` wächst auf Fristen/Mehrfachbefehle/Nachfolge/Ordnungszahlen/Grabsteine. Beispielprompts und Testanleitung in [`TEST-18.70.0.md`](./TEST-18.70.0.md).
+
+# Changelog
+
+Versionen folgen [`09-versioning.md`](./09-versioning.md).  
+Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
+
 ## `18.68.0` — Fristen, Namen, QR-Scanner, Server-Sätze, Vollabgleich — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.68.0`** (versionCode `186800`). `engineStamp` bleibt **`18.60.0-ygo-md`**.

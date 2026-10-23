@@ -1,4 +1,5 @@
 import type { ClipboardEvent, KeyboardEvent } from 'react'
+import { useEffect, useRef } from 'react'
 import type { Message } from '../api.ts'
 import { parseChatBlocks } from '../engine/chat-blocks.ts'
 import { safeImageSrc } from '../engine/image-parse.ts'
@@ -36,6 +37,12 @@ export function MiniChat({
   dock?: 'plan'
 }) {
   const recent = messages.slice(-6)
+  /** Der kleine Chat scrollt mit: Neueste Zeile bleibt sichtbar, ohne Handarbeit. */
+  const logRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const node = logRef.current
+    if (node) node.scrollTop = node.scrollHeight
+  }, [messages, streaming])
   function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -70,7 +77,7 @@ export function MiniChat({
               </button>
             </div>
           </header>
-          <div className="mini-chat-log">
+          <div className="mini-chat-log" ref={logRef}>
             {recent.length ? (
               recent.map((m) => (
                 <p key={m.id} className={`mini-chat-line is-${m.role}`}>

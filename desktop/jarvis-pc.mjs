@@ -2,6 +2,7 @@
 /**
  * Jarvis PC protocol server (dev + tests). On Windows, use JarvisPC.bat instead.
  */
+import crypto from 'node:crypto'
 import http from 'node:http'
 import { handleClip } from './clip-job.mjs'
 
@@ -15,7 +16,12 @@ let rtcSession = ''
 
 export function startJarvisPcServer(opts = {}) {
   const port = opts.port || 18790
-  const token = opts.token || '123456'
+  // F2: kein Standard-Kopplungsschlüssel mehr — ohne Token wirft der Server
+  // einen zufälligen 24-Zeichen-Schlüssel und druckt ihn aus.
+  const token = opts.token || (process.env.JARVIS_PC_TOKEN || '')
+  const finalToken = token && token.length >= 6
+    ? token
+    : Array.from(crypto.getRandomValues(new Uint8Array(18)), (b) => (b % 36).toString(36)).join('').slice(0, 24)
   const stub = Boolean(opts.stub)
   const host = opts.host || '127.0.0.1'
   lastActions.length = 0
@@ -24,7 +30,7 @@ export function startJarvisPcServer(opts = {}) {
   function auth(req) {
     const h = String(req.headers['x-jarvis-token'] || '')
     const b = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
-    return h === token || b === token
+    return h === finalToken || b === finalToken
   }
 
   function readBody(req) {
@@ -186,6 +192,8 @@ export function startJarvisPcServer(opts = {}) {
 
   return new Promise((resolve, reject) => {
     server.once('error', reject)
+    const tagged = /** @type {any} */ (server)
+    tagged.jarvisPcToken = finalToken
     server.listen(port, host, () => resolve(server))
   })
 }
@@ -193,11 +201,14 @@ export function startJarvisPcServer(opts = {}) {
 const isMain = /jarvis-pc\.mjs$/.test(String(process.argv[1] || ''))
 if (isMain) {
   const port = Number(process.env.JARVIS_PC_PORT || 18790)
-  const token = process.env.JARVIS_PC_TOKEN || '123456'
+  // Ohne Umgebungsvariable gibt es einen frischen Zufallsschlüssel pro Start.
+  const token = process.env.JARVIS_PC_TOKEN || ''
   const stub = process.argv.includes('--stub')
   const host = process.env.JARVIS_PC_HOST || '0.0.0.0'
   const server = await startJarvisPcServer({ port, token, stub, host })
-  console.log(`Ultron PC ${stub ? 'stub' : 'node'} http://${host}:${port} token=${token}`)
+  const listed = /** @type {any} */ (server)
+  console.log(`Ultron PC ${stub ? 'stub' : 'node'} http://${host}:${port} token=${listed.jarvisPcToken}`)
+  console.log('Ohne JARVIS_PC_TOKEN ist der Schlüssel zufällig und gilt nur für diesen Start.')
   server.on('error', (err) => {
     console.error(err)
     process.exit(1)

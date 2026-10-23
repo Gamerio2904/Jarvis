@@ -351,7 +351,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Übernehmen': 'idea',
   'Plan zu': 'idea',
   'Fenster zu': 'idea',
-  'Ändere den Wecker: 7:30': 'idea',
+  'Ändere den Wecker: 7:30': 'alarm',
   'Mach einen Sprintplan für Idee 1': 'idea',
   'Lies das PDF': 'doc',
   'Übertrage das fürs Tablet': 'xfer',

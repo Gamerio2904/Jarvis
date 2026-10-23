@@ -18,6 +18,7 @@ import { scanPhase, ScanStage } from './ScanStage.tsx'
 import { EntwurfStage } from './EntwurfStage.tsx'
 import { Workbench } from './Workbench.tsx'
 import { memo, useEffect, useRef, useState, type PointerEvent } from 'react'
+import { PanelBoundary } from './ErrorBoundary.tsx'
 
 function AppGlyph({ id }: { id: HomeAppId }) {
   if (id === 'chat') {
@@ -236,14 +237,21 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
   const [layout, setLayout] = useState<HomeLayout>(() => parseHomeLayout(loadSettings().home_layout_json))
   const [openFolder, setOpenFolder] = useState<string | null>(null)
   const [folderPage, setFolderPage] = useState(0)
+  /** Entwurf des Ordnernamens — wird lokal getippt und erst beim Verlassen
+   * des Feldes gespeichert (B1: sonst frisst jede Taste ein Leerzeichen und
+   * löst die komplette Speicher-Kette aus). */
+  const [renameDraft, setRenameDraft] = useState<string | null>(null)
   const folderSwipe = useRef<{ x: number; y: number; id: number } | null>(null)
   const folderMoved = useRef(false)
   /** Schützt den Ordner vor dem Phantom-Klick: Der Browser feuert nach dem
    * pointerup, der den Ordner öffnet, einen click auf den jetzt obenliegenden
    * Backdrop — ohne Sperre schließt der den Ordner nach ~100 ms wieder. */
   const folderOpenedAt = useRef(0)
-  /** Schon per pointerup geöffnet: der nachfolgende click darf nicht doppelt öffnen. */
+  /** Schon per pointerup geöffnet: der nachfolgende click darf nicht doppelt öffnen.
+   * Die Sperre gilt nur für die Kachel, die gerade geöffnet hat — ein zweiter
+   * schneller Tap auf eine ANDERE Kachel darf nicht geschluckt werden. */
   const tapHandledAt = useRef(0)
+  const tapHandledCell = useRef<number | null>(null)
   const [ghost, setGhost] = useState<{ x: number; y: number; label: string } | null>(null)
   const [hover, setHover] = useState<number | null>(null)
   const drag = useRef<{
@@ -334,6 +342,7 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
     // Ohne echte Bewegung zählt jeder Druck als Antippen.
     if (!moved) {
       tapHandledAt.current = Date.now()
+      tapHandledCell.current = current.from
       openCell(cell)
       return
     }
@@ -391,7 +400,7 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onClick={() => {
-            if (Date.now() - tapHandledAt.current < 700) return
+            if (Date.now() - tapHandledAt.current < 700 && tapHandledCell.current === index) return
             openCell(layout.cells[index])
           }}
           onPointerCancel={(event) => {
@@ -434,10 +443,21 @@ function HomeLauncher({ onOpen }: { onOpen: (id: HomeAppId) => void }) {
           >
             <label className="home-folder-name">
               <input
-                value={open.name}
+                value={renameDraft ?? open.name}
                 maxLength={24}
                 aria-label="Ordnername"
-                onChange={(event) => commit(renameHomeFolder(layout, open.id, event.target.value))}
+                onChange={(event) => setRenameDraft(event.target.value)}
+                onBlur={() => {
+                  if (renameDraft === null || !open) return
+                  const clean = renameDraft.replace(/\s+/g, ' ').trim().slice(0, 24)
+                  // Leerlassen bricht ab: der alte Name bleibt. Erst bei „Fertig“
+                  // (Feld verlassen / Enter) wird aufgeräumt und EINMAL gespeichert.
+                  if (clean) commit(renameHomeFolder(layout, open.id, clean))
+                  setRenameDraft(null)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') event.currentTarget.blur()
+                }}
               />
             </label>
             <div className="home-folder-grid">
@@ -577,7 +597,9 @@ export const HomeScreen = memo(function HomeScreen({
       {tischplatteOn && scan !== 'off' ? <ScanStage phase={scan} /> : null}
       {tischplatteOn && scan === 'off' ? <EntwurfStage /> : null}
       <div hidden={tischplatteOn} inert={tischplatteOn} aria-hidden={tischplatteOn}>
-        <HomeLauncher onOpen={onOpen} />
+        <PanelBoundary label="Startbildschirm">
+          <HomeLauncher onOpen={onOpen} />
+        </PanelBoundary>
       </div>
     </section>
   )

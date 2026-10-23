@@ -26,6 +26,7 @@ import {
   type ImportChoice,
 } from '../engine/backup.ts'
 import { applyIcsEvents } from '../engine/calendar.ts'
+import { captureHouse, restoreHouse, type HouseSnap } from '../engine/debug-house.ts'
 import {
   filterTopics,
   resolveTopic,
@@ -339,6 +340,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [backupMsg, setBackupMsg] = useState<string | null>(null)
   const [backupPreview, setBackupPreview] = useState<BackupPreview | null>(null)
   const [backupPending, setBackupPending] = useState<ImportChoice | null>(null)
+  /** Sicherheitskopie vor jedem Überschreiben-Import — damit „plötzlich ist
+   * alles weg“ immer einen Knopf zum Zurückholen hat. */
+  const [importSnap, setImportSnap] = useState<HouseSnap | null>(null)
 
   let hudOn: HudId[] = [...HUD_DEFAULT_ON]
   try {
@@ -2537,10 +2541,24 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 onClick={() => {
                   if (!backupPending) return
                   setBackupBusy(true)
-                  void (backupPending.kind === 'ics'
-                    ? applyIcsEvents(backupPending.events)
-                    : applyBackup(backupPending.data)
-                  )
+                  const apply = async () => {
+                    if (backupPending.kind !== 'ics') {
+                      // Vor dem Überschreiben eine Haus-Sicherung anlegen (B8) —
+                      // scheitert sie, wird der Import trotzdem versucht.
+                      let snap: HouseSnap | null = null
+                      try {
+                        snap = await captureHouse()
+                      } catch {
+                        snap = null
+                      }
+                      setImportSnap(snap)
+                      setBackupMsg(snap ? 'Sicherungskopie angelegt. Der Knopf darunter holt sie zurück.' : null)
+                    }
+                    return backupPending.kind === 'ics'
+                      ? applyIcsEvents(backupPending.events)
+                      : applyBackup(backupPending.data)
+                  }
+                  void apply()
                     .then((msg) => {
                       setBackupMsg(msg)
                       setBackupPending(null)
@@ -2558,6 +2576,22 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   : 'Ohne diesen Knopf ändert Import nichts.'}
               </p>
               {backupMsg ? <p className="settings-hint">{backupMsg}</p> : null}
+              {importSnap ? (
+                <button
+                  type="button"
+                  className="ghost-btn"
+                  disabled={busy || backupBusy}
+                  onClick={() => {
+                    setBackupBusy(true)
+                    void restoreHouse(importSnap)
+                      .then(() => setBackupMsg('Vorheriger Stand zurückgespielt.'))
+                      .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Zurückspielen fehlgeschlagen'))
+                      .finally(() => setBackupBusy(false))
+                  }}
+                >
+                  Import-Rückgängig: Stand von vor dem Überschreiben
+                </button>
+              ) : null}
             </section>
           ) : null}
 

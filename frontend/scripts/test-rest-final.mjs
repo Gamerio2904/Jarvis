@@ -141,7 +141,9 @@ assert.match(apply, /Debug-Lauf offen halten/)
 
 const chat = readFileSync(new URL('../src/engine/chat.ts', import.meta.url), 'utf8')
 assert.doesNotMatch(chat, /qualityPack\('e5'/)
-assert.doesNotMatch(chat, /lookupSmalltalk/)
+// 18.70: Der Antwort-Cache ist jetzt angeschlossen (Sofort-Antwort für Standard-Fragen).
+assert.match(chat, /lookupSmalltalk/)
+assert.match(chat, /rememberSmalltalk/)
 const retrieveSrc = readFileSync(new URL('../src/engine/retrieve.ts', import.meta.url), 'utf8')
 assert.match(retrieveSrc, /applyE5Rerank/)
 assert.doesNotMatch(retrieveSrc, /parseToolIntent|function pickRoute/)

@@ -14,6 +14,7 @@ import {
   type ShoppingItem,
 } from './store.ts'
 import { listLibrary } from './files.ts'
+import { bestPassage } from './library-rag.ts'
 import type { LibraryEntry } from './files.ts'
 import { formatDue } from './remind-parse.ts'
 import { qualityPack } from './quality-pack.ts'
@@ -336,13 +337,17 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
       .filter((h) => h.rank > 2.2)
     const libHits = library
       .map((entry) => {
+        // I6/RAG: Der beste Abschnitt statt nur der Anfang — „Was steht in dem
+        // Brief?“ bekommt die echte Passage ans Modell.
+        const pass = bestPassage(text, entry)
+        const body = pass.score > 0 ? pass.text.slice(0, 320) : (entry.summary || entry.text || entry.name).slice(0, 200)
         const blob = [entry.name, (entry.tags || []).join(' '), entry.summary || '', entry.text || ''].join(' ')
         return {
           store: 'library',
           title: `Bibliothek: ${entry.name}`,
-          body: (entry.summary || entry.text || entry.name).slice(0, 200),
+          body,
           id: entry.id,
-          rank: scoreBlob(q, blob) + 2.4,
+          rank: scoreBlob(q, blob) + 2.4 + (pass.score > 0 ? pass.score : 0),
         }
       })
       .filter((h) => h.rank > 2.4)
@@ -353,7 +358,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
 }
 
 export async function retrieve(text: string): Promise<RetrieveHit[]> {
-  const [memory, messages, convs, events, notes, reminders, shopping, knowledge, library] = await Promise.all([
+  const [memory, allMessages, convs, events, allNotes, reminders, shopping, knowledge, library] = await Promise.all([
     listMemory(),
     getAll<Message>('messages'),
     getAll<Conversation>('conversations'),
@@ -364,6 +369,11 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
     listKnowledgePacks(),
     listLibrary(),
   ])
+  // T3: Abruf-Korpus begrenzen — der Voll-Scan über die gesamte Historie wuchs
+  // mit jedem Chat und verlangsamte jeden Zug. Der Rückblick braucht keine
+  // 5 000 Nachrichten: die letzten 240 genügen, Notizen die letzten 120.
+  const messages = allMessages.slice(-240)
+  const notes = allNotes.slice(-120)
   const hits = retrieveFromCorpus(text, { memory, messages, convs, events, notes, reminders, shopping, knowledge, library })
   rememberRecallHits(hits)
   return hits

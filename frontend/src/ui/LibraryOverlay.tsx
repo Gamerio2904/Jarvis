@@ -124,6 +124,8 @@ export function LibraryOverlay({ onClose, leaving = false }: { onClose: () => vo
       const next = await (await import('../engine/files.ts')).getLibraryEntry(entry.id)
       setDetail(next)
       setError('')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Erneutes Lesen fehlgeschlagen (KI-Schlüssel prüfen?).')
     } finally {
       setBusy('')
     }

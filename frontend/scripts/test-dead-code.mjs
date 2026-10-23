@@ -126,6 +126,9 @@ const SCRIPT_ALLOW = new Set([
   'test-clipboard-image.mjs', 'test-cook.mjs', 'test-entwurf.mjs', 'test-expert.mjs', 'test-habits.mjs',
   'test-haus-link.mjs', 'test-image-ask.mjs', 'test-intro.mjs', 'test-portfolio.mjs', 'test-rm-ask.mjs',
   'test-shopping-lists.mjs', 'test-xfer.mjs',
+  // Werkzeug- und YGO-Bau- und Spezialtests, bewusst einzeln lauffähig.
+  'build-ygo-decks.mjs', 'enrich-ygo-effects.mjs', 'test-action-plan.mjs', 'test-cal-todo.mjs',
+  'test-folder-recipe.mjs', 'test-plan-chat.mjs', 'test-todo-write.mjs', 'test-yugioh-md.mjs',
 ])
 const orphanScripts = scriptFiles.filter((n) => {
   if (pkgText.includes(n.replace(/\.(mjs|mts)$/, '')) || pkgText.includes(n)) return false
