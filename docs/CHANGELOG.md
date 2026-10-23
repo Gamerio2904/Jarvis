@@ -3,6 +3,16 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## `18.67.0` — Bibliothek, Tags, Ordner-Fix — *CODE + TEST-APK*
+
+App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.67.0`** (versionCode `186700`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
+
+Neu: die **Bibliothek**. Bilder, Dokumente und Dateien werden hochgeladen und von Ultron gelesen — Bilder über Gemini (Inhalt, Themen, Ideen, Text im Bild), Textdateien direkt. Der Recall greift bei Fragen wie „was hatte ich für Ideen?" in die Bibliothek. Die Datei-Bytes liegen einmalig im Geräte-Cache, nur die Verknüpfung mit Lesetext geht in die Datenbank und mit dem Hausstand-Sync — kein redundanter Speicher. Der Buch-Lookup aus der alten `library` bleibt nicht berührt.
+
+Neu: **Tags** für Todos und Notizen. Im Editor per Feld oder mit `#tag` direkt im Text, per Sprache mit „tagge die notiz/aufgabe X mit Y". Jeder Tag hat eine stabile Farbe, Karten bekommen farbige Rahmen, Tag-Chips filtern die Liste, „nach Tag sortieren" gruppiert. Tags reisen mit dem Hausstand-Sync.
+
+Fix: das **Ordner-Raster** auf dem Homescreen schloss sich nach ~0,1 s wieder (Phantom-Klick auf den Backdrop nach dem Öffnen) und zitternde Taps bis 12 px zählen jetzt als Tap statt Drag — Ordner lassen sich wieder zuverlässig öffnen. Testsuite wächst um `test:tags` und `test:library`; Testanleitung und Beispielprompts in [`TEST-18.67.0.md`](./TEST-18.67.0.md).
+
 ## `18.66.15` — Ordnerraster, Rezepte, Fristen — *CODE + TEST-APK*
 
 App-Code, UI (`APP_VERSION`), `package.json` und Sideload-versionName **`18.66.15`** (versionCode `186615`). `engineStamp` bleibt **`18.60.0-ygo-md`**.
