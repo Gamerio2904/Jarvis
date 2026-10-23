@@ -11,7 +11,7 @@
  *   Textdateien direkt gelesen. Beides macht Einträge durchsuchbar und recall-fähig.
  */
 import { completeGeminiVision, geminiReady } from './gemini.ts'
-import { getAll, put, del, get } from './store.ts'
+import { getAll, put, del, get, recordTombstone } from './store.ts'
 import { mergeTags, normalizeTag } from './tags.ts'
 
 const LIB_CACHE = 'jarvis-library-files'
@@ -33,6 +33,9 @@ export type LibraryEntry = {
   /** Wo die Bytes liegen: auf diesem Gerät im Cache, oder auf dem Ursprungsgerät des Hausstands. */
   where: 'geraet' | 'ursprung'
   added_at: string
+  /** B10: letzte Änderung (Tags, Lesetext) — ohne Zeitstempel verliert jede
+   * Änderung beim Abgleich gegen den älteren Stand des anderen Geräts. */
+  updated_at?: string
   read_at?: string
 }
 
@@ -148,6 +151,7 @@ export async function addLibraryFiles(
       tags: [],
       where: 'geraet',
       added_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
     const stored = await storeBytes(entry.id, file.bytes)
     if (!stored) entry.where = 'ursprung'
@@ -191,7 +195,7 @@ export async function getLibraryEntry(id: string): Promise<LibraryEntry | null> 
 export async function updateLibraryTags(id: string, tags: string[]): Promise<LibraryEntry> {
   const row = await get<LibraryEntry>('library', id)
   if (!row) throw new Error('Der Bibliothekseintrag existiert nicht mehr.')
-  const updated: LibraryEntry = { ...row, tags: mergeTags(tags) }
+  const updated: LibraryEntry = { ...row, tags: mergeTags(tags), updated_at: new Date().toISOString() }
   await put('library', updated)
   emitLibrary()
   return updated
@@ -200,6 +204,7 @@ export async function updateLibraryTags(id: string, tags: string[]): Promise<Lib
 export async function deleteLibraryEntry(id: string): Promise<void> {
   if (!(await get<LibraryEntry>('library', id))) throw new Error('Der Bibliothekseintrag existiert nicht mehr.')
   await dropBytes(id)
+  recordTombstone(id)
   await del('library', id)
   emitLibrary()
 }
@@ -220,7 +225,7 @@ export async function readLibraryText(id: string): Promise<string | null> {
   if (!bytes) return null
   const summary = await describeImage(bytes, entry.mime, entry.name)
   if (summary) {
-    await put('library', { ...entry, summary, read_at: new Date().toISOString() })
+    await put('library', { ...entry, summary, read_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     emitLibrary()
   }
   return summary || null

@@ -1,6 +1,6 @@
 import { applyBackup, asBackup, buildBackup, type HausBackup } from './backup.ts'
 import { mergeHaus } from './server-merge.ts'
-import { APP_VERSION, loadSettings, muteStand, saveSettings, setStandAt, type Settings } from './store.ts'
+import { APP_VERSION, loadSettings, mergeTombstones, muteStand, saveSettings, setStandAt, type Settings } from './store.ts'
 import { compareStands, type SyncVerdict } from './sync-compare.ts'
 import { hausDiscover, hausPull, hausPush, hausServerStart, hausServerUpdate } from '../native/haus.ts'
 import { secureDelete, secureGet, securePut } from '../native/device.ts'
@@ -186,9 +186,15 @@ export async function syncWithTablet(): Promise<SyncOutcome> {
   const hint = /^https:\/\/([^:/]+)/.exec(s.sync_url)?.[1] || ''
   const found = await hausDiscover(token, s.sync_fingerprint, hint, port)
   if (!found.ok || !found.url) return { kind: 'error', line: found.message || 'Kein sicherer Server im lokalen Netz gefunden.' }
-  if (found.appVersion !== APP_VERSION || found.protocolVersion !== 3 || found.fingerprint !== s.sync_fingerprint) {
-    return { kind: 'error', line: `Versions- oder Sicherheitsabweichung. Lokal ${APP_VERSION}, Server ${found.appVersion || 'unbekannt'}. Nichts übertragen.` }
+  // B9: Protokoll und Fingerabdruck sind Pflicht — die App-Version ist nur
+  // noch ein Hinweis. Nach einem Update auf einem Gerät blockiert der Abgleich
+  // nicht mehr komplett; der Merge entscheidet per Zeitstempel.
+  if (found.protocolVersion !== 3 || found.fingerprint !== s.sync_fingerprint) {
+    return { kind: 'error', line: `Sicherheits- oder Protokollabweichung. Lokal ${APP_VERSION}, Server ${found.appVersion || 'unbekannt'}. Nichts übertragen.` }
   }
+  const versionNote = found.appVersion && found.appVersion !== APP_VERSION
+    ? ` (Versionsunterschied: lokal ${APP_VERSION}, Server ${found.appVersion} — Abgleich läuft trotzdem)`
+    : ''
   if (found.url !== s.sync_url) saveSettings({ sync_url: found.url })
   const mine = await buildBackup(true)
   const localRevision = parseSyncRevision(mine.sync_revision)
@@ -198,7 +204,7 @@ export async function syncWithTablet(): Promise<SyncOutcome> {
   }
   const verdict = compareRevisions(localRevision, remoteRevision)
   const dataUrl = found.url
-  if (verdict === 'same') return { kind: 'none', line: 'Hausstand ist aktuell.' }
+  if (verdict === 'same') return { kind: 'none', line: `Hausstand ist aktuell.${versionNote}` }
   if (verdict === 'conflict') {
     return {
       kind: 'conflict',
@@ -219,7 +225,7 @@ export async function syncWithTablet(): Promise<SyncOutcome> {
     }
     const ok = await applyRemoteStand(data)
     return ok
-      ? { kind: 'pulled', line: 'Hausstand vom Tablet übernommen.' }
+      ? { kind: 'pulled', line: `Hausstand vom Tablet übernommen.${versionNote}` }
       : { kind: 'error', line: 'Übernahme fehlgeschlagen. Alter Stand ist zurück.' }
   }
   const sent = await hausPush(dataUrl, JSON.stringify(mine), token, s.sync_fingerprint)
@@ -228,7 +234,7 @@ export async function syncWithTablet(): Promise<SyncOutcome> {
   if (ack?.status === 'applied' && acknowledged?.contentHash === localRevision.contentHash &&
       compareRevisions(localRevision, acknowledged) === 'same') {
     adoptRevisionVector(acknowledged.vector)
-    return { kind: 'pushed', line: 'Der neuere Hausstand wurde übertragen und bestätigt.' }
+    return { kind: 'pushed', line: `Der neuere Hausstand wurde übertragen und bestätigt.${versionNote}` }
   }
   if (ack?.status === 'conflict') {
     return { kind: 'conflict', line: 'Das Tablet hat eigene Änderungen. Beide Stände bleiben erhalten; bitte Quelle und Ziel ausdrücklich wählen.' }
@@ -270,8 +276,8 @@ export async function reconcilePairedStand(): Promise<{ ok: boolean; line: strin
   const hint = /^https:\/\/([^:/]+)/.exec(s.sync_url)?.[1] || ''
   const found = await hausDiscover(token, s.sync_fingerprint, hint, port)
   if (!found.ok || !found.url) return { ok: false, line: found.message || 'Kein HTTPS-Server im lokalen Netz gefunden.', added: 0 }
-  if (found.appVersion !== APP_VERSION || found.protocolVersion !== 3 || found.fingerprint !== s.sync_fingerprint) {
-    return { ok: false, line: `Versions- oder Sicherheitsabweichung. Lokal ${APP_VERSION}, Server ${found.appVersion || 'unbekannt'}. Nichts übertragen.`, added: 0 }
+  if (found.protocolVersion !== 3 || found.fingerprint !== s.sync_fingerprint) {
+    return { ok: false, line: `Sicherheits- oder Protokollabweichung. Lokal ${APP_VERSION}, Server ${found.appVersion || 'unbekannt'}. Nichts übertragen.`, added: 0 }
   }
   const got = await hausPull(found.url, token, s.sync_fingerprint)
   const remote = got.ok && got.json ? asBackup(safeJson(got.json)) : null
@@ -284,6 +290,8 @@ export async function reconcilePairedStand(): Promise<{ ok: boolean; line: strin
   const remoteRev = parseSyncRevision(remote.sync_revision)
   if (!localRev || !remoteRev) return { ok: false, line: 'Eine Geräte-Revision fehlt. Nichts geändert.', added: 0 }
   const { backup, added } = mergeHaus(local, remote)
+  // Grabsteine beider Seiten lernen — danach bleiben Löschungen auf beiden Geräten
+  mergeTombstones((remote.settings as Partial<Settings> | undefined)?.sync_tombstones_json || '')
   const keep = pickLocal(loadSettings())
   muteStand(true)
   try {

@@ -133,6 +133,23 @@ assert.equal(/** @type {any} */ (merged.backup.library)?.[0]?.id, 'lib-a')
 assert.ok(JSON.stringify(merged.backup.settings.home_layout_json).includes('folder'), 'neueres Ordner-Layout gewinnt')
 assert.equal(/** @type {any} */ (merged.backup.settings)?.theme_hint, 'dunkel', 'andere Einstellungen bleiben lokal, Fülllogik unverändert')
 
+// 9b. Grabsteine: lokal gelöscht bleibt gelöscht, auch wenn das andere Gerät
+// den Eintrag noch hat (B6) — und der Grabstein reist mit.
+const dead = {
+  ...local,
+  settings: { ...local.settings, sync_tombstones_json: '[{"id":"todo-1","at":"2026-10-22T08:00:00.000Z"}]' },
+  todos: [row('todo-1', '2026-10-20T12:00:00.000Z'), row('todo-2', '2026-10-20T12:00:00.000Z')],
+}
+const remoteAlive = {
+  ...remote,
+  settings: { ...remote.settings },
+  todos: [row('todo-1', '2026-10-20T12:00:00.000Z')],
+}
+const merged2 = mergeHaus(/** @type {any} */ (dead), /** @type {any} */ (remoteAlive))
+const ids = ((/** @type {any} */ (merged2.backup.todos)) || []).map((r) => r.id)
+assert.deepEqual(ids, ['todo-2'], 'gelöschtes Todo kommt nicht zurück')
+assert.ok(JSON.stringify((/** @type {any} */ (merged2.backup.settings))?.sync_tombstones_json || '[]').includes('todo-1'), 'Grabstein reist mit')
+
 // 10. polishTitle: Grundregeln + 18.70-Fälle
 assert.equal(polishTitle('setzte minecraft'), 'Minecraft')
 assert.equal(polishTitle('hausaufgaben in gm machen'), 'Hausaufgaben in GM machen')

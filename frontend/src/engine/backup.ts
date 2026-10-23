@@ -451,6 +451,8 @@ export async function applyBackup(data: HausBackup): Promise<string> {
     ...DEFAULT_SETTINGS,
     ...stripSettings({ ...data.settings }),
   }
+  // Stempel sind die eigene Änderungshistorie — ein Fremdstand löscht sie nicht.
+  next.settings_stamps_json = loadSettings().settings_stamps_json
   const geminiWasOff = Boolean(next.gemini_api_key.trim()) && !next.gemini_enabled
   if (next.gemini_api_key.trim()) next.gemini_enabled = true
   saveSettings(next)
