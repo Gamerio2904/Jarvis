@@ -906,6 +906,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     try {
       await removeEvent(id)
       await reload()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Termin konnte nicht gelöscht werden')
     } finally {
       setBusy(false)
     }
@@ -933,7 +935,12 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       return
     }
     const info = dragRef.current
-    dragRef.current = null
+    // Erst im nächsten Bild-Durchlauf leeren: Der Grid-Pointerup prüft im selben
+    // Event, ob gerade ein Karten-Drag läuft — leert man vorher, zählt das
+    // waagrechte Ziehen zusätzlich als Monatswechsel (B3).
+    window.setTimeout(() => {
+      if (dragRef.current === info) dragRef.current = null
+    }, 0)
     if (ghost) ghost.hidden = true
     const day = paintDrop(x, y)
     document.querySelectorAll('.cal-view .is-drop').forEach((node) => node.classList.remove('is-drop'))

@@ -194,6 +194,9 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
   const [sheetDrag, setSheetDrag] = useState(0)
   const sheetStartY = useRef<number | null>(null)
   const sheetDragRef = useRef(0)
+  /** Doppel-Tap-Schutz: „Speichern“ legt sonst beim Doppeltippen dasselbe
+   * Todo zweimal an. */
+  const saving = useRef(false)
   const reduced = prefersReducedMotion()
 
   const refresh = useCallback(async () => {
@@ -250,7 +253,8 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
 
   async function saveTask() {
     const name = title.trim()
-    if (!name) return
+    if (!name || saving.current) return
+    saving.current = true
     try {
       const tags = tagDraft
         .split(/[,:\s]+/)
@@ -262,6 +266,8 @@ export function TodoListsOverlay({ onClose, leaving = false }: { onClose: () => 
       await refresh()
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Todo konnte nicht gespeichert werden.')
+    } finally {
+      saving.current = false
     }
   }
 

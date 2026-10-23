@@ -27,7 +27,11 @@ export function ServerOverlay({ onClose, leaving = false }: { onClose: () => voi
   const [line, setLine] = useState('')
 
   const refresh = useCallback(async () => {
-    setHealth(await serverHealth())
+    try {
+      setHealth(await serverHealth())
+    } catch (cause) {
+      setHealth({ running: false, message: cause instanceof Error ? cause.message : 'Status nicht lesbar' } as ServerHealth)
+    }
     setDevices(listServerDevices())
     setLog(listServerLog())
     setQr(serverQr())
@@ -53,6 +57,8 @@ export function ServerOverlay({ onClose, leaving = false }: { onClose: () => voi
       setQr(serverQr())
       setLog(listServerLog())
       setLine(next.running ? 'Server läuft über HTTPS.' : next.message)
+    } catch (cause) {
+      setLine(cause instanceof Error ? `Start fehlgeschlagen: ${cause.message}` : 'Start fehlgeschlagen.')
     } finally {
       setBusy('')
     }
@@ -67,6 +73,8 @@ export function ServerOverlay({ onClose, leaving = false }: { onClose: () => voi
       setQr('')
       setLog(listServerLog())
       setLine(next.message)
+    } catch (cause) {
+      setLine(cause instanceof Error ? `Beenden fehlgeschlagen: ${cause.message}` : 'Beenden fehlgeschlagen.')
     } finally {
       setBusy('')
     }
@@ -79,6 +87,8 @@ export function ServerOverlay({ onClose, leaving = false }: { onClose: () => voi
       setLine(await connectServerDevice(id))
       setDevices(listServerDevices())
       setLog(listServerLog())
+    } catch (cause) {
+      setLine(cause instanceof Error ? `Verbinden fehlgeschlagen: ${cause.message}` : 'Verbinden fehlgeschlagen.')
     } finally {
       setBusy('')
     }
@@ -98,6 +108,8 @@ export function ServerOverlay({ onClose, leaving = false }: { onClose: () => voi
       setLine(src
         ? 'Code bereithalten. Auf dem anderen Gerät: Scanne QR Code.'
         : 'Der Code kommt, sobald der HTTPS-Server in der App läuft.')
+    } catch (cause) {
+      setLine(cause instanceof Error ? `Neues Gerät fehlgeschlagen: ${cause.message}` : 'Neues Gerät fehlgeschlagen.')
     } finally {
       setBusy('')
     }

@@ -109,11 +109,14 @@ export function applyHomeDrop(layout: HomeLayout, from: number, to: number, hove
 
 export function renameHomeFolder(layout: HomeLayout, folderId: string, name: string): HomeLayout {
   const clean = name.replace(/\s+/g, ' ').trim().slice(0, 24)
+  // Leeres Feld bricht das Umbenennen ab — der alte Name bleibt (kein
+  // Überraschungs-Rückfall auf „Ordner“).
+  if (!clean) return layout
   return {
     ...layout,
     cells: layout.cells.map((cell) => {
       if (!cell || cell.kind !== 'folder' || cell.folder.id !== folderId) return cell
-      return { kind: 'folder', folder: { ...cell.folder, name: clean || 'Ordner' } }
+      return { kind: 'folder', folder: { ...cell.folder, name: clean } }
     }),
   }
 }
